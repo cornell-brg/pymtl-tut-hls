@@ -96,25 +96,22 @@ class IteratorTranslationUnitFL( Model ):
         # get the configuration message
         req = s.cfg.get_req()
 
+        # check if it is a write request
+        if req.type_ == 1 and not req.addr == 1:
+          s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
+
         # dstruct alloc
         if   req.addr == 1:
           for idx,val in enumerate( s.dstruct ):
             if   val == 0:
-              s.cfg.push_resp( idx )
+              s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, idx ) )
               s.data_type[ idx ] = req.data
               break
             elif idx == ( len( s.dstruct ) - 1 ):
-              s.cfg.push_resp( -1 )
+              s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, -1 ) )
 
-        # dstruct init
-        elif req.addr == 2:
-          s.dstruct[ req.id ] = req.data
-          s.cfg.push_resp( 0 )
-
-        # dstruct dealloc
-        elif req.addr == 3:
-          s.dstruct[ req.data ] = 0
-          s.cfg.push_resp( 0 )
+        elif req.addr == 2: s.dstruct[ req.id ] = req.data  # dstruct init
+        elif req.addr == 3: s.dstruct[ req.data ] = 0       # dstruct dealloc
 
       if   not s.accel.req_q.empty() and not s.mem.req_q.full():
 
