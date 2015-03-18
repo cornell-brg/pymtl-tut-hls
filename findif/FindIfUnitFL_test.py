@@ -111,11 +111,26 @@ def run_asu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
   sim.cycle()
   sim.cycle()
 
-  # Start the ITU configuration
+  # Alloc data structure
   model.itu.cfg_ifc.req_val.next      = 1
-  model.itu.cfg_ifc.req_msg.data.next = vec_base_addr
-  model.itu.cfg_ifc.req_msg.addr.next = 2
-  model.itu.cfg_ifc.req_msg.id.next   = 1
+  model.itu.cfg_ifc.req_msg.data.next = 1 # request for vector of ints
+  model.itu.cfg_ifc.req_msg.addr.next = 1 # alloc
+  model.itu.cfg_ifc.req_msg.id.next   = 0 # dont care for now
+  model.itu.cfg_ifc.resp_rdy.next     = 1
+
+  sim.cycle()
+
+  # ds-id allocated by the itu
+  alloc_ds_id = model.itu.cfg_ifc.resp_msg.data
+
+  sim.cycle()
+  sim.cycle()
+
+  # Init data structure
+  model.itu.cfg_ifc.req_val.next      = 1
+  model.itu.cfg_ifc.req_msg.data.next = vec_base_addr # base addr
+  model.itu.cfg_ifc.req_msg.addr.next = 2             # init
+  model.itu.cfg_ifc.req_msg.id.next   = alloc_ds_id   # id of the ds
 
   sim.cycle()
   sim.cycle()
@@ -127,6 +142,7 @@ def run_asu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
   sim.cycle()
 
   # Allow source to inject messages
+  model.itu.cfg_ifc.resp_rdy.next     = 0
   model.go.next = 1
 
   while not model.done() and sim.ncycles < 250:
@@ -162,9 +178,9 @@ resp = CoprocessorMsg( 5, 32, 32).resp.mk_resp
 
 # configure the asu state and expect a response for a given predicate
 basic_msgs = [
-              req  ( 1, 1, 1, 0 ), resp( 1, 0 ),# first ds-id
+              req  ( 1, 1, 0, 0 ), resp( 1, 0 ),# first ds-id
               req  ( 1, 2, 0, 0 ), resp( 1, 0 ),# first index
-              req  ( 1, 3, 1, 0 ), resp( 1, 0 ),# last ds-id
+              req  ( 1, 3, 0, 0 ), resp( 1, 0 ),# last ds-id
               req  ( 1, 4, 7, 0 ), resp( 1, 0 ),# last index
               req  ( 1, 5, 4, 0 ), resp( 1, 0 ),# predicate val = IsEven
               req  ( 1, 0, 0, 0 ), resp( 1, 0 ),# go

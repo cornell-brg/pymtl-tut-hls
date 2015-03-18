@@ -103,8 +103,8 @@ def run_itu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
 
   # ds-id allocated by the itu
   alloc_ds_id = model.itu.cfg_ifc.resp_msg.data
-  print "Allocated", alloc_ds_id
 
+  sim.cycle()
   sim.cycle()
 
   # Init data structure
