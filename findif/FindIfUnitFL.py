@@ -46,8 +46,16 @@ class FindIfUnitFL( Model ):
     # boolean flag to check if only one request is in flight
     s.itu_req_set      = False
 
-    # Implementation
+    # helper function to apply the predicate
+    def predicate( data ):
 
+      if   s.predicate_val == 0: return data > 0
+      elif s.predicate_val == 1: return data < 0
+      elif s.predicate_val == 2: return data == 0
+      elif s.predicate_val == 3: return ( data % 2 ) == 1
+      elif s.predicate_val == 4: return ( data % 2 ) == 0
+
+    # Implementation
     @s.tick_fl
     def logic():
       s.cfg.xtick()
@@ -62,35 +70,16 @@ class FindIfUnitFL( Model ):
         # check if it is a write request
         if req.type_ == 1:
 
-          # set go state
-          if   req.addr == 0:
-            s.go = True
-            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
+          # send the ack for mtx messages
+          s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
 
-          # set iter first ds-id
-          elif req.addr == 1:
-            s.iter_first_ds_id = req.data
-            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
-
-          # set iter first index
-          elif req.addr == 2:
-            s.iter_first_index = req.data
-            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
-
-          # set iter last ds-id
-          elif req.addr == 3:
-            s.iter_last_ds_id = req.data
-            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
-
-          # set iter last index
-          elif req.addr == 4:
-            s.iter_last_index = req.data
-            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
-
-          # set predicate value
-          elif req.addr == 5:
-            s.predicate_val = req.data
-            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
+          # check the address and configure
+          if   req.addr == 0: s.go = True                   # go
+          elif req.addr == 1: s.iter_first_ds_id = req.data # first ds-id
+          elif req.addr == 2: s.iter_first_index = req.data # first index
+          elif req.addr == 3: s.iter_last_ds_id  = req.data # last ds-id
+          elif req.addr == 4: s.iter_last_index  = req.data # last index
+          elif req.addr == 5: s.predicate_val    = req.data # predicate
 
       # Go State
       if s.go:
@@ -123,50 +112,13 @@ class FindIfUnitFL( Model ):
           if not s.itu.resp_q.empty() and s.itu_req_set:
             resp = s.itu.get_resp()
 
-            # greater than zero
-            if   s.predicate_val == 0:
-              if resp.data > 0:
-                s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 0, s.iter_first_index ) )
-                s.go = False
-              else:
-                s.iter_first_index = s.iter_first_index + 1
-                s.itu_req_set = False
-
-            # lesser than zero
-            elif s.predicate_val == 1:
-              if resp.data < 0:
-                s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 0, s.iter_first_index ) )
-                s.go = False
-              else:
-                s.iter_first_index = s.iter_first_index + 1
-                s.itu_req_set = False
-
-            # equal to zero
-            elif s.predicate_val == 2:
-              if resp.data == 0:
-                s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 0, s.iter_first_index ) )
-                s.go = False
-              else:
-                s.iter_first_index = s.iter_first_index + 1
-                s.itu_req_set = False
-
-            # is odd
-            elif s.predicate_val == 3:
-              if resp.data % 2 == 1:
-                s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 0, s.iter_first_index ) )
-                s.go = False
-              else:
-                s.iter_first_index = s.iter_first_index + 1
-                s.itu_req_set = False
-
-            # is even
-            elif s.predicate_val == 4:
-              if resp.data % 2 == 0:
-                s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 0, s.iter_first_index ) )
-                s.go = False
-              else:
-                s.iter_first_index = s.iter_first_index + 1
-                s.itu_req_set = False
+            # apply predicate
+            if predicate( resp.data ):
+              s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 0, s.iter_first_index ) )
+              s.go = False
+            else:
+              s.iter_first_index = s.iter_first_index + 1
+              s.itu_req_set = False
 
   #-----------------------------------------------------------------------
   # line_trace
