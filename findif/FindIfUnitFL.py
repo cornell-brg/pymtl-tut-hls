@@ -46,6 +46,9 @@ class FindIfUnitFL( Model ):
     # boolean flag to check if only one request is in flight
     s.itu_req_set      = False
 
+    #---------------------------------------------------------------------
+    # predicate helper function
+    #---------------------------------------------------------------------
     # helper function to apply the predicate
     def predicate( data ):
 
@@ -55,13 +58,17 @@ class FindIfUnitFL( Model ):
       elif s.predicate_val == 3: return ( data % 2 ) == 1
       elif s.predicate_val == 4: return ( data % 2 ) == 0
 
+    #---------------------------------------------------------------------
     # Implementation
+    #---------------------------------------------------------------------
     @s.tick_fl
     def logic():
       s.cfg.xtick()
       s.itu.xtick()
 
-      # Configure State
+      #-------------------------------------------------------------------
+      # Configure the ASU
+      #-------------------------------------------------------------------
       if not s.cfg.req_q.empty() and not s.cfg.resp_q.full():
 
         # get the coprocessor message
@@ -81,7 +88,9 @@ class FindIfUnitFL( Model ):
           elif req.addr == 4: s.iter_last_index  = req.data # last index
           elif req.addr == 5: s.predicate_val    = req.data # predicate
 
+      #-------------------------------------------------------------------
       # Go State
+      #-------------------------------------------------------------------
       if s.go:
 
         # if the iterators dont't belong to the same data structure bail
@@ -98,7 +107,9 @@ class FindIfUnitFL( Model ):
             s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 0, s.iter_last_index ) )
             s.go = False
 
+        #-----------------------------------------------------------------
         # compute find-if
+        #-----------------------------------------------------------------
         else:
 
           # set load request

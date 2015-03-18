@@ -41,6 +41,9 @@ class IteratorTranslationUnitFL( Model ):
     s.list_float     = 6 # list   of floats
     s.list_pointer   = 8 # list   of pointers
 
+    #---------------------------------------------------------------------
+    # translate iterator
+    #---------------------------------------------------------------------
     # helper function that translates an iterator request message to a
     # memory request message
     def translate_iterator( accel_req ):
@@ -83,14 +86,18 @@ class IteratorTranslationUnitFL( Model ):
       # return the memory message
       return s.mem_ifc.req.mk_msg( mem_type_, mem_addr, mem_len, mem_data )
 
+    #---------------------------------------------------------------------
     # Implementation
-
+    #---------------------------------------------------------------------
     @s.tick_fl
     def logic():
       s.cfg.xtick()
       s.accel.xtick()
       s.mem.xtick()
 
+      #-------------------------------------------------------------------
+      # configure the ITU
+      #-------------------------------------------------------------------
       if not s.cfg.req_q.empty() and not s.cfg.resp_q.full():
 
         # get the configuration message
@@ -113,6 +120,9 @@ class IteratorTranslationUnitFL( Model ):
         elif req.addr == 2: s.dstruct[ req.id ] = req.data  # dstruct init
         elif req.addr == 3: s.dstruct[ req.data ] = 0       # dstruct dealloc
 
+      #-------------------------------------------------------------------
+      # send out memory requests coming the ASU
+      #-------------------------------------------------------------------
       if   not s.accel.req_q.empty() and not s.mem.req_q.full():
 
         # get the accelerator request
@@ -122,6 +132,9 @@ class IteratorTranslationUnitFL( Model ):
         # send the memory request
         s.mem.push_req( mem_req )
 
+      #-------------------------------------------------------------------
+      # send back memory responses to ASU
+      #-------------------------------------------------------------------
       if not s.mem.resp_q.empty() and not s.accel.resp_q.full():
 
         # get the memory response
