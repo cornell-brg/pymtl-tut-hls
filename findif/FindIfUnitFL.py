@@ -43,6 +43,7 @@ class FindIfUnitFL( Model ):
     s.iter_last_index  = 0      # reg 4
     s.predicate_val    = 0      # reg 5
 
+    # boolean flag to check if only one request is in flight
     s.itu_req_set      = False
 
     # Implementation
@@ -53,41 +54,48 @@ class FindIfUnitFL( Model ):
       s.itu.xtick()
 
       # Configure State
-      # TBD: need to send ack's for cfg messages
       if not s.cfg.req_q.empty() and not s.cfg.resp_q.full():
 
         # get the coprocessor message
         req = s.cfg_ifc.req.unpck( s.cfg.get_req() )
 
-        # set go state
-        if   req.addr == 0 and req.type_ == 1:
-          s.go = True
+        # check if it is a write request
+        if req.type_ == 1:
 
-        # set iter first ds-id
-        elif req.addr == 1 and req.type_ == 1:
-          s.iter_first_ds_id = req.data
+          # set go state
+          if   req.addr == 0:
+            s.go = True
+            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
 
-        # set iter first index
-        elif req.addr == 2 and req.type_ == 1:
-          s.iter_first_index = req.data
+          # set iter first ds-id
+          elif req.addr == 1:
+            s.iter_first_ds_id = req.data
+            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
 
-        # set iter last ds-id
-        elif req.addr == 3 and req.type_ == 1:
-          s.iter_last_ds_id = req.data
+          # set iter first index
+          elif req.addr == 2:
+            s.iter_first_index = req.data
+            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
 
-        # set iter last index
-        elif req.addr == 4 and req.type_ == 1:
-          s.iter_last_index = req.data
+          # set iter last ds-id
+          elif req.addr == 3:
+            s.iter_last_ds_id = req.data
+            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
 
-        # set predicate value
-        elif req.addr == 5 and req.type_ == 1:
-          s.predicate_val = req.data
+          # set iter last index
+          elif req.addr == 4:
+            s.iter_last_index = req.data
+            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
+
+          # set predicate value
+          elif req.addr == 5:
+            s.predicate_val = req.data
+            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
 
       # Go State
       if s.go:
 
-        # check if the iterators belong to the same data structure and bail
-        # if not
+        # if the iterators dont't belong to the same data structure bail
         if not s.iter_first_ds_id == s.iter_last_ds_id:
           # return the last iterator index
           if not s.cfg.resp_q.full():

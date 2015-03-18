@@ -162,13 +162,13 @@ resp = CoprocessorMsg( 5, 32, 32).resp.mk_resp
 
 # configure the asu state and expect a response for a given predicate
 basic_msgs = [
-              req  ( 1, 1, 1, 0 ), # first ds-id
-              req  ( 1, 2, 0, 0 ), # first index
-              req  ( 1, 3, 1, 0 ), # last ds-id
-              req  ( 1, 4, 7, 0 ), # last index
-              req  ( 1, 5, 4, 0 ), # predicate val = IsEven
-              req  ( 1, 0, 0, 0 ), # go
-              [resp(      0, 6 )]
+              req  ( 1, 1, 1, 0 ), resp( 1, 0 ),# first ds-id
+              req  ( 1, 2, 0, 0 ), resp( 1, 0 ),# first index
+              req  ( 1, 3, 1, 0 ), resp( 1, 0 ),# last ds-id
+              req  ( 1, 4, 7, 0 ), resp( 1, 0 ),# last index
+              req  ( 1, 5, 4, 0 ), resp( 1, 0 ),# predicate val = IsEven
+              req  ( 1, 0, 0, 0 ), resp( 1, 0 ),# go
+              req  ( 0, 0, 0, 0 ), resp( 0, 6 ) # check done
              ]
 
 #-------------------------------------------------------------------------
@@ -192,8 +192,8 @@ def test( test_params, dump_vcd ):
 
   run_asu_test( TestHarness(  FindIfUnitFL,
                               ITU,
-                              test_params.msgs[:-1],
-                              test_params.msgs[-1],
+                              test_params.msgs[::2],
+                              test_params.msgs[1::2],
                               test_params.src_delay,
                               test_params.sink_delay, 0 ),
                 test_params.vec_base,
