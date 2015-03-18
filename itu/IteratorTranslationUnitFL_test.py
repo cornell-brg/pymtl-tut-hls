@@ -92,11 +92,26 @@ def run_itu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
   sim.cycle()
   sim.cycle()
 
+  # Alloc data structure
+  model.itu.cfg_ifc.req_val.next      = 1
+  model.itu.cfg_ifc.req_msg.data.next = 1 # request for vector of ints
+  model.itu.cfg_ifc.req_msg.addr.next = 1 # alloc
+  model.itu.cfg_ifc.req_msg.id.next   = 0 # dont care for now
+  model.itu.cfg_ifc.resp_rdy.next     = 1
+
+  sim.cycle()
+
+  # ds-id allocated by the itu
+  alloc_ds_id = model.itu.cfg_ifc.resp_msg.data
+  print "Allocated", alloc_ds_id
+
+  sim.cycle()
+
   # Init data structure
   model.itu.cfg_ifc.req_val.next      = 1
-  model.itu.cfg_ifc.req_msg.data.next = vec_base_addr
-  model.itu.cfg_ifc.req_msg.addr.next = 2
-  model.itu.cfg_ifc.req_msg.id.next   = 1
+  model.itu.cfg_ifc.req_msg.data.next = vec_base_addr # base addr
+  model.itu.cfg_ifc.req_msg.addr.next = 2             # init
+  model.itu.cfg_ifc.req_msg.id.next   = alloc_ds_id   # id of the ds
 
   sim.cycle()
   sim.cycle()
@@ -108,6 +123,7 @@ def run_itu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
   sim.cycle()
 
   # Allow source to inject messages
+  model.itu.cfg_ifc.resp_rdy.next  = 0
   model.go.next = 1
 
   while not model.done() and sim.ncycles < 80:
@@ -156,12 +172,12 @@ preload_mem_array = mem_array_32bit( 8, [1,2,3,4] )
 # messages that assume memory is preloaded and test for the case using the
 # data structure with an id value to be 1
 basic_msgs = [
-  req_rd( 1, 0, 0 ), resp_rd( 0x00000001 ),
-  req_rd( 1, 1, 0 ), resp_rd( 0x00000002 ),
-  req_rd( 1, 2, 0 ), resp_rd( 0x00000003 ),
-  req_rd( 1, 3, 0 ), resp_rd( 0x00000004 ),
-  req_wr( 1, 0, 7 ), resp_wr( 0x00000000 ),
-  req_rd( 1, 0, 0 ), resp_rd( 0x00000007 ),
+  req_rd( 0, 0, 0 ), resp_rd( 0x00000001 ),
+  req_rd( 0, 1, 0 ), resp_rd( 0x00000002 ),
+  req_rd( 0, 2, 0 ), resp_rd( 0x00000003 ),
+  req_rd( 0, 3, 0 ), resp_rd( 0x00000004 ),
+  req_wr( 0, 0, 7 ), resp_wr( 0x00000000 ),
+  req_rd( 0, 0, 0 ), resp_rd( 0x00000007 ),
 ]
 
 #-------------------------------------------------------------------------
