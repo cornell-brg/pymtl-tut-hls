@@ -65,10 +65,11 @@ class IteratorTranslationUnitFL( Model ):
       elif  s.dstruct_type == s.vector_int:
         # BASE + INDEX * SIZE( INT )
         # convert the base address to suit the ListMemPortAdapter
-        base     = s.dstruct[ accel_req.ds_id ] / 4 #sizeof( int )
+        base     = s.dstruct[ accel_req.ds_id ] / 4 # sizeof( int )
         # the offset is remains the same
         offset   = accel_req.index
         mem_addr = base + offset
+        return mem_addr
       elif  s.dstruct_type == s.vector_float:
         # BASE + INDEX * SIZE( FLOAT )
         # TBD
@@ -77,9 +78,14 @@ class IteratorTranslationUnitFL( Model ):
         # BASE + INDEX * SIZE( FLOAT )
         # TBD
         pass
-
-      # return the memory message
-      return mem_addr
+      elif  s.dstruct_type == s.list_int:
+        # convert the base address to suit the ListMemPortAdapter
+        node_ptr = s.dstruct[ accel_req.ds_id ] / 4 # sizeof( int )
+        if not accel_req.index == 0:
+          for i in xrange(  accel_req.index ):
+            # load from node_ptr
+            node_ptr = s.mem[ node_ptr + 2 ] / 4 # sizeof( int )
+        return node_ptr
 
     #---------------------------------------------------------------------
     # Implementation

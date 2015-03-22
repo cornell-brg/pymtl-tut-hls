@@ -69,7 +69,7 @@ class TestHarness( Model ):
 #------------------------------------------------------------------------------
 # run_itu_test
 #------------------------------------------------------------------------------
-def run_itu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
+def run_itu_test( model, mem_array, ds_type, dump_vcd = None ):
 
   # Elaborate
   model.vcd_file = dump_vcd
@@ -91,11 +91,11 @@ def run_itu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
   sim.cycle()
 
   # Alloc data structure
-  model.itu.cfg_ifc.req_val.next       = 1 # set the request
-  model.itu.cfg_ifc.req_msg.type_.next = 1 # write request
-  model.itu.cfg_ifc.req_msg.data.next  = 1 # request for vector of ints
-  model.itu.cfg_ifc.req_msg.addr.next  = 1 # alloc
-  model.itu.cfg_ifc.req_msg.id.next    = 0 # dont care for now
+  model.itu.cfg_ifc.req_val.next       = 1       # set the request
+  model.itu.cfg_ifc.req_msg.type_.next = 1       # write request
+  model.itu.cfg_ifc.req_msg.data.next  = ds_type # request for vector of ints
+  model.itu.cfg_ifc.req_msg.addr.next  = 1       # alloc
+  model.itu.cfg_ifc.req_msg.id.next    = 0       # dont care for now
   model.itu.cfg_ifc.resp_rdy.next      = 1
 
   sim.cycle()
@@ -107,9 +107,9 @@ def run_itu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
   sim.cycle()
 
   # Init data structure
-  model.itu.cfg_ifc.req_msg.data.next = vec_base_addr # base addr
-  model.itu.cfg_ifc.req_msg.addr.next = 2             # init
-  model.itu.cfg_ifc.req_msg.id.next   = alloc_ds_id   # id of the ds
+  model.itu.cfg_ifc.req_msg.data.next = mem_array[0] # base addr
+  model.itu.cfg_ifc.req_msg.addr.next = 2            # init
+  model.itu.cfg_ifc.req_msg.id.next   = alloc_ds_id  # id of the ds
 
   sim.cycle()
   sim.cycle()
@@ -124,7 +124,7 @@ def run_itu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
   model.itu.cfg_ifc.resp_rdy.next  = 0
   model.go.next = 1
 
-  while not model.done() and sim.ncycles < 80:
+  while not model.done() and sim.ncycles < 200:
     sim.print_line_trace()
     sim.cycle()
   sim.print_line_trace()
@@ -144,7 +144,7 @@ def mem_array_32bit( base_addr, data ):
   return [base_addr, bytes]
 
 #------------------------------------------------------------------------------
-# Test src/sink messages
+# Helper functions for Test src/sink messages
 #------------------------------------------------------------------------------
 
 req  = IteratorMsg( 32 ).req.mk_req
@@ -162,12 +162,16 @@ def resp_wr( data ):
 def resp_rd(  data ):
   return resp( 0, data )
 
+#------------------------------------------------------------------------------
+# Memory array and messages to test vector of integers
+#------------------------------------------------------------------------------
+
 # preload the memory to known values
-preload_mem_array = mem_array_32bit( 8, [1,2,3,4] )
+vec_mem = mem_array_32bit( 8, [1,2,3,4] )
 
 # messages that assume memory is preloaded and test for the case using the
-# data structure with an id value to be 1
-basic_msgs = [
+# data structure with an id value to be 0
+vector_int_msgs = [
   req_rd( 0, 0, 0 ), resp_rd( 0x00000001 ),
   req_rd( 0, 1, 0 ), resp_rd( 0x00000002 ),
   req_rd( 0, 2, 0 ), resp_rd( 0x00000003 ),
@@ -176,16 +180,49 @@ basic_msgs = [
   req_rd( 0, 0, 0 ), resp_rd( 0x00000007 ),
 ]
 
+#------------------------------------------------------------------------------
+# Memory array and messages to test list of integers
+#------------------------------------------------------------------------------
+
+# preload the memory to known values
+list_mem = mem_array_32bit( 0,    # value prev next
+                                [
+                                    1,    0,   12,
+                                    2,    0,   24,
+                                    3,    12,  36,
+                                    4,    24,  0,
+                                ]
+                          )
+
+# messages that assume memory is preloaded and test for the case using the
+# data structure with an id value to be 0
+list_int_msgs = [
+  req_rd( 0, 0, 0 ), resp_rd( 0x00000001 ),
+  req_rd( 0, 1, 0 ), resp_rd( 0x00000002 ),
+  req_rd( 0, 2, 0 ), resp_rd( 0x00000003 ),
+  req_rd( 0, 3, 0 ), resp_rd( 0x00000004 ),
+  req_wr( 0, 0, 5 ), resp_wr( 0x00000000 ),
+  req_wr( 0, 1, 6 ), resp_wr( 0x00000000 ),
+  req_wr( 0, 2, 7 ), resp_wr( 0x00000000 ),
+  req_rd( 0, 1, 0 ), resp_rd( 0x00000006 ),
+  req_rd( 0, 0, 0 ), resp_rd( 0x00000005 ),
+  req_rd( 0, 2, 0 ), resp_rd( 0x00000007 ),
+]
+
 #-------------------------------------------------------------------------
 # Test Case Table
 #-------------------------------------------------------------------------
 
 test_case_table = mk_test_case_table([
-  (               "msgs       src_delay sink_delay vec_base"),
-  [ "basic_0x0",  basic_msgs, 0,        0,         8 ],
-  [ "basic_5x0",  basic_msgs, 5,        0,         8 ],
-  [ "basic_0x5",  basic_msgs, 0,        5,         8 ],
-  [ "basic_3x9",  basic_msgs, 3,        9,         8 ],
+  (         "msgs            src_delay sink_delay mem_array  ds_type "),
+  [ "0x0",  vector_int_msgs, 0,        0,         vec_mem,   1 ],
+  [ "5x0",  vector_int_msgs, 5,        0,         vec_mem,   1 ],
+  [ "0x5",  vector_int_msgs, 0,        5,         vec_mem,   1 ],
+  [ "3x9",  vector_int_msgs, 3,        9,         vec_mem,   1 ],
+  [ "0x0",  list_int_msgs,   0,        0,         list_mem,  5 ],
+  [ "5x0",  list_int_msgs,   5,        0,         list_mem,  5 ],
+  [ "0x5",  list_int_msgs,   0,        5,         list_mem,  5 ],
+  [ "3x9",  list_int_msgs,   3,        9,         list_mem,  5 ],
 ])
 
 #-------------------------------------------------------------------------
@@ -200,6 +237,6 @@ def test( test_params, dump_vcd ):
                               test_params.msgs[1::2],
                               test_params.src_delay,
                               test_params.sink_delay, 0 ),
-                test_params.vec_base,
-                preload_mem_array,
+                test_params.mem_array,
+                test_params.ds_type,
                 dump_vcd )
