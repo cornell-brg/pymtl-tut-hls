@@ -6,6 +6,7 @@ from pymtl       import *
 from pclib.ifcs  import ChildReqRespBundle, ParentReqRespBundle
 from pclib.ifcs  import valrdy_to_str
 from pclib.cl    import ChildReqRespQueueAdapter, ParentReqRespQueueAdapter
+from pclib.fl    import ListMemPortAdapterOld
 
 #-------------------------------------------------------------------------
 # IteratorTranslationUnitFL
@@ -13,6 +14,11 @@ from pclib.cl    import ChildReqRespQueueAdapter, ParentReqRespQueueAdapter
 class IteratorTranslationUnitFL( Model ):
 
   def __init__( s, cfg_ifc_types, accel_ifc_types, mem_ifc_types ):
+
+    # Interface types
+    s.cfg_ifc_types   = cfg_ifc_types
+    s.accel_ifc_types = accel_ifc_types
+    s.mem_ifc_types   = mem_ifc_types
 
     # Interfaces
 
@@ -22,9 +28,9 @@ class IteratorTranslationUnitFL( Model ):
 
     # Adapters
 
-    s.cfg       = ChildReqRespQueueAdapter ( s.cfg_ifc   )
-    s.accel     = ChildReqRespQueueAdapter ( s.accel_ifc )
-    s.mem       = ParentReqRespQueueAdapter( s.mem_ifc   )
+    s.cfg       = ChildReqRespQueueAdapter( s.cfg_ifc   )
+    s.accel     = ChildReqRespQueueAdapter( s.accel_ifc )
+    s.mem       = ListMemPortAdapterOld   ( s.mem_ifc   )
 
     # Internal State
 
@@ -45,14 +51,8 @@ class IteratorTranslationUnitFL( Model ):
     # translate iterator
     #---------------------------------------------------------------------
     # helper function that translates an iterator request message to a
-    # memory request message
-    def translate_iterator( accel_req ):
-
-      # params for the memory message
-      mem_addr  = 0
-      mem_len   = 0
-      mem_type_ = accel_req.type_
-      mem_data  = accel_req.data
+    # memory index
+    def translate_iterator( s, accel_req ):
 
       # look up the data structure and data type
       s.dstruct_type = s.data_type[ accel_req.ds_id ]
@@ -60,31 +60,26 @@ class IteratorTranslationUnitFL( Model ):
       # translate based on data structure and type
       if    s.dstruct_type == s.vector_char:
         # BASE + INDEX * SIZE( CHAR )
-        base     = s.dstruct[ accel_req.ds_id ]
-        offset   = accel_req.index
-        mem_addr = base + offset
-        mem_len  = 1
+        # TBD
+        pass
       elif  s.dstruct_type == s.vector_int:
         # BASE + INDEX * SIZE( INT )
-        base     = s.dstruct[ accel_req.ds_id ]
-        offset   = accel_req.index * 4
+        # convert the base address to suit the ListMemPortAdapter
+        base     = s.dstruct[ accel_req.ds_id ] / 4 #sizeof( int )
+        # the offset is remains the same
+        offset   = accel_req.index
         mem_addr = base + offset
-        mem_len  = 0
       elif  s.dstruct_type == s.vector_float:
         # BASE + INDEX * SIZE( FLOAT )
-        base     = s.dstruct[ accel_req.ds_id ]
-        offset   = accel_req.index * 4
-        mem_addr = base + offset
-        mem_len  = 0
+        # TBD
+        pass
       elif  s.dstruct_type == s.vector_pointer:
         # BASE + INDEX * SIZE( FLOAT )
-        base     = s.dstruct[ accel_req.ds_id ]
-        offset   = accel_req.index * 4
-        mem_addr = base + offset
-        mem_len  = 0
+        # TBD
+        pass
 
       # return the memory message
-      return s.mem_ifc.req.mk_msg( mem_type_, mem_addr, mem_len, mem_data )
+      return mem_addr
 
     #---------------------------------------------------------------------
     # Implementation
@@ -93,7 +88,6 @@ class IteratorTranslationUnitFL( Model ):
     def logic():
       s.cfg.xtick()
       s.accel.xtick()
-      s.mem.xtick()
 
       #-------------------------------------------------------------------
       # configure the ITU
@@ -104,43 +98,41 @@ class IteratorTranslationUnitFL( Model ):
         req = s.cfg.get_req()
 
         # check if it is a write request
-        if req.type_ == 1 and not req.addr == 1:
-          s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
+        if req.type_ == 1:
+          if not req.addr == 1:
+            s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, 0 ) )
 
-        # dstruct alloc
-        if   req.addr == 1:
-          for idx,val in enumerate( s.dstruct ):
-            if   val == 0:
-              s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, idx ) )
-              s.data_type[ idx ] = req.data
-              break
-            elif idx == ( len( s.dstruct ) - 1 ):
-              s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, -1 ) )
+          # dstruct alloc
+          if   req.addr == 1:
+            for idx,val in enumerate( s.dstruct ):
+              if   val == 0:
+                s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, idx ) )
+                s.data_type[ idx ] = req.data
+                break
+              elif idx == ( len( s.dstruct ) - 1 ):
+                s.cfg.push_resp( s.cfg_ifc.resp.mk_resp( 1, -1 ) )
 
-        elif req.addr == 2: s.dstruct[ req.id ] = req.data  # dstruct init
-        elif req.addr == 3: s.dstruct[ req.data ] = 0       # dstruct dealloc
+          elif req.addr == 2: s.dstruct[ req.id ] = req.data  # dstruct init
+          elif req.addr == 3: s.dstruct[ req.data ] = 0       # dstruct dealloc
 
       #-------------------------------------------------------------------
-      # send out memory requests coming the ASU
+      # service the ASU
       #-------------------------------------------------------------------
-      if   not s.accel.req_q.empty() and not s.mem.req_q.full():
+      if   not s.accel.req_q.empty() and not s.accel.resp_q.full():
 
         # get the accelerator request
         accel_req = s.accel.get_req()
         # translate the iterator request
-        mem_req   = translate_iterator( accel_req )
-        # send the memory request
-        s.mem.push_req( mem_req )
-
-      #-------------------------------------------------------------------
-      # send back memory responses to ASU
-      #-------------------------------------------------------------------
-      if not s.mem.resp_q.empty() and not s.accel.resp_q.full():
-
-        # get the memory response
-        mem_resp = s.mem.get_resp()
-        # send the response to the accelerator
-        s.accel.push_resp( concat( mem_resp.type_, mem_resp.data ) )
+        mem_addr   = translate_iterator( s, accel_req )
+        # access memory and send the accelerator response
+        # read request
+        if accel_req.type_ == 0:
+          mem_resp = s.mem[ mem_addr ]
+          s.accel.push_resp( s.accel_ifc.resp.mk_resp( 0, mem_resp ) )
+        # write request
+        else:
+          s.mem[ mem_addr ] = accel_req.data
+          s.accel.push_resp( s.accel_ifc.resp.mk_resp( 1, 0 ) )
 
   #-----------------------------------------------------------------------
   # line_trace
