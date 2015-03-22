@@ -33,9 +33,9 @@ class TestHarness( Model ):
     s.go             = Wire( 1 )
 
     # Instantiate Models
-    s.src            = TestSource     ( accel_ifc.req.nbits, src_msgs, src_delay        )
-    s.itu            = TranslationUnit( cfg_ifc, accel_ifc, mem_ifc                     )
-    s.sink           = TestSink       ( accel_ifc.resp.nbits, sink_msgs, sink_delay     )
+    s.src            = TestSource     ( accel_ifc.req, src_msgs, src_delay    )
+    s.itu            = TranslationUnit( cfg_ifc, accel_ifc, mem_ifc           )
+    s.sink           = TestSink       ( accel_ifc.resp, sink_msgs, sink_delay )
     s.mem            = TestMemory     ( mem_ifc, 1, 0, mem_delay              )
 
     # Connect

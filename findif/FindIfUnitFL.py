@@ -72,7 +72,7 @@ class FindIfUnitFL( Model ):
       if not s.cfg.req_q.empty() and not s.cfg.resp_q.full():
 
         # get the coprocessor message
-        req = s.cfg_ifc.req.unpck( s.cfg.get_req() )
+        req = s.cfg.get_req()
 
         # check if it is a write request
         if req.type_ == 1:

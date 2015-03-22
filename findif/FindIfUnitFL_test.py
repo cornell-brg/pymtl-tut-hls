@@ -36,11 +36,11 @@ class TestHarness( Model ):
     s.go             = Wire( 1 )
 
     # Instantiate Models
-    s.src            = TestSource     ( asu_cfg_ifc.req.nbits, src_msgs, src_delay      )
-    s.asu            = FindIfUnit     ( asu_cfg_ifc, asu_itu_ifc                        )
-    s.itu            = TranslationUnit( itu_cfg_ifc, asu_itu_ifc, itu_mem_ifc           )
-    s.sink           = TestSink       ( asu_cfg_ifc.resp.nbits, sink_msgs, sink_delay   )
-    s.mem            = TestMemory     ( itu_mem_ifc, 1, 0, mem_delay              )
+    s.src            = TestSource     ( asu_cfg_ifc.req, src_msgs, src_delay    )
+    s.asu            = FindIfUnit     ( asu_cfg_ifc, asu_itu_ifc                )
+    s.itu            = TranslationUnit( itu_cfg_ifc, asu_itu_ifc, itu_mem_ifc   )
+    s.sink           = TestSink       ( asu_cfg_ifc.resp, sink_msgs, sink_delay )
+    s.mem            = TestMemory     ( itu_mem_ifc, 1, 0, mem_delay            )
 
     # Connect
 

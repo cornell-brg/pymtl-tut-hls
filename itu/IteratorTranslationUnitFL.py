@@ -126,7 +126,7 @@ class IteratorTranslationUnitFL( Model ):
       if   not s.accel.req_q.empty() and not s.mem.req_q.full():
 
         # get the accelerator request
-        accel_req = s.accel_ifc.req.unpck( s.accel.get_req() )
+        accel_req = s.accel.get_req()
         # translate the iterator request
         mem_req   = translate_iterator( accel_req )
         # send the memory request
@@ -138,7 +138,7 @@ class IteratorTranslationUnitFL( Model ):
       if not s.mem.resp_q.empty() and not s.accel.resp_q.full():
 
         # get the memory response
-        mem_resp = s.mem_ifc.resp.unpck( s.mem.get_resp() )
+        mem_resp = s.mem.get_resp()
         # send the response to the accelerator
         s.accel.push_resp( concat( mem_resp.type_, mem_resp.data ) )
 
