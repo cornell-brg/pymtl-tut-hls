@@ -188,6 +188,34 @@ vector_int_msgs = [
                    req  ( 0, 0, 0, 0 ), resp( 0, 6 ) # check done
                   ]
 
+#------------------------------------------------------------------------------
+# Memory array and messages to test list of integers
+#------------------------------------------------------------------------------
+
+# preload the memory to known values
+list_int_mem = mem_array_32bit( 0,    # value prev next
+                                [
+                                    1,    0,   12,
+                                    1,    0,   24,
+                                    3,    12,  36,
+                                    3,    24,  48,
+                                    5,    36,  60,
+                                    5,    48,  72,
+                                    6,    60,  0,
+                                ]
+                              )
+
+# configure the asu state and expect a response for a given predicate
+list_int_msgs = [
+                 req  ( 1, 1, 0, 0 ), resp( 1, 0 ),# first ds-id
+                 req  ( 1, 2, 0, 0 ), resp( 1, 0 ),# first index
+                 req  ( 1, 3, 0, 0 ), resp( 1, 0 ),# last ds-id
+                 req  ( 1, 4, 7, 0 ), resp( 1, 0 ),# last index
+                 req  ( 1, 5, 4, 0 ), resp( 1, 0 ),# predicate val = IsEven
+                 req  ( 1, 0, 0, 0 ), resp( 1, 0 ),# go
+                 req  ( 0, 0, 0, 0 ), resp( 0, 6 ) # check done
+                ]
+
 #-------------------------------------------------------------------------
 # Test Case Table
 #-------------------------------------------------------------------------
@@ -198,6 +226,10 @@ test_case_table = mk_test_case_table([
   [ "vec_int_5x0",  vector_int_msgs, 5,        0,         vec_int_mem,   1 ],
   [ "vec_int_0x5",  vector_int_msgs, 0,        5,         vec_int_mem,   1 ],
   [ "vec_int_3x9",  vector_int_msgs, 3,        9,         vec_int_mem,   1 ],
+  [ "list_int_0x0", list_int_msgs,   0,        0,         list_int_mem,  5 ],
+  [ "list_int_5x0", list_int_msgs,   5,        0,         list_int_mem,  5 ],
+  [ "list_int_0x5", list_int_msgs,   0,        5,         list_int_mem,  5 ],
+  [ "list_int_3x9", list_int_msgs,   3,        9,         list_int_mem,  5 ],
 ])
 
 #-------------------------------------------------------------------------

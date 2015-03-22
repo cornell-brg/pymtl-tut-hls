@@ -124,7 +124,7 @@ def run_itu_test( model, mem_array, ds_type, dump_vcd = None ):
   model.itu.cfg_ifc.resp_rdy.next  = 0
   model.go.next = 1
 
-  while not model.done() and sim.ncycles < 200:
+  while not model.done() and sim.ncycles < 250:
     sim.print_line_trace()
     sim.cycle()
   sim.print_line_trace()
