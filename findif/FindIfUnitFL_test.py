@@ -3,16 +3,18 @@
 #==============================================================================
 
 import pytest
+import struct
 
-from pymtl      import *
-from pclib.test import TestSource, TestSink, TestMemory, mk_test_case_table
-from pclib.ifcs import mem_msgs, MemMsg
+from pymtl                         import *
+from pclib.test                    import TestSource, TestSink, mk_test_case_table
+from pclib.ifcs                    import MemMsg
+from pclib.test.TestMemoryFuture   import TestMemory
 
 from itu.IteratorTranslationUnitFL import IteratorTranslationUnitFL as ITU
 from itu.IteratorMsg               import IteratorMsg
 from itu.CoprocessorMsg            import CoprocessorMsg
 
-from FindIfUnitFL import FindIfUnitFL
+from FindIfUnitFL                  import FindIfUnitFL
 
 #------------------------------------------------------------------------------
 # TestHarness
@@ -23,10 +25,6 @@ class TestHarness( Model ):
                 src_msgs,  sink_msgs,
                 src_delay, sink_delay,
                 mem_delay ):
-
-    # Local Parameters
-    s.memreq_params  = mem_msgs.MemReqParams ( 32, 32 )
-    s.memresp_params = mem_msgs.MemRespParams(     32 )
 
     # Interfaces
     asu_cfg_ifc      = CoprocessorMsg(  5, 32, 32 )
@@ -42,7 +40,7 @@ class TestHarness( Model ):
     s.asu            = FindIfUnit     ( asu_cfg_ifc, asu_itu_ifc                        )
     s.itu            = TranslationUnit( itu_cfg_ifc, asu_itu_ifc, itu_mem_ifc           )
     s.sink           = TestSink       ( asu_cfg_ifc.resp.nbits, sink_msgs, sink_delay   )
-    s.mem            = TestMemory     ( s.memreq_params, s.memresp_params, 1, mem_delay )
+    s.mem            = TestMemory     ( itu_mem_ifc, 1, 0, mem_delay              )
 
     # Connect
 
@@ -102,7 +100,7 @@ def run_asu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
 
   # Load the memory
   if mem_array:
-    model.mem.load_memory( mem_array )
+    model.mem.write_mem( mem_array[0], mem_array[1] )
 
   # Run simulation
   sim.reset()
@@ -160,11 +158,9 @@ def run_asu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
 # mem_array_32bit
 #------------------------------------------------------------------------------
 # Utility function for creating arrays formatted for memory loading.
-from itertools import chain
 def mem_array_32bit( base_addr, data ):
-  return [base_addr,
-          list( chain.from_iterable([ [x,0,0,0] for x in data ] ))
-         ]
+  bytes = struct.pack( "<{}i".format( len(data) ), *data )
+  return [base_addr, bytes]
 
 # preload the memory to known values
 preload_mem_array = mem_array_32bit( 8, [1,1,3,3,5,5,6] )
