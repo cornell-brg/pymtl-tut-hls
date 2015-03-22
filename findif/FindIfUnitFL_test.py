@@ -110,11 +110,12 @@ def run_asu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
   sim.cycle()
 
   # Alloc data structure
-  model.itu.cfg_ifc.req_val.next      = 1
-  model.itu.cfg_ifc.req_msg.data.next = 1 # request for vector of ints
-  model.itu.cfg_ifc.req_msg.addr.next = 1 # alloc
-  model.itu.cfg_ifc.req_msg.id.next   = 0 # dont care for now
-  model.itu.cfg_ifc.resp_rdy.next     = 1
+  model.itu.cfg_ifc.req_val.next       = 1 # set the request
+  model.itu.cfg_ifc.req_msg.type_.next = 1 # write request
+  model.itu.cfg_ifc.req_msg.data.next  = 1 # request for vector of ints
+  model.itu.cfg_ifc.req_msg.addr.next  = 1 # alloc
+  model.itu.cfg_ifc.req_msg.id.next    = 0 # dont care for now
+  model.itu.cfg_ifc.resp_rdy.next      = 1
 
   sim.cycle()
 
@@ -125,7 +126,6 @@ def run_asu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
   sim.cycle()
 
   # Init data structure
-  model.itu.cfg_ifc.req_val.next      = 1
   model.itu.cfg_ifc.req_msg.data.next = vec_base_addr # base addr
   model.itu.cfg_ifc.req_msg.addr.next = 2             # init
   model.itu.cfg_ifc.req_msg.id.next   = alloc_ds_id   # id of the ds
