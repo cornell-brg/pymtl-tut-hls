@@ -60,7 +60,7 @@ class TestHarness( Model ):
     # itu -> asu response bundle
     s.connect( s.itu.accel_ifc.resp_msg, s.asu.itu_ifc.resp_msg  )
     s.connect( s.itu.accel_ifc.resp_val, s.asu.itu_ifc.resp_val  )
-    s.connect( s.itu.accel_ifc.resp_rdy, s.asu.itu_ifc.resp_rdy )
+    s.connect( s.itu.accel_ifc.resp_rdy, s.asu.itu_ifc.resp_rdy  )
 
     # itu -> mem request bundle
     s.connect( s.itu.mem_ifc.req_msg,    s.mem.reqs[0].msg       )
@@ -89,7 +89,7 @@ class TestHarness( Model ):
 #------------------------------------------------------------------------------
 # run_asu_test
 #------------------------------------------------------------------------------
-def run_asu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
+def run_asu_test( model, mem_array, ds_type, dump_vcd = None ):
 
   # Elaborate
   model.vcd_file = dump_vcd
@@ -106,15 +106,16 @@ def run_asu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
   sim.reset()
   print
 
+  # Start itu configuration
   sim.cycle()
   sim.cycle()
 
   # Alloc data structure
-  model.itu.cfg_ifc.req_val.next       = 1 # set the request
-  model.itu.cfg_ifc.req_msg.type_.next = 1 # write request
-  model.itu.cfg_ifc.req_msg.data.next  = 1 # request for vector of ints
-  model.itu.cfg_ifc.req_msg.addr.next  = 1 # alloc
-  model.itu.cfg_ifc.req_msg.id.next    = 0 # dont care for now
+  model.itu.cfg_ifc.req_val.next       = 1       # set the request
+  model.itu.cfg_ifc.req_msg.type_.next = 1       # write request
+  model.itu.cfg_ifc.req_msg.data.next  = ds_type # request for ds
+  model.itu.cfg_ifc.req_msg.addr.next  = 1       # alloc
+  model.itu.cfg_ifc.req_msg.id.next    = 0       # dont care for now
   model.itu.cfg_ifc.resp_rdy.next      = 1
 
   sim.cycle()
@@ -126,9 +127,9 @@ def run_asu_test( model, vec_base_addr, mem_array=None, dump_vcd = None ):
   sim.cycle()
 
   # Init data structure
-  model.itu.cfg_ifc.req_msg.data.next = vec_base_addr # base addr
-  model.itu.cfg_ifc.req_msg.addr.next = 2             # init
-  model.itu.cfg_ifc.req_msg.id.next   = alloc_ds_id   # id of the ds
+  model.itu.cfg_ifc.req_msg.data.next = mem_array[0] # base addr
+  model.itu.cfg_ifc.req_msg.addr.next = 2            # init
+  model.itu.cfg_ifc.req_msg.id.next   = alloc_ds_id  # id of the ds
 
   sim.cycle()
   sim.cycle()
@@ -162,37 +163,41 @@ def mem_array_32bit( base_addr, data ):
   bytes = struct.pack( "<{}i".format( len(data) ), *data )
   return [base_addr, bytes]
 
-# preload the memory to known values
-preload_mem_array = mem_array_32bit( 8, [1,1,3,3,5,5,6] )
-
 #------------------------------------------------------------------------------
-# Test src/sink messages
+# Helper functions for Test src/sink messages
 #------------------------------------------------------------------------------
 
 req  = CoprocessorMsg( 5, 32, 32).req.mk_req
 resp = CoprocessorMsg( 5, 32, 32).resp.mk_resp
 
+#------------------------------------------------------------------------------
+# Memory array and messages to test vector of integers
+#------------------------------------------------------------------------------
+
+# preload the memory to known values
+vec_int_mem = mem_array_32bit( 8, [1,1,3,3,5,5,6] )
+
 # configure the asu state and expect a response for a given predicate
-basic_msgs = [
-              req  ( 1, 1, 0, 0 ), resp( 1, 0 ),# first ds-id
-              req  ( 1, 2, 0, 0 ), resp( 1, 0 ),# first index
-              req  ( 1, 3, 0, 0 ), resp( 1, 0 ),# last ds-id
-              req  ( 1, 4, 7, 0 ), resp( 1, 0 ),# last index
-              req  ( 1, 5, 4, 0 ), resp( 1, 0 ),# predicate val = IsEven
-              req  ( 1, 0, 0, 0 ), resp( 1, 0 ),# go
-              req  ( 0, 0, 0, 0 ), resp( 0, 6 ) # check done
-             ]
+vector_int_msgs = [
+                   req  ( 1, 1, 0, 0 ), resp( 1, 0 ),# first ds-id
+                   req  ( 1, 2, 0, 0 ), resp( 1, 0 ),# first index
+                   req  ( 1, 3, 0, 0 ), resp( 1, 0 ),# last ds-id
+                   req  ( 1, 4, 7, 0 ), resp( 1, 0 ),# last index
+                   req  ( 1, 5, 4, 0 ), resp( 1, 0 ),# predicate val = IsEven
+                   req  ( 1, 0, 0, 0 ), resp( 1, 0 ),# go
+                   req  ( 0, 0, 0, 0 ), resp( 0, 6 ) # check done
+                  ]
 
 #-------------------------------------------------------------------------
 # Test Case Table
 #-------------------------------------------------------------------------
 
 test_case_table = mk_test_case_table([
-  (               "msgs       src_delay sink_delay vec_base"),
-  [ "basic_0x0",  basic_msgs, 0,        0,         8 ],
-  [ "basic_5x0",  basic_msgs, 5,        0,         8 ],
-  [ "basic_0x5",  basic_msgs, 0,        5,         8 ],
-  [ "basic_3x9",  basic_msgs, 3,        9,         8 ],
+  (                 "msgs            src_delay sink_delay mem_array      ds_type "),
+  [ "vec_int_0x0",  vector_int_msgs, 0,        0,         vec_int_mem,   1 ],
+  [ "vec_int_5x0",  vector_int_msgs, 5,        0,         vec_int_mem,   1 ],
+  [ "vec_int_0x5",  vector_int_msgs, 0,        5,         vec_int_mem,   1 ],
+  [ "vec_int_3x9",  vector_int_msgs, 3,        9,         vec_int_mem,   1 ],
 ])
 
 #-------------------------------------------------------------------------
@@ -208,6 +213,6 @@ def test( test_params, dump_vcd ):
                               test_params.msgs[1::2],
                               test_params.src_delay,
                               test_params.sink_delay, 0 ),
-                test_params.vec_base,
-                preload_mem_array,
+                test_params.mem_array,
+                test_params.ds_type,
                 dump_vcd )

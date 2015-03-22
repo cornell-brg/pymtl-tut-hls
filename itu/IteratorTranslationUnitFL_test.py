@@ -93,7 +93,7 @@ def run_itu_test( model, mem_array, ds_type, dump_vcd = None ):
   # Alloc data structure
   model.itu.cfg_ifc.req_val.next       = 1       # set the request
   model.itu.cfg_ifc.req_msg.type_.next = 1       # write request
-  model.itu.cfg_ifc.req_msg.data.next  = ds_type # request for vector of ints
+  model.itu.cfg_ifc.req_msg.data.next  = ds_type # request for ds
   model.itu.cfg_ifc.req_msg.addr.next  = 1       # alloc
   model.itu.cfg_ifc.req_msg.id.next    = 0       # dont care for now
   model.itu.cfg_ifc.resp_rdy.next      = 1
@@ -167,7 +167,7 @@ def resp_rd(  data ):
 #------------------------------------------------------------------------------
 
 # preload the memory to known values
-vec_mem = mem_array_32bit( 8, [1,2,3,4] )
+vec_int_mem = mem_array_32bit( 8, [1,2,3,4] )
 
 # messages that assume memory is preloaded and test for the case using the
 # data structure with an id value to be 0
@@ -185,14 +185,14 @@ vector_int_msgs = [
 #------------------------------------------------------------------------------
 
 # preload the memory to known values
-list_mem = mem_array_32bit( 0,    # value prev next
+list_int_mem = mem_array_32bit( 0,    # value prev next
                                 [
                                     1,    0,   12,
                                     2,    0,   24,
                                     3,    12,  36,
                                     4,    24,  0,
                                 ]
-                          )
+                              )
 
 # messages that assume memory is preloaded and test for the case using the
 # data structure with an id value to be 0
@@ -214,15 +214,15 @@ list_int_msgs = [
 #-------------------------------------------------------------------------
 
 test_case_table = mk_test_case_table([
-  (         "msgs            src_delay sink_delay mem_array  ds_type "),
-  [ "0x0",  vector_int_msgs, 0,        0,         vec_mem,   1 ],
-  [ "5x0",  vector_int_msgs, 5,        0,         vec_mem,   1 ],
-  [ "0x5",  vector_int_msgs, 0,        5,         vec_mem,   1 ],
-  [ "3x9",  vector_int_msgs, 3,        9,         vec_mem,   1 ],
-  [ "0x0",  list_int_msgs,   0,        0,         list_mem,  5 ],
-  [ "5x0",  list_int_msgs,   5,        0,         list_mem,  5 ],
-  [ "0x5",  list_int_msgs,   0,        5,         list_mem,  5 ],
-  [ "3x9",  list_int_msgs,   3,        9,         list_mem,  5 ],
+  (                 "msgs            src_delay sink_delay mem_array      ds_type "),
+  [ "vec_int_0x0",  vector_int_msgs, 0,        0,         vec_int_mem,   1 ],
+  [ "vec_int_5x0",  vector_int_msgs, 5,        0,         vec_int_mem,   1 ],
+  [ "vec_int_0x5",  vector_int_msgs, 0,        5,         vec_int_mem,   1 ],
+  [ "vec_int_3x9",  vector_int_msgs, 3,        9,         vec_int_mem,   1 ],
+  [ "list_int_0x0", list_int_msgs,   0,        0,         list_int_mem,  5 ],
+  [ "list_int_5x0", list_int_msgs,   5,        0,         list_int_mem,  5 ],
+  [ "list_int_0x5", list_int_msgs,   0,        5,         list_int_mem,  5 ],
+  [ "list_int_3x9", list_int_msgs,   3,        9,         list_int_mem,  5 ],
 ])
 
 #-------------------------------------------------------------------------
