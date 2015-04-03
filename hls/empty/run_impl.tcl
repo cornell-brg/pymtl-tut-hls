@@ -12,16 +12,16 @@ config_interface -expose_global
 set_part {xc7z020clg484-1}
 create_clock -period 5
 
-set_directive_interface -mode ap_hs $top proc_req
-set_directive_interface -mode ap_hs $top proc_resp
+set_directive_interface -mode ap_hs $top cfg_req
+set_directive_interface -mode ap_hs $top cfg_resp
 set_directive_interface -mode ap_hs $top g_itu_iface.req
 set_directive_interface -mode ap_hs $top g_itu_iface.resp
 
 csynth_design
 
-#cosim_design -rtl systemc
+cosim_design -rtl systemc
 
-#export_design -evaluate verilog
+export_design -evaluate verilog
 
 file copy -force hls.prj/solution1/.autopilot/db/a.o.2.ll a.o.2.orig.ll
 file copy -force hls.prj/solution1/syn/verilog/${top}.v ${top}.v

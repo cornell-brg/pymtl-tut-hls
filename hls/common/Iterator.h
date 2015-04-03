@@ -87,7 +87,7 @@ class _iterator {
     unsigned m_ds_id;
 
     // index to an data element
-    int      m_index;
+    unsigned m_index;
 
     //
     //static ItuIfaceType m_iface;
@@ -101,7 +101,7 @@ class _iterator {
     // default constructor
     _iterator() : m_ds_id( 0 ), m_index( 0 ) {}
 
-    _iterator( unsigned ds_id, int index) :
+    _iterator( unsigned ds_id, unsigned index) :
       m_ds_id( ds_id ), m_index( index ) {}
 
     // copy constructor
@@ -113,10 +113,22 @@ class _iterator {
     //--------------------------------------------------------------
 
     // set function for ds_id
-    void set_state( unsigned ds_id, int index )
+    void set_state( unsigned ds_id, unsigned index )
     {
       m_ds_id = ds_id;
       m_index = index;
+    }
+    
+    //--------------------------------------------------------------
+    // get functions
+    // RZ: This is needed because the ASU does cannot return an
+    // iterator, it must return a 32bit value. At the very least
+    // we need access to m_index
+    //--------------------------------------------------------------
+
+    unsigned get_index() const
+    {
+      return m_index;
     }
 
     //--------------------------------------------------------------
@@ -198,26 +210,26 @@ class _iterator {
     }
 
     // random access operators
-    _iterator& operator+=( int i )
+    _iterator& operator+=( unsigned i )
     {
       m_index += i;
       return *this;
     }
 
-    _iterator operator+( int i ) const
+    _iterator operator+( unsigned i ) const
     {
       _iterator tmp( *this );
       tmp += i;
       return tmp;
     }
 
-    _iterator& operator-=( int i )
+    _iterator& operator-=( unsigned i )
     {
       m_index -= i;
       return *this;
     }
 
-    _iterator operator-( int i ) const
+    _iterator operator-( unsigned i ) const
     {
       _iterator tmp( *this );
       tmp -= i;

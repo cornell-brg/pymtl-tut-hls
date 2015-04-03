@@ -1,5 +1,5 @@
 ############################################################
-set top "findif"
+set top "top"
 open_project hls.prj
 set_top $top
 
@@ -12,12 +12,14 @@ config_interface -expose_global
 set_part {xc7z020clg484-1}
 create_clock -period 5
 
+set_directive_interface -mode ap_hs $top proc_req
+set_directive_interface -mode ap_hs $top proc_resp
 set_directive_interface -mode ap_hs $top g_itu_iface.req
 set_directive_interface -mode ap_hs $top g_itu_iface.resp
 
 csynth_design
 
-#cosim_design -rtl systemc
+cosim_design -rtl systemc
 
 export_design -evaluate verilog
 

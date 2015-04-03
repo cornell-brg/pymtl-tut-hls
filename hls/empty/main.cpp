@@ -20,14 +20,14 @@ unsigned findif (iterator begin, iterator end, PredicateType pred_val);
 // ------------------------------------------------------------------
 // processor interface
 // ------------------------------------------------------------------
-void top (AsuReqType proc_req, AsuRespType &proc_resp) {
+void top (AsuReqType cfg_req, AsuRespType &cfg_resp) {
   static AsuDataType s_first_ds_id;
   static AsuDataType s_first_index;
   static AsuDataType s_last_ds_id;
   static AsuDataType s_last_index;
   static PredicateType s_pred;
 
-  AsuReqType req = proc_req;
+  AsuReqType req = cfg_req;
   AsuRespType resp;
 
   // handle write request
@@ -71,40 +71,16 @@ void top (AsuReqType proc_req, AsuRespType &proc_resp) {
     resp = 0;
   }
 
-  proc_resp = resp;
+  cfg_resp = resp;
 }
 
 // ------------------------------------------------------------------
 // findif logic
 // ------------------------------------------------------------------
 unsigned findif (iterator begin, iterator end, PredicateType pred_val) {
-//#pragma HLS INLINE
-  bool stop = false;
-  for (; begin != end; ++begin) {
-    // 
-    switch (pred_val) {
-      case 0:
-        if (*begin > 0) stop = true;
-        break;
-      case 1:
-        if (*begin < 0) stop = true;
-        break;
-      case 2:
-        if (*begin == 0) stop = true;
-        break;
-      case 3:
-        if (*begin % 2 != 0) stop = true;
-        break;
-      case 4:
-        if (*begin % 2 == 0) stop = true;
-        break;
-    };
-    // exit loop of pred satisfied
-    if (stop) {
-      break;
-    }
-  }
-  return begin.get_index();
+  int temp = *begin;
+  *begin = temp+1;
+  return 0;
 }
 
 // ------------------------------------------------------------------
@@ -191,8 +167,7 @@ int main () {
   printf ("--------------------\n");
   printf ("Result: %u\n", s);
   printf ("--------------------\n");
-  // failed to find
-  assert (s == N);
+  assert (s == 0);
 
   return 0;
 }
