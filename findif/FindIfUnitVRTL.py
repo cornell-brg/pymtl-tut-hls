@@ -36,11 +36,11 @@ class FindIfUnitVRTL ( VerilogModel ):
       'cfg_resp_V'        :   s.cfg_out.msg,
       'cfg_resp_V_ap_vld' :   s.cfg_out.val,
       'cfg_resp_V_ap_ack' :   s.cfg_out.rdy,
-      'g_itu_iface_req_V'         :   s.itu_in.msg,
-      'g_itu_iface_req_V_ap_vld'  :   s.itu_in.val,
-      'g_itu_iface_req_V_ap_ack'  :   s.itu_in.rdy,
-      'g_itu_iface_resp_V'        :   s.itu_out.msg,
-      'g_itu_iface_resp_V_ap_vld' :   s.itu_out.val,
-      'g_itu_iface_resp_V_ap_ack' :   s.itu_out.rdy
+      'g_itu_iface_req_V'         :   s.itu_out.msg,
+      'g_itu_iface_req_V_ap_vld'  :   s.itu_out.val,
+      'g_itu_iface_req_V_ap_ack'  :   s.itu_out.rdy,
+      'g_itu_iface_resp_V'        :   s.itu_in.msg,
+      'g_itu_iface_resp_V_ap_vld' :   s.itu_in.val,
+      'g_itu_iface_resp_V_ap_ack' :   s.itu_in.rdy
     });
     

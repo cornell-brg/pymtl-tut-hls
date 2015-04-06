@@ -9,6 +9,7 @@
 
 (* CORE_GENERATION_INFO="top,hls_ip_2014_1,{HLS_INPUT_TYPE=cxx,HLS_INPUT_FLOAT=0,HLS_INPUT_FIXED=1,HLS_INPUT_PART=xc7z020clg484-1,HLS_INPUT_CLOCK=5.000000,HLS_INPUT_ARCH=others,HLS_SYN_CLOCK=1.907250,HLS_SYN_LAT=0,HLS_SYN_TPT=none,HLS_SYN_MEM=0,HLS_SYN_DSP=0,HLS_SYN_FF=0,HLS_SYN_LUT=0}" *)
 
+ /* verilator lint_off WIDTH */
 module FindIfUnitVRTL (
         clk,
         reset,
@@ -306,3 +307,4 @@ assign tmp_fu_109_p3 = cfg_req_V[ap_const_lv32_45];
 
 endmodule //top
 
+/* lint_on */
