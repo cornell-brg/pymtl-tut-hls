@@ -27,6 +27,7 @@ void top (volatile AsuReqType cfg_req, volatile AsuRespType &cfg_resp) {
   static AsuDataType s_last_ds_id;
   static AsuDataType s_last_index;
   static PredicateType s_pred;
+  static unsigned s_result;
 
   AsuReqType req = cfg_req;
   AsuRespType resp;
@@ -43,13 +44,11 @@ void top (volatile AsuReqType cfg_req, volatile AsuRespType &cfg_resp) {
     if (raddr == 0) {
       /*printf ("%u %u\n%u %u\n", (unsigned)s_first_ds_id, (unsigned)s_first_index, 
                                 (unsigned)s_last_ds_id,  (unsigned)s_last_index);*/
-      unsigned resp_data = 
-                      findif (
-                        iterator(s_first_ds_id, s_first_index),
-                        iterator(s_last_ds_id, s_last_index),
-                        s_pred
-                      );
-      resp |= resp_data;
+      s_result = findif (
+                   iterator(s_first_ds_id, s_first_index),
+                   iterator(s_last_ds_id, s_last_index),
+                   s_pred
+                 );
     }
     else {
       // write internal regs
@@ -71,7 +70,25 @@ void top (volatile AsuReqType cfg_req, volatile AsuRespType &cfg_resp) {
   }
   // handle read request
   else {
+    AsuAddrType raddr = (req >> 64) & 0x1F;
     resp = 0;
+
+    switch (raddr) {
+      case 0:
+        resp |= s_result; break;
+      case 1:
+        resp |= s_first_ds_id; break;
+      case 2:
+        resp |= s_first_index; break;
+      case 3:
+        resp |= s_last_ds_id; break;
+      case 4:
+        resp |= s_last_index; break;
+      case 5:
+        resp |= s_pred; break;
+      default:
+        break;
+    }
   }
 
   cfg_resp = resp;
@@ -81,12 +98,12 @@ void top (volatile AsuReqType cfg_req, volatile AsuRespType &cfg_resp) {
 // findif logic
 // ------------------------------------------------------------------
 unsigned findif (iterator begin, iterator end, PredicateType pred_val) {
-  int temp = *begin;
+  /*int temp = *begin;
   if (pred_val == 0)
     *end = temp+1;
   else
-    *end = temp;
-  return 0xABCDABCD;
+    *end = temp;*/
+  return 6;
 }
 
 // ------------------------------------------------------------------
@@ -169,11 +186,16 @@ int main () {
   top( req, resp );
   assert( check_resp(resp) );
 
+  // read result
+  data = 0;   raddr = 0;
+  req = make_req( data, raddr, 0 );
+  top( req, resp );
+
   unsigned s = resp;
   printf ("--------------------\n");
   printf ("Result: %X\n", s);
   printf ("--------------------\n");
-  assert (s == 0xABCDABCD);
+  assert (s == 6);
 
   return 0;
 }

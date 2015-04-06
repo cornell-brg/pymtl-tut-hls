@@ -187,7 +187,7 @@ vector_int_msgs = [
                    req  ( 1, 4, 7, 0 ), resp( 1, 0 ),# last index
                    req  ( 1, 5, 4, 0 ), resp( 1, 0 ),# predicate val = IsEven
                    req  ( 1, 0, 0, 0 ), resp( 1, 0 ),# go
-                   #req  ( 0, 0, 0, 0 ), resp( 0, 6 ) # check done
+                   req  ( 0, 0, 0, 0 ), resp( 0, 6 ) # check done
                   ]
 
 #------------------------------------------------------------------------------
