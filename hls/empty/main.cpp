@@ -7,7 +7,8 @@
 typedef char MyType;
 typedef _iterator<MyType> iterator;
 
-ItuIfaceType g_itu_iface;
+// mark this as volatile to enforce ordering of stores/loads
+volatile ItuIfaceType g_itu_iface;
 
 typedef ap_uint<70> AsuReqType;
 typedef ap_uint<33> AsuRespType;
@@ -20,7 +21,7 @@ unsigned findif (iterator begin, iterator end, PredicateType pred_val);
 // ------------------------------------------------------------------
 // processor interface
 // ------------------------------------------------------------------
-void top (AsuReqType cfg_req, AsuRespType &cfg_resp) {
+void top (volatile AsuReqType cfg_req, volatile AsuRespType &cfg_resp) {
   static AsuDataType s_first_ds_id;
   static AsuDataType s_first_index;
   static AsuDataType s_last_ds_id;
@@ -37,34 +38,36 @@ void top (AsuReqType cfg_req, AsuRespType &cfg_resp) {
     
     resp = 1;
     resp = resp << 32;
-    
+
     // call the accelerator
     if (raddr == 0) {
       /*printf ("%u %u\n%u %u\n", (unsigned)s_first_ds_id, (unsigned)s_first_index, 
                                 (unsigned)s_last_ds_id,  (unsigned)s_last_index);*/
-      iterator begin (s_first_ds_id, s_first_index);
-      iterator end   (s_last_ds_id,  s_last_index);
-      unsigned resp_data = findif (begin, end, s_pred);
-      
+      unsigned resp_data = 
+                      findif (
+                        iterator(s_first_ds_id, s_first_index),
+                        iterator(s_last_ds_id, s_last_index),
+                        s_pred
+                      );
       resp |= resp_data;
     }
-
-    // write internal regs
-    switch (raddr) {
-      case 1:
-        s_first_ds_id = data; break;
-      case 2:
-        s_first_index = data; break;
-      case 3:
-        s_last_ds_id = data; break;
-      case 4:
-        s_last_index = data; break;
-      case 5:
-        s_pred = data; break;
-      default:
-        break;
+    else {
+      // write internal regs
+      switch (raddr) {
+        case 1:
+          s_first_ds_id = data; break;
+        case 2:
+          s_first_index = data; break;
+        case 3:
+          s_last_ds_id = data; break;
+        case 4:
+          s_last_index = data; break;
+        case 5:
+          s_pred = data; break;
+        default:
+          break;
+      }
     }
-    
   }
   // handle read request
   else {
@@ -79,8 +82,11 @@ void top (AsuReqType cfg_req, AsuRespType &cfg_resp) {
 // ------------------------------------------------------------------
 unsigned findif (iterator begin, iterator end, PredicateType pred_val) {
   int temp = *begin;
-  *begin = temp+1;
-  return 0;
+  if (pred_val == 0)
+    *end = temp+1;
+  else
+    *end = temp;
+  return 0xABCDABCD;
 }
 
 // ------------------------------------------------------------------
@@ -165,9 +171,9 @@ int main () {
 
   unsigned s = resp;
   printf ("--------------------\n");
-  printf ("Result: %u\n", s);
+  printf ("Result: %X\n", s);
   printf ("--------------------\n");
-  assert (s == 0);
+  assert (s == 0xABCDABCD);
 
   return 0;
 }

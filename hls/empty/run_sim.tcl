@@ -21,9 +21,9 @@ csynth_design
 
 cosim_design -rtl systemc
 
-export_design -evaluate verilog
+#export_design -evaluate verilog
 
 file copy -force hls.prj/solution1/.autopilot/db/a.o.2.ll a.o.2.orig.ll
-file copy -force hls.prj/solution1/syn/verilog/${top}.v ${top}.v
+#file copy -force hls.prj/solution1/syn/verilog/${top}.v ${top}.v
 
 exit

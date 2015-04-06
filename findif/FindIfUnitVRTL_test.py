@@ -45,10 +45,10 @@ class TestHarness( Model ):
 
     # Connect
 
-    # src -> asu request bundle
+    # testbench -> asu request bundle
     s.connect( s.src.out.msg,            s.asu.cfg_in.msg        )
 
-    # src -> asu request bundle
+    # testbench -> asu response bundle
     s.connect( s.asu.cfg_out.msg,   s.sink.in_.msg          )
     s.connect( s.asu.cfg_out.val,   s.sink.in_.val          )
     s.connect( s.asu.cfg_out.rdy,   s.sink.in_.rdy          )
@@ -73,20 +73,20 @@ class TestHarness( Model ):
     s.connect( s.mem.resps[0].val,       s.itu.mem_ifc.resp_val  )
     s.connect( s.mem.resps[0].rdy,       s.itu.mem_ifc.resp_rdy  )
 
-    # src -> asu request bundle var/rdy signals
+    # testbench -> asu request bundle var/rdy signals
     @s.combinational
     def logic():
       s.asu.cfg_in.val.value = s.src.out.val         & s.go
       s.src.out.rdy.value    = s.asu.cfg_in.rdy      & s.go
-
+  
   def done( s ):
     return s.src.done and s.sink.done
 
   def line_trace( s ):
+            #s.itu.line_trace() + " > " + \
     return  s.src.line_trace() + " > " + \
             s.asu.line_trace() + " > " + \
-            s.itu.line_trace() + " > " + \
-            s.sink.line_trace()
+            s.sink.line_trace() + " > "
 
 #------------------------------------------------------------------------------
 # run_asu_test
@@ -187,7 +187,7 @@ vector_int_msgs = [
                    req  ( 1, 4, 7, 0 ), resp( 1, 0 ),# last index
                    req  ( 1, 5, 4, 0 ), resp( 1, 0 ),# predicate val = IsEven
                    req  ( 1, 0, 0, 0 ), resp( 1, 0 ),# go
-                   req  ( 0, 0, 0, 0 ), resp( 0, 6 ) # check done
+                   #req  ( 0, 0, 0, 0 ), resp( 0, 6 ) # check done
                   ]
 
 #------------------------------------------------------------------------------
@@ -225,13 +225,13 @@ list_int_msgs = [
 test_case_table = mk_test_case_table([
   (                 "msgs            src_delay sink_delay mem_array      ds_type "),
   [ "vec_int_0x0",  vector_int_msgs, 0,        0,         vec_int_mem,   1 ],
-  #[ "vec_int_5x0",  vector_int_msgs, 5,        0,         vec_int_mem,   1 ],
-  #[ "vec_int_0x5",  vector_int_msgs, 0,        5,         vec_int_mem,   1 ],
-  #[ "vec_int_3x9",  vector_int_msgs, 3,        9,         vec_int_mem,   1 ],
-  #[ "list_int_0x0", list_int_msgs,   0,        0,         list_int_mem,  5 ],
-  #[ "list_int_5x0", list_int_msgs,   5,        0,         list_int_mem,  5 ],
-  #[ "list_int_0x5", list_int_msgs,   0,        5,         list_int_mem,  5 ],
-  #[ "list_int_3x9", list_int_msgs,   3,        9,         list_int_mem,  5 ],
+  [ "vec_int_5x0",  vector_int_msgs, 5,        0,         vec_int_mem,   1 ],
+  [ "vec_int_0x5",  vector_int_msgs, 0,        5,         vec_int_mem,   1 ],
+  [ "vec_int_3x9",  vector_int_msgs, 3,        9,         vec_int_mem,   1 ],
+  [ "list_int_0x0", list_int_msgs,   0,        0,         list_int_mem,  5 ],
+  [ "list_int_5x0", list_int_msgs,   5,        0,         list_int_mem,  5 ],
+  [ "list_int_0x5", list_int_msgs,   0,        5,         list_int_mem,  5 ],
+  [ "list_int_3x9", list_int_msgs,   3,        9,         list_int_mem,  5 ],
 ])
 
 #-------------------------------------------------------------------------

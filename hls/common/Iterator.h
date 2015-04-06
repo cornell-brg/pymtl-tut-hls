@@ -6,7 +6,7 @@
 template<typename T> class ReferenceProxy;
 template<typename T> class _iterator;
 
-extern ItuIfaceType g_itu_iface;
+extern volatile ItuIfaceType g_itu_iface;
 
 //-------------------------------------------------------------------
 // Class ReferenceProxy
