@@ -10,8 +10,8 @@ main: main.cpp
 hls:
 	vivado_hls run_hls.tcl
 
-impl:
-	vivado_hls run_impl.tcl
+sim:
+	vivado_hls run_sim.tcl
 
 clean:
 	rm -f main

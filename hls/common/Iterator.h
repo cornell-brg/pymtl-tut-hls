@@ -46,7 +46,7 @@ class ReferenceProxy {
       ap_wait();
 
       ItuRespType resp = g_itu_iface.resp;
-      T data = resp << 1;
+      T data = resp & 0xFFFF;
       return data;
     }
 
@@ -62,6 +62,7 @@ class ReferenceProxy {
       ap_wait();
 
       ItuRespType resp = g_itu_iface.resp;
+      // verify first bit of resp is 1?
       return *this;
     }
 

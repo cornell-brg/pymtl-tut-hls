@@ -8,7 +8,7 @@
 typedef char MyType;
 typedef _iterator<MyType> iterator;
 
-// mark this as volatile to enforce ordering of stores/loads
+// mark this as volatile to enforce stores/loads
 volatile ItuIfaceType g_itu_iface;
 
 typedef ap_uint<70> AsuReqType;
@@ -138,8 +138,6 @@ int main () {
 
   AsuRespType resp;
   AsuReqType req;
-  ItuReqType itu_req;
-  ItuRespType itu_resp;
   AsuDataType data;
   AsuAddrType raddr;
 
