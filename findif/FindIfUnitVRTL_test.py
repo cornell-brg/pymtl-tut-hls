@@ -43,6 +43,8 @@ class TestHarness( Model ):
     
     s.asu            = FindIfUnit ( )
 
+    s.itu_iface = asu_itu_ifc
+
     # Connect
 
     # testbench -> asu request bundle
@@ -54,12 +56,12 @@ class TestHarness( Model ):
     s.connect( s.asu.cfg_out.rdy,   s.sink.in_.rdy          )
 
     # asu -> itu request bundle
-    s.connect( s.asu.itu_out.msg,    s.itu.accel_ifc.req_msg )
+    #s.connect( s.asu.itu_out.msg,    s.itu.accel_ifc.req_msg )
     s.connect( s.asu.itu_out.val,    s.itu.accel_ifc.req_val )
     s.connect( s.asu.itu_out.rdy,    s.itu.accel_ifc.req_rdy )
 
     # itu -> asu response bundle
-    s.connect( s.itu.accel_ifc.resp_msg, s.asu.itu_in.msg  )
+    #s.connect( s.itu.accel_ifc.resp_msg, s.asu.itu_in.msg  )
     s.connect( s.itu.accel_ifc.resp_val, s.asu.itu_in.val  )
     s.connect( s.itu.accel_ifc.resp_rdy, s.asu.itu_in.rdy  )
 
@@ -72,6 +74,12 @@ class TestHarness( Model ):
     s.connect( s.mem.resps[0].msg,       s.itu.mem_ifc.resp_msg  )
     s.connect( s.mem.resps[0].val,       s.itu.mem_ifc.resp_val  )
     s.connect( s.mem.resps[0].rdy,       s.itu.mem_ifc.resp_rdy  )
+
+    # asu -> itu convert Bits to BitStruct
+    @s.combinational
+    def convert():
+      s.itu.accel_ifc.req_msg.value = s.itu_iface.req.unpck( s.asu.itu_out.msg )
+      s.asu.itu_in.msg.value = s.itu.accel_ifc.resp_msg
 
     # testbench -> asu request bundle var/rdy signals
     @s.combinational

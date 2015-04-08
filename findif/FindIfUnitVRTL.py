@@ -42,7 +42,7 @@ class FindIfUnitVRTL ( VerilogModel ):
       'g_itu_iface_req_V_ap_ack'  :   s.itu_out.rdy,
       'g_itu_iface_resp_V'        :   s.itu_in.msg,
       'g_itu_iface_resp_V_ap_vld' :   s.itu_in.val,
-      'g_itu_iface_resp_V_ap_ack' :   s.itu_in.rdy
+      'g_itu_iface_resp_V_ap_ack' :   s.itu_in.rdy,
     });
 
   def line_trace( s ):
@@ -61,6 +61,7 @@ class FindIfUnitVRTL ( VerilogModel ):
       
       valrdy_to_str( s.cfg_out.msg,
                      s.cfg_out.val,
-                     s.cfg_out.rdy ),
+                     s.cfg_out.rdy )
+
     )
     

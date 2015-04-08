@@ -2,6 +2,7 @@
 #define ITERATOR_H
 
 #include "ItuIface.h"
+#include "ap_utils.h"
 
 template<typename T> class ReferenceProxy;
 template<typename T> class _iterator;
@@ -42,6 +43,7 @@ class ReferenceProxy {
       req = (req << 32) | m_index;
       req = (req << 32);
       g_itu_iface.req = req;
+      ap_wait();
 
       ItuRespType resp = g_itu_iface.resp;
       T data = resp << 1;
@@ -57,6 +59,7 @@ class ReferenceProxy {
       req = (req << 32) | m_index;
       req = (req << 32) | (data & 0xFF);
       g_itu_iface.req = req;
+      ap_wait();
 
       ItuRespType resp = g_itu_iface.resp;
       return *this;

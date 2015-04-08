@@ -1,8 +1,9 @@
 #include <assert.h>
 #include <stdio.h>
+#include "ap_utils.h"
 #define N 10
 
-#include "../common/common.h"
+#include "../common/Iterator.h"
 
 typedef char MyType;
 typedef _iterator<MyType> iterator;
@@ -21,7 +22,9 @@ unsigned findif (iterator begin, iterator end, PredicateType pred_val);
 // ------------------------------------------------------------------
 // processor interface
 // ------------------------------------------------------------------
-void top (volatile AsuReqType cfg_req, volatile AsuRespType &cfg_resp) {
+void top (volatile AsuReqType  &cfg_req,
+          volatile AsuRespType &cfg_resp)
+{
   static AsuDataType s_first_ds_id;
   static AsuDataType s_first_index;
   static AsuDataType s_last_ds_id;
@@ -34,7 +37,6 @@ void top (volatile AsuReqType cfg_req, volatile AsuRespType &cfg_resp) {
 
   // handle write request
   if (((req >> 69) & 1) != 0) {
-    AsuDataType data = (req >> 32) & 0xFFFF;
     AsuAddrType raddr = (req >> 64) & 0x1F;
     
     resp = 1;
@@ -51,6 +53,7 @@ void top (volatile AsuReqType cfg_req, volatile AsuRespType &cfg_resp) {
                  );
     }
     else {
+      AsuDataType data = (req >> 32) & 0xFFFF;
       // write internal regs
       switch (raddr) {
         case 1:
@@ -98,11 +101,8 @@ void top (volatile AsuReqType cfg_req, volatile AsuRespType &cfg_resp) {
 // findif logic
 // ------------------------------------------------------------------
 unsigned findif (iterator begin, iterator end, PredicateType pred_val) {
-  /*int temp = *begin;
-  if (pred_val == 0)
-    *end = temp+1;
-  else
-    *end = temp;*/
+  int temp = *begin;
+  *end = temp+1;
   return 6;
 }
 
@@ -110,7 +110,7 @@ unsigned findif (iterator begin, iterator end, PredicateType pred_val) {
 // helpers for main
 // ------------------------------------------------------------------
 AsuReqType make_req (AsuDataType data, AsuAddrType raddr, unsigned rw) {
-  unsigned ds_id = 1;
+  unsigned ds_id = 0;
   AsuReqType req = 0;
   req |= rw;      req = req << 5;
   req |= raddr;   req = req << 32;
@@ -120,16 +120,10 @@ AsuReqType make_req (AsuDataType data, AsuAddrType raddr, unsigned rw) {
 }
 
 void print_req (AsuReqType req) {
-  for (int i = 70-1; i >= 0; --i) {
-    printf ("%c", req[i] ? '1' : '0');
-  }
-  printf ("\n");
+  //printf ("%s\n", req.to_string(16).c_str());
 }
 void print_resp (AsuRespType resp) {
-  for (int i = 33-1; i >= 0; --i) {
-    printf ("%c", resp[i] ? '1' : '0');
-  }
-  printf ("\n");
+  //printf ("%s\n", resp.to_string(16).c_str());
 }
 
 bool check_resp (AsuRespType resp) {
@@ -142,60 +136,74 @@ int main () {
   MyType myarray[N];
   for (int i = 0; i < N; ++i) myarray[i] = i-3;
 
-  iterator begin (0, 0);
-  iterator end   (0, N);
-
   AsuRespType resp;
   AsuReqType req;
+  ItuReqType itu_req;
+  ItuRespType itu_resp;
   AsuDataType data;
   AsuAddrType raddr;
 
   // set first ds id
-  data = 1;   raddr = 1;
+  data = 0;   raddr = 1;
   req = make_req( data, raddr, 1 );
+  print_req (req);
   top( req, resp );
+  print_resp (resp);
   assert( check_resp(resp) );
   
   // set first index
   data = 0;   raddr = 2;
   req = make_req( data, raddr, 1 );
+  print_req (req);
   top( req, resp );
+  print_resp (resp);
   assert( check_resp(resp) );
 
   // set last ds id
-  data = 1;   raddr = 3;
+  data = 0;   raddr = 3;
   req = make_req( data, raddr, 1 );
+  print_req (req);
   top( req, resp );
+  print_resp (resp);
   assert( check_resp(resp) );
 
   // set last index
-  data = N;   raddr = 4;
+  data = 7;   raddr = 4;
   req = make_req( data, raddr, 1 );
+  print_req (req);
   top( req, resp );
+  print_resp (resp);
   assert( check_resp(resp) );
 
   // set pred
-  data = 0;   raddr = 5;
+  data = 4;   raddr = 5;
   req = make_req( data, raddr, 1 );
+  print_req (req);
   top( req, resp );
+  print_resp (resp);
   assert( check_resp(resp) );
 
   // start accelerator
   data = 0;   raddr = 0;
   req = make_req( data, raddr, 1 );
+  print_req (req);
   top( req, resp );
+  check_resp( resp );
+  print_resp (resp);
   assert( check_resp(resp) );
 
   // read result
   data = 0;   raddr = 0;
   req = make_req( data, raddr, 0 );
+  print_req (req);
   top( req, resp );
+  print_resp (resp);
 
   unsigned s = resp;
   printf ("--------------------\n");
   printf ("Result: %X\n", s);
   printf ("--------------------\n");
-  assert (s == 6);
+  //assert (s == 6);
 
   return 0;
 }
