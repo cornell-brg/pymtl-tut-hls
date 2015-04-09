@@ -25,6 +25,5 @@ cosim_design -rtl systemc -coverage -trace_level all
 
 file copy -force hls.prj/solution1/.autopilot/db/a.o.2.ll a.o.2.orig.ll
 file copy -force hls.prj/solution1/sim/systemc/top_sc_trace_0.vcd top_sc_trace_0.vcd
-#file copy -force hls.prj/solution1/syn/verilog/${top}.v ${top}.v
 
 exit

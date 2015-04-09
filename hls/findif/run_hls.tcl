@@ -25,6 +25,14 @@ csynth_design
 #export_design -evaluate verilog
 
 file copy -force hls.prj/solution1/.autopilot/db/a.o.2.ll a.o.2.orig.ll
-file copy -force hls.prj/solution1/syn/verilog/${top}.v ${top}.v
+set fout [open ./top.v w]
+fconfigure $fout -translation binary
+set vfiles [glob -nocomplain -type f "hls.prj/solution1/syn/verilog/*.v"]
+foreach vfile $vfiles {
+  set fin [open $vfile r]
+  fconfigure $fin -translation binary
+  fcopy $fin $fout
+  close $fin
+}
 
 exit

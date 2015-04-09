@@ -101,7 +101,7 @@ void top (volatile AsuReqType  &cfg_req,
 // findif logic
 // ------------------------------------------------------------------
 unsigned findif (iterator begin, iterator end, PredicateType pred_val) {
-#pragma HLS INLINE
+//#pragma HLS INLINE
   bool stop = false;
   for (; begin != end; ++begin) {
     // 
