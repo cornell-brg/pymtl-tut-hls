@@ -37,14 +37,7 @@ class ReferenceProxy {
     {
       //#pragma HLS INLINE self off
       //send a read request
-      ItuReqType req = 0;
-      req |= m_ds_id;
-      req = (req << 32) | m_index;
-      req = (req << 32);
-      g_itu_iface.req = req;
-      ap_wait();
-
-      ItuRespType resp = g_itu_iface.resp;
+      ItuRespType resp = itu_read (g_itu_iface, m_ds_id, m_index);
       T data = resp & 0xFFFF;
       return data;
     }
@@ -53,14 +46,8 @@ class ReferenceProxy {
     {
       //#pragma HLS INLINE self off
       //send a write request
-      ItuReqType req = 1;
-      req = (req << 32) | m_ds_id;
-      req = (req << 32) | m_index;
-      req = (req << 32) | (data & 0xFF);
-      g_itu_iface.req = req;
-      ap_wait();
-
-      ItuRespType resp = g_itu_iface.resp;
+      int idata = data & 0xFFFF;
+      ItuRespType resp = itu_write (g_itu_iface, m_ds_id, m_index, idata);
       // verify first bit of resp is 1?
       return *this;
     }
