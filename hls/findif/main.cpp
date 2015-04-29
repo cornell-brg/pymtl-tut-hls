@@ -3,7 +3,7 @@
 #include "ap_utils.h"
 #define N 10
 
-#include "../common/common.h"
+#include "../include/common.h"
 
 typedef char MyType;
 typedef _iterator<MyType> iterator;

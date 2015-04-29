@@ -23,7 +23,6 @@ class ReferenceProxy {
     // index to an data element
     int      m_index;
 
-
   public:
 
     ReferenceProxy() : m_ds_id( 0 ), m_index( 0 ) {}
