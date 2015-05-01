@@ -16,6 +16,7 @@ def test_req_msg():
 
   msg = IteratorReqMsg(32)
   msg.type_ = IteratorReqMsg.TYPE_READ
+  msg.ds_id = 3
   msg.iter  = 12
   msg.field = 10
   msg.data  =  0
@@ -23,18 +24,20 @@ def test_req_msg():
   # Verify msg
 
   assert msg.type_ == 0
+  assert msg.ds_id == 3
   assert msg.iter  == 12
   assert msg.field == 10
   assert msg.data  == 0
 
   # Verify string
 
-  assert str(msg) == "rd:0000000c:0000000a:        "
+  assert str(msg) == "rd:03:00000c:0000000a:        "
 
   # Create msg
 
   msg = IteratorReqMsg(32)
   msg.type_ = IteratorReqMsg.TYPE_WRITE
+  msg.ds_id = 6
   msg.iter  = 8
   msg.field = 4
   msg.data  = 0xdeadbeef
@@ -42,13 +45,14 @@ def test_req_msg():
   # Verify msg
 
   assert msg.type_ == 1
+  assert msg.ds_id == 6
   assert msg.iter  == 8
   assert msg.field == 4
   assert msg.data  == 0xdeadbeef
 
   # Verify string
 
-  assert str(msg) == "wr:00000008:00000004:deadbeef"
+  assert str(msg) == "wr:06:000008:00000004:deadbeef"
 
 #-------------------------------------------------------------------------
 # test_resp_msg
