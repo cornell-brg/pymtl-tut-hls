@@ -141,11 +141,16 @@ def run_itu_test( model, mem_array, ds_type, dump_vcd = None ):
   sim.cycle()
 
 #------------------------------------------------------------------------------
-# mem_array_32bit
+# Utility functions for creating arrays formatted for memory loading.
 #------------------------------------------------------------------------------
-# Utility function for creating arrays formatted for memory loading.
-def mem_array_32bit( base_addr, data ):
+# mem_array_int
+def mem_array_int( base_addr, data ):
   bytes = struct.pack( "<{}i".format( len(data) ), *data )
+  return [base_addr, bytes]
+
+# mem_array_uchar
+def mem_array_uchar( base_addr, data ):
+  bytes = struct.pack( "<{}B".format( len(data) ), *data )
   return [base_addr, bytes]
 
 #------------------------------------------------------------------------------
@@ -172,11 +177,31 @@ def resp_rd(  data ):
 #------------------------------------------------------------------------------
 
 # preload the memory to known values
-vec_int_mem = mem_array_32bit( 8, [0x00040000,1,2,3,4] )
+vec_int_mem = mem_array_int( 8, [0x00040000,1,2,3,4] )
 
 # messages that assume memory is preloaded and test for the case using the
 # data structure with an id value to be 0
 vector_int_msgs = [
+  req_rd( 0, 0, 0, 0 ), resp_rd( 0x00000001 ),
+  req_rd( 0, 1, 0, 0 ), resp_rd( 0x00000002 ),
+  req_rd( 0, 2, 0, 0 ), resp_rd( 0x00000003 ),
+  req_rd( 0, 3, 0, 0 ), resp_rd( 0x00000004 ),
+  req_wr( 0, 0, 0, 7 ), resp_wr( 0x00000000 ),
+  req_rd( 0, 0, 0, 0 ), resp_rd( 0x00000007 ),
+]
+
+#------------------------------------------------------------------------------
+# Memory array and messages to test vector of unsigned chars
+#------------------------------------------------------------------------------
+
+# preload the memory to known values
+# NOTE: The first four bytes describe the dt_descriptor written out in
+# little-endian format
+vec_uchar_mem = mem_array_uchar( 8, [0,0,1,0,1,2,3,4] )
+
+# messages that assume memory is preloaded and test for the case using the
+# data structure with an id value to be 0
+vector_uchar_msgs = [
   req_rd( 0, 0, 0, 0 ), resp_rd( 0x00000001 ),
   req_rd( 0, 1, 0, 0 ), resp_rd( 0x00000002 ),
   req_rd( 0, 2, 0, 0 ), resp_rd( 0x00000003 ),
@@ -220,11 +245,15 @@ vector_int_msgs = [
 #-------------------------------------------------------------------------
 
 test_case_table = mk_test_case_table([
-  (                      "msgs            src sink stall lat  mem          ds" ),
-  [ "vec_int_0x0_0.0_0",  vector_int_msgs, 0, 0,   0.0,  0,   vec_int_mem, ITU.VECTOR ],
-  [ "vec_int_5x0_0.5_0",  vector_int_msgs, 5, 0,   0.5,  0,   vec_int_mem, ITU.VECTOR ],
-  [ "vec_int_0x5_0.0_4",  vector_int_msgs, 0, 5,   0.0,  4,   vec_int_mem, ITU.VECTOR ],
-  [ "vec_int_3x9_0.5_3",  vector_int_msgs, 3, 9,   0.5,  3,   vec_int_mem, ITU.VECTOR ],
+  (                         "msgs              src sink stall lat  mem            ds" ),
+  [ "vec_int_0x0_0.0_0",    vector_int_msgs,   0,  0,   0.0,  0,   vec_int_mem,   ITU.VECTOR ],
+  [ "vec_int_5x0_0.5_0",    vector_int_msgs,   5,  0,   0.5,  0,   vec_int_mem,   ITU.VECTOR ],
+  [ "vec_int_0x5_0.0_4",    vector_int_msgs,   0,  5,   0.0,  4,   vec_int_mem,   ITU.VECTOR ],
+  [ "vec_int_3x9_0.5_3",    vector_int_msgs,   3,  9,   0.5,  3,   vec_int_mem,   ITU.VECTOR ],
+  [ "vec_uchar_0x0_0.0_0",  vector_uchar_msgs, 0,  0,   0.0,  0,   vec_uchar_mem, ITU.VECTOR ],
+  [ "vec_uchar_5x0_0.5_0",  vector_uchar_msgs, 5,  0,   0.5,  0,   vec_uchar_mem, ITU.VECTOR ],
+  [ "vec_uchar_0x5_0.0_4",  vector_uchar_msgs, 0,  5,   0.0,  4,   vec_uchar_mem, ITU.VECTOR ],
+  [ "vec_uchar_3x9_0.5_3",  vector_uchar_msgs, 3,  9,   0.5,  3,   vec_uchar_mem, ITU.VECTOR ],
 ])
 
 #-------------------------------------------------------------------------
