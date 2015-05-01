@@ -4,7 +4,6 @@
 
 from pymtl      import *
 from pclib.ifcs import InValRdyBundle, OutValRdyBundle
-from pclib.cl   import InValRdyQueueAdapter, OutValRdyQueueAdapter
 from pclib.cl   import InValRdyQueue, OutValRdyQueue
 
 from BytesMemPortProxyFuture import BytesMemPortProxy
@@ -12,6 +11,7 @@ from BytesMemPortProxyFuture import BytesMemPortProxy
 #-------------------------------------------------------------------------
 # TypeDescriptor
 #-------------------------------------------------------------------------
+# XXX: Move this elsewhere as even ASU's may use them?
 
 class TypeDescriptor( BitStructDefinition ):
 
@@ -35,9 +35,18 @@ class TypeDescriptor( BitStructDefinition ):
 #-------------------------------------------------------------------------
 class IteratorTranslationUnitFL( Model ):
 
+  #-----------------------------------------------------------------------
+  # Data Structure types
+  #-----------------------------------------------------------------------
+
+  VECTOR = 0 # vector
+  LIST   = 1 # list
+
   def __init__( s, cfg_ifc_types, itu_ifc_types, mem_ifc_types ):
 
+    #---------------------------------------------------------------------
     # Interfaces
+    #---------------------------------------------------------------------
 
     s.cfgreq   = InValRdyBundle  ( cfg_ifc_types.req   )
     s.cfgresp  = OutValRdyBundle ( cfg_ifc_types.resp  )
@@ -48,35 +57,59 @@ class IteratorTranslationUnitFL( Model ):
     s.memreq   = OutValRdyBundle ( mem_ifc_types.req   )
     s.memresp  = InValRdyBundle  ( mem_ifc_types.resp  )
 
+    #---------------------------------------------------------------------
     # Adapters
+    #---------------------------------------------------------------------
+    # NOTE: Ideally we want the code to use the adapters as below.
+    # Where the queue adapters are really _fl_ queue adapters and not _cl_
+    # adapters. The FL queue adapter essentially must peek to see if there
+    # if there is a message in the current cycle, pop it, and process the
+    # message. It must not stall waiting for a valid message. We don't have
+    # such a queue adapter yet...
+    #
+    #   s.cfgreq_q   = InValRdyQueueAdapter  ( s.cfgreq  )
+    #   s.cfgresp_q  = OutValRdyQueueAdapter ( s.cfgresp )
+    #   s.xcelreq_q  = InValRdyQueueAdapter  ( s.xcelreq  )
+    #   s.xcelresp_q = OutValRdyQueueAdapter ( s.xcelresp )
+    #
+    # As a workaround, I am using the CL queues instead which do not assert
+    # a high rdy cycle ( that is they do not act like bypass queues for
+    # InValRdyQueueAdapters ), that causes xcels to inject messages and we
+    # essentially drop them. This happens because I am using a FL memory
+    # port adapter and the code stalls in the logic() block while the
+    # src/xcel can inject another message...It's hacky but works for now.
 
-    s.cfgreq_q   = InValRdyQueueAdapter  ( s.cfgreq  )
-    s.cfgresp_q  = OutValRdyQueueAdapter ( s.cfgresp )
+    # Adapter for CFG request val-rdy bundle
+    s.cfgreq_q  = InValRdyQueue  ( cfg_ifc_types.req  )
+    s.connect( s.cfgreq_q.in_, s.cfgreq )
 
-    #s.xcelreq_q  = InValRdyQueueAdapter  ( s.xcelreq  )
-    #s.xcelresp_q = OutValRdyQueueAdapter ( s.xcelresp )
+    # Adapter for CFG response val-rdy bundle
+    s.cfgresp_q = OutValRdyQueue ( cfg_ifc_types.resp )
+    s.connect( s.cfgresp_q.out, s.cfgresp )
 
+    # Adapter for XCEL request val-rdy bundle
     s.xcelreq_q  = InValRdyQueue  ( itu_ifc_types.req  )
-    s.xcelresp_q = OutValRdyQueue ( itu_ifc_types.resp )
-
     s.connect( s.xcelreq_q.in_, s.xcelreq )
+
+    # Adapter for XCEL response val-rdy bundle
+    s.xcelresp_q = OutValRdyQueue ( itu_ifc_types.resp )
     s.connect( s.xcelresp_q.out, s.xcelresp )
 
+    # Memory port adapter
     s.mem = BytesMemPortProxy ( mem_ifc_types, s.memreq, s.memresp )
 
+    #---------------------------------------------------------------------
     # Internal State
+    #---------------------------------------------------------------------
 
     s.ds_type  = [0]*32  # stores the type of the data structure
     s.ds_table = [0]*32  # stores pointers to the data structure descriptors
     s.dt_table = [0]*32  # stores pointers to the data type descriptors
 
-    # Data Structure types
-    VECTOR = 0 # vector
-    LIST   = 1 # list
-
     #---------------------------------------------------------------------
     # Implementation
     #---------------------------------------------------------------------
+
     @s.tick_fl
     def logic():
 
@@ -131,26 +164,23 @@ class IteratorTranslationUnitFL( Model ):
         # look up the ds_type
         ds_type = s.ds_type[ xcel_req.ds_id ]
 
-        if ds_type == VECTOR:
+        if ds_type == s.VECTOR:
           # get the base addr
           base_addr   = s.ds_table[ xcel_req.ds_id ]
 
           # get the metadata
           dt_desc_ptr = s.dt_table[ xcel_req.ds_id ]
-          #dt_value    = s.mem[dt_desc_ptr:dt_desc_ptr+4]
-          dt_desc     = TypeDescriptor().unpck( dt_desc_ptr )
+          dt_value    = s.mem[dt_desc_ptr:dt_desc_ptr+4]
+          dt_desc     = TypeDescriptor().unpck( dt_value )
 
           # PRIMITIVE TYPES
           if dt_desc.type_ == 0:
-            #print "base_addr {}".format( base_addr )
-            #print "iter {}".format( xcel_req.iter )
-            #print "size {}".format( dt_desc.size_ )
             mem_addr = base_addr + ( xcel_req.iter * dt_desc.size_ )
-            #print "mem_addr {}".format( mem_addr )
+
             if   xcel_req.type_ == itu_ifc_types.req.TYPE_READ:
-              #print "read!"
               mem_data = s.mem[mem_addr:mem_addr+dt_desc.size_]
               s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( 0, mem_data ) )
+
             elif xcel_req.type_ == itu_ifc_types.req.TYPE_WRITE:
               s.mem[mem_addr:mem_addr+4] = xcel_req.data
               s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( 1, 0 ) )

@@ -70,7 +70,7 @@ class TestHarness( Model ):
 #------------------------------------------------------------------------------
 # run_itu_test
 #------------------------------------------------------------------------------
-def run_itu_test( model, mem_array, ds_type, dt_desc, dump_vcd = None ):
+def run_itu_test( model, mem_array, ds_type, dump_vcd = None ):
 
   # Elaborate
   model.vcd_file = dump_vcd
@@ -108,15 +108,15 @@ def run_itu_test( model, mem_array, ds_type, dt_desc, dump_vcd = None ):
   sim.cycle()
 
   # Init data structure - ds_desc
-  model.itu.cfgreq.msg.data.next  = mem_array[0] # base addr
-  model.itu.cfgreq.msg.raddr.next = 2            # init
-  model.itu.cfgreq.msg.id.next    = alloc_ds_id  # id of the ds
+  model.itu.cfgreq.msg.data.next  = mem_array[0]+4 # base addr
+  model.itu.cfgreq.msg.raddr.next = 2              # init
+  model.itu.cfgreq.msg.id.next    = alloc_ds_id    # id of the ds
 
   sim.cycle()
   sim.cycle()
 
   # Init data structure - dt_desc
-  model.itu.cfgreq.msg.data.next  = dt_desc      # base addr
+  model.itu.cfgreq.msg.data.next  = mem_array[0] # dt_desc_ptr
   model.itu.cfgreq.msg.raddr.next = 3            # init
   model.itu.cfgreq.msg.id.next    = alloc_ds_id  # id of the ds
 
@@ -176,7 +176,7 @@ def resp_rd(  data ):
 #------------------------------------------------------------------------------
 
 # preload the memory to known values
-vec_int_mem = mem_array_32bit( 8, [1,2,3,4] )
+vec_int_mem = mem_array_32bit( 8, [0x00040000,1,2,3,4] )
 
 # messages that assume memory is preloaded and test for the case using the
 # data structure with an id value to be 0
@@ -224,11 +224,11 @@ vector_int_msgs = [
 #-------------------------------------------------------------------------
 
 test_case_table = mk_test_case_table([
-  (                      "msgs            src sink stall lat  mem         ds  dt"),
-  [ "vec_int_0x0_0.0_0",  vector_int_msgs, 0, 0,   0.0,  0,   vec_int_mem, 0, 0x00040000],
-  [ "vec_int_5x0_0.5_0",  vector_int_msgs, 5, 0,   0.5,  0,   vec_int_mem, 0, 0x00040000],
-  [ "vec_int_0x5_0.0_4",  vector_int_msgs, 0, 5,   0.0,  4,   vec_int_mem, 0, 0x00040000],
-  [ "vec_int_3x9_0.5_3",  vector_int_msgs, 3, 9,   0.5,  3,   vec_int_mem, 0, 0x00040000],
+  (                      "msgs            src sink stall lat  mem          ds" ),
+  [ "vec_int_0x0_0.0_0",  vector_int_msgs, 0, 0,   0.0,  0,   vec_int_mem, ITU.VECTOR ],
+  [ "vec_int_5x0_0.5_0",  vector_int_msgs, 5, 0,   0.5,  0,   vec_int_mem, ITU.VECTOR ],
+  [ "vec_int_0x5_0.0_4",  vector_int_msgs, 0, 5,   0.0,  4,   vec_int_mem, ITU.VECTOR ],
+  [ "vec_int_3x9_0.5_3",  vector_int_msgs, 3, 9,   0.5,  3,   vec_int_mem, ITU.VECTOR ],
 ])
 
 #-------------------------------------------------------------------------
@@ -247,5 +247,4 @@ def test( test_params, dump_vcd ):
                               test_params.lat ),
                 test_params.mem,
                 test_params.ds,
-                test_params.dt,
                 dump_vcd )
