@@ -28,7 +28,7 @@ class BytesMemPortProxy (object):
     s.mk_resp        = s.mem_ifc_types.resp.mk_msg
     s.rd             = s.mem_ifc_types.req.TYPE_READ
     s.wr             = s.mem_ifc_types.req.TYPE_WRITE
-    s.data_nbytes    = s.mem_ifc_types.req.data.nbits
+    s.data_nbytes    = ( s.mem_ifc_types.req.data.nbits )/8
 
     # References to the memory request and response ports
 
