@@ -7,12 +7,11 @@ import struct
 
 from pymtl            import *
 from pclib.test       import TestSource, TestSink, mk_test_case_table
-from pclib.test.TestMemoryFuture import TestMemory
 
 from XcelMsg          import XcelMsg
 from IteratorMsg      import IteratorMsg
 from MemMsgFuture     import MemMsg
-#from TestMemoryOpaque import TestMemory
+from TestMemoryOpaque import TestMemory
 
 from IteratorTranslationUnitFL import IteratorTranslationUnitFL as ITU
 from IteratorTranslationUnitFL import TypeDescriptor
@@ -43,8 +42,7 @@ class TestHarness( Model ):
 
     s.sink = TestSink ( itu_ifc.resp, sink_msgs, sink_delay )
 
-    #s.mem  = TestMemory ( mem_ifc, 1, 0, 0.0, 0 )
-    s.mem  = TestMemory ( mem_ifc, 1, 0, 0 )
+    s.mem  = TestMemory ( mem_ifc, 1, stall_prob, latency )
 
     # Connect
     s.connect( s.src.out.msg, s.itu.xcelreq.msg )
@@ -63,9 +61,7 @@ class TestHarness( Model ):
     return s.src.done and s.sink.done
 
   def line_trace( s ):
-    return  s.src.line_trace() + " > " + \
-            s.itu.line_trace() + " > " + \
-            s.sink.line_trace()
+    return s.itu.line_trace()
 
 #------------------------------------------------------------------------------
 # run_itu_test

@@ -190,7 +190,7 @@ class IteratorTranslationUnitFL( Model ):
   #-----------------------------------------------------------------------
 
   def line_trace( s ):
-    return " {} {} | {} {}".format( s.xcelreq,
-                                    s.xcelresp,
-                                    s.memreq,
-                                    s.memresp )
+    return " {} | {} {} | {}".format( s.xcelreq,
+                                      s.memreq,
+                                      s.memresp,
+                                      s.xcelresp )
