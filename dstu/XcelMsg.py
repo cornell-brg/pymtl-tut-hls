@@ -34,6 +34,17 @@ class XcelReqMsg( BitStructDefinition ):
     s.data   = BitField( 32 )
     s.id     = BitField( 10 )
 
+  def mk_msg( s, opaque, type_, raddr, data, id ):
+
+    msg = s()
+    msg.opaque = opaque
+    msg.type_  = type_
+    msg.raddr  = raddr
+    msg.data   = data
+    msg.id     = id
+
+    return msg
+
   def __str__( s ):
 
     if s.type_ == XcelReqMsg.TYPE_READ:
@@ -68,6 +79,16 @@ class XcelRespMsg( BitStructDefinition ):
     s.type_  = BitField( 1  )
     s.data   = BitField( 32 )
     s.id     = BitField( 10 )
+
+  def mk_msg( s, opaque, type_, data, id ):
+
+    msg = s()
+    msg.opaque = opaque
+    msg.type_  = type_
+    msg.data   = data
+    msg.id     = id
+
+    return msg
 
   def __str__( s ):
 

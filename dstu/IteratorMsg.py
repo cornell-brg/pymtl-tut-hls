@@ -29,7 +29,7 @@ class IteratorReqMsg( BitStructDefinition ):
     s.field      = BitField(         32 )
     s.data       = BitField( data_nbits )
 
-  def mk_req( s, type_, iter, field, data ):
+  def mk_msg( s, type_, iter, field, data ):
     msg       = s()
     msg.type_ = type_
     msg.iter  = iter
@@ -62,7 +62,7 @@ class IteratorRespMsg( BitStructDefinition ):
     s.type_      = BitField(          1 )
     s.data       = BitField( data_nbits )
 
-  def mk_resp( s, type_, data ):
+  def mk_msg( s, type_, data ):
     msg       = s()
     msg.type_ = type_
     msg.data  = data

@@ -67,7 +67,7 @@ class IteratorTranslationUnitFL( Model ):
         # check if it is a write request
         if req.type_ == 1:
           if not req.addr == 1:
-            s.cfgresp_q.enq( cfg_ifc_types.resp.mk_resp( 1, 0 ) )
+            s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( 1, 0 ) )
 
           # dstruct alloc
           # XXX: modify XcelMsg to have mk_resp/mk_req messages and commit
@@ -75,11 +75,11 @@ class IteratorTranslationUnitFL( Model ):
           if   req.addr == 1:
             for idx,val in enumerate( s.ds_type ):
               if   val == 0:
-                s.cfgresp_q( cfg_ifc_types.resp.mk_resp( 1, idx ) )
+                s.cfgresp_q( cfg_ifc_types.resp.mk_msg( 1, idx ) )
                 s.ds_type[ idx ] = req.data
                 break
               elif idx == ( len( s.ds_type ) - 1 ):
-                s.cfgresp_q( cfg_ifc_types.resp.mk_resp( 1, -1 ) )
+                s.cfgresp_q( cfg_ifc_types.resp.mk_msg( 1, -1 ) )
 
           # dstruct init ds_table
           elif req.addr == 2:
