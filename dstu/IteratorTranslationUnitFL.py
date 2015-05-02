@@ -164,6 +164,9 @@ class IteratorTranslationUnitFL( Model ):
         # look up the ds_type
         ds_type = s.ds_type[ xcel_req.ds_id ]
 
+        #-----------------------------------------------------------------
+        # Handle VECTOR
+        #-----------------------------------------------------------------
         if ds_type == s.VECTOR:
           # get the base addr
           base_addr   = s.ds_table[ xcel_req.ds_id ]
@@ -182,8 +185,40 @@ class IteratorTranslationUnitFL( Model ):
               s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( 0, mem_data ) )
 
             elif xcel_req.type_ == itu_ifc_types.req.TYPE_WRITE:
-              s.mem[mem_addr:mem_addr+4] = xcel_req.data
+              s.mem[mem_addr:mem_addr+dt_desc.size_] = xcel_req.data
               s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( 1, 0 ) )
+
+        #-----------------------------------------------------------------
+        # Handle LIST
+        #-----------------------------------------------------------------
+        elif ds_type == s.LIST:
+          # get the node ptr
+          node_ptr   = s.ds_table[ xcel_req.ds_id ]
+
+          # get the metadata
+          dt_desc_ptr = s.dt_table[ xcel_req.ds_id ]
+          dt_value    = s.mem[dt_desc_ptr:dt_desc_ptr+4]
+          dt_desc     = TypeDescriptor().unpck( dt_value )
+
+          # PRIMITIVE TYPES
+          if dt_desc.type_ == 0:
+
+            # pointer chasing for intermediate nodes
+            if not xcel_req.iter == 0:
+              for i in xrange( xcel_req.iter ):
+                # +-----+------+------+
+                # | val | prev | next |
+                # +-----+------+------+
+                node_ptr = s.mem[node_ptr+8:node_ptr+12]
+
+            if   xcel_req.type_ == itu_ifc_types.req.TYPE_READ:
+              mem_data = s.mem[node_ptr:node_ptr+dt_desc.size_]
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( 0, mem_data ) )
+
+            elif xcel_req.type_ == itu_ifc_types.req.TYPE_WRITE:
+              s.mem[node_ptr:node_ptr+dt_desc.size_] = xcel_req.data
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( 1, 0 ) )
+
 
   #-----------------------------------------------------------------------
   # line_trace
