@@ -1,0 +1,5 @@
+*.ll
+hls.prj
+vivado_hls.log
+main
+*.pyc
