@@ -1,5 +1,5 @@
 #==============================================================================
-# IteratorTranslationUnitFL_test
+# IteratorTranslationUnitFL_test.py
 #==============================================================================
 
 import pytest
@@ -7,7 +7,6 @@ import struct
 
 from pymtl            import *
 from pclib.test       import TestSource, TestSink, mk_test_case_table
-
 from XcelMsg          import XcelMsg
 from IteratorMsg      import IteratorMsg
 from MemMsgFuture     import MemMsg
@@ -50,7 +49,6 @@ class TestHarness( Model ):
     s.connect( s.itu.xcelresp, s.sink.in_     )
     s.connect( s.itu.memreq,   s.mem.reqs[0]  )
     s.connect( s.itu.memresp,  s.mem.resps[0] )
-
 
     @s.combinational
     def logic():
@@ -120,7 +118,7 @@ def run_itu_test( model, mem_array, ds_type, dump_vcd = None ):
   sim.cycle()
 
   # End itu configuration
-  model.itu.cfgreq.val.next      = 0
+  model.itu.cfgreq.val.next = 0
 
   sim.cycle()
   sim.cycle()

@@ -79,19 +79,19 @@ class IteratorTranslationUnitFL( Model ):
     # port adapter and the code stalls in the logic() block while the
     # src/xcel can inject another message...It's hacky but works for now.
 
-    # Adapter for CFG request val-rdy bundle
+    # Adapter for the CFG request val-rdy bundle
     s.cfgreq_q  = InValRdyQueue  ( cfg_ifc_types.req  )
     s.connect( s.cfgreq_q.in_, s.cfgreq )
 
-    # Adapter for CFG response val-rdy bundle
+    # Adapter for the CFG response val-rdy bundle
     s.cfgresp_q = OutValRdyQueue ( cfg_ifc_types.resp )
     s.connect( s.cfgresp_q.out, s.cfgresp )
 
-    # Adapter for XCEL request val-rdy bundle
+    # Adapter for the XCEL request val-rdy bundle
     s.xcelreq_q  = InValRdyQueue  ( itu_ifc_types.req  )
     s.connect( s.xcelreq_q.in_, s.xcelreq )
 
-    # Adapter for XCEL response val-rdy bundle
+    # Adapter for the XCEL response val-rdy bundle
     s.xcelresp_q = OutValRdyQueue ( itu_ifc_types.resp )
     s.connect( s.xcelresp_q.out, s.xcelresp )
 
@@ -119,7 +119,7 @@ class IteratorTranslationUnitFL( Model ):
       s.xcelresp_q.xtick()
 
       #-------------------------------------------------------------------
-      # configure the ITU
+      # Configure the ITU
       #-------------------------------------------------------------------
       if not s.cfgreq_q.empty() and not s.cfgresp_q.full():
 
@@ -154,7 +154,7 @@ class IteratorTranslationUnitFL( Model ):
             s.dstruct[ req.data ] = 0
 
       #-------------------------------------------------------------------
-      # service the ASU
+      # Service the ASU
       #-------------------------------------------------------------------
       if not s.xcelreq_q.empty() and not s.xcelresp_q.full():
 
