@@ -1,90 +1,70 @@
-#=============================================================================
-# FindIfUnitFL_test.py
-#=============================================================================
-# XXX: Configure dt_desc_ptr in the asu
-# XXX: Check accel-id returned in responses
-# XXX: Tests for user-defined types
+#==============================================================================
+# IteratorTranslationUnitFL_test.py
+#==============================================================================
 
 import pytest
 import struct
 
-from pymtl      import *
-from pclib.test import TestSource, TestSink, mk_test_case_table
+from pymtl            import *
+from pclib.test       import TestSource, TestSink, mk_test_case_table
+from XcelMsg          import XcelMsg
+from IteratorMsg      import IteratorMsg
+from MemMsgFuture     import MemMsg
+from TestMemoryOpaque import TestMemory
 
-from dstu.MemMsgFuture              import MemMsg
-from dstu.TestMemoryOpaque          import TestMemory
-from dstu.IteratorTranslationUnitFL import IteratorTranslationUnitFL as ITU
-from dstu.IteratorMsg               import IteratorMsg
-from dstu.XcelMsg                   import XcelMsg
-
-from FindIfUnitFL import FindIfUnitFL
+from IteratorTranslationUnitFL import IteratorTranslationUnitFL as ITU
+from IteratorTranslationUnitFL import TypeDescriptor
 
 #------------------------------------------------------------------------------
 # TestHarness
 #------------------------------------------------------------------------------
 class TestHarness( Model ):
 
-  def __init__( s, FindIfUnit, TranslationUnit,
-                src_msgs,  sink_msgs,
-                src_delay, sink_delay,
+  def __init__( s, model,
+                src_msgs,   sink_msgs,
+                src_delay,  sink_delay,
                 stall_prob, latency,
                 dump_vcd=False ):
 
     # Interfaces
-    asu_cfg_ifc = XcelMsg()
-    asu_itu_ifc = IteratorMsg (32)
-    itu_cfg_ifc = XcelMsg()
-    mem_ifc     = MemMsg (8,32,32)
+    cfg_ifc = XcelMsg()
+    itu_ifc = IteratorMsg(32)
+    mem_ifc = MemMsg(8,32,32)
 
     # Go bit
     s.go = Wire( 1 )
 
     # Instantiate Models
+    s.src  = TestSource ( itu_ifc.req, src_msgs, src_delay )
 
-    s.src = TestSource( asu_cfg_ifc.req, src_msgs, src_delay )
+    s.itu  = model ( cfg_ifc, itu_ifc, mem_ifc )
 
-    s.asu = FindIfUnit( asu_cfg_ifc, asu_itu_ifc , mem_ifc )
+    s.sink = TestSink ( itu_ifc.resp, sink_msgs, sink_delay )
 
-    s.itu = TranslationUnit( itu_cfg_ifc, asu_itu_ifc, mem_ifc )
-
-    s.sink = TestSink( asu_cfg_ifc.resp, sink_msgs, sink_delay )
-
-    s.mem  = TestMemory( mem_ifc, 2, stall_prob, latency )
+    s.mem  = TestMemory ( mem_ifc, 1, stall_prob, latency )
 
     # Connect
+    s.connect( s.src.out.msg, s.itu.xcelreq.msg )
 
-    # src <-> asu
-    s.connect( s.src.out.msg, s.asu.cfgreq.msg )
-    s.connect( s.asu.cfgresp, s.sink.in_       )
-
-    # asu <-> mem
-    s.connect( s.asu.memreq,   s.mem.reqs[0]  )
-    s.connect( s.asu.memresp,  s.mem.resps[0] )
-
-    # asu <-> itu
-    s.connect( s.asu.itureq,    s.itu.xcelreq )
-    s.connect( s.asu.ituresp, s.itu.xcelresp  )
-
-    # itu <-> mem
-    s.connect( s.itu.memreq,   s.mem.reqs[1]  )
-    s.connect( s.itu.memresp,  s.mem.resps[1] )
+    s.connect( s.itu.xcelresp, s.sink.in_     )
+    s.connect( s.itu.memreq,   s.mem.reqs[0]  )
+    s.connect( s.itu.memresp,  s.mem.resps[0] )
 
     @s.combinational
     def logic():
-      s.asu.cfgreq.val.value = s.src.out.val & s.go
-      s.src.out.rdy.value    = s.asu.cfgreq.rdy & s.go
+      s.itu.xcelreq.val.value = s.src.out.val & s.go
+      s.src.out.rdy.value     = s.itu.xcelreq.rdy & s.go
 
   def done( s ):
     return s.src.done and s.sink.done
 
   def line_trace( s ):
-    return  s.asu.line_trace() + " > " + \
-            s.itu.line_trace()
+    return s.itu.line_trace()
 
 #------------------------------------------------------------------------------
-# run_asu_test
+# run_itu_test
 #------------------------------------------------------------------------------
-def run_asu_test( model, mem_array, ds_type, dump_vcd = None ):
+def run_itu_test( model, mem_array, ds_type, dump_vcd = None ):
 
   # Elaborate
   model.vcd_file = dump_vcd
@@ -121,7 +101,7 @@ def run_asu_test( model, mem_array, ds_type, dump_vcd = None ):
   sim.cycle()
   sim.cycle()
 
-  # Init data structure
+  # Init data structure - ds_desc
   model.itu.cfgreq.msg.data.next  = mem_array[0]+4 # base addr
   model.itu.cfgreq.msg.raddr.next = 2              # init
   model.itu.cfgreq.msg.id.next    = alloc_ds_id    # id of the ds
@@ -147,7 +127,7 @@ def run_asu_test( model, mem_array, ds_type, dump_vcd = None ):
   model.itu.cfgresp.rdy.next  = 0
   model.go.next = 1
 
-  while not model.done() and sim.ncycles < 500:
+  while not model.done() and sim.ncycles < 250:
     sim.print_line_trace()
     sim.cycle()
   sim.print_line_trace()
@@ -166,30 +146,67 @@ def mem_array_int( base_addr, data ):
   bytes = struct.pack( "<{}i".format( len(data) ), *data )
   return [base_addr, bytes]
 
+# mem_array_uchar
+def mem_array_uchar( base_addr, data ):
+  bytes = struct.pack( "<{}B".format( len(data) ), *data )
+  return [base_addr, bytes]
+
 #------------------------------------------------------------------------------
 # Helper functions for Test src/sink messages
 #------------------------------------------------------------------------------
 
-req  = XcelMsg().req.mk_msg
-resp = XcelMsg().resp.mk_msg
+req  = IteratorMsg( 32 ).req.mk_msg
+resp = IteratorMsg( 32 ).resp.mk_msg
+
+def req_wr( ds_id, iter, field, data ):
+  return req( 1, ds_id, iter, field, data )
+
+def req_rd( ds_id, iter, field, data ):
+  return req( 0, ds_id, iter, field, data )
+
+def resp_wr( data ):
+  return resp( 1, data )
+
+def resp_rd(  data ):
+  return resp( 0, data )
 
 #------------------------------------------------------------------------------
 # Memory array and messages to test vector of integers
 #------------------------------------------------------------------------------
 
 # preload the memory to known values
-vec_int_mem = mem_array_int( 8, [0x00040000,1,1,3,3,5,5,6] )
+vec_int_mem = mem_array_int( 8, [0x00040000,1,2,3,4] )
 
-# configure the asu state and expect a response for a given predicate
+# messages that assume memory is preloaded and test for the case using the
+# data structure with an id value to be 0
 vector_int_msgs = [
-                   req( 0, 1, 1, 0, 0 ), resp( 0, 1, 0, 0 ), # first ds-id
-                   req( 0, 1, 2, 0, 0 ), resp( 0, 1, 0, 0 ), # first iter
-                   req( 0, 1, 3, 0, 0 ), resp( 0, 1, 0, 0 ), # last ds-id
-                   req( 0, 1, 4, 7, 0 ), resp( 0, 1, 0, 0 ), # last iter
-                   req( 0, 1, 5, 4, 0 ), resp( 0, 1, 0, 0 ), # predicate val = IsEven
-                   req( 0, 1, 0, 0, 0 ), resp( 0, 1, 0, 0 ), # go
-                   req( 0, 0, 0, 0, 0 ), resp( 0, 0, 6, 0 )  # check done
-                  ]
+  req_rd( 0, 0, 0, 0 ), resp_rd( 0x00000001 ),
+  req_rd( 0, 1, 0, 0 ), resp_rd( 0x00000002 ),
+  req_rd( 0, 2, 0, 0 ), resp_rd( 0x00000003 ),
+  req_rd( 0, 3, 0, 0 ), resp_rd( 0x00000004 ),
+  req_wr( 0, 0, 0, 7 ), resp_wr( 0x00000000 ),
+  req_rd( 0, 0, 0, 0 ), resp_rd( 0x00000007 ),
+]
+
+#------------------------------------------------------------------------------
+# Memory array and messages to test vector of unsigned chars
+#------------------------------------------------------------------------------
+
+# preload the memory to known values
+# NOTE: The first four bytes describe the dt_descriptor written out in
+# little-endian format
+vec_uchar_mem = mem_array_uchar( 8, [0,0,1,0,1,2,3,4] )
+
+# messages that assume memory is preloaded and test for the case using the
+# data structure with an id value to be 0
+vector_uchar_msgs = [
+  req_rd( 0, 0, 0, 0 ), resp_rd( 0x00000001 ),
+  req_rd( 0, 1, 0, 0 ), resp_rd( 0x00000002 ),
+  req_rd( 0, 2, 0, 0 ), resp_rd( 0x00000003 ),
+  req_rd( 0, 3, 0, 0 ), resp_rd( 0x00000004 ),
+  req_wr( 0, 0, 0, 7 ), resp_wr( 0x00000000 ),
+  req_rd( 0, 0, 0, 0 ), resp_rd( 0x00000007 ),
+]
 
 #------------------------------------------------------------------------------
 # Memory array and messages to test list of integers
@@ -201,25 +218,26 @@ list_int_mem = mem_array_int( 0,
                                     0x00040000,
                                     # value prev next
                                     1,      4, 16,
-                                    1,      4, 28,
+                                    2,      4, 28,
                                     3,     16, 40,
-                                    3,     28, 52,
-                                    5,     40, 64,
-                                    5,     52, 76,
-                                    6,     64, 0,
+                                    4,     28, 0,
                                 ]
                              )
 
-# configure the asu state and expect a response for a given predicate
+# messages that assume memory is preloaded and test for the case using the
+# data structure with an id value to be 0
 list_int_msgs = [
-                 req( 0, 1, 1, 0, 0 ), resp( 0, 1, 0, 0 ), # first ds-id
-                 req( 0, 1, 2, 0, 0 ), resp( 0, 1, 0, 0 ), # first iter
-                 req( 0, 1, 3, 0, 0 ), resp( 0, 1, 0, 0 ), # last ds-id
-                 req( 0, 1, 4, 7, 0 ), resp( 0, 1, 0, 0 ), # last iter
-                 req( 0, 1, 5, 4, 0 ), resp( 0, 1, 0, 0 ), # predicate val = IsEven
-                 req( 0, 1, 0, 0, 0 ), resp( 0, 1, 0, 0 ), # go
-                 req( 0, 0, 0, 0, 0 ), resp( 0, 0, 6, 0 )  # check done
-                ]
+  req_rd( 0, 0, 0, 0 ), resp_rd( 0x00000001 ),
+  req_rd( 0, 1, 0, 0 ), resp_rd( 0x00000002 ),
+  req_rd( 0, 2, 0, 0 ), resp_rd( 0x00000003 ),
+  req_rd( 0, 3, 0, 0 ), resp_rd( 0x00000004 ),
+  req_wr( 0, 0, 0, 5 ), resp_wr( 0x00000000 ),
+  req_wr( 0, 1, 0, 6 ), resp_wr( 0x00000000 ),
+  req_wr( 0, 2, 0, 7 ), resp_wr( 0x00000000 ),
+  req_rd( 0, 1, 0, 0 ), resp_rd( 0x00000006 ),
+  req_rd( 0, 0, 0, 0 ), resp_rd( 0x00000005 ),
+  req_rd( 0, 2, 0, 0 ), resp_rd( 0x00000007 ),
+]
 
 #-------------------------------------------------------------------------
 # Test Case Table
@@ -231,6 +249,10 @@ test_case_table = mk_test_case_table([
   [ "vec_int_5x0_0.5_0",    vector_int_msgs,   5,  0,   0.5,  0,   vec_int_mem,   ITU.VECTOR ],
   [ "vec_int_0x5_0.0_4",    vector_int_msgs,   0,  5,   0.0,  4,   vec_int_mem,   ITU.VECTOR ],
   [ "vec_int_3x9_0.5_3",    vector_int_msgs,   3,  9,   0.5,  3,   vec_int_mem,   ITU.VECTOR ],
+  [ "vec_uchar_0x0_0.0_0",  vector_uchar_msgs, 0,  0,   0.0,  0,   vec_uchar_mem, ITU.VECTOR ],
+  [ "vec_uchar_5x0_0.5_0",  vector_uchar_msgs, 5,  0,   0.5,  0,   vec_uchar_mem, ITU.VECTOR ],
+  [ "vec_uchar_0x5_0.0_4",  vector_uchar_msgs, 0,  5,   0.0,  4,   vec_uchar_mem, ITU.VECTOR ],
+  [ "vec_uchar_3x9_0.5_3",  vector_uchar_msgs, 3,  9,   0.5,  3,   vec_uchar_mem, ITU.VECTOR ],
   [ "list_int_0x0_0.0_0",   list_int_msgs,     0,  0,   0.0,  0,   list_int_mem,  ITU.LIST   ],
   [ "list_int_5x0_0.5_0",   list_int_msgs,     5,  0,   0.5,  0,   list_int_mem,  ITU.LIST   ],
   [ "list_int_0x5_0.0_4",   list_int_msgs,     0,  5,   0.0,  4,   list_int_mem,  ITU.LIST   ],
@@ -244,8 +266,7 @@ test_case_table = mk_test_case_table([
 @pytest.mark.parametrize( **test_case_table )
 def test( test_params, dump_vcd ):
 
-  run_asu_test( TestHarness(  FindIfUnitFL,
-                              ITU,
+  run_itu_test( TestHarness(  ITU,
                               test_params.msgs[::2],
                               test_params.msgs[1::2],
                               test_params.src,
