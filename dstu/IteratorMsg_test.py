@@ -31,7 +31,7 @@ def test_req_msg():
 
   # Verify string
 
-  assert str(msg) == "rd:03:00000c:0000000a:        "
+  assert str(msg) == "rd:003:00000c:0000000a:        "
 
   # Create msg
 
@@ -52,7 +52,7 @@ def test_req_msg():
 
   # Verify string
 
-  assert str(msg) == "wr:06:000008:00000004:deadbeef"
+  assert str(msg) == "wr:006:000008:00000004:deadbeef"
 
 #-------------------------------------------------------------------------
 # test_resp_msg

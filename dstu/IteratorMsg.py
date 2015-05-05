@@ -26,8 +26,8 @@ class IteratorReqMsg( BitStructDefinition ):
 
   def __init__( s, data_nbits ):
     s.type_      = BitField(          1 )
-    s.ds_id      = BitField(          8 )
-    s.iter       = BitField(         24 )
+    s.ds_id      = BitField(         10 )
+    s.iter       = BitField(         22 )
     s.field      = BitField(         32 )
     s.data       = BitField( data_nbits )
 
