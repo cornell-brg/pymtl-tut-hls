@@ -159,16 +159,16 @@ req  = IteratorMsg( 32 ).req.mk_msg
 resp = IteratorMsg( 32 ).resp.mk_msg
 
 def req_wr( ds_id, iter, field, data ):
-  return req( 1, ds_id, iter, field, data )
+  return req( 0, 1, ds_id, iter, field, data )
 
 def req_rd( ds_id, iter, field, data ):
-  return req( 0, ds_id, iter, field, data )
+  return req( 0, 0, ds_id, iter, field, data )
 
 def resp_wr( data ):
-  return resp( 1, data )
+  return resp( 0, 1, data )
 
 def resp_rd(  data ):
-  return resp( 0, data )
+  return resp( 0, 0, data )
 
 #------------------------------------------------------------------------------
 # Memory array and messages to test vector of integers

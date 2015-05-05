@@ -162,7 +162,7 @@ class FindIfUnitFL( Model ):
           if not s.itureq_q.full() and not s.itu_req_set:
             ds_id = s.iter_first_ds_id
             iter  = s.iter_first_iter
-            s.itureq_q.enq( itu_ifc_types.req.mk_msg(0,ds_id,iter,0,0) )
+            s.itureq_q.enq( itu_ifc_types.req.mk_msg(0,0,ds_id,iter,0,0) )
             s.itu_req_set = True
 
           # get the value and apply the predicate

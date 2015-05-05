@@ -129,17 +129,17 @@ class IteratorTranslationUnitFL( Model ):
         # check if it is a write request
         if req.type_ == 1:
           if not req.raddr == 1:
-            s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( 0, 1, 0, 3 ) )
+            s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( req.opaque, 1, 0, 3 ) )
 
           # dstruct alloc
           if   req.raddr == 1:
             for idx,val in enumerate( s.ds_type ):
               if   val == 0:
-                s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( 0, 1, idx, 3 ) )
+                s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( req.opaque, 1, idx, 3 ) )
                 s.ds_type[ idx ] = req.data
                 break
               elif idx == ( len( s.ds_type ) - 1 ):
-                s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( 0, 1, -1, 3 ) )
+                s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( req.opaque, 1, -1, 3 ) )
 
           # dstruct init ds_table
           elif req.raddr == 2:
@@ -182,11 +182,11 @@ class IteratorTranslationUnitFL( Model ):
 
             if   xcel_req.type_ == itu_ifc_types.req.TYPE_READ:
               mem_data = s.mem[mem_addr:mem_addr+dt_desc.size_]
-              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( 0, mem_data ) )
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 0, mem_data ) )
 
             elif xcel_req.type_ == itu_ifc_types.req.TYPE_WRITE:
               s.mem[mem_addr:mem_addr+dt_desc.size_] = xcel_req.data
-              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( 1, 0 ) )
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 1, 0 ) )
 
         #-----------------------------------------------------------------
         # Handle LIST
@@ -213,11 +213,11 @@ class IteratorTranslationUnitFL( Model ):
 
             if   xcel_req.type_ == itu_ifc_types.req.TYPE_READ:
               mem_data = s.mem[node_ptr:node_ptr+dt_desc.size_]
-              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( 0, mem_data ) )
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 0, mem_data ) )
 
             elif xcel_req.type_ == itu_ifc_types.req.TYPE_WRITE:
               s.mem[node_ptr:node_ptr+dt_desc.size_] = xcel_req.data
-              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( 1, 0 ) )
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 1, 0 ) )
 
 
   #-----------------------------------------------------------------------
