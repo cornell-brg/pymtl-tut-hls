@@ -1,7 +1,6 @@
 #=========================================================================
 # IteratorMsg
 #=========================================================================
-# XXX: Need to add an opaque field?
 
 from pymtl import *
 
@@ -11,9 +10,9 @@ from pymtl import *
 
 class IteratorMsg( object ):
 
-  def __init__( s, data_nbits ):
-    s.req  = IteratorReqMsg ( data_nbits )
-    s.resp = IteratorRespMsg( data_nbits )
+  def __init__( s, data_nbits, opaque_nbits=8 ):
+    s.req  = IteratorReqMsg ( data_nbits, opaque_nbits)
+    s.resp = IteratorRespMsg( data_nbits, opaque_nbits)
 
 #-------------------------------------------------------------------------
 # IteratorReqMsg
@@ -24,20 +23,22 @@ class IteratorReqMsg( BitStructDefinition ):
   TYPE_READ  = 0
   TYPE_WRITE = 1
 
-  def __init__( s, data_nbits ):
-    s.type_      = BitField(          1 )
-    s.ds_id      = BitField(         10 )
-    s.iter       = BitField(         22 )
-    s.field      = BitField(         32 )
-    s.data       = BitField( data_nbits )
+  def __init__( s, data_nbits, opaque_nbits=8 ):
+    s.opaque     = BitField( opaque_nbits )
+    s.type_      = BitField(            1 )
+    s.ds_id      = BitField(           10 )
+    s.iter       = BitField(           22 )
+    s.field      = BitField(           32 )
+    s.data       = BitField(   data_nbits )
 
-  def mk_msg( s, type_, ds_id, iter, field, data ):
-    msg       = s()
-    msg.type_ = type_
-    msg.ds_id = ds_id
-    msg.iter  = iter
-    msg.field = field
-    msg.data  = data
+  def mk_msg( s, opaque, type_, ds_id, iter, field, data ):
+    msg        = s()
+    msg.opaque = opaque
+    msg.type_  = type_
+    msg.ds_id  = ds_id
+    msg.iter   = iter
+    msg.field  = field
+    msg.data   = data
     return msg
 
   def unpck( s, msg ):
@@ -48,9 +49,9 @@ class IteratorReqMsg( BitStructDefinition ):
   def __str__( s ):
 
     if   s.type_ == IteratorReqMsg.TYPE_READ:
-      return "rd:{}:{}:{}:{}".format( s.ds_id, s.iter, s.field, ' '*(s.data.nbits/4) )
+      return "{}:rd:{}:{}:{}:{}".format( s.opaque, s.ds_id, s.iter, s.field, ' '*(s.data.nbits/4) )
     elif s.type_ == IteratorReqMsg.TYPE_WRITE:
-      return "wr:{}:{}:{}:{}".format( s.ds_id, s.iter, s.field, s.data )
+      return "{}:wr:{}:{}:{}:{}".format( s.opaque, s.ds_id, s.iter, s.field, s.data )
 
 #-------------------------------------------------------------------------
 # IteratorRespMsg
@@ -61,14 +62,16 @@ class IteratorRespMsg( BitStructDefinition ):
   TYPE_READ  = 0
   TYPE_WRITE = 1
 
-  def __init__( s, data_nbits ):
-    s.type_      = BitField(          1 )
-    s.data       = BitField( data_nbits )
+  def __init__( s, data_nbits, opaque_nbits=8 ):
+    s.opaque     = BitField( opaque_nbits )
+    s.type_      = BitField(            1 )
+    s.data       = BitField(   data_nbits )
 
-  def mk_msg( s, type_, data ):
-    msg       = s()
-    msg.type_ = type_
-    msg.data  = data
+  def mk_msg( s, opaque, type_, data ):
+    msg        = s()
+    msg.opaque = opaque
+    msg.type_  = type_
+    msg.data   = data
     return msg
 
   def unpck( s, msg ):
@@ -79,7 +82,7 @@ class IteratorRespMsg( BitStructDefinition ):
   def __str__( s ):
 
     if   s.type_ == IteratorRespMsg.TYPE_READ:
-      return "rd:{}".format( s.data )
+      return "{}:rd:{}".format( s.opaque, s.data )
     elif s.type_ == IteratorRespMsg.TYPE_WRITE:
-      return "wr:{}".format( ' '*(s.data.nbits/4) )
+      return "{}:wr:{}".format( s.opaque, ' '*(s.data.nbits/4) )
 
