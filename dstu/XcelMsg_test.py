@@ -1,5 +1,5 @@
 #=========================================================================
-# XcelMsg_test
+# XcelMsg_test.py
 #=========================================================================
 # Test suite for accelerator request and response messages.
 
