@@ -15,8 +15,10 @@ create_clock -period 5
 set_directive_interface -mode ap_ctrl_none $top
 set_directive_interface -mode ap_hs $top cfg_req
 set_directive_interface -mode ap_hs $top cfg_resp
-set_directive_interface -mode ap_hs $top g_itu_iface.req
-set_directive_interface -mode ap_hs $top g_itu_iface.resp
+set_directive_interface -mode ap_hs $top mem_req
+set_directive_interface -mode ap_hs $top mem_resp
+set_directive_interface -mode ap_hs $top g_dtu_iface.req
+set_directive_interface -mode ap_hs $top g_dtu_iface.resp
 
 csynth_design
 

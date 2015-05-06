@@ -9,12 +9,8 @@ typedef char MyType;
 typedef _iterator<MyType> iterator;
 
 // mark this as volatile to enforce stores/loads
-volatile ItuIfaceType g_itu_iface;
+volatile DtuIfaceType g_dtu_iface;
 
-typedef ap_uint<70> AsuReqType;
-typedef ap_uint<33> AsuRespType;
-typedef ap_uint<32> AsuDataType;
-typedef ap_uint<32> AsuAddrType;
 typedef ap_uint<3> PredicateType;
 
 unsigned findif (iterator begin, iterator end, PredicateType pred_val);
@@ -22,28 +18,25 @@ unsigned findif (iterator begin, iterator end, PredicateType pred_val);
 // ------------------------------------------------------------------
 // processor interface
 // ------------------------------------------------------------------
-void top (volatile AsuReqType  &cfg_req,
-          volatile AsuRespType &cfg_resp)
+void top (
+    volatile AcReqType  &cfg_req, volatile AcRespType  &cfg_resp,
+    volatile MemReqType &mem_req, volatile MemRespType &mem_resp
+)
 {
-  static AsuDataType s_first_ds_id;
-  static AsuDataType s_first_index;
-  static AsuDataType s_last_ds_id;
-  static AsuDataType s_last_index;
+  static AcDataType s_first_ds_id;
+  static AcDataType s_first_index;
+  static AcDataType s_last_ds_id;
+  static AcDataType s_last_index;
   static PredicateType s_pred;
-  static unsigned s_result;
+  static AcDataType s_result;
 
-  AsuReqType req = cfg_req;
-  AsuRespType resp;
+  AcReqType req = cfg_req;
+  AcRespType resp;
 
   // handle write request
-  if (((req >> 69) & 1) != 0) {
-    AsuAddrType raddr = (req >> 64) & 0x1F;
-    
-    resp = 1;
-    resp = resp << 32;
-
+  if (AC_REQ_TYPE(req) != 0) {
     // call the accelerator
-    if (raddr == 0) {
+    if (AC_REQ_ADDR(req) == 0) {
       /*printf ("%u %u\n%u %u\n", (unsigned)s_first_ds_id, (unsigned)s_first_index, 
                                 (unsigned)s_last_ds_id,  (unsigned)s_last_index);*/
       s_result = findif (
@@ -53,45 +46,55 @@ void top (volatile AsuReqType  &cfg_req,
                  );
     }
     else {
-      AsuDataType data = (req >> 32) & 0xFFFF;
       // write internal regs
-      switch (raddr) {
+      switch (AC_REQ_ADDR(req)) {
         case 1:
-          s_first_ds_id = data; break;
+          s_first_ds_id = AC_REQ_DATA(req); break;
         case 2:
-          s_first_index = data; break;
+          s_first_index = AC_REQ_DATA(req); break;
         case 3:
-          s_last_ds_id = data; break;
+          s_last_ds_id = AC_REQ_DATA(req); break;
         case 4:
-          s_last_index = data; break;
+          s_last_index = AC_REQ_DATA(req); break;
         case 5:
-          s_pred = data; break;
+          s_pred = AC_REQ_DATA(req); break;
         default:
           break;
       }
     }
+  
+    if ( AC_REQ_ADDR(req) == 7) {
+      MemReqType mreq = 0;
+      mem_req = mreq;
+      MemRespType mresp = mem_resp;
+    }
+
+    // ID, data, RW
+    resp = make_resp( AC_REQ_ID(req), 0, 1);
   }
   // handle read request
   else {
-    AsuAddrType raddr = (req >> 64) & 0x1F;
-    resp = 0;
+    AcDataType data = 0;
 
-    switch (raddr) {
+    switch (AC_REQ_ADDR(req)) {
       case 0:
-        resp |= s_result; break;
+        data = s_result; break;
       case 1:
-        resp |= s_first_ds_id; break;
+        data = s_first_ds_id; break;
       case 2:
-        resp |= s_first_index; break;
+        data = s_first_index; break;
       case 3:
-        resp |= s_last_ds_id; break;
+        data = s_last_ds_id; break;
       case 4:
-        resp |= s_last_index; break;
+        data = s_last_index; break;
       case 5:
-        resp |= s_pred; break;
+        data = s_pred; break;
       default:
         break;
     }
+
+    // ID, data, RW
+    resp = make_resp( AC_REQ_ID(req), data, 0);
   }
 
   cfg_resp = resp;
