@@ -143,7 +143,7 @@ int main () {
     myarray[i].x = i+1;
     myarray[i].y = i*i;
   }
-/*
+
   AsuRespType resp;
   AsuReqType req;
   AsuDataType data;
@@ -210,7 +210,7 @@ int main () {
   printf ("Result: %X\n", s);
   printf ("--------------------\n");
   //assert (s == 6);
-*/
+
   return 0;
 }
 

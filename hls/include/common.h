@@ -1,8 +1,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-
-#include "ItuIface.h"
+#include "DtuIface.h"
+#include "AccelIface.h"
+#include "MemIface.h"
 #include "Iterator.h"
 
 #endif

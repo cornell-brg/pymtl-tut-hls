@@ -1,13 +1,13 @@
 #ifndef ITERATOR_H
 #define ITERATOR_H
 
-#include "ItuIface.h"
+#include "DtuIface.h"
 #include "ap_utils.h"
 
 template<typename T> class ReferenceProxy;
 template<typename T> class _iterator;
 
-extern volatile ItuIfaceType g_itu_iface;
+extern volatile DtuIfaceType g_dtu_iface;
 
 //-------------------------------------------------------------------
 // Class ReferenceProxy
@@ -28,8 +28,8 @@ class ReferenceProxy {
     ReferenceProxy() : m_ds_id( 0 ), m_index( 0 ) {}
     ReferenceProxy( unsigned ds_id, int index )
       : m_ds_id( ds_id ), m_index( index ) {}
-    //ReferenceProxy( unsigned ds_id, int index, volatile ItuIfaceType* iface )
-    //  : m_ds_id( ds_id ), m_index( index ), m_itu_iface(iface) {}
+    //ReferenceProxy( unsigned ds_id, int index, volatile DtuIfaceType* iface )
+    //  : m_ds_id( ds_id ), m_index( index ), m_dtu_iface(iface) {}
 
     ~ReferenceProxy(){}
 
@@ -37,8 +37,8 @@ class ReferenceProxy {
     {
       //#pragma HLS INLINE self off
       //send a read request
-      ItuRespType resp = itu_read (g_itu_iface, m_ds_id, m_index);
-      T data = resp & 0xFFFF;
+      DtuRespType resp = dtu_read (g_dtu_iface, m_ds_id, m_index);
+      T data = DTU_RESP_DATA(resp);
       return data;
     }
 
@@ -46,8 +46,8 @@ class ReferenceProxy {
     {
       //#pragma HLS INLINE self off
       //send a write request
-      int idata = data & 0xFFFF;
-      ItuRespType resp = itu_write (g_itu_iface, m_ds_id, m_index, idata);
+      DtuDataType d = data;
+      DtuRespType resp = dtu_write (g_dtu_iface, m_ds_id, m_index, d);
       // verify first bit of resp is 1?
       return *this;
     }
@@ -78,9 +78,6 @@ class _iterator {
 
     // index to an data element
     unsigned m_index;
-
-    //
-    //static ItuIfaceType m_iface;
 
   public:
 

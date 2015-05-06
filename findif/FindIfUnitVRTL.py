@@ -10,58 +10,53 @@ from pclib.ifcs  import valrdy_to_str
 
 class FindIfUnitVRTL ( VerilogModel ):
   def __init__ ( s ):
-    # From the Xilinx HLS Guide
-    # ap_start should be asserted high and lowered when ap_ready is seen
-    # ap_idle will be asserted low over duration of operation
-    # ap_ready will be asserted high for 1 cycle when inputs have been read
-    # ap_done will be asserted high for 1 cycle when return data is ready
-    #s.ap_start    = InPort ( 1 );
-    #s.ap_done     = OutPort ( 1 );
-    #s.ap_idle     = OutPort ( 1 );
-    #s.ap_ready    = OutPort ( 1 );
-    s.cfg_in      = InValRdyBundle  ( 70 );
-    s.cfg_out     = OutValRdyBundle ( 33 );
-    s.itu_in      = InValRdyBundle  ( 33 );
-    s.itu_out     = OutValRdyBundle ( 97 );
+    s.cfgreq      = InValRdyBundle  ( 56 );
+    s.cfgresp     = OutValRdyBundle ( 51 );
+    s.itureq      = OutValRdyBundle ( 97 );
+    s.ituresp     = InValRdyBundle  ( 33 );
+    s.memreq      = OutValRdyBundle ( 77 )
+    s.memresp     = InValRdyBundle  ( 45 )
 
     s.set_ports ({
       'clk'   :   s.clk,
       'reset' :   s.reset,
-      #'ap_start' :    s.ap_start,
-      #'ap_done'  :    s.ap_done,
-      #'ap_idle'  :    s.ap_idle,
-      #'ap_ready' :    s.ap_ready,
-      'cfg_req_V'         :   s.cfg_in.msg,
-      'cfg_req_V_ap_vld'  :   s.cfg_in.val,
-      'cfg_req_V_ap_ack'  :   s.cfg_in.rdy,
-      'cfg_resp_V'        :   s.cfg_out.msg,
-      'cfg_resp_V_ap_vld' :   s.cfg_out.val,
-      'cfg_resp_V_ap_ack' :   s.cfg_out.rdy,
-      'g_itu_iface_req_V'         :   s.itu_out.msg,
-      'g_itu_iface_req_V_ap_vld'  :   s.itu_out.val,
-      'g_itu_iface_req_V_ap_ack'  :   s.itu_out.rdy,
-      'g_itu_iface_resp_V'        :   s.itu_in.msg,
-      'g_itu_iface_resp_V_ap_vld' :   s.itu_in.val,
-      'g_itu_iface_resp_V_ap_ack' :   s.itu_in.rdy,
+      'cfg_req_V'         :   s.cfgreq.msg,
+      'cfg_req_V_ap_vld'  :   s.cfgreq.val,
+      'cfg_req_V_ap_ack'  :   s.cfgreq.rdy,
+      'cfg_resp_V'        :   s.cfgresp.msg,
+      'cfg_resp_V_ap_vld' :   s.cfgresp.val,
+      'cfg_resp_V_ap_ack' :   s.cfgresp.rdy,
+      'mem_req_V'         :   s.memreq.msg,
+      'mem_req_V_ap_vld'  :   s.memreq.val,
+      'mem_req_V_ap_ack'  :   s.memreq.rdy,
+      'mem_resp_V'         :  s.memresp.msg,
+      'mem_resp_V_ap_vld'  :  s.memresp.val,
+      'mem_resp_V_ap_ack'  :  s.memresp.rdy,
+      'g_dtu_iface_req_V'         :   s.itureq.msg,
+      'g_dtu_iface_req_V_ap_vld'  :   s.itureq.val,
+      'g_dtu_iface_req_V_ap_ack'  :   s.itureq.rdy,
+      'g_dtu_iface_resp_V'        :   s.ituresp.msg,
+      'g_dtu_iface_resp_V_ap_vld' :   s.ituresp.val,
+      'g_dtu_iface_resp_V_ap_ack' :   s.ituresp.rdy,
     });
 
   def line_trace( s ):
     return "{}(){}{}(){}".format(
-      valrdy_to_str( s.cfg_in.msg,
-                     s.cfg_in.val,
-                     s.cfg_in.rdy ),
+      valrdy_to_str( s.cfgreq.msg,
+                     s.cfgreq.val,
+                     s.cfgreq.rdy ),
       
-      valrdy_to_str( s.itu_out.msg,
-                     s.itu_out.val,
-                     s.itu_out.rdy ),
+      valrdy_to_str( s.itureq.msg,
+                     s.itureq.val,
+                     s.itureq.rdy ),
 
-      valrdy_to_str( s.itu_in.msg,
-                     s.itu_in.val,
-                     s.itu_in.rdy ),
+      valrdy_to_str( s.ituresp.msg,
+                     s.ituresp.val,
+                     s.ituresp.rdy ),
       
-      valrdy_to_str( s.cfg_out.msg,
-                     s.cfg_out.val,
-                     s.cfg_out.rdy )
+      valrdy_to_str( s.cfgresp.msg,
+                     s.cfgresp.val,
+                     s.cfgresp.rdy )
 
     )
     

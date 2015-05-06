@@ -122,7 +122,7 @@ class MemReqMsg( BitStructDefinition ):
       return "wr:{}:{}:{}".format( s.opaque, s.addr, s.data )
 
 #-------------------------------------------------------------------------
-# MemReqMsg
+# MemRespMsg
 #-------------------------------------------------------------------------
 # Memory response messages can either be for a read or write. Read
 # responses include the actual data and the number of bytes, while write

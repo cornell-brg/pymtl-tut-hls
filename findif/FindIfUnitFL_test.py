@@ -40,22 +40,17 @@ class TestHarness( Model ):
     s.go = Wire( 1 )
 
     # Instantiate Models
-
     s.src = TestSource( asu_cfg_ifc.req, src_msgs, src_delay )
-
     s.asu = FindIfUnit( asu_cfg_ifc, asu_itu_ifc , mem_ifc )
-
     s.itu = TranslationUnit( itu_cfg_ifc, asu_itu_ifc, mem_ifc )
-
     s.sink = TestSink( asu_cfg_ifc.resp, sink_msgs, sink_delay )
-
-    s.mem  = TestMemory( mem_ifc, 2, stall_prob, latency )
+    s.mem = TestMemory( mem_ifc, 2, stall_prob, latency )
 
     # Connect
 
     # src <-> asu
     s.connect( s.src.out.msg, s.asu.cfgreq.msg )
-    s.connect( s.asu.cfgresp, s.sink.in_       )
+    s.connect( s.asu.cfgresp, s.sink.in_ )
 
     # asu <-> mem
     s.connect( s.asu.memreq,   s.mem.reqs[0]  )

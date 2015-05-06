@@ -133,26 +133,15 @@ unsigned findif (iterator begin, iterator end, PredicateType pred_val) {
 // ------------------------------------------------------------------
 // helpers for main
 // ------------------------------------------------------------------
-AsuReqType make_req (AsuDataType data, AsuAddrType raddr, unsigned rw) {
-  unsigned ds_id = 0;
-  AsuReqType req = 0;
-  req |= rw;      req = req << 5;
-  req |= raddr;   req = req << 32;
-  req |= data;    req = req << 32;
-  req |= ds_id;
-  return req;
+void print_req (AcReqType req) {
+  //printf ("req:  %s\n", req.to_string(16).c_str());
+}
+void print_resp (AcRespType resp) {
+  //printf ("resp: %s\n", resp.to_string(16).c_str());
 }
 
-void print_req (AsuReqType req) {
-  //printf ("%s\n", req.to_string(16).c_str());
-}
-void print_resp (AsuRespType resp) {
-  //printf ("%s\n", resp.to_string(16).c_str());
-}
-
-bool check_resp (AsuRespType resp) {
-  resp = resp >> 32;
-  if (resp != 1) return false;
+bool check_resp (AcRespType resp) {
+  if (AC_RESP_TYPE(resp) != 1) return false;
   return true;
 }
 
@@ -160,68 +149,71 @@ int main () {
   MyType myarray[N];
   for (int i = 0; i < N; ++i) myarray[i] = i-3;
 
-  AsuRespType resp;
-  AsuReqType req;
-  AsuDataType data;
-  AsuAddrType raddr;
+  AcRespType  resp;
+  AcReqType   req;
+  MemReqType  mreq;
+  MemRespType mresp;
+  AcDataType data;
+  AcAddrType raddr;
+
+  AcIdType id = 0;
 
   // set first ds id
   data = 0;   raddr = 1;
-  req = make_req( data, raddr, 1 );
+  req = make_req( id, data, raddr, 1 );
   print_req (req);
-  top( req, resp );
+  top( req, resp, mreq, mresp );
   print_resp (resp);
   assert( check_resp(resp) );
   
   // set first index
   data = 0;   raddr = 2;
-  req = make_req( data, raddr, 1 );
+  req = make_req( id, data, raddr, 1 );
   print_req (req);
-  top( req, resp );
+  top( req, resp, mreq, mresp );
   print_resp (resp);
   assert( check_resp(resp) );
 
   // set last ds id
   data = 0;   raddr = 3;
-  req = make_req( data, raddr, 1 );
+  req = make_req( id, data, raddr, 1 );
   print_req (req);
-  top( req, resp );
+  top( req, resp, mreq, mresp );
   print_resp (resp);
   assert( check_resp(resp) );
 
   // set last index
   data = 7;   raddr = 4;
-  req = make_req( data, raddr, 1 );
+  req = make_req( id, data, raddr, 1 );
   print_req (req);
-  top( req, resp );
+  top( req, resp, mreq, mresp );
   print_resp (resp);
   assert( check_resp(resp) );
 
   // set pred
   data = 4;   raddr = 5;
-  req = make_req( data, raddr, 1 );
+  req = make_req( id, data, raddr, 1 );
   print_req (req);
-  top( req, resp );
+  top( req, resp, mreq, mresp );
   print_resp (resp);
   assert( check_resp(resp) );
 
   // start accelerator
   data = 0;   raddr = 0;
-  req = make_req( data, raddr, 1 );
+  req = make_req( id, data, raddr, 1 );
   print_req (req);
-  top( req, resp );
-  check_resp( resp );
+  top( req, resp, mreq, mresp );
   print_resp (resp);
   assert( check_resp(resp) );
 
   // read result
   data = 0;   raddr = 0;
-  req = make_req( data, raddr, 0 );
+  req = make_req( id, data, raddr, 0 );
   print_req (req);
-  top( req, resp );
+  top( req, resp, mreq, mresp );
   print_resp (resp);
 
-  unsigned s = resp;
+  unsigned s = AC_RESP_DATA(resp);
   printf ("--------------------\n");
   printf ("Result: %X\n", s);
   printf ("--------------------\n");
