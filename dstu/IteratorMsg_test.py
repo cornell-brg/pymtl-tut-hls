@@ -70,16 +70,19 @@ def test_resp_msg():
   msg.opaque = 12
   msg.type_  = IteratorRespMsg.TYPE_READ
   msg.data   = 0xdeadbeef
+  msg.ds_id  = 10
+
 
   # Verify msg
 
   assert msg.opaque == 12
   assert msg.type_  == 0
   assert msg.data   == 0xdeadbeef
+  assert msg.ds_id  == 10
 
   # Verify string
 
-  assert str(msg) == "0c:rd:deadbeef"
+  assert str(msg) == "0c:rd:deadbeef:00a"
 
   # Create msg
 
@@ -87,14 +90,16 @@ def test_resp_msg():
   msg.opaque = 10
   msg.type_  = IteratorRespMsg.TYPE_WRITE
   msg.data   = 0
+  msg.ds_id  = 10
 
   # Verify msg
 
   assert msg.opaque == 10
   assert msg.type_  == 1
   assert msg.data   == 0
+  assert msg.ds_id  == 10
 
   # Verify string
 
-  assert str(msg) == "0a:wr:        "
+  assert str(msg) == "0a:wr:        :00a"
 

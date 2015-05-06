@@ -137,9 +137,9 @@ class IteratorTranslationUnitFL( Model ):
             for idx,val in enumerate( s.ds_type ):
               if   val == 0:
                 # create a dynamic xcel-id
-                idx = ( (1<<10) | idx ) & 0x3ff
-                s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( req.opaque, 1, idx, s.DSTU_ID) )
                 s.ds_type[ idx ] = req.data
+                idx = ( (1<<10) | idx ) & 0x4ff
+                s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( req.opaque, 1, idx, s.DSTU_ID) )
                 break
               elif idx == ( len( s.ds_type ) - 1 ):
                 s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( req.opaque, 1, -1, s.DSTU_ID) )
@@ -153,15 +153,13 @@ class IteratorTranslationUnitFL( Model ):
           # dstruct init ds_table
           # for dynamically created id's
           elif req.raddr == 1:
-            print req.id, "WOOHOO"
-            s.ds_table[ req.id ] = req.data
+            s.ds_table[ (req.id & 0x1f) ] = req.data
             s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( req.opaque, 1, 0, req.id) )
 
           # dstruct init dt_table
           # for dynamically created id's
           elif req.raddr == 2:
-            print req.id, "WOOHOO"
-            s.dt_table[ req.id ] = req.data
+            s.dt_table[ (req.id & 0x1f) ] = req.data
             s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( req.opaque, 1, 0, req.id) )
 
       #-------------------------------------------------------------------
@@ -173,17 +171,17 @@ class IteratorTranslationUnitFL( Model ):
         xcel_req = s.xcelreq_q.deq()
 
         # look up the ds_type
-        ds_type = s.ds_type[ xcel_req.ds_id ]
+        ds_type = s.ds_type[ (xcel_req.ds_id & 0x1f) ]
 
         #-----------------------------------------------------------------
         # Handle VECTOR
         #-----------------------------------------------------------------
         if ds_type == s.VECTOR:
           # get the base addr
-          base_addr   = s.ds_table[ xcel_req.ds_id ]
+          base_addr   = s.ds_table[ (xcel_req.ds_id & 0x1f) ]
 
           # get the metadata
-          dt_desc_ptr = s.dt_table[ xcel_req.ds_id ]
+          dt_desc_ptr = s.dt_table[ (xcel_req.ds_id & 0x1f) ]
           dt_value    = s.mem[dt_desc_ptr:dt_desc_ptr+4]
           dt_desc     = TypeDescriptor().unpck( dt_value )
 
@@ -193,21 +191,21 @@ class IteratorTranslationUnitFL( Model ):
 
             if   xcel_req.type_ == itu_ifc_types.req.TYPE_READ:
               mem_data = s.mem[mem_addr:mem_addr+dt_desc.size_]
-              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 0, mem_data ) )
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 0, mem_data, xcel_req.ds_id ) )
 
             elif xcel_req.type_ == itu_ifc_types.req.TYPE_WRITE:
               s.mem[mem_addr:mem_addr+dt_desc.size_] = xcel_req.data
-              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 1, 0 ) )
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 1, 0, xcel_req.ds_id ) )
 
         #-----------------------------------------------------------------
         # Handle LIST
         #-----------------------------------------------------------------
         elif ds_type == s.LIST:
           # get the node ptr
-          node_ptr   = s.ds_table[ xcel_req.ds_id ]
+          node_ptr   = s.ds_table[ (xcel_req.ds_id & 0x1f) ]
 
           # get the metadata
-          dt_desc_ptr = s.dt_table[ xcel_req.ds_id ]
+          dt_desc_ptr = s.dt_table[ (xcel_req.ds_id & 0x1f) ]
           dt_value    = s.mem[dt_desc_ptr:dt_desc_ptr+4]
           dt_desc     = TypeDescriptor().unpck( dt_value )
 
@@ -224,11 +222,11 @@ class IteratorTranslationUnitFL( Model ):
 
             if   xcel_req.type_ == itu_ifc_types.req.TYPE_READ:
               mem_data = s.mem[node_ptr:node_ptr+dt_desc.size_]
-              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 0, mem_data ) )
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 0, mem_data, xcel_req.ds_id ) )
 
             elif xcel_req.type_ == itu_ifc_types.req.TYPE_WRITE:
               s.mem[node_ptr:node_ptr+dt_desc.size_] = xcel_req.data
-              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 1, 0 ) )
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 1, 0, xcel_req.ds_id ) )
 
 
   #-----------------------------------------------------------------------

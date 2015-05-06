@@ -165,10 +165,10 @@ def req_rd( ds_id, iter, field, data ):
   return req( 0, 0, ds_id, iter, field, data )
 
 def resp_wr( data ):
-  return resp( 0, 1, data )
+  return resp( 0, 1, data, 0 )
 
 def resp_rd(  data ):
-  return resp( 0, 0, data )
+  return resp( 0, 0, data, 0 )
 
 #------------------------------------------------------------------------------
 # Memory array and messages to test vector of integers
