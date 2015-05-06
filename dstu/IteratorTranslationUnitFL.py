@@ -138,7 +138,7 @@ class IteratorTranslationUnitFL( Model ):
               if   val == 0:
                 # create a dynamic xcel-id
                 s.ds_type[ idx ] = req.data
-                idx = ( (1<<10) | idx ) & 0x4ff
+                idx = ( (1<<10) | idx ) & 0x7ff
                 s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( req.opaque, 1, idx, s.DSTU_ID) )
                 break
               elif idx == ( len( s.ds_type ) - 1 ):
