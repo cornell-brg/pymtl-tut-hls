@@ -90,7 +90,7 @@ def run_itu_test( model, mem_array, ds_type, dump_vcd = None ):
   model.itu.cfgreq.msg.type_.next = 1       # write request
   model.itu.cfgreq.msg.data.next  = ds_type # request for ds
   model.itu.cfgreq.msg.raddr.next = 1       # alloc
-  model.itu.cfgreq.msg.id.next    = 0       # dont care for now
+  model.itu.cfgreq.msg.id.next    = model.itu.DSTU_ID
   model.itu.cfgresp.rdy.next      = 1
 
   sim.cycle()
@@ -103,7 +103,7 @@ def run_itu_test( model, mem_array, ds_type, dump_vcd = None ):
 
   # Init data structure - ds_desc
   model.itu.cfgreq.msg.data.next  = mem_array[0]+4 # base addr
-  model.itu.cfgreq.msg.raddr.next = 2              # init
+  model.itu.cfgreq.msg.raddr.next = 1              # init
   model.itu.cfgreq.msg.id.next    = alloc_ds_id    # id of the ds
 
   sim.cycle()
@@ -111,7 +111,7 @@ def run_itu_test( model, mem_array, ds_type, dump_vcd = None ):
 
   # Init data structure - dt_desc
   model.itu.cfgreq.msg.data.next  = mem_array[0] # dt_desc_ptr
-  model.itu.cfgreq.msg.raddr.next = 3            # init
+  model.itu.cfgreq.msg.raddr.next = 2            # init
   model.itu.cfgreq.msg.id.next    = alloc_ds_id  # id of the ds
 
   sim.cycle()
