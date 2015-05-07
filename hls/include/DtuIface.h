@@ -14,6 +14,8 @@
       
 typedef ap_uint<DTU_REQ_BITS>  DtuReqType;
 typedef ap_uint<DTU_RESP_BITS> DtuRespType;
+typedef ap_uint<DTU_DSID_BITS> DtuIdType;
+typedef ap_uint<DTU_ITER_BITS> DtuIterType;
 typedef ap_uint<DTU_DATA_BITS> DtuDataType;
 
 #define DTU_RESP_DATA(resp) ((resp).range(DTU_DATA_BITS-1,0))

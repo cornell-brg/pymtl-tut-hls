@@ -112,21 +112,21 @@ wire   [0:0] or_cond2_fu_276_p2;
 reg   [0:0] or_cond2_reg_443;
 wire   [0:0] grp_fu_144_p2;
 reg   [0:0] tmp_1_reg_448;
-wire    grp_findif_fu_132_ap_start;
-wire    grp_findif_fu_132_ap_done;
-wire    grp_findif_fu_132_ap_idle;
-wire    grp_findif_fu_132_ap_ready;
-wire   [31:0] grp_findif_fu_132_p_read;
-wire   [31:0] grp_findif_fu_132_begin_m_index;
-wire   [31:0] grp_findif_fu_132_p_read3;
-wire   [2:0] grp_findif_fu_132_pred_val_V;
-wire   [97:0] grp_findif_fu_132_g_dtu_iface_req_V;
-wire    grp_findif_fu_132_g_dtu_iface_req_V_ap_vld;
-wire    grp_findif_fu_132_g_dtu_iface_req_V_ap_ack;
-wire   [32:0] grp_findif_fu_132_g_dtu_iface_resp_V;
-wire    grp_findif_fu_132_g_dtu_iface_resp_V_ap_vld;
-wire    grp_findif_fu_132_g_dtu_iface_resp_V_ap_ack;
-wire   [31:0] grp_findif_fu_132_ap_return;
+wire    grp_findif_char_s_fu_132_ap_start;
+wire    grp_findif_char_s_fu_132_ap_done;
+wire    grp_findif_char_s_fu_132_ap_idle;
+wire    grp_findif_char_s_fu_132_ap_ready;
+wire   [31:0] grp_findif_char_s_fu_132_p_read;
+wire   [31:0] grp_findif_char_s_fu_132_begin_m_index;
+wire   [31:0] grp_findif_char_s_fu_132_p_read3;
+wire   [2:0] grp_findif_char_s_fu_132_pred_val_V;
+wire   [97:0] grp_findif_char_s_fu_132_g_dtu_iface_req_V;
+wire    grp_findif_char_s_fu_132_g_dtu_iface_req_V_ap_vld;
+wire    grp_findif_char_s_fu_132_g_dtu_iface_req_V_ap_ack;
+wire   [32:0] grp_findif_char_s_fu_132_g_dtu_iface_resp_V;
+wire    grp_findif_char_s_fu_132_g_dtu_iface_resp_V_ap_vld;
+wire    grp_findif_char_s_fu_132_g_dtu_iface_resp_V_ap_ack;
+wire   [31:0] grp_findif_char_s_fu_132_ap_return;
 wire   [51:0] r_V_fu_373_p3;
 reg   [51:0] p_5_phi_fu_124_p4;
 wire   [0:0] tmp_5_fu_365_p2;
@@ -134,7 +134,7 @@ reg    ap_sig_bdd_102;
 reg    ap_sig_ioackin_mem_req_V_ap_ack;
 reg    ap_sig_ioackin_cfg_resp_V_ap_ack;
 wire   [51:0] r_V_2_fu_348_p4;
-reg    grp_findif_fu_132_ap_start_ap_start_reg = 1'b0;
+reg    grp_findif_char_s_fu_132_ap_start_ap_start_reg = 1'b0;
 reg    ap_reg_ioackin_mem_req_V_ap_ack = 1'b0;
 reg    ap_reg_ioackin_cfg_resp_V_ap_ack = 1'b0;
 wire   [0:0] sel_tmp8_fu_234_p2;
@@ -155,24 +155,24 @@ reg    ap_sig_bdd_316;
 reg    ap_sig_bdd_315;
 
 
-findif grp_findif_fu_132(
+findif_char_s grp_findif_char_s_fu_132(
     .clk( clk ),
     .reset( reset ),
-    .ap_start( grp_findif_fu_132_ap_start ),
-    .ap_done( grp_findif_fu_132_ap_done ),
-    .ap_idle( grp_findif_fu_132_ap_idle ),
-    .ap_ready( grp_findif_fu_132_ap_ready ),
-    .p_read( grp_findif_fu_132_p_read ),
-    .begin_m_index( grp_findif_fu_132_begin_m_index ),
-    .p_read3( grp_findif_fu_132_p_read3 ),
-    .pred_val_V( grp_findif_fu_132_pred_val_V ),
-    .g_dtu_iface_req_V( grp_findif_fu_132_g_dtu_iface_req_V ),
-    .g_dtu_iface_req_V_ap_vld( grp_findif_fu_132_g_dtu_iface_req_V_ap_vld ),
-    .g_dtu_iface_req_V_ap_ack( grp_findif_fu_132_g_dtu_iface_req_V_ap_ack ),
-    .g_dtu_iface_resp_V( grp_findif_fu_132_g_dtu_iface_resp_V ),
-    .g_dtu_iface_resp_V_ap_vld( grp_findif_fu_132_g_dtu_iface_resp_V_ap_vld ),
-    .g_dtu_iface_resp_V_ap_ack( grp_findif_fu_132_g_dtu_iface_resp_V_ap_ack ),
-    .ap_return( grp_findif_fu_132_ap_return )
+    .ap_start( grp_findif_char_s_fu_132_ap_start ),
+    .ap_done( grp_findif_char_s_fu_132_ap_done ),
+    .ap_idle( grp_findif_char_s_fu_132_ap_idle ),
+    .ap_ready( grp_findif_char_s_fu_132_ap_ready ),
+    .p_read( grp_findif_char_s_fu_132_p_read ),
+    .begin_m_index( grp_findif_char_s_fu_132_begin_m_index ),
+    .p_read3( grp_findif_char_s_fu_132_p_read3 ),
+    .pred_val_V( grp_findif_char_s_fu_132_pred_val_V ),
+    .g_dtu_iface_req_V( grp_findif_char_s_fu_132_g_dtu_iface_req_V ),
+    .g_dtu_iface_req_V_ap_vld( grp_findif_char_s_fu_132_g_dtu_iface_req_V_ap_vld ),
+    .g_dtu_iface_req_V_ap_ack( grp_findif_char_s_fu_132_g_dtu_iface_req_V_ap_ack ),
+    .g_dtu_iface_resp_V( grp_findif_char_s_fu_132_g_dtu_iface_resp_V ),
+    .g_dtu_iface_resp_V_ap_vld( grp_findif_char_s_fu_132_g_dtu_iface_resp_V_ap_vld ),
+    .g_dtu_iface_resp_V_ap_ack( grp_findif_char_s_fu_132_g_dtu_iface_resp_V_ap_ack ),
+    .ap_return( grp_findif_char_s_fu_132_ap_return )
 );
 
 
@@ -194,7 +194,7 @@ begin : ap_ret_ap_reg_ioackin_cfg_resp_V_ap_ack
         ap_reg_ioackin_cfg_resp_V_ap_ack <= ap_const_logic_0;
     end else begin
         if ((ap_ST_st2_fsm_1 == ap_CS_fsm)) begin
-            if (~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & (ap_const_logic_0 == ap_sig_ioackin_mem_req_V_ap_ack)) | (ap_const_logic_0 == ap_sig_ioackin_cfg_resp_V_ap_ack) | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_fu_132_ap_done)))) begin
+            if (~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & (ap_const_logic_0 == ap_sig_ioackin_mem_req_V_ap_ack)) | (ap_const_logic_0 == ap_sig_ioackin_cfg_resp_V_ap_ack) | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_char_s_fu_132_ap_done)))) begin
                 ap_reg_ioackin_cfg_resp_V_ap_ack <= ap_const_logic_0;
             end else if (ap_sig_bdd_313) begin
                 ap_reg_ioackin_cfg_resp_V_ap_ack <= ap_const_logic_1;
@@ -210,7 +210,7 @@ begin : ap_ret_ap_reg_ioackin_mem_req_V_ap_ack
         ap_reg_ioackin_mem_req_V_ap_ack <= ap_const_logic_0;
     end else begin
         if (ap_sig_bdd_315) begin
-            if (~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & (ap_const_logic_0 == ap_sig_ioackin_mem_req_V_ap_ack)) | (ap_const_logic_0 == ap_sig_ioackin_cfg_resp_V_ap_ack) | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_fu_132_ap_done)))) begin
+            if (~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & (ap_const_logic_0 == ap_sig_ioackin_mem_req_V_ap_ack)) | (ap_const_logic_0 == ap_sig_ioackin_cfg_resp_V_ap_ack) | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_char_s_fu_132_ap_done)))) begin
                 ap_reg_ioackin_mem_req_V_ap_ack <= ap_const_logic_0;
             end else if (ap_sig_bdd_316) begin
                 ap_reg_ioackin_mem_req_V_ap_ack <= ap_const_logic_1;
@@ -219,16 +219,16 @@ begin : ap_ret_ap_reg_ioackin_mem_req_V_ap_ack
     end
 end
 
-/// grp_findif_fu_132_ap_start_ap_start_reg assign process. ///
+/// grp_findif_char_s_fu_132_ap_start_ap_start_reg assign process. ///
 always @ (posedge clk)
-begin : ap_ret_grp_findif_fu_132_ap_start_ap_start_reg
+begin : ap_ret_grp_findif_char_s_fu_132_ap_start_ap_start_reg
     if (reset == 1'b1) begin
-        grp_findif_fu_132_ap_start_ap_start_reg <= ap_const_logic_0;
+        grp_findif_char_s_fu_132_ap_start_ap_start_reg <= ap_const_logic_0;
     end else begin
         if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & ~(cfg_req_V_ap_vld == ap_const_logic_0) & ~(tmp_fu_159_p3 == ap_const_lv1_0) & ~(ap_const_lv1_0 == grp_fu_144_p2))) begin
-            grp_findif_fu_132_ap_start_ap_start_reg <= ap_const_logic_1;
-        end else if ((ap_const_logic_1 == grp_findif_fu_132_ap_ready)) begin
-            grp_findif_fu_132_ap_start_ap_start_reg <= ap_const_logic_0;
+            grp_findif_char_s_fu_132_ap_start_ap_start_reg <= ap_const_logic_1;
+        end else if ((ap_const_logic_1 == grp_findif_char_s_fu_132_ap_ready)) begin
+            grp_findif_char_s_fu_132_ap_start_ap_start_reg <= ap_const_logic_0;
         end
     end
 end
@@ -303,8 +303,8 @@ end
 /// assign process. ///
 always @(posedge clk)
 begin
-    if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & ~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & (ap_const_logic_0 == ap_sig_ioackin_mem_req_V_ap_ack)) | (ap_const_logic_0 == ap_sig_ioackin_cfg_resp_V_ap_ack) | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_fu_132_ap_done))))) begin
-        s_result_V <= grp_findif_fu_132_ap_return;
+    if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & ~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & (ap_const_logic_0 == ap_sig_ioackin_mem_req_V_ap_ack)) | (ap_const_logic_0 == ap_sig_ioackin_cfg_resp_V_ap_ack) | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_char_s_fu_132_ap_done))))) begin
+        s_result_V <= grp_findif_char_s_fu_132_ap_return;
     end
 end
 
@@ -347,9 +347,9 @@ begin
 end
 
 /// cfg_resp_V_ap_vld assign process. ///
-always @ (ap_CS_fsm or tmp_reg_388 or tmp_1_reg_448 or grp_findif_fu_132_ap_done or ap_sig_bdd_102 or ap_reg_ioackin_cfg_resp_V_ap_ack)
+always @ (ap_CS_fsm or tmp_reg_388 or tmp_1_reg_448 or grp_findif_char_s_fu_132_ap_done or ap_sig_bdd_102 or ap_reg_ioackin_cfg_resp_V_ap_ack)
 begin
-    if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_fu_132_ap_done))) & (ap_const_logic_0 == ap_reg_ioackin_cfg_resp_V_ap_ack))) begin
+    if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_char_s_fu_132_ap_done))) & (ap_const_logic_0 == ap_reg_ioackin_cfg_resp_V_ap_ack))) begin
         cfg_resp_V_ap_vld = ap_const_logic_1;
     end else begin
         cfg_resp_V_ap_vld = ap_const_logic_0;
@@ -357,9 +357,9 @@ begin
 end
 
 /// mem_req_V_ap_vld assign process. ///
-always @ (ap_CS_fsm or tmp_reg_388 or tmp_1_reg_448 or grp_findif_fu_132_ap_done or tmp_5_fu_365_p2 or ap_sig_bdd_102 or ap_reg_ioackin_mem_req_V_ap_ack)
+always @ (ap_CS_fsm or tmp_reg_388 or tmp_1_reg_448 or grp_findif_char_s_fu_132_ap_done or tmp_5_fu_365_p2 or ap_sig_bdd_102 or ap_reg_ioackin_mem_req_V_ap_ack)
 begin
-    if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & ~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_fu_132_ap_done))) & (ap_const_logic_0 == ap_reg_ioackin_mem_req_V_ap_ack))) begin
+    if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & ~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_char_s_fu_132_ap_done))) & (ap_const_logic_0 == ap_reg_ioackin_mem_req_V_ap_ack))) begin
         mem_req_V_ap_vld = ap_const_logic_1;
     end else begin
         mem_req_V_ap_vld = ap_const_logic_0;
@@ -367,9 +367,9 @@ begin
 end
 
 /// mem_resp_V_ap_ack assign process. ///
-always @ (ap_CS_fsm or tmp_reg_388 or tmp_1_reg_448 or grp_findif_fu_132_ap_done or tmp_5_fu_365_p2 or ap_sig_bdd_102 or ap_sig_ioackin_mem_req_V_ap_ack or ap_sig_ioackin_cfg_resp_V_ap_ack)
+always @ (ap_CS_fsm or tmp_reg_388 or tmp_1_reg_448 or grp_findif_char_s_fu_132_ap_done or tmp_5_fu_365_p2 or ap_sig_bdd_102 or ap_sig_ioackin_mem_req_V_ap_ack or ap_sig_ioackin_cfg_resp_V_ap_ack)
 begin
-    if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & ~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & (ap_const_logic_0 == ap_sig_ioackin_mem_req_V_ap_ack)) | (ap_const_logic_0 == ap_sig_ioackin_cfg_resp_V_ap_ack) | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_fu_132_ap_done))))) begin
+    if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & ~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & (ap_const_logic_0 == ap_sig_ioackin_mem_req_V_ap_ack)) | (ap_const_logic_0 == ap_sig_ioackin_cfg_resp_V_ap_ack) | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_char_s_fu_132_ap_done))))) begin
         mem_resp_V_ap_ack = ap_const_logic_1;
     end else begin
         mem_resp_V_ap_ack = ap_const_logic_0;
@@ -391,7 +391,7 @@ begin
         p_5_phi_fu_124_p4 = 'bx;
     end
 end
-always @ (cfg_req_V_ap_vld or ap_CS_fsm or tmp_reg_388 or tmp_1_reg_448 or grp_findif_fu_132_ap_done or tmp_5_fu_365_p2 or ap_sig_bdd_102 or ap_sig_ioackin_mem_req_V_ap_ack or ap_sig_ioackin_cfg_resp_V_ap_ack)
+always @ (cfg_req_V_ap_vld or ap_CS_fsm or tmp_reg_388 or tmp_1_reg_448 or grp_findif_char_s_fu_132_ap_done or tmp_5_fu_365_p2 or ap_sig_bdd_102 or ap_sig_ioackin_mem_req_V_ap_ack or ap_sig_ioackin_cfg_resp_V_ap_ack)
 begin
     case (ap_CS_fsm)
         ap_ST_st1_fsm_0 : 
@@ -401,7 +401,7 @@ begin
                 ap_NS_fsm = ap_ST_st1_fsm_0;
             end
         ap_ST_st2_fsm_1 : 
-            if (~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & (ap_const_logic_0 == ap_sig_ioackin_mem_req_V_ap_ack)) | (ap_const_logic_0 == ap_sig_ioackin_cfg_resp_V_ap_ack) | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_fu_132_ap_done)))) begin
+            if (~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_5_fu_365_p2) & (ap_const_logic_0 == ap_sig_ioackin_mem_req_V_ap_ack)) | (ap_const_logic_0 == ap_sig_ioackin_cfg_resp_V_ap_ack) | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_char_s_fu_132_ap_done)))) begin
                 ap_NS_fsm = ap_ST_st1_fsm_0;
             end else begin
                 ap_NS_fsm = ap_ST_st2_fsm_1;
@@ -418,9 +418,9 @@ begin
 end
 
 /// ap_sig_bdd_313 assign process. ///
-always @ (cfg_resp_V_ap_ack or tmp_reg_388 or tmp_1_reg_448 or grp_findif_fu_132_ap_done or ap_sig_bdd_102)
+always @ (cfg_resp_V_ap_ack or tmp_reg_388 or tmp_1_reg_448 or grp_findif_char_s_fu_132_ap_done or ap_sig_bdd_102)
 begin
-    ap_sig_bdd_313 = (~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_fu_132_ap_done))) & (ap_const_logic_1 == cfg_resp_V_ap_ack));
+    ap_sig_bdd_313 = (~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_char_s_fu_132_ap_done))) & (ap_const_logic_1 == cfg_resp_V_ap_ack));
 end
 
 /// ap_sig_bdd_315 assign process. ///
@@ -430,24 +430,24 @@ begin
 end
 
 /// ap_sig_bdd_316 assign process. ///
-always @ (mem_req_V_ap_ack or tmp_reg_388 or tmp_1_reg_448 or grp_findif_fu_132_ap_done or ap_sig_bdd_102)
+always @ (mem_req_V_ap_ack or tmp_reg_388 or tmp_1_reg_448 or grp_findif_char_s_fu_132_ap_done or ap_sig_bdd_102)
 begin
-    ap_sig_bdd_316 = ((ap_const_logic_1 == mem_req_V_ap_ack) & ~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_fu_132_ap_done))));
+    ap_sig_bdd_316 = ((ap_const_logic_1 == mem_req_V_ap_ack) & ~(ap_sig_bdd_102 | (~(tmp_reg_388 == ap_const_lv1_0) & ~(ap_const_lv1_0 == tmp_1_reg_448) & (ap_const_logic_0 == grp_findif_char_s_fu_132_ap_done))));
 end
 assign cfg_resp_V = p_5_phi_fu_124_p4;
 assign data_V_5_fu_206_p1 = $unsigned(s_pred_V);
 assign data_V_6_fu_337_p3 = ((or_cond3_fu_327_p2)? newSel3_fu_322_p3: newSel4_fu_331_p3);
-assign g_dtu_iface_req_V = grp_findif_fu_132_g_dtu_iface_req_V;
-assign g_dtu_iface_req_V_ap_vld = grp_findif_fu_132_g_dtu_iface_req_V_ap_vld;
-assign g_dtu_iface_resp_V_ap_ack = grp_findif_fu_132_g_dtu_iface_resp_V_ap_ack;
-assign grp_findif_fu_132_ap_start = grp_findif_fu_132_ap_start_ap_start_reg;
-assign grp_findif_fu_132_begin_m_index = data_V_2_reg_397;
-assign grp_findif_fu_132_g_dtu_iface_req_V_ap_ack = g_dtu_iface_req_V_ap_ack;
-assign grp_findif_fu_132_g_dtu_iface_resp_V = g_dtu_iface_resp_V;
-assign grp_findif_fu_132_g_dtu_iface_resp_V_ap_vld = g_dtu_iface_resp_V_ap_vld;
-assign grp_findif_fu_132_p_read = data_V_1_reg_392;
-assign grp_findif_fu_132_p_read3 = data_V_4_reg_402;
-assign grp_findif_fu_132_pred_val_V = s_pred_V_load_reg_407;
+assign g_dtu_iface_req_V = grp_findif_char_s_fu_132_g_dtu_iface_req_V;
+assign g_dtu_iface_req_V_ap_vld = grp_findif_char_s_fu_132_g_dtu_iface_req_V_ap_vld;
+assign g_dtu_iface_resp_V_ap_ack = grp_findif_char_s_fu_132_g_dtu_iface_resp_V_ap_ack;
+assign grp_findif_char_s_fu_132_ap_start = grp_findif_char_s_fu_132_ap_start_ap_start_reg;
+assign grp_findif_char_s_fu_132_begin_m_index = data_V_2_reg_397;
+assign grp_findif_char_s_fu_132_g_dtu_iface_req_V_ap_ack = g_dtu_iface_req_V_ap_ack;
+assign grp_findif_char_s_fu_132_g_dtu_iface_resp_V = g_dtu_iface_resp_V;
+assign grp_findif_char_s_fu_132_g_dtu_iface_resp_V_ap_vld = g_dtu_iface_resp_V_ap_vld;
+assign grp_findif_char_s_fu_132_p_read = data_V_1_reg_392;
+assign grp_findif_char_s_fu_132_p_read3 = data_V_4_reg_402;
+assign grp_findif_char_s_fu_132_pred_val_V = s_pred_V_load_reg_407;
 assign grp_fu_144_p2 = (p_Result_1_fu_187_p4 == ap_const_lv5_0? 1'b1: 1'b0);
 assign mem_req_V = ap_const_lv77_0;
 assign newSel1_fu_254_p3 = ((sel_tmp6_fu_228_p2)? s_first_index_V: s_last_ds_id_V);
@@ -485,7 +485,7 @@ endmodule //top
 `timescale 1 ns / 1 ps 
 
  /* verilator lint_off WIDTH */
-module findif (
+module findif_char_s (
         clk,
         reset,
         ap_start,
@@ -824,6 +824,6 @@ end
 
 
 
-endmodule //findif
+endmodule //findif_char_s
 
 /* lint_on */

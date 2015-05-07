@@ -1,63 +1,10 @@
 #ifndef ITERATOR_H
 #define ITERATOR_H
 
-#include "DtuIface.h"
-#include "ap_utils.h"
+#include "ReferenceProxy.h"
 
-template<typename T> class ReferenceProxy;
-template<typename T> class _iterator;
-
-extern volatile DtuIfaceType g_dtu_iface;
-
-//-------------------------------------------------------------------
-// Class ReferenceProxy
-//-------------------------------------------------------------------
-template<typename T>
-class ReferenceProxy {
-  friend class _iterator<T>;
-
-  private:
-    // data structure id
-    unsigned m_ds_id;
-
-    // index to an data element
-    int      m_index;
-
-  public:
-
-    ReferenceProxy() : m_ds_id( 0 ), m_index( 0 ) {}
-    ReferenceProxy( unsigned ds_id, int index )
-      : m_ds_id( ds_id ), m_index( index ) {}
-    //ReferenceProxy( unsigned ds_id, int index, volatile DtuIfaceType* iface )
-    //  : m_ds_id( ds_id ), m_index( index ), m_dtu_iface(iface) {}
-
-    ~ReferenceProxy(){}
-
-    operator T() const
-    {
-      //#pragma HLS INLINE self off
-      //send a read request
-      DtuRespType resp = dtu_read (g_dtu_iface, m_ds_id, m_index);
-      T data = DTU_RESP_DATA(resp);
-      return data;
-    }
-
-    ReferenceProxy& operator=( T data )
-    {
-      //#pragma HLS INLINE self off
-      //send a write request
-      DtuDataType d = data;
-      DtuRespType resp = dtu_write (g_dtu_iface, m_ds_id, m_index, d);
-      // verify first bit of resp is 1?
-      return *this;
-    }
-
-    ReferenceProxy& operator=( const ReferenceProxy& x )
-    {
-      return operator=( static_cast<T>( x ) );
-    }
-
-}; // class ReferenceProxy
+//template<typename T> class ReferenceProxy;
+//template<typename T> class _iterator;
 
 //-------------------------------------------------------------------
 // Class _iterator
@@ -110,9 +57,9 @@ class _iterator {
     // get functions
     // RZ: This is needed because the ASU does cannot return an
     // iterator, it must return a 32bit value. At the very least
-    // we need access to m_index
+    // we need access to m_index so it can be returned by the ASU
     //--------------------------------------------------------------
-
+    
     unsigned get_index() const
     {
       return m_index;

@@ -4,8 +4,9 @@
 #define N 10
 
 #include "../include/common.h"
+#include "../include/Types.h"
 
-typedef char MyType;
+typedef Point MyType;
 typedef _iterator<MyType> iterator;
 
 // mark this as volatile to enforce stores/loads
@@ -13,10 +14,22 @@ volatile DtuIfaceType g_dtu_iface;
 
 typedef ap_uint<3> PredicateType;
 
-unsigned findif (iterator begin, iterator end, PredicateType pred_val);
+// ------------------------------------------------------------------
+// Polymorphic User Algorithm
+// empty
+// ------------------------------------------------------------------
+template <typename T>
+unsigned alg (_iterator<T> begin, _iterator<T> end, PredicateType pred_val) {
+  T temp = *begin;
+  *end = temp;
+  return 6;
+}
+
 
 // ------------------------------------------------------------------
-// processor interface
+// Processor Interface
+// This function takes care of the accelerator interface to the
+// processor, and calls the user algorithm
 // ------------------------------------------------------------------
 void top (
     volatile AcReqType  &cfg_req, volatile AcRespType  &cfg_resp,
@@ -39,7 +52,7 @@ void top (
     if (AC_REQ_ADDR(req) == 0) {
       /*printf ("%u %u\n%u %u\n", (unsigned)s_first_ds_id, (unsigned)s_first_index, 
                                 (unsigned)s_last_ds_id,  (unsigned)s_last_index);*/
-      s_result = findif (
+      s_result = alg<MyType> (
                    iterator(s_first_ds_id, s_first_index),
                    iterator(s_last_ds_id, s_last_index),
                    s_pred
@@ -101,15 +114,6 @@ void top (
 }
 
 // ------------------------------------------------------------------
-// findif logic
-// ------------------------------------------------------------------
-unsigned findif (iterator begin, iterator end, PredicateType pred_val) {
-  int temp = *begin;
-  *end = temp+1;
-  return 6;
-}
-
-// ------------------------------------------------------------------
 // helpers for main
 // ------------------------------------------------------------------
 void print_req (AcReqType req) {
@@ -125,9 +129,6 @@ bool check_resp (AcRespType resp) {
 }
 
 int main () {
-  MyType myarray[N];
-  for (int i = 0; i < N; ++i) myarray[i] = i-3;
-
   AcRespType  resp;
   AcReqType   req;
   MemReqType  mreq;

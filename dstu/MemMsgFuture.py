@@ -106,7 +106,7 @@ class MemReqMsg( BitStructDefinition ):
 
     msg        = s()
     msg.opaque = opaque
-    msg.type_  = MemReqMsg.TYPE_READ
+    msg.type_  = MemReqMsg.TYPE_WRITE
     msg.addr   = addr
     msg.len    = len_
     msg.data   = 0

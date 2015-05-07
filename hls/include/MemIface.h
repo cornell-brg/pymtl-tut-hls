@@ -16,4 +16,21 @@
 typedef ap_uint<MEM_REQ_BITS>  MemReqType;
 typedef ap_uint<MEM_RESP_BITS> MemRespType;
 
+#define MEM_REQ_TYPE(x) ((x).range(MEM_TYPE_BITS + MEM_OP_BITS + MEM_ADDR_BITS + MEM_LEN_BITS + \
+      MEM_DATA_BITS, MEM_OP_BITS + MEM_ADDR_BITS + MEM_LEN_BITS + MEM_DATA_BITS))
+#define MEM_REQ_OP(x) ((x).range(MEM_OP_BITS + MEM_ADDR_BITS + MEM_LEN_BITS + MEM_DATA_BITS, \
+      MEM_ADDR_BITS + MEM_LEN_BITS + MEM_DATA_BITS))
+#define MEM_REQ_ADDR(x) ((x).range(MEM_ADDR_BITS + MEM_LEN_BITS + MEM_DATA_BITS, \
+      MEM_LEN_BITS + MEM_DATA_BITS))
+#define MEM_REQ_LEN(x) ((x).range(MEM_LEN_BITS + MEM_DATA_BITS, MEM_DATA_BITS))
+#define MEM_REQ_DATA(x) ((x).range(MEM_DATA_BITS, 0))
+
+#define MEM_RESP_TYPE(x) ((x).range(MEM_TYPE_BITS + MEM_OP_BITS + MEM_LEN_BITS + \
+      MEM_DATA_BITS, MEM_OP_BITS + MEM_LEN_BITS + MEM_DATA_BITS))
+#define MEM_RESP_OP(x) ((x).range(MEM_OP_BITS + MEM_LEN_BITS + MEM_DATA_BITS, \
+      MEM_LEN_BITS + MEM_DATA_BITS))
+#define MEM_RESP_LEN(x) ((x).range(MEM_LEN_BITS + MEM_DATA_BITS, MEM_DATA_BITS))
+#define MEM_RESP_DATA(x) ((x).range(MEM_DATA_BITS, 0))
+
+
 #endif
