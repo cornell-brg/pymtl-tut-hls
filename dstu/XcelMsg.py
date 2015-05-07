@@ -16,7 +16,7 @@ from pymtl import *
 #
 # Message Format:
 #
-#    8b       1b     5b      32b         10b
+#    8b       1b     5b      32b         11b
 #  +--------+------+-------+-----------+-----------+
 #  | opaque | type | raddr | data      | accel-id  |
 #  +--------+------+-------+-----------+-----------+
@@ -63,7 +63,7 @@ class XcelReqMsg( BitStructDefinition ):
 #
 # Message Format:
 #
-#    8b       1b     32b         10b
+#    8b       1b     32b         11b
 #  +--------+------+-----------+-----------+
 #  | opaque | type | data      | accel-id  |
 #  +--------+------+-----------+-----------+

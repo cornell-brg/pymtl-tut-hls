@@ -4,8 +4,8 @@
 #include "ap_int.h"
 
 #define DTU_TYPE_BITS 1
-#define DTU_DSID_BITS 8
-#define DTU_ITER_BITS 24
+#define DTU_DSID_BITS 11
+#define DTU_ITER_BITS 22
 #define DTU_FIELD_BITS 32
 #define DTU_DATA_BITS 32
 #define DTU_REQ_BITS (DTU_TYPE_BITS + DTU_DSID_BITS + \

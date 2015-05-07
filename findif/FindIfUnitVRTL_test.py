@@ -49,8 +49,8 @@ class TestHarness( Model ):
     # Connect
 
     # src <-> asu
-    s.connect( s.src.out.msg,  s.asu.cfgreq.msg )
-    s.connect( s.asu.cfgresp,  s.sink.in_ )
+    s.connect( s.src.out.msg, s.asu.cfgreq.msg )
+    s.connect( s.asu.cfgresp, s.sink.in_ )
 
     # asu <-> mem
     s.connect( s.asu.memreq,   s.mem.reqs[0]  )
@@ -116,7 +116,7 @@ def run_asu_test( model, mem_array, ds_type, dump_vcd = None ):
   model.itu.cfgreq.msg.type_.next = 1       # write request
   model.itu.cfgreq.msg.data.next  = ds_type # request for ds
   model.itu.cfgreq.msg.raddr.next = 1       # alloc
-  model.itu.cfgreq.msg.id.next    = 0       # dont care for now
+  model.itu.cfgreq.msg.id.next    = model.itu.DSTU_ID
   model.itu.cfgresp.rdy.next      = 1
 
   sim.cycle()
@@ -129,7 +129,7 @@ def run_asu_test( model, mem_array, ds_type, dump_vcd = None ):
 
   # Init data structure
   model.itu.cfgreq.msg.data.next  = mem_array[0]+4 # base addr
-  model.itu.cfgreq.msg.raddr.next = 2              # init
+  model.itu.cfgreq.msg.raddr.next = 1              # init
   model.itu.cfgreq.msg.id.next    = alloc_ds_id    # id of the ds
 
   sim.cycle()
@@ -137,7 +137,7 @@ def run_asu_test( model, mem_array, ds_type, dump_vcd = None ):
 
   # Init data structure - dt_desc
   model.itu.cfgreq.msg.data.next  = mem_array[0] # dt_desc_ptr
-  model.itu.cfgreq.msg.raddr.next = 3            # init
+  model.itu.cfgreq.msg.raddr.next = 2            # init
   model.itu.cfgreq.msg.id.next    = alloc_ds_id  # id of the ds
 
   sim.cycle()
@@ -172,6 +172,11 @@ def mem_array_int( base_addr, data ):
   bytes = struct.pack( "<{}i".format( len(data) ), *data )
   return [base_addr, bytes]
 
+# mem_array_uchar
+def mem_array_uchar( base_addr, data ):
+  bytes = struct.pack( "<{}B".format( len(data) ), *data )
+  return [base_addr, bytes]
+
 #------------------------------------------------------------------------------
 # Helper functions for Test src/sink messages
 #------------------------------------------------------------------------------
@@ -196,6 +201,25 @@ vector_int_msgs = [
                    req( 0, 1, 0, 0, 0 ), resp( 0, 1, 0, 0 ), # go
                    req( 0, 0, 0, 0, 0 ), resp( 0, 0, 6, 0 )  # check done
                   ]
+
+#------------------------------------------------------------------------------
+# Memory array and messages to test vector of unsigned chars
+#------------------------------------------------------------------------------
+# preload the memory to known values
+# NOTE: The first four bytes describe the dt_descriptor written out in
+# little-endian format
+vec_uchar_mem = mem_array_uchar( 8, [0,0,1,0,1,1,3,3,5,5,6] )
+
+# configure the asu state and expect a response for a given predicate
+vector_uchar_msgs = [
+                      req( 0, 1, 1, 0, 0 ), resp( 0, 1, 0, 0 ), # first ds-id
+                      req( 0, 1, 2, 0, 0 ), resp( 0, 1, 0, 0 ), # first iter
+                      req( 0, 1, 3, 0, 0 ), resp( 0, 1, 0, 0 ), # last ds-id
+                      req( 0, 1, 4, 7, 0 ), resp( 0, 1, 0, 0 ), # last iter
+                      req( 0, 1, 5, 4, 0 ), resp( 0, 1, 0, 0 ), # predicate val = IsEven
+                      req( 0, 1, 0, 0, 0 ), resp( 0, 1, 0, 0 ), # go
+                      req( 0, 0, 0, 0, 0 ), resp( 0, 0, 6, 0 )  # check done
+                    ]
 
 #------------------------------------------------------------------------------
 # Memory array and messages to test list of integers
@@ -237,6 +261,10 @@ test_case_table = mk_test_case_table([
   [ "vec_int_5x0_0.5_0",    vector_int_msgs,   5,  0,   0.5,  0,   vec_int_mem,   ITU.VECTOR ],
   [ "vec_int_0x5_0.0_4",    vector_int_msgs,   0,  5,   0.0,  4,   vec_int_mem,   ITU.VECTOR ],
   [ "vec_int_3x9_0.5_3",    vector_int_msgs,   3,  9,   0.5,  3,   vec_int_mem,   ITU.VECTOR ],
+  [ "vec_uchar_0x0_0.0_0",  vector_uchar_msgs, 0,  0,   0.0,  0,   vec_uchar_mem, ITU.VECTOR ],
+  [ "vec_uchar_5x0_0.5_0",  vector_uchar_msgs, 5,  0,   0.5,  0,   vec_uchar_mem, ITU.VECTOR ],
+  [ "vec_uchar_0x5_0.0_4",  vector_uchar_msgs, 0,  5,   0.0,  4,   vec_uchar_mem, ITU.VECTOR ],
+  [ "vec_uchar_3x9_0.5_3",  vector_uchar_msgs, 3,  9,   0.5,  3,   vec_uchar_mem, ITU.VECTOR ],
   [ "list_int_0x0_0.0_0",   list_int_msgs,     0,  0,   0.0,  0,   list_int_mem,  ITU.LIST   ],
   [ "list_int_5x0_0.5_0",   list_int_msgs,     5,  0,   0.5,  0,   list_int_mem,  ITU.LIST   ],
   [ "list_int_0x5_0.0_4",   list_int_msgs,     0,  5,   0.0,  4,   list_int_mem,  ITU.LIST   ],
