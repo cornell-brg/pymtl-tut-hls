@@ -134,7 +134,7 @@ class IteratorTranslationUnitFL( Model ):
           # dstruct alloc
           # check for the xcel id to match DSTU id
           if   req.raddr == 1 and req.id == s.DSTU_ID:
-            for idx,val in enumerate( s.ds_type ):
+            for idx,val in enumerate( s.ds_table ):
               if   val == 0:
                 # create a dynamic xcel-id
                 s.ds_type[ idx ] = req.data
@@ -147,7 +147,7 @@ class IteratorTranslationUnitFL( Model ):
           # dstruct dealloc
           # check for the xcel id to match DSTU id
           elif req.raddr == 2 and req.id == s.DSTU_ID:
-            s.ds_type[ req.data ] = 0
+            s.ds_type[ (req.data & 0x1f) ] = 0
             s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( req.opaque, 1, 0, s.DSTU_ID) )
 
           # dstruct init ds_table
