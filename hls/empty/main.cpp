@@ -25,16 +25,12 @@ unsigned alg (_iterator<T> begin, _iterator<T> end, PredicateType pred_val) {
   return 6;
 }
 
-
 // ------------------------------------------------------------------
 // Processor Interface
 // This function takes care of the accelerator interface to the
 // processor, and calls the user algorithm
 // ------------------------------------------------------------------
-void top (
-    volatile AcReqType  &cfg_req, volatile AcRespType  &cfg_resp,
-    volatile MemReqType &mem_req, volatile MemRespType &mem_resp
-)
+void top ( volatile AcIfaceType &ac, volatile MemIfaceType &mem)
 {
   static AcDataType s_first_ds_id;
   static AcDataType s_first_index;
@@ -43,7 +39,7 @@ void top (
   static PredicateType s_pred;
   static AcDataType s_result;
 
-  AcReqType req = cfg_req;
+  AcReqType req = ac.req;
   AcRespType resp;
 
   // handle write request
@@ -76,14 +72,16 @@ void top (
       }
     }
   
-    if ( AC_REQ_ADDR(req) == 7) {
+    // this is a dummy block to make sure the input/output
+    // type of the mem iface is generated correctly
+    if ( AC_REQ_ADDR(req) == 11) {
       MemReqType mreq = 0;
-      mem_req = mreq;
-      MemRespType mresp = mem_resp;
+      mem.req = mreq;
+      MemRespType mresp = mem.resp;
     }
 
     // ID, data, RW
-    resp = make_resp( AC_REQ_ID(req), 0, 1);
+    resp = make_ac_resp( AC_REQ_ID(req), 0, 1);
   }
   // handle read request
   else {
@@ -107,10 +105,10 @@ void top (
     }
 
     // ID, data, RW
-    resp = make_resp( AC_REQ_ID(req), data, 0);
+    resp = make_ac_resp( AC_REQ_ID(req), data, 0);
   }
 
-  cfg_resp = resp;
+  ac.resp = resp;
 }
 
 // ------------------------------------------------------------------
@@ -129,10 +127,8 @@ bool check_resp (AcRespType resp) {
 }
 
 int main () {
-  AcRespType  resp;
-  AcReqType   req;
-  MemReqType  mreq;
-  MemRespType mresp;
+  AcIfaceType ac_iface;
+  MemIfaceType mem_iface;
   AcDataType data;
   AcAddrType raddr;
 
@@ -140,60 +136,60 @@ int main () {
 
   // set first ds id
   data = 0;   raddr = 1;
-  req = make_req( id, data, raddr, 1 );
-  print_req (req);
-  top( req, resp, mreq, mresp );
-  print_resp (resp);
-  assert( check_resp(resp) );
+  ac_iface.req = make_ac_req( id, data, raddr, 1 );
+  print_req (ac_iface.req);
+  top( ac_iface, mem_iface );
+  print_resp (ac_iface.resp);
+  assert( check_resp(ac_iface.resp) );
   
   // set first index
   data = 0;   raddr = 2;
-  req = make_req( id, data, raddr, 1 );
-  print_req (req);
-  top( req, resp, mreq, mresp );
-  print_resp (resp);
-  assert( check_resp(resp) );
+  ac_iface.req = make_ac_req( id, data, raddr, 1 );
+  print_req (ac_iface.req);
+  top( ac_iface, mem_iface );
+  print_resp (ac_iface.resp);
+  assert( check_resp(ac_iface.resp) );
 
   // set last ds id
   data = 0;   raddr = 3;
-  req = make_req( id, data, raddr, 1 );
-  print_req (req);
-  top( req, resp, mreq, mresp );
-  print_resp (resp);
-  assert( check_resp(resp) );
+  ac_iface.req = make_ac_req( id, data, raddr, 1 );
+  print_req (ac_iface.req);
+  top( ac_iface, mem_iface );
+  print_resp (ac_iface.resp);
+  assert( check_resp(ac_iface.resp) );
 
   // set last index
   data = 7;   raddr = 4;
-  req = make_req( id, data, raddr, 1 );
-  print_req (req);
-  top( req, resp, mreq, mresp );
-  print_resp (resp);
-  assert( check_resp(resp) );
+  ac_iface.req = make_ac_req( id, data, raddr, 1 );
+  print_req (ac_iface.req);
+  top( ac_iface, mem_iface );
+  print_resp (ac_iface.resp);
+  assert( check_resp(ac_iface.resp) );
 
   // set pred
   data = 4;   raddr = 5;
-  req = make_req( id, data, raddr, 1 );
-  print_req (req);
-  top( req, resp, mreq, mresp );
-  print_resp (resp);
-  assert( check_resp(resp) );
+  ac_iface.req = make_ac_req( id, data, raddr, 1 );
+  print_req (ac_iface.req);
+  top( ac_iface, mem_iface );
+  print_resp (ac_iface.resp);
+  assert( check_resp(ac_iface.resp) );
 
   // start accelerator
   data = 0;   raddr = 0;
-  req = make_req( id, data, raddr, 1 );
-  print_req (req);
-  top( req, resp, mreq, mresp );
-  print_resp (resp);
-  assert( check_resp(resp) );
+  ac_iface.req = make_ac_req( id, data, raddr, 1 );
+  print_req (ac_iface.req);
+  top( ac_iface, mem_iface );
+  print_resp (ac_iface.resp);
+  assert( check_resp(ac_iface.resp) );
 
   // read result
   data = 0;   raddr = 0;
-  req = make_req( id, data, raddr, 0 );
-  print_req (req);
-  top( req, resp, mreq, mresp );
-  print_resp (resp);
+  ac_iface.req = make_ac_req( id, data, raddr, 0 );
+  print_req (ac_iface.req);
+  top( ac_iface, mem_iface );
+  print_resp (ac_iface.resp);
 
-  unsigned s = AC_RESP_DATA(resp);
+  unsigned s = AC_RESP_DATA(ac_iface.resp);
   printf ("--------------------\n");
   printf ("Result: %X\n", s);
   printf ("--------------------\n");

@@ -10,22 +10,22 @@ from pclib.ifcs  import valrdy_to_str
 
 class FindIfUnitVRTL ( VerilogModel ):
   def __init__ ( s ):
-    s.cfgreq      = InValRdyBundle  ( 56 );
-    s.cfgresp     = OutValRdyBundle ( 51 );
-    s.itureq      = OutValRdyBundle ( 97 );
-    s.ituresp     = InValRdyBundle  ( 33 );
+    s.cfgreq      = InValRdyBundle  ( 57 );
+    s.cfgresp     = OutValRdyBundle ( 52 );
+    s.itureq      = OutValRdyBundle ( 106 );
+    s.ituresp     = InValRdyBundle  ( 52 );
     s.memreq      = OutValRdyBundle ( 77 )
     s.memresp     = InValRdyBundle  ( 45 )
 
     s.set_ports ({
       'clk'   :   s.clk,
       'reset' :   s.reset,
-      'cfg_req_V'         :   s.cfgreq.msg,
-      'cfg_req_V_ap_vld'  :   s.cfgreq.val,
-      'cfg_req_V_ap_ack'  :   s.cfgreq.rdy,
-      'cfg_resp_V'        :   s.cfgresp.msg,
-      'cfg_resp_V_ap_vld' :   s.cfgresp.val,
-      'cfg_resp_V_ap_ack' :   s.cfgresp.rdy,
+      'ac_req_V'         :   s.cfgreq.msg,
+      'ac_req_V_ap_vld'  :   s.cfgreq.val,
+      'ac_req_V_ap_ack'  :   s.cfgreq.rdy,
+      'ac_resp_V'        :   s.cfgresp.msg,
+      'ac_resp_V_ap_vld' :   s.cfgresp.val,
+      'ac_resp_V_ap_ack' :   s.cfgresp.rdy,
       'mem_req_V'         :   s.memreq.msg,
       'mem_req_V_ap_vld'  :   s.memreq.val,
       'mem_req_V_ap_ack'  :   s.memreq.rdy,

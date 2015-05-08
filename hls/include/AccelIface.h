@@ -20,7 +20,31 @@ typedef ap_uint<AC_ID_BITS> AcIdType;
 typedef ap_uint<AC_DATA_BITS> AcDataType;
 typedef ap_uint<AC_ADDR_BITS> AcAddrType;
 
-AcReqType make_req (
+//----------------------------------------------------------------------
+// Bitfield access
+//----------------------------------------------------------------------
+#define AC_REQ_TYPE(x) ((x).range(AC_TYPE_BITS + AC_ADDR_BITS + AC_DATA_BITS + AC_ID_BITS - 1, \
+             AC_ADDR_BITS + AC_DATA_BITS + AC_ID_BITS))
+#define AC_REQ_ADDR(x) ((x).range(AC_ADDR_BITS + AC_DATA_BITS + AC_ID_BITS - 1, AC_DATA_BITS + AC_ID_BITS))
+#define AC_REQ_DATA(x) ((x).range(AC_DATA_BITS + AC_ID_BITS - 1, AC_ID_BITS))
+#define AC_REQ_ID(x) ((x).range(AC_ID_BITS - 1, 0))
+
+#define AC_RESP_TYPE(x) ((x).range(AC_TYPE_BITS + AC_DATA_BITS + AC_ID_BITS - 1, AC_DATA_BITS + AC_ID_BITS))
+#define AC_RESP_DATA(x) AC_REQ_DATA(x)
+#define AC_RESP_ID(x) AC_REQ_ID(x)
+
+//----------------------------------------------------------------------
+// Accel Iface Abstraction
+//----------------------------------------------------------------------
+typedef struct _AcIfaceType {
+  AcReqType req;
+  AcRespType resp;
+} AcIfaceType;
+
+//----------------------------------------------------------------------
+// Reading and Writing the iface
+//----------------------------------------------------------------------
+AcReqType make_ac_req (
     AcIdType id, AcDataType data, AcAddrType addr, 
     AcRWType rw, AcOpaqueType op=0
 )
@@ -34,7 +58,7 @@ AcReqType make_req (
   return req;
 }
 
-AcRespType make_resp (
+AcRespType make_ac_resp (
     AcIdType id, AcDataType data, 
     AcRWType rw, AcOpaqueType op=0
 )
@@ -46,16 +70,5 @@ AcRespType make_resp (
   resp = (resp << AC_ID_BITS) | id;
   return resp;
 }
-
-#define AC_REQ_TYPE(x) ((x).range(AC_TYPE_BITS + AC_ADDR_BITS + AC_DATA_BITS + AC_ID_BITS - 1, \
-             AC_ADDR_BITS + AC_DATA_BITS + AC_ID_BITS))
-#define AC_REQ_ADDR(x) ((x).range(AC_ADDR_BITS + AC_DATA_BITS + AC_ID_BITS - 1, AC_DATA_BITS + AC_ID_BITS))
-#define AC_REQ_DATA(x) ((x).range(AC_DATA_BITS + AC_ID_BITS - 1, AC_ID_BITS))
-#define AC_REQ_ID(x) ((x).range(AC_ID_BITS - 1, 0))
-
-#define AC_RESP_TYPE(x) ((x).range(AC_TYPE_BITS + AC_DATA_BITS + AC_ID_BITS - 1, AC_DATA_BITS + AC_ID_BITS))
-#define AC_RESP_DATA(x) AC_REQ_DATA(x)
-#define AC_RESP_ID(x) AC_REQ_ID(x)
-
 
 #endif

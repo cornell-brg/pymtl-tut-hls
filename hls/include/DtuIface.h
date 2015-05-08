@@ -3,14 +3,15 @@
 
 #include "ap_int.h"
 
+#define DTU_OP_BITS 8
 #define DTU_TYPE_BITS 1
 #define DTU_DSID_BITS 11
 #define DTU_ITER_BITS 22
 #define DTU_FIELD_BITS 32
 #define DTU_DATA_BITS 32
-#define DTU_REQ_BITS (DTU_TYPE_BITS + DTU_DSID_BITS + \
+#define DTU_REQ_BITS (DTU_OP_BITS + DTU_TYPE_BITS + DTU_DSID_BITS + \
     DTU_ITER_BITS + DTU_FIELD_BITS + DTU_DATA_BITS)
-#define DTU_RESP_BITS (DTU_TYPE_BITS+DTU_DATA_BITS)
+#define DTU_RESP_BITS (DTU_OP_BITS + DTU_TYPE_BITS + DTU_DATA_BITS + DTU_DSID_BITS)
       
 typedef ap_uint<DTU_REQ_BITS>  DtuReqType;
 typedef ap_uint<DTU_RESP_BITS> DtuRespType;
@@ -18,19 +19,19 @@ typedef ap_uint<DTU_DSID_BITS> DtuIdType;
 typedef ap_uint<DTU_ITER_BITS> DtuIterType;
 typedef ap_uint<DTU_DATA_BITS> DtuDataType;
 
-#define DTU_RESP_DATA(resp) ((resp).range(DTU_DATA_BITS-1,0))
+#define DTU_RESP_DATA(resp) ((resp).range(DTU_DATA_BITS+DTU_DSID_BITS-1, DTU_DSID_BITS))
 
-// Iface abstraction
+//----------------------------------------------------------------------
+// DTU Iface abstraction
+//----------------------------------------------------------------------
 typedef struct _DtuIfaceType {
   DtuReqType  req;
   DtuRespType resp;
-
-  _DtuIfaceType() : req(0), resp(0) {}
 } DtuIfaceType;
 
-// ########################################################
+//----------------------------------------------------------------------
 // functions to read and write using Iface
-// ########################################################
+//----------------------------------------------------------------------
 inline 
 DtuRespType dtu_read (
     volatile DtuIfaceType &Iface,

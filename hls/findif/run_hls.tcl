@@ -13,10 +13,10 @@ set_part {xc7z020clg484-1}
 create_clock -period 5
 
 set_directive_interface -mode ap_ctrl_none $top
-set_directive_interface -mode ap_hs $top cfg_req
-set_directive_interface -mode ap_hs $top cfg_resp
-set_directive_interface -mode ap_hs $top mem_req
-set_directive_interface -mode ap_hs $top mem_resp
+set_directive_interface -mode ap_hs $top ac.req
+set_directive_interface -mode ap_hs $top ac.resp
+set_directive_interface -mode ap_hs $top mem.req
+set_directive_interface -mode ap_hs $top mem.resp
 set_directive_interface -mode ap_hs $top g_dtu_iface.req
 set_directive_interface -mode ap_hs $top g_dtu_iface.resp
 

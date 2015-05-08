@@ -5,5 +5,6 @@
 #include "AccelIface.h"
 #include "MemIface.h"
 #include "Iterator.h"
+#include "MetaData.h"
 
 #endif

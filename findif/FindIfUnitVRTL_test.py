@@ -58,9 +58,9 @@ class TestHarness( Model ):
 
     # asu <-> itu
     #s.connect( s.asu.itureq,   s.itu.xcelreq ) 
+    s.connect( s.asu.ituresp, s.itu.xcelresp  )
     s.connect( s.asu.itureq.val, s.itu.xcelreq.val)
     s.connect( s.asu.itureq.rdy, s.itu.xcelreq.rdy)
-    s.connect( s.asu.ituresp,  s.itu.xcelresp  )
 
     # itu <-> mem
     s.connect( s.itu.memreq,   s.mem.reqs[1]  )
