@@ -23,9 +23,10 @@ extern volatile DtuIfaceType g_dtu_iface;
 //----------------------------------------------------------------------
 class Polytype {
   private:
-    unsigned data[MAX_FIELDS];
-    
     const MetaData& m_metadata;
+
+  public:
+    unsigned data[MAX_FIELDS];
 
   public:
     //------------------------------------------------------------------
@@ -115,7 +116,6 @@ class Polytype {
         if (type == TYPE_SIGNED) {
             DB( fprintf(stderr, "Unsupported size, %s::%d\n", __FILE__, __LINE__) );
         }
-        
       }
       return true; 
     }
@@ -169,8 +169,25 @@ class ReferenceProxy <Polytype> {
     {
       Polytype p (m_metadata);
       DtuRespType resp;
+      
+      unsigned md = m_metadata.getData(0);
+      ap_uint<8> n_fields = GET_FIELDS(md);
 
-      // do nothing!
+      // primitive type
+      if (n_fields == 0) {
+        resp = dtu_read (g_dtu_iface, m_ds_id, m_iter);
+        p.data[0] = DTU_RESP_DATA(resp);
+      }
+      // struct
+      else {
+        for (int i = 1; i < MAX_FIELDS; ++i) {
+          if (i < n_fields) {
+            resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, i);
+            p.data[i] = DTU_RESP_DATA(resp);
+          }
+        }
+      }
+
       return p;
     }
 
@@ -183,6 +200,22 @@ class ReferenceProxy <Polytype> {
     {
       DtuRespType resp;
       DtuDataType data;
+      
+      unsigned md = m_metadata.getData(0);
+      ap_uint<8> n_fields = GET_FIELDS(md);
+
+      // primitive type
+      if (n_fields == 0) {
+        resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 0, p.data[0]);
+      }
+      // struct
+      else {
+        for (int i = 1; i < MAX_FIELDS; ++i) {
+          if (i < n_fields) {
+            resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, i, p.data[i]);
+          }
+        }
+      }
 
       // do nothing!
       return *this;
