@@ -88,26 +88,4 @@ MemRespType mem_write (volatile MemIfaceType &iface,
   return resp;
 }
 
-//----------------------------------------------------------------------
-// Read MetaData
-//----------------------------------------------------------------------
-#include "MetaData.h"
-
-void mem_read_metadata (volatile MemIfaceType &iface, MemAddrType addr) {
-  MemReqType req;
-  MemRespType resp;
-
-  // first read the word at addr
-  resp = mem_read (iface, addr, 4);
-  unsigned metadata0 = MEM_RESP_DATA(resp);
-
-  // Check how many fields from the metadata.
-  // zero means a primitive type, non-zero means a struct
-  int fields = GET_FIELDS(metadata0);
-  if (fields == 0) {
-  }
-  else {
-  }
-}
-
 #endif

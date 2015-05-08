@@ -4,6 +4,17 @@
 #include "Types.h"
 
 //----------------------------------------------------------------------
+// Type enum
+//----------------------------------------------------------------------
+// Not used right now, can't figure out how to set it, and
+// we only need size + fields info for now
+enum TYPE_ENUM {
+  TYPE_STRUCT,
+  TYPE_SIGNED,
+  TYPE_UNSIGNED,
+};
+
+//----------------------------------------------------------------------
 // Macros to manipulate the fields of the data-type descriptor
 //----------------------------------------------------------------------
 // The data-type descriptor currently has the following format
@@ -39,23 +50,31 @@
 //----------------------------------------------------------------------
 // MetaData object stores the information we want to pass to polymorphic
 // hardware
-#define N_FIELDS 11
+
+// For now this is the maximum number of primitive fields a
+// struct can have
+#define MAX_FIELDS 11
+
 class MetaData {
   private:
-    unsigned int metadata[N_FIELDS];
+    unsigned int metadata[MAX_FIELDS];
   public:
     MetaData() {
-      for (int i = 0; i < N_FIELDS; ++i)
+      for (int i = 0; i < MAX_FIELDS; ++i)
         metadata[i] = 0;
+    }
+    MetaData( const MetaData& md ) {
+      for (int i = 0; i < MAX_FIELDS; ++i)
+        metadata[i] = md.metadata[i];
     }
    ~MetaData() { }
 
     void init( unsigned int data[] ) {
-      for (int i = 0; i < N_FIELDS; ++i)
+      for (int i = 0; i < MAX_FIELDS; ++i)
         metadata[i] = data[i];
     }
-    const unsigned int* getDataLoc() { return metadata; }
-    const unsigned int  getData()    { return metadata[0];  }
+    const unsigned int* getDataLoc() const { return metadata; }
+    const unsigned int  getData(int i) const { return metadata[i];  }
 };
 
 //----------------------------------------------------------------------
@@ -68,7 +87,7 @@ class MetaCreator {
     MetaCreator() {
 
       // Create a data-type descriptor
-      unsigned int data[N_FIELDS];
+      unsigned int data[MAX_FIELDS];
       data[0] = 0;
 
       // Data-type descriptor
@@ -133,4 +152,32 @@ class MetaCreator <Point> {
       return &instance;
     }
 };
+
+//----------------------------------------------------------------------
+// Read MetaData
+//----------------------------------------------------------------------
+#include "MemIface.h"
+
+void mem_read_metadata (volatile MemIfaceType &iface, MemAddrType addr, MetaData &metadata) {
+  MemReqType req;
+  MemRespType resp;
+  unsigned mdata[MAX_FIELDS];
+
+  // read the first field
+  resp = mem_read (iface, addr, 4);
+  mdata[0] = MEM_RESP_DATA(resp);
+  ap_uint<8> n_fields = GET_FIELDS(mdata[0]);
+
+  // read extra entries if struct
+  for (ap_uint<8> i = 1; i < MAX_FIELDS; ++i) {
+    if (i < n_fields) {
+      addr += sizeof(unsigned);
+      resp = mem_read (iface, addr, 4);
+      mdata[i] = MEM_RESP_DATA(resp);
+    }
+  }
+
+  metadata.init(mdata);
+}
+
 #endif

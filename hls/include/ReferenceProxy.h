@@ -36,7 +36,7 @@ class ReferenceProxy {
     {
       //#pragma HLS INLINE self off
       //send a read request
-      DtuRespType resp = dtu_read (g_dtu_iface, m_ds_id, m_iter);
+      DtuRespType resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, field);
       T data = DTU_RESP_DATA(resp);
       return data;
     }
@@ -51,7 +51,7 @@ class ReferenceProxy {
       //#pragma HLS INLINE self off
       //send a write request
       DtuDataType d = data;
-      DtuRespType resp = dtu_write (g_dtu_iface, m_ds_id, m_iter, d);
+      DtuRespType resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, field, d);
       // verify first bit of resp is 1?
       return *this;
     }
@@ -105,15 +105,15 @@ class ReferenceProxy <Point> {
       DtuRespType resp;
       
       // read p.label
-      resp = dtu_read (g_dtu_iface, m_ds_id, m_iter);
+      resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, 1);
       p.label = DTU_RESP_DATA(resp);
 
-      // read p.x, identical to p.label for now
-      resp = dtu_read (g_dtu_iface, m_ds_id, m_iter);
+      // read p.x
+      resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, 2);
       p.x = DTU_RESP_DATA(resp);
       
-      // read p.x, identical to p.label for now
-      resp = dtu_read (g_dtu_iface, m_ds_id, m_iter);
+      // read p.x
+      resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, 3);
       p.y = DTU_RESP_DATA(resp);
 
       return p;
@@ -131,15 +131,15 @@ class ReferenceProxy <Point> {
 
       // set label
       data = p.label;
-      resp = dtu_write (g_dtu_iface, m_ds_id, m_iter, data);
+      resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 1, data);
       
-      // set x, identical to p.label for now
+      // set x
       data = p.x;
-      resp = dtu_write (g_dtu_iface, m_ds_id, m_iter, data);
+      resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 2, data);
 
-      // set y, identical to p.label for now
+      // set y
       data = p.y;
-      resp = dtu_write (g_dtu_iface, m_ds_id, m_iter, data);
+      resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 3, data);
 
       // allows for "chaining" i.e. a = b = c = d;
       return *this;
