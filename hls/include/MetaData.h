@@ -1,18 +1,7 @@
 #ifndef METADATA_H
 #define METADATA_H
 
-#include "Types.h"
-
-//----------------------------------------------------------------------
-// Type enum
-//----------------------------------------------------------------------
-// Not used right now, can't figure out how to set it, and
-// we only need size + fields info for now
-enum TYPE_ENUM {
-  TYPE_STRUCT,
-  TYPE_SIGNED,
-  TYPE_UNSIGNED,
-};
+#include "TypeEnum.h"
 
 //----------------------------------------------------------------------
 // Macros to manipulate the fields of the data-type descriptor
@@ -83,6 +72,7 @@ class MetaData {
 //----------------------------------------------------------------------
 template<typename T>
 class MetaCreator {
+  TypeEnum<T> enum_getter;
   public:
     MetaCreator() {
 
@@ -99,50 +89,8 @@ class MetaCreator {
 
       SET_OFFSET( data[0], 0           );
       SET_SIZE  ( data[0], sizeof( T ) );
-      SET_TYPE  ( data[0], 0           ); // Enum for types?
+      SET_TYPE  ( data[0], enum_getter.get()); // Enum for types?
       SET_FIELDS( data[0], 0           );
-
-      get()->init( data );
-    }
-
-    static MetaData* get() {
-      static MetaData instance;
-      return &instance;
-    }
-};
-
-//----------------------------------------------------------------------
-// MetaCreator - Point Specialization
-//----------------------------------------------------------------------
-template<>
-class MetaCreator <Point> {
-  public:
-    MetaCreator() {
-      unsigned int data[4];
-
-      // descripter for point
-      SET_OFFSET( data[0], 0               );
-      SET_SIZE  ( data[0], sizeof( Point ) );
-      SET_TYPE  ( data[0], 1               );
-      SET_FIELDS( data[0], 3               );
-
-      // descriptor for label
-      SET_OFFSET( data[1], 0               );
-      SET_SIZE  ( data[1], sizeof( short ) );
-      SET_TYPE  ( data[1], 0               );
-      SET_FIELDS( data[1], 0               );
-
-      // descriptor for x
-      SET_OFFSET( data[2], 4               );
-      SET_SIZE  ( data[2], sizeof( int   ) );
-      SET_TYPE  ( data[2], 0               );
-      SET_FIELDS( data[2], 0               );
-
-      // descriptor for y
-      SET_OFFSET( data[3], 8               );
-      SET_SIZE  ( data[3], sizeof( int   ) );
-      SET_TYPE  ( data[3], 0               );
-      SET_FIELDS( data[3], 0               );
 
       get()->init( data );
     }

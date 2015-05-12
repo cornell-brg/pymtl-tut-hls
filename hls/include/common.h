@@ -6,6 +6,5 @@
 #include "MemIface.h"
 #include "Iterator.h"
 #include "MetaData.h"
-#include "Polytype.h"
 
 #endif

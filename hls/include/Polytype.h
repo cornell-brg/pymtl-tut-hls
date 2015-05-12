@@ -9,6 +9,10 @@
 #include "Iterator.h"
 #include "MetaData.h"
 
+// these #defines should not be here!
+#define TYPE_UNSIGNED 0
+#define TYPE_SIGNED 1
+
 #if 1
   #define DB( x ) x
 #else
@@ -233,7 +237,7 @@ class ReferenceProxy <Polytype> {
 };
 
 //-------------------------------------------------------------------
-// Polytype specialization, identical except it uses metadata
+// Iterator Polytype specialization, identical except it uses metadata
 //-------------------------------------------------------------------
 template<>
 class _iterator<Polytype> {

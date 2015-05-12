@@ -1,10 +1,11 @@
 //----------------------------------------------------------------------
-// Includes files for all user defined types
+// Includes files for all user defined functor classes
 //----------------------------------------------------------------------
 
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef FUNCTORS_H
+#define FUNCTORS_H
 
-#include "types/Point.h"
+#include "functors/Pred.h"
+#include "functors/PredPoint.h"
 
 #endif
