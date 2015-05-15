@@ -21,6 +21,8 @@ from pclib.ifcs import InValRdyBundle, OutValRdyBundle
 from pclib.cl   import InValRdyQueue, OutValRdyQueue
 
 from dstu.BytesMemPortProxyFuture import BytesMemPortProxy
+from dstu.IteratorTranslationUnitFL import TypeDescriptor
+from dstu.UserTypes import TypeEnum
 
 #-------------------------------------------------------------------------
 # FindIfUnitFL
@@ -80,6 +82,9 @@ class FindIfUnitFL( Model ):
     # boolean flag to check if only one request is in flight
     s.itu_req_set = False
 
+    # which was the last field to be loaded?
+    s.last_loaded_field = 0
+
     # datatype descriptor
     s.dt_desc = 0
 
@@ -88,12 +93,17 @@ class FindIfUnitFL( Model ):
     #---------------------------------------------------------------------
     # helper function to apply the predicate
     def predicate( data ):
-
       if   s.predicate_val == 0: return data > 0
       elif s.predicate_val == 1: return data < 0
       elif s.predicate_val == 2: return data == 0
-      elif s.predicate_val == 3: return ( data % 2 ) == 1
-      elif s.predicate_val == 4: return ( data % 2 ) == 0
+      #elif s.predicate_val == 3: return ( data % 2 ) == 1
+      #elif s.predicate_val == 4: return ( data % 2 ) == 0
+    
+    def predicate_point( px, py ):
+      if   s.predicate_val == 0: return px > 0 and py > 0
+      elif s.predicate_val == 1: return px < 0 and py < 0
+      elif s.predicate_val == 2: return px == 0 and py == 0
+      # TODO: more
 
     #---------------------------------------------------------------------
     # Implementation
@@ -132,10 +142,14 @@ class FindIfUnitFL( Model ):
       # Go State
       #-------------------------------------------------------------------
 
-      # First fetch the metadata
-      #s.dt_desc = s.mem[s.dt_desc_ptr:dt_desc_ptr+4]
-
       if s.go:
+      
+        # First fetch the metadata
+        #dt_value = s.mem[s.dt_desc_ptr:s.dt_desc_ptr+4]
+        #dt_desc  = TypeDescriptor().unpck( dt_value )
+        dt_desc = TypeDescriptor().unpck( 0 )
+        print "dt_desc_ptr=", s.dt_desc_ptr
+        print "type=", dt_desc.type_
 
         # if the iterators dont't belong to the same data structure bail
         if not s.iter_first_ds_id == s.iter_last_ds_id:
@@ -154,31 +168,70 @@ class FindIfUnitFL( Model ):
         #-----------------------------------------------------------------
         # compute find-if
         #-----------------------------------------------------------------
-        # XXX: Currently, works only for primitive types.
 
         else:
 
-          # handle primitive types
-          
+          # handle primitive types, which have type_ = 0
+          if dt_desc.type_ <= TypeEnum.MAX_PRIMITIVE:
 
-          # set load request
-          if not s.itureq_q.full() and not s.itu_req_set:
-            ds_id = s.iter_first_ds_id
-            iter  = s.iter_first_iter
-            s.itureq_q.enq( itu_ifc_types.req.mk_msg(0,0,ds_id,iter,0,0) )
-            s.itu_req_set = True
+            # set load request
+            if not s.itureq_q.full() and not s.itu_req_set:
+              ds_id = s.iter_first_ds_id
+              iter  = s.iter_first_iter
+              s.itureq_q.enq( itu_ifc_types.req.mk_msg(0,0,ds_id,iter,0,0) )
+              s.itu_req_set = True
 
-          # get the value and apply the predicate
-          if not s.ituresp_q.empty() and s.itu_req_set:
-            resp = s.ituresp_q.deq()
+            # get the value and apply the predicate
+            if not s.ituresp_q.empty() and s.itu_req_set:
+              resp = s.ituresp_q.deq()
 
-            # apply predicate
-            if predicate( resp.data ):
-              s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg(0,0,s.iter_first_iter,0) )
-              s.go = False
-            else:
-              s.iter_first_iter = s.iter_first_iter + 1
+              # apply predicate
+              if predicate( resp.data ):
+                s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg(0,0,s.iter_first_iter,0) )
+                s.go = False
+              else:
+                s.iter_first_iter = s.iter_first_iter + 1
+                s.itu_req_set = False
+
+          # Point type
+          elif dt_desc.type_ == TypeEnum.POINT:
+
+            # set load request
+            if not s.itureq_q.full() and not s.itu_req_set:
+              ds_id = s.iter_first_ds_id
+              iter  = s.iter_first_iter
+              # only send a DTU request if there are fields left to get
+              if last_loaded_field == 0:
+                s.itureq_q.enq( itu_ifc_types.req.mk_msg(0,0,ds_id,iter,1,0) )
+                s.itu_req_set = True
+              elif last_loaded_field == 1:
+                s.itureq_q.enq( itu_ifc_types.req.mk_msg(0,0,ds_id,iter,2,0) )
+                s.itu_req_set = True
+
+            # get the value and apply the predicate
+            if not s.ituresp_q.empty() and s.itu_req_set:
+              # always recieved a response
+              resp =  s.ituresp_q.deq()
               s.itu_req_set = False
+              # process the response
+              if last_loaded_field == 0:
+                data_x = resp.data
+                last_loaded_field = 1
+              elif last_loaded_field == 1:
+                data_y = resp.data
+                last_loaded_field = 2
+
+            # this comment must be different from apply predicate
+            if last_loaded_field == 2:
+              # TODO: fix this
+              if predicate_point( data_x, data_y ):
+                s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg(0,0,s.iter_first_iter,0) )
+                s.go = False
+              else:
+                s.iter_first_iter = s.iter_first_iter + 1
+
+          else:
+            raise SystemExit( dt_desc.type_ )
 
   #-----------------------------------------------------------------------
   # line_trace

@@ -7,6 +7,7 @@ from pclib.ifcs import InValRdyBundle, OutValRdyBundle
 from pclib.cl   import InValRdyQueue, OutValRdyQueue
 
 from BytesMemPortProxyFuture import BytesMemPortProxy
+from UserTypes import TypeEnum
 
 #-------------------------------------------------------------------------
 # TypeDescriptor
@@ -182,11 +183,12 @@ class IteratorTranslationUnitFL( Model ):
 
           # get the metadata
           dt_desc_ptr = s.dt_table[ (xcel_req.ds_id & 0x1f) ]
+          print "dt_desc_ptr=", dt_desc_ptr
           dt_value    = s.mem[dt_desc_ptr:dt_desc_ptr+4]
           dt_desc     = TypeDescriptor().unpck( dt_value )
 
           # PRIMITIVE TYPES
-          if dt_desc.type_ == 0:
+          if dt_desc.type_ <= TypeEnum.MAX_PRIMITIVE:
             mem_addr = base_addr + ( xcel_req.iter * dt_desc.size_ )
 
             if   xcel_req.type_ == itu_ifc_types.req.TYPE_READ:
@@ -199,7 +201,7 @@ class IteratorTranslationUnitFL( Model ):
 
           # USER-DEFINED TYPES
           # XXX: handles only upto one-level of recursion...
-          elif dt_desc.type_ == 1:
+          else:
             field_desc_ptr = dt_desc_ptr + xcel_req.field * 4 # sizeof pointer
             field_value    = s.mem[field_desc_ptr:field_desc_ptr+4]
             field_desc     = TypeDescriptor().unpck( field_value )
@@ -227,7 +229,7 @@ class IteratorTranslationUnitFL( Model ):
           dt_desc     = TypeDescriptor().unpck( dt_value )
 
           # PRIMITIVE TYPES
-          if dt_desc.type_ == 0:
+          if dt_desc.type_ <= TypeEnum.MAX_PRIMITIVE:
 
             # pointer chasing for intermediate nodes
             if not xcel_req.iter == 0:
@@ -244,6 +246,9 @@ class IteratorTranslationUnitFL( Model ):
             elif xcel_req.type_ == itu_ifc_types.req.TYPE_WRITE:
               s.mem[node_ptr:node_ptr+dt_desc.size_] = xcel_req.data
               s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 1, 0, xcel_req.ds_id ) )
+
+          else:
+            SystemExit( -1 )
 
 
   #-----------------------------------------------------------------------
