@@ -9,10 +9,6 @@
 #include "Iterator.h"
 #include "MetaData.h"
 
-// these #defines should not be here!
-#define TYPE_UNSIGNED 0
-#define TYPE_SIGNED 1
-
 #if 1
   #define DB( x ) x
 #else
@@ -47,87 +43,162 @@ class Polytype {
     // Helpers
     //------------------------------------------------------------------
     
-
-
-    // RZ: For all of the operators we assume the rhs type is the same
-
     //------------------------------------------------------------------
-    // Boolean Operators with Int
+    // Boolean Operators against Integer
     //------------------------------------------------------------------
-    
-    // basic operators
-    bool operator==(int rhs) const {
-      unsigned md = m_metadata.getData(0);
-      ap_uint<8> n_fields = GET_FIELDS(md);
 
-      if (n_fields == 0) {
-        ap_uint<8> type = GET_TYPE(md);
-        //ap_uint<8> size = GET_SIZE(md);
+    bool operator==(const int rhs) const {
+      unsigned md0 = m_metadata.getData(0);
+      ap_uint<8> type = GET_TYPE(md0);
+      switch (type) {
+        case TYPE_CHAR:
+          return ap_int<8>(data[0]) == ap_int<8>(rhs);
+        case TYPE_UCHAR:
+          return ap_uint<8>(data[0]) == ap_uint<8>(rhs);
+        case TYPE_SHORT:
+          return ap_int<16>(data[0]) == ap_int<16>(rhs);
+        case TYPE_USHORT:
+          return ap_uint<16>(data[0]) == ap_uint<16>(rhs);
+        case TYPE_INT:
+          return ap_int<32>(data[0]) == ap_int<32>(rhs);
+        case TYPE_UINT:
+          return ap_uint<32>(data[0]) == ap_uint<32>(rhs);
+        case TYPE_POINT:
+        default:
+          break;
+      }
 
-        if (type == TYPE_SIGNED)
-          return static_cast<int>(data[0]) == rhs;
-        else if (type == TYPE_UNSIGNED)
-          return static_cast<unsigned>(data[0]) == rhs;
-        else {
-          DB( fprintf(stderr, "Unsupported type, %s::%d\n", __FILE__, __LINE__) );
-        }
-      }
-      else {
-        bool flag = true;
-        for (int i = 1; i < MAX_FIELDS; ++i) {
-          if (i < n_fields) {
-            unsigned md = m_metadata.getData(0);
-            ap_uint<8> type = GET_TYPE(md);
-            //ap_uint<8> size = GET_SIZE(md);
-            
-            if (type == TYPE_SIGNED)
-              flag &= (static_cast<int>(data[0]) == rhs);
-            else if (type == TYPE_UNSIGNED)
-              flag &= (static_cast<unsigned>(data[0]) == rhs);
-            else {
-              DB( fprintf(stderr, "Unsupported type, %s::%d\n", __FILE__, __LINE__) );
-            }
-          }
-        }
-        return flag;
-      }
-      return true; 
-    }
-    bool operator<=(int rhs) const {
       return false; 
     }
-    bool operator< (int rhs) const {
+
+    bool operator<=(const int rhs) const {
+      unsigned md0 = m_metadata.getData(0);
+      ap_uint<8> type = GET_TYPE(md0);
+      switch (type) {
+        case TYPE_CHAR:
+          return ap_int<8>(data[0]) <= ap_int<8>(rhs);
+        case TYPE_UCHAR:
+          return ap_uint<8>(data[0]) <= ap_uint<8>(rhs);
+        case TYPE_SHORT:
+          return ap_int<16>(data[0]) <= ap_int<16>(rhs);
+        case TYPE_USHORT:
+          return ap_uint<16>(data[0]) <= ap_uint<16>(rhs);
+        case TYPE_INT:
+          return ap_int<32>(data[0]) <= ap_int<32>(rhs);
+        case TYPE_UINT:
+          return ap_uint<32>(data[0]) <= ap_uint<32>(rhs);
+        case TYPE_POINT:
+        default:
+          break;
+      }
+
+      return false; 
+    }
+
+    bool operator<(const int rhs) const {
+      unsigned md0 = m_metadata.getData(0);
+      ap_uint<8> type = GET_TYPE(md0);
+      switch (type) {
+        case TYPE_CHAR:
+          return ap_int<8>(data[0]) < ap_int<8>(rhs);
+        case TYPE_UCHAR:
+          return ap_uint<8>(data[0]) < ap_uint<8>(rhs);
+        case TYPE_SHORT:
+          return ap_int<16>(data[0]) < ap_int<16>(rhs);
+        case TYPE_USHORT:
+          return ap_uint<16>(data[0]) < ap_uint<16>(rhs);
+        case TYPE_INT:
+          return ap_int<32>(data[0]) < ap_int<32>(rhs);
+        case TYPE_UINT:
+          return ap_uint<32>(data[0]) < ap_uint<32>(rhs);
+        case TYPE_POINT:
+        default:
+          break;
+      }
+
       return false; 
     }
     
     // derived operators
-    bool operator> (int rhs) const { return !(*this <= rhs); }
-    bool operator>=(int rhs) const { return !(*this < rhs); }
-    bool operator!=(int rhs) const { return !(*this == rhs); }
+    bool operator> (const int rhs) const { return !(*this <= rhs); }
+    bool operator>=(const int rhs) const { return !(*this < rhs); }
+    bool operator!=(const int rhs) const { return !(*this == rhs); }
 
     //------------------------------------------------------------------
-    // Boolean Operators with Polytype
+    // Boolean Operators against Polytype
     //------------------------------------------------------------------
+    // RZ: for all operators we assume the RHS has the same actual type
 
     // basic operators
     bool operator==(const Polytype& rhs) const {
       unsigned md0 = m_metadata.getData(0);
-      ap_uint<8> n_fields = GET_FIELDS(md0);
-
-      if (n_fields == 0) {
-        ap_uint<8> type = GET_TYPE(md0);
-        ap_uint<8> size = GET_SIZE(md0);
-        if (type == TYPE_SIGNED) {
-            DB( fprintf(stderr, "Unsupported size, %s::%d\n", __FILE__, __LINE__) );
-        }
+      ap_uint<8> type = GET_TYPE(md0);
+      switch (type) {
+        case TYPE_CHAR:
+          return ap_int<8>(data[0]) == ap_int<8>(rhs.data[0]);
+        case TYPE_UCHAR:
+          return ap_uint<8>(data[0]) == ap_uint<8>(rhs.data[0]);
+        case TYPE_SHORT:
+          return ap_int<16>(data[0]) == ap_int<16>(rhs.data[0]);
+        case TYPE_USHORT:
+          return ap_uint<16>(data[0]) == ap_uint<16>(rhs.data[0]);
+        case TYPE_INT:
+          return ap_int<32>(data[0]) == ap_int<32>(rhs.data[0]);
+        case TYPE_UINT:
+          return ap_uint<32>(data[0]) == ap_uint<32>(rhs.data[0]);
+        case TYPE_POINT:
+        default:
+          break;
       }
-      return true; 
+
+      return false; 
     }
+
     bool operator<=(const Polytype& rhs) const {
-      return true; 
+      unsigned md0 = m_metadata.getData(0);
+      ap_uint<8> type = GET_TYPE(md0);
+      switch (type) {
+        case TYPE_CHAR:
+          return ap_int<8>(data[0]) <= ap_int<8>(rhs.data[0]);
+        case TYPE_UCHAR:
+          return ap_uint<8>(data[0]) <= ap_uint<8>(rhs.data[0]);
+        case TYPE_SHORT:
+          return ap_int<16>(data[0]) <= ap_int<16>(rhs.data[0]);
+        case TYPE_USHORT:
+          return ap_uint<16>(data[0]) <= ap_uint<16>(rhs.data[0]);
+        case TYPE_INT:
+          return ap_int<32>(data[0]) <= ap_int<32>(rhs.data[0]);
+        case TYPE_UINT:
+          return ap_uint<32>(data[0]) <= ap_uint<32>(rhs.data[0]);
+        case TYPE_POINT:
+        default:
+          break;
+      }
+
+      return false; 
     }
     bool operator< (const Polytype& rhs) const {
-      return true; 
+      unsigned md0 = m_metadata.getData(0);
+      ap_uint<8> type = GET_TYPE(md0);
+      switch (type) {
+        case TYPE_CHAR:
+          return ap_int<8>(data[0]) < ap_int<8>(rhs.data[0]);
+        case TYPE_UCHAR:
+          return ap_uint<8>(data[0]) < ap_uint<8>(rhs.data[0]);
+        case TYPE_SHORT:
+          return ap_int<16>(data[0]) < ap_int<16>(rhs.data[0]);
+        case TYPE_USHORT:
+          return ap_uint<16>(data[0]) < ap_uint<16>(rhs.data[0]);
+        case TYPE_INT:
+          return ap_int<32>(data[0]) < ap_int<32>(rhs.data[0]);
+        case TYPE_UINT:
+          return ap_uint<32>(data[0]) < ap_uint<32>(rhs.data[0]);
+        case TYPE_POINT:
+        default:
+          break;
+      }
+
+      return false; 
     }
     
     // derived operators

@@ -16,8 +16,10 @@ from dstu.TestMemoryOpaque          import TestMemory
 from dstu.IteratorTranslationUnitFL import IteratorTranslationUnitFL as ITU
 from dstu.IteratorMsg               import IteratorMsg
 from dstu.XcelMsg                   import XcelMsg
+from dstu.UserTypes                 import Point
 
 from FindIfUnitFL import FindIfUnitFL
+
 
 #------------------------------------------------------------------------------
 # TestHarness
@@ -166,6 +168,13 @@ def mem_array_uchar( base_addr, data ):
   bytes = struct.pack( "<{}B".format( len(data) ), *data )
   return [base_addr, bytes]
 
+# mem_array_point
+# data is a list of Point
+def mem_array_point( base_addr, metadata, data):
+  mbytes = struct.pack( "<{}i".format( len(metadata) ), *metadata)
+  dbytes = ''.join( [d.pack() for d in data] )
+  return [base_addr, mbytes+dbytes]
+
 #------------------------------------------------------------------------------
 # Helper functions for Test src/sink messages
 #------------------------------------------------------------------------------
@@ -198,8 +207,8 @@ vector_int_msgs = [
 # preload the memory to known values
 # NOTE: The first four bytes describe the dt_descriptor written out in
 # little-endian format
-# fields, type, size, offset
-vec_uchar_mem = mem_array_uchar( 8, [0,2,1,0 ,1,1,3,7,5,9,0] )
+# offset, size, type, fields
+vec_uchar_mem = mem_array_uchar( 8, [0,1,1,0 ,1,1,3,7,5,9,0] )
 
 # configure the asu state and expect a response for a given predicate
 vector_uchar_msgs = [
@@ -244,6 +253,41 @@ list_int_msgs = [
                  req( 0, 0, 0, 0, 0 ), resp( 0, 0, 6, 0 )  # check done
                 ]
 
+#------------------------------------------------------------------------------
+# Memory array and messages to test array of Points
+#------------------------------------------------------------------------------
+# offset, size, type, fields
+
+vec_point_mem = mem_array_point( 8,
+                                    [ # metadata
+                                      0x000B0B03,
+                                      0x01040300,
+                                      0x02040500,
+                                      0x03040500,
+                                    ],
+                                    [ # values
+                                      Point( 0, 1, 3 ),
+                                      Point( 1, 2, 3 ),
+                                      Point( 2, 9, 1 ),
+                                      Point( 3, 2, 7 ),
+                                      Point( 4, 0, 1 ),
+                                      Point( 5, 1, 0 ),
+                                      Point( 6, 0, 0 ),
+                                    ]
+                                  )
+
+# configure the asu state and expect a response for a given predicate
+vector_point_msgs = [
+                      req( 0, 1, 1, 0, 0 ), resp( 0, 1, 0, 0 ), # first ds-id
+                      req( 0, 1, 2, 0, 0 ), resp( 0, 1, 0, 0 ), # first iter
+                      req( 0, 1, 3, 0, 0 ), resp( 0, 1, 0, 0 ), # last ds-id
+                      req( 0, 1, 4, 7, 0 ), resp( 0, 1, 0, 0 ), # last iter
+                      req( 0, 1, 5, 2, 0 ), resp( 0, 1, 0, 0 ), # predicate val = EqZero
+                      req( 0, 1, 6, 8, 0 ), resp( 0, 1, 0, 0 ), # dt_desc_ptr
+                      req( 0, 1, 0, 0, 0 ), resp( 0, 1, 0, 0 ), # go
+                      req( 0, 0, 0, 0, 0 ), resp( 0, 0, 6, 0 )  # check done
+                    ]
+
 #-------------------------------------------------------------------------
 # Test Case Table
 #-------------------------------------------------------------------------
@@ -262,6 +306,7 @@ test_case_table = mk_test_case_table([
   [ "list_int_5x0_0.5_0",   list_int_msgs,     5,  0,   0.5,  0,   list_int_mem,  ITU.LIST   ],
   [ "list_int_0x5_0.0_4",   list_int_msgs,     0,  5,   0.0,  4,   list_int_mem,  ITU.LIST   ],
   [ "list_int_3x9_0.5_3",   list_int_msgs,     3,  9,   0.5,  3,   list_int_mem,  ITU.LIST   ],
+  [ "vec_pnt_0x0_0.0_0",    vector_point_msgs, 0,  0,   0.0,  0,   vec_point_mem, ITU.VECTOR ],
 ])
 
 #-------------------------------------------------------------------------

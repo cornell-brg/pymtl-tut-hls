@@ -183,7 +183,6 @@ class IteratorTranslationUnitFL( Model ):
 
           # get the metadata
           dt_desc_ptr = s.dt_table[ (xcel_req.ds_id & 0x1f) ]
-          print "dt_desc_ptr=", dt_desc_ptr
           dt_value    = s.mem[dt_desc_ptr:dt_desc_ptr+4]
           dt_desc     = TypeDescriptor().unpck( dt_value )
 

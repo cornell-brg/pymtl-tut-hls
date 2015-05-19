@@ -3,6 +3,7 @@
 
 #include "../ReferenceProxy.h"
 #include "../MetaData.h"
+#include "../TypeEnum.h"
 
 //----------------------------------------------------------------------
 // Point type
@@ -12,6 +13,11 @@ struct Point {
   int x;
   int y;
 };
+
+template<>
+struct TypeEnum<Point> {
+  static TYPE_ENUM get() { return TYPE_POINT; }
+}
 
 //----------------------------------------------------------------------
 // Point Specialization
