@@ -14,7 +14,7 @@ from pclib.test import TestSource, TestSink, mk_test_case_table
 from dstu.MemMsgFuture              import MemMsg
 from dstu.TestMemoryOpaque          import TestMemory
 from dstu.IteratorTranslationUnitFL import IteratorTranslationUnitFL as ITU
-from dstu.IteratorTranslationUnitFL import TypeDescriptor
+from dstu.TypeDescriptor import TypeDescriptor
 from dstu.IteratorMsg               import IteratorMsg
 from dstu.XcelMsg                   import XcelMsg
 from dstu.UserTypes                 import Point

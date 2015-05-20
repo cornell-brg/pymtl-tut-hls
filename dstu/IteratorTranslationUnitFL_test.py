@@ -13,7 +13,7 @@ from MemMsgFuture     import MemMsg
 from TestMemoryOpaque import TestMemory
 
 from IteratorTranslationUnitFL import IteratorTranslationUnitFL as ITU
-from IteratorTranslationUnitFL import TypeDescriptor
+from TypeDescriptor import TypeDescriptor
 
 #------------------------------------------------------------------------------
 # TestHarness

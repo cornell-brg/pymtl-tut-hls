@@ -21,7 +21,7 @@ from pclib.ifcs import InValRdyBundle, OutValRdyBundle
 from pclib.cl   import InValRdyQueue, OutValRdyQueue
 
 from dstu.BytesMemPortProxyFuture import BytesMemPortProxy
-from dstu.IteratorTranslationUnitFL import TypeDescriptor
+from dstu.TypeDescriptor import TypeDescriptor
 from dstu.UserTypes import TypeEnum
 
 #-------------------------------------------------------------------------
