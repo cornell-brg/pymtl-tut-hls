@@ -2,9 +2,10 @@
 # IteratorTranslationUnitFL
 #=========================================================================
 
-from pymtl      import *
-from pclib.ifcs import InValRdyBundle, OutValRdyBundle
-from pclib.cl   import InValRdyQueue, OutValRdyQueue
+from collections import deque
+from pymtl       import *
+from pclib.ifcs  import InValRdyBundle, OutValRdyBundle
+from pclib.cl    import InValRdyQueue, OutValRdyQueue
 
 from BytesMemPortProxyFuture import BytesMemPortProxy
 from UserTypes import TypeEnum
@@ -44,6 +45,7 @@ class IteratorTranslationUnitFL( Model ):
 
   VECTOR = 0 # vector
   LIST   = 1 # list
+  TREE   = 2 # tree
 
   def __init__( s, cfg_ifc_types, itu_ifc_types, mem_ifc_types ):
 
@@ -246,9 +248,53 @@ class IteratorTranslationUnitFL( Model ):
               s.mem[node_ptr:node_ptr+dt_desc.size_] = xcel_req.data
               s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 1, 0, xcel_req.ds_id ) )
 
+          # USER-DEFINED TYPES
           else:
-            SystemExit( -1 )
+            raise "Support for list containing user-defined-type {} not implemented!".format( dt_dest_type_ )
 
+        #-----------------------------------------------------------------
+        # Handle TREE
+        #-----------------------------------------------------------------
+        # NOTE: Currently, the tree translation logic only supports a
+        # breadth-first-iteration order. Yet to figure out support for
+        # flexible traversal patterns.
+        elif ds_type == s.TREE:
+
+          # get the node ptr
+          node_ptr   = s.ds_table[ (xcel_req.ds_id & 0x1f) ]
+
+          # get the metadata
+          dt_desc_ptr = s.dt_table[ (xcel_req.ds_id & 0x1f) ]
+          dt_value    = s.mem[dt_desc_ptr:dt_desc_ptr+4]
+          dt_desc     = TypeDescriptor().unpck( dt_value )
+
+          # PRIMITIVE TYPES
+          if dt_desc.type_ <= TypeEnum.MAX_PRIMITIVE:
+
+            # pointer chasing that implements bread-first-iteration order
+            if not xcel_req.iter == 0:
+              queue = deque()
+              for i in xrange( xcel_req.iter ):
+                # +--------+-------------+------------+----------+----------+------+
+                # | parent | first_child | last_child | prev_sib | next_sib | data |
+                # +--------+-------------+------------+----------+----------+------+
+                sibling = s.mem[node_ptr+4:node_ptr+8]
+                while sibling:
+                  queue.append( sibling )
+                  sibling = s.mem[sibling+16:sibling+20]
+                node_ptr = queue.popleft()
+
+            if   xcel_req.type_ == itu_ifc_types.req.TYPE_READ:
+              mem_data = s.mem[(node_ptr+20):(node_ptr+20+dt_desc.size_)]
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 0, mem_data, xcel_req.ds_id ) )
+
+            elif xcel_req.type_ == itu_ifc_types.req.TYPE_WRITE:
+              s.mem[(node_ptr+20):(node_ptr+20+dt_desc.size_)] = xcel_req.data
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 1, 0, xcel_req.ds_id ) )
+
+          # USER-DEFINED TYPES
+          else:
+            raise "Support for trees containing user-defined-type {} not implemented!".format( dt_dest_type_ )
 
   #-----------------------------------------------------------------------
   # line_trace
