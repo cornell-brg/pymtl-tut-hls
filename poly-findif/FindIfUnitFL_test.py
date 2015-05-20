@@ -14,6 +14,7 @@ from pclib.test import TestSource, TestSink, mk_test_case_table
 from dstu.MemMsgFuture              import MemMsg
 from dstu.TestMemoryOpaque          import TestMemory
 from dstu.IteratorTranslationUnitFL import IteratorTranslationUnitFL as ITU
+from dstu.IteratorTranslationUnitFL import TypeDescriptor
 from dstu.IteratorMsg               import IteratorMsg
 from dstu.XcelMsg                   import XcelMsg
 from dstu.UserTypes                 import Point
@@ -92,7 +93,7 @@ def run_asu_test( model, mem_array, ds_type, dump_vcd = None ):
 
   # Load the memory
   if mem_array:
-    model.mem.write_mem( mem_array[0], mem_array[1] )
+    model.mem.write_mem( mem_array[0], mem_array[2] )
 
   # Run simulation
   sim.reset()
@@ -119,7 +120,7 @@ def run_asu_test( model, mem_array, ds_type, dump_vcd = None ):
   sim.cycle()
 
   # Init data structure
-  model.itu.cfgreq.msg.data.next  = mem_array[0]+4 # base addr
+  model.itu.cfgreq.msg.data.next  = mem_array[0]+mem_array[1] # base addr
   model.itu.cfgreq.msg.raddr.next = 1              # init
   model.itu.cfgreq.msg.id.next    = alloc_ds_id    # id of the ds
 
@@ -161,19 +162,19 @@ def run_asu_test( model, mem_array, ds_type, dump_vcd = None ):
 # mem_array_int
 def mem_array_int( base_addr, data ):
   bytes = struct.pack( "<{}i".format( len(data) ), *data )
-  return [base_addr, bytes]
+  return [base_addr, 4, bytes]
 
 # mem_array_uchar
 def mem_array_uchar( base_addr, data ):
   bytes = struct.pack( "<{}B".format( len(data) ), *data )
-  return [base_addr, bytes]
+  return [base_addr, 4, bytes]
 
 # mem_array_point
 # data is a list of Point
 def mem_array_point( base_addr, metadata, data):
   mbytes = struct.pack( "<{}i".format( len(metadata) ), *metadata)
   dbytes = ''.join( [d.pack() for d in data] )
-  return [base_addr, mbytes+dbytes]
+  return [base_addr, 4*len(metadata), mbytes+dbytes]
 
 #------------------------------------------------------------------------------
 # Helper functions for Test src/sink messages
@@ -228,7 +229,7 @@ vector_uchar_msgs = [
 
 # preload the memory to known values
 list_int_mem = mem_array_int( 0,
-                                [   #metadata
+                                [   # metadata
                                     0x00040500,
                                     # value prev next
                                     1,      4, 16,
@@ -260,14 +261,14 @@ list_int_msgs = [
 
 vec_point_mem = mem_array_point( 8,
                                     [ # metadata
-                                      0x000B0B03,
-                                      0x01040300,
-                                      0x02040500,
-                                      0x03040500,
+                                      0x000C0B03,
+                                      0x00040300,
+                                      0x04040500,
+                                      0x08040500,
                                     ],
                                     [ # values
-                                      Point( 0, 1, 3 ),
-                                      Point( 1, 2, 3 ),
+                                      Point( 0, 2, 3 ),
+                                      Point( 1, 4, 5 ),
                                       Point( 2, 9, 1 ),
                                       Point( 3, 2, 7 ),
                                       Point( 4, 0, 1 ),
@@ -306,7 +307,10 @@ test_case_table = mk_test_case_table([
   [ "list_int_5x0_0.5_0",   list_int_msgs,     5,  0,   0.5,  0,   list_int_mem,  ITU.LIST   ],
   [ "list_int_0x5_0.0_4",   list_int_msgs,     0,  5,   0.0,  4,   list_int_mem,  ITU.LIST   ],
   [ "list_int_3x9_0.5_3",   list_int_msgs,     3,  9,   0.5,  3,   list_int_mem,  ITU.LIST   ],
-  [ "vec_pnt_0x0_0.0_0",    vector_point_msgs, 0,  0,   0.0,  0,   vec_point_mem, ITU.VECTOR ],
+  [ "vec_point_0x0_0.0_0",  vector_point_msgs, 0,  0,   0.0,  0,   vec_point_mem, ITU.VECTOR ],
+  [ "vec_point_5x0_0.5_0",  vector_point_msgs, 5,  0,   0.5,  0,   vec_point_mem, ITU.VECTOR ],
+  [ "vec_point_0x5_0.0_4",  vector_point_msgs, 0,  5,   0.0,  4,   vec_point_mem, ITU.VECTOR ],
+  [ "vec_point_3x9_0.5_3",  vector_point_msgs, 3,  9,   0.5,  3,   vec_point_mem, ITU.VECTOR ],
 ])
 
 #-------------------------------------------------------------------------

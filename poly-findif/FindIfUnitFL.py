@@ -143,15 +143,15 @@ class FindIfUnitFL( Model ):
       # Go State
       #-------------------------------------------------------------------
 
+      if not s.go:
+        s.metadata_valid = False
+
       if s.go:
       
         # First fetch the metadata
         if not s.metadata_valid:
-          #dt_value = s.mem[s.dt_desc_ptr:s.dt_desc_ptr+4]
-          #s.dt_desc  = TypeDescriptor().unpck( dt_value )
-          s.dt_desc = TypeDescriptor().unpck( 0x000B0B03 )
-          print "dt_desc_ptr=", s.dt_desc_ptr
-          print "type,fields=", s.dt_desc.type_, s.dt_desc.fields
+          dt_value = s.mem[s.dt_desc_ptr:s.dt_desc_ptr+4]
+          s.dt_desc  = TypeDescriptor().unpck( dt_value )
           s.metadata_valid = True
 
         # if the iterators dont't belong to the same data structure bail
@@ -171,6 +171,7 @@ class FindIfUnitFL( Model ):
         #-----------------------------------------------------------------
         # compute find-if
         #-----------------------------------------------------------------
+        # iterator msg is (opaque, type, ds_id, iter, field, data)
 
         else:
 
@@ -198,6 +199,7 @@ class FindIfUnitFL( Model ):
 
           # Point type
           elif s.dt_desc.type_ == TypeEnum.POINT:
+            fields_to_load = [2,3]
 
             # set load request
             if not s.itureq_q.full() and not s.itu_req_set:
@@ -205,8 +207,8 @@ class FindIfUnitFL( Model ):
               iter  = s.iter_first_iter
               # only send a DTU request if there are fields left to get
               l = len( s.loaded_fields )
-              if l < 2:
-                s.itureq_q.enq( itu_ifc_types.req.mk_msg(0,0,ds_id,iter,l+1,0) )
+              if l < len( fields_to_load ):
+                s.itureq_q.enq( itu_ifc_types.req.mk_msg(0,0,ds_id,iter,fields_to_load[l],0) )
                 s.itu_req_set = True
 
             # get the value and apply the predicate
@@ -216,8 +218,7 @@ class FindIfUnitFL( Model ):
               s.itu_req_set = False
 
             # this comment must be different from apply predicate
-            if len( s.loaded_fields ) == 2:
-              print " FIELDS:", s.loaded_fields
+            if len( s.loaded_fields ) == len( fields_to_load ):
               # TODO: fix this
               if predicate_point( s.loaded_fields[0], s.loaded_fields[1] ):
                 s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg(0,0,s.iter_first_iter,0) )
