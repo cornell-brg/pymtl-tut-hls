@@ -228,8 +228,30 @@ class IteratorTranslationUnitFL( Model ):
               s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 1, 0, xcel_req.ds_id ) )
 
           # USER-DEFINED TYPES
+          # XXX: handles only upto one-level of recursion...
           else:
-            raise "Support for list containing user-defined-type {} not implemented!".format( dt_dest_type_ )
+
+            field_desc_ptr = dt_desc_ptr + xcel_req.field * 4 # sizeof pointer
+            field_value    = s.mem[field_desc_ptr:field_desc_ptr+4]
+            field_desc     = TypeDescriptor().unpck( field_value )
+
+            # pointer chasing for intermediate nodes
+            if not xcel_req.iter == 0:
+              for i in xrange( xcel_req.iter ):
+                # +-----+------+------+
+                # | val | prev | next |
+                # +-----+------+------+
+                node_ptr = s.mem[node_ptr+dt_desc.size_+4:node_ptr+dt_desc.size_+8]
+
+            mem_addr = node_ptr + field_desc.offset
+
+            if   xcel_req.type_ == itu_ifc_types.req.TYPE_READ:
+              mem_data = s.mem[mem_addr:mem_addr+field_desc.size_]
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 0, mem_data, xcel_req.ds_id ) )
+
+            elif xcel_req.type_ == itu_ifc_types.req.TYPE_WRITE:
+              s.mem[mem_addr:mem_addr+field_desc.size_] = xcel_req.data
+              s.xcelresp_q.enq( itu_ifc_types.resp.mk_msg( xcel_req.opaque, 1, 0, xcel_req.ds_id ) )
 
         #-----------------------------------------------------------------
         # Handle TREE
