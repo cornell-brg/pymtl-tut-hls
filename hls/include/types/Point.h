@@ -12,12 +12,44 @@ struct Point {
   short label;
   int x;
   int y;
+
+  //--------------------------------------------------------------------
+  // Boolean operator with Int
+  //--------------------------------------------------------------------
+  bool operator==(const int n) const {
+    return x == n && y == n;
+  }
+  bool operator<=(const int n) const {
+    return x <= n && y <= n;
+  }
+  bool operator< (const int n) const {
+    return x < n && y < n;
+  }
+  bool operator> (const int n) const { return !(*this <= n); }
+  bool operator>=(const int n) const { return !(*this <  n); }
+  bool operator!=(const int n) const { return !(*this == n); }
+
+  //--------------------------------------------------------------------
+  // Boolean operator with Self
+  //--------------------------------------------------------------------
+  bool operator==(const Point& p) const {
+    return x == p.x && y == p.y;
+  }
+  bool operator<=(const Point& p) const {
+    return x <= p.x && y <= p.y;
+  }
+  bool operator< (const Point& p) const {
+    return x < p.x && y < p.y;
+  }
+  bool operator> (const Point& rhs) const { return !(*this <= rhs); }
+  bool operator>=(const Point& rhs) const { return !(*this <  rhs); }
+  bool operator!=(const Point& rhs) const { return !(*this == rhs); }
 };
 
 template<>
 struct TypeEnum<Point> {
   static TYPE_ENUM get() { return TYPE_POINT; }
-}
+};
 
 //----------------------------------------------------------------------
 // Point Specialization
@@ -125,19 +157,19 @@ class MetaCreator <Point> {
       // descriptor for label
       SET_OFFSET( data[1], 0               );
       SET_SIZE  ( data[1], sizeof( short ) );
-      SET_TYPE  ( data[1], 0               );
+      SET_TYPE  ( data[1], TYPE_SHORT      );
       SET_FIELDS( data[1], 0               );
 
       // descriptor for x
       SET_OFFSET( data[2], 4               );
       SET_SIZE  ( data[2], sizeof( int   ) );
-      SET_TYPE  ( data[2], 0               );
+      SET_TYPE  ( data[2], TYPE_INT        );
       SET_FIELDS( data[2], 0               );
 
       // descriptor for y
       SET_OFFSET( data[3], 8               );
       SET_SIZE  ( data[3], sizeof( int   ) );
-      SET_TYPE  ( data[3], 0               );
+      SET_TYPE  ( data[3], TYPE_INT        );
       SET_FIELDS( data[3], 0               );
 
       get()->init( data );

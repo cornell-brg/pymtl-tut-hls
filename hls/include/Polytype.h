@@ -8,6 +8,7 @@
 #include "ReferenceProxy.h"
 #include "Iterator.h"
 #include "MetaData.h"
+#include "Types.h"
 
 #if 1
   #define DB( x ) x
@@ -64,6 +65,7 @@ class Polytype {
         case TYPE_UINT:
           return ap_uint<32>(data[0]) == ap_uint<32>(rhs);
         case TYPE_POINT:
+          return *((Point*)data) == rhs;
         default:
           break;
       }
@@ -88,6 +90,7 @@ class Polytype {
         case TYPE_UINT:
           return ap_uint<32>(data[0]) <= ap_uint<32>(rhs);
         case TYPE_POINT:
+          //return *((Point*)data) <= rhs;
         default:
           break;
       }
@@ -112,6 +115,7 @@ class Polytype {
         case TYPE_UINT:
           return ap_uint<32>(data[0]) < ap_uint<32>(rhs);
         case TYPE_POINT:
+          //return *((Point*)data) < rhs;
         default:
           break;
       }
@@ -121,7 +125,7 @@ class Polytype {
     
     // derived operators
     bool operator> (const int rhs) const { return !(*this <= rhs); }
-    bool operator>=(const int rhs) const { return !(*this < rhs); }
+    bool operator>=(const int rhs) const { return !(*this <  rhs); }
     bool operator!=(const int rhs) const { return !(*this == rhs); }
 
     //------------------------------------------------------------------
@@ -147,6 +151,7 @@ class Polytype {
         case TYPE_UINT:
           return ap_uint<32>(data[0]) == ap_uint<32>(rhs.data[0]);
         case TYPE_POINT:
+          return *((Point*)data) == *((Point*)rhs.data);
         default:
           break;
       }
@@ -171,6 +176,7 @@ class Polytype {
         case TYPE_UINT:
           return ap_uint<32>(data[0]) <= ap_uint<32>(rhs.data[0]);
         case TYPE_POINT:
+          return *((Point*)data) <= *((Point*)rhs.data);
         default:
           break;
       }
@@ -194,6 +200,7 @@ class Polytype {
         case TYPE_UINT:
           return ap_uint<32>(data[0]) < ap_uint<32>(rhs.data[0]);
         case TYPE_POINT:
+          return *((Point*)data) < *((Point*)rhs.data);
         default:
           break;
       }
@@ -203,7 +210,7 @@ class Polytype {
     
     // derived operators
     bool operator> (const Polytype& rhs) const { return !(*this <= rhs); }
-    bool operator>=(const Polytype& rhs) const { return !(*this < rhs); }
+    bool operator>=(const Polytype& rhs) const { return !(*this <  rhs); }
     bool operator!=(const Polytype& rhs) const { return !(*this == rhs); }
 
     //------------------------------------------------------------------
@@ -248,6 +255,9 @@ class ReferenceProxy <Polytype> {
       unsigned md = m_metadata.getData(0);
       ap_uint<8> n_fields = GET_FIELDS(md);
 
+        resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, 0);
+        p.data[0] = DTU_RESP_DATA(resp);
+/*
       // primitive type
       if (n_fields == 0) {
         resp = dtu_read (g_dtu_iface, m_ds_id, m_iter);
@@ -262,7 +272,7 @@ class ReferenceProxy <Polytype> {
           }
         }
       }
-
+*/
       return p;
     }
 
@@ -278,9 +288,11 @@ class ReferenceProxy <Polytype> {
       
       unsigned md = m_metadata.getData(0);
       ap_uint<8> n_fields = GET_FIELDS(md);
+        
+        resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 0, p.data[0]);
 
       // primitive type
-      if (n_fields == 0) {
+      /*if (n_fields == 0) {
         resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 0, p.data[0]);
       }
       // struct
@@ -290,7 +302,7 @@ class ReferenceProxy <Polytype> {
             resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, i, p.data[i]);
           }
         }
-      }
+      }*/
 
       // do nothing!
       return *this;

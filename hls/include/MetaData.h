@@ -29,10 +29,10 @@
 #define SET_TYPE( x, type )    (x) = (((x) & ~(TYPE_MASK<<TYPE_SHIFT))     | ((type)<<TYPE_SHIFT))
 #define SET_FIELDS( x, field ) (x) = (((x) & ~(FIELDS_MASK<<FIELDS_SHIFT)) | ((field)<<FIELDS_SHIFT))
 
-#define GET_OFFSET( x ) ((x) & ~(OFFSET_MASK<<OFFSET_SHIFT))
-#define GET_SIZE( x ) ((x) & ~(SIZE_MASK<<SIZE_SHIFT))
-#define GET_TYPE( x ) ((x) & ~(TYPE_MASK<<TYPE_SHIFT))
-#define GET_FIELDS( x ) ((x) & ~(FIELDS_MASK<<FIELDS_SHIFT))
+#define GET_OFFSET( x ) (((x)>>OFFSET_SHIFT) & OFFSET_MASK)
+#define GET_SIZE( x ) (((x)>>SIZE_SHIFT) & SIZE_MASK)
+#define GET_TYPE( x ) (((x)>>TYPE_SHIFT) & TYPE_MASK)
+#define GET_FIELDS( x ) (((x)>>FIELDS_SHIFT) & FIELDS_MASK)
 
 //----------------------------------------------------------------------
 // MetaData
@@ -64,6 +64,13 @@ class MetaData {
     }
     const unsigned int* getDataLoc() const { return metadata; }
     const unsigned int  getData(int i) const { return metadata[i];  }
+    void dump() const {
+      unsigned offset = GET_OFFSET(metadata[0]);
+      unsigned size = GET_SIZE(metadata[0]);
+      unsigned type = GET_TYPE(metadata[0]);
+      unsigned fields = GET_FIELDS(metadata[0]);
+      printf ("offset:%d, size:%d, type:%d, fields:%d\n", offset, size, type, fields);
+    }
 };
 
 //----------------------------------------------------------------------
@@ -72,7 +79,6 @@ class MetaData {
 //----------------------------------------------------------------------
 template<typename T>
 class MetaCreator {
-  TypeEnum<T> enum_getter;
   public:
     MetaCreator() {
 
@@ -89,7 +95,7 @@ class MetaCreator {
 
       SET_OFFSET( data[0], 0           );
       SET_SIZE  ( data[0], sizeof( T ) );
-      SET_TYPE  ( data[0], enum_getter.get()); // Enum for types?
+      SET_TYPE  ( data[0], TypeEnum<T>::get()); // Enum for types?
       SET_FIELDS( data[0], 0           );
 
       get()->init( data );
@@ -112,7 +118,7 @@ void mem_read_metadata (volatile MemIfaceType &iface, MemAddrType addr, MetaData
   unsigned mdata[MAX_FIELDS];
 
   // read the first field
-  resp = mem_read (iface, addr, 4);
+  resp = mem_read (iface, addr, 0);
   mdata[0] = MEM_RESP_DATA(resp);
   ap_uint<8> n_fields = GET_FIELDS(mdata[0]);
 
@@ -120,7 +126,7 @@ void mem_read_metadata (volatile MemIfaceType &iface, MemAddrType addr, MetaData
   for (ap_uint<8> i = 1; i < MAX_FIELDS; ++i) {
     if (i < n_fields) {
       addr += sizeof(unsigned);
-      resp = mem_read (iface, addr, 4);
+      resp = mem_read (iface, addr, 0);
       mdata[i] = MEM_RESP_DATA(resp);
     }
   }

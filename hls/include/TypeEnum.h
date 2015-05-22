@@ -19,6 +19,10 @@ enum TYPE_ENUM {
   TYPE_POINT
 };
 
+//----------------------------------------------------------------------
+// Class for converting from a C type to an enum
+// Example use: "TypeEnum<int>::get()"
+//----------------------------------------------------------------------
 template <typename T>
 struct TypeEnum {
   static TYPE_ENUM get() { return ERROR; }
@@ -32,6 +36,16 @@ struct TypeEnum<char> {
 template<>
 struct TypeEnum<unsigned char> {
   static TYPE_ENUM get() { return TYPE_UCHAR; }
+};
+
+template<>
+struct TypeEnum<short> {
+  static TYPE_ENUM get() { return TYPE_SHORT; }
+};
+
+template<>
+struct TypeEnum<unsigned short> {
+  static TYPE_ENUM get() { return TYPE_USHORT; }
 };
 
 template<>

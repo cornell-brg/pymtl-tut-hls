@@ -67,6 +67,7 @@ MemReqType make_mem_req (
 MemRespType mem_read (volatile MemIfaceType &iface,
                       MemAddrType addr, MemLenType len)
 {
+  // note that a len of 0 means max number of bytes
   MemReqType req = make_mem_req (0, 0, addr, len, 0);
   iface.req = req;
   
@@ -79,6 +80,7 @@ MemRespType mem_read (volatile MemIfaceType &iface,
 MemRespType mem_write (volatile MemIfaceType &iface, 
                        MemAddrType addr, MemLenType len, MemDataType data)
 {
+  // note that a len of 0 means max number of bytes
   MemReqType req = make_mem_req (1, 0, addr, len, data);
   iface.req = req;
   
