@@ -49,12 +49,16 @@ void top (volatile AcIfaceType &ac, volatile MemIfaceType &mem)
     if (AC_REQ_ADDR(req) == 0) {
       // read the metadata from memory
       MetaData metadata;
+    #if 1
       unsigned md[MAX_FIELDS];
       SET_OFFSET( md[0], 0 );
       SET_SIZE  ( md[0], sizeof(int) );
       SET_TYPE  ( md[0], TypeEnum<int>::get() );
       SET_FIELDS( md[0], 0 );
       metadata.init(md);
+    #else
+      mem_read_metadata (mem, s_dt_desc_ptr, metadata);
+    #endif
 
       /*printf ("%u %u\n%u %u\n", (unsigned)s_first_ds_id, (unsigned)s_first_index, 
                                 (unsigned)s_last_ds_id,  (unsigned)s_last_index);*/
@@ -190,7 +194,7 @@ int main () {
   assert( check_resp(ac_iface.resp) );
 
   // set pred
-  data = 4;   raddr = 5;
+  data = 2;   raddr = 5;
   ac_iface.req = make_ac_req( id, data, raddr, 1 );
   print_req (ac_iface.req);
   top( ac_iface, mem_iface );

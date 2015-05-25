@@ -20,7 +20,7 @@ typedef ap_uint<3> PredicateType;
 template <typename T>
 _iterator<T> findif (_iterator<T> begin, _iterator<T> end, PredicateType pred_val) {
   for (; begin != end; ++begin) {
-    T temp = *begin;
+    const T temp = *begin;
     switch (pred_val) {
       case 0:
         if (temp > 1) return begin;
@@ -58,18 +58,42 @@ void top (volatile AcIfaceType &ac, volatile MemIfaceType &mem)
   if (AC_REQ_TYPE(req) != 0) {
     // call the accelerator
     if (AC_REQ_ADDR(req) == 0) {
-      //DtuRespType dr = dtu_read(g_dtu_iface, s_first_ds_id, s_first_index);
-      
       // read the metadata from memory
       MetaData metadata;
-      /*unsigned md[MAX_FIELDS];
-      SET_OFFSET( md[0], dr );
+    #if 1
+      unsigned md[MAX_FIELDS];
+      SET_OFFSET( md[0], 0 );
       SET_SIZE  ( md[0], sizeof(int) );
       SET_TYPE  ( md[0], TypeEnum<int>::get() );
       SET_FIELDS( md[0], 0 );
-      metadata.init(md);*/
+      metadata.init(md);
+    #elif 1
+      unsigned md[MAX_FIELDS];
+      // descripter for point
+      SET_OFFSET( md[0], 0               );
+      SET_SIZE  ( md[0], sizeof( Point ) );
+      SET_TYPE  ( md[0], TYPE_POINT      );
+      SET_FIELDS( md[0], 3               );
+      // descriptor for label
+      SET_OFFSET( md[1], 0               );
+      SET_SIZE  ( md[1], sizeof( int   ) );
+      SET_TYPE  ( md[1], TYPE_SHORT      );
+      SET_FIELDS( md[1], 0               );
+      // descriptor for x
+      SET_OFFSET( md[2], 4               );
+      SET_SIZE  ( md[2], sizeof( int   ) );
+      SET_TYPE  ( md[2], TYPE_INT        );
+      SET_FIELDS( md[2], 0               );
+      // descriptor for y
+      SET_OFFSET( md[3], 8               );
+      SET_SIZE  ( md[3], sizeof( int   ) );
+      SET_TYPE  ( md[3], TYPE_INT        );
+      SET_FIELDS( md[3], 0               );
+      
+      metadata.init(md);
+    #else
       mem_read_metadata (mem, s_dt_desc_ptr, metadata);
-
+    #endif
       /*printf ("%u %u\n%u %u\n", (unsigned)s_first_ds_id, (unsigned)s_first_index, 
                                 (unsigned)s_last_ds_id,  (unsigned)s_last_index);*/
       s_result = findif<Polytype> (

@@ -145,7 +145,7 @@ def run_asu_test( model, mem_array, ds_type, dump_vcd = None ):
   model.itu.cfgresp.rdy.next  = 0
   model.go.next = 1
 
-  while not model.done() and sim.ncycles < 500:
+  while not model.done() and sim.ncycles < 1000:
     sim.print_line_trace()
     sim.cycle()
   sim.print_line_trace()
@@ -258,6 +258,8 @@ list_int_msgs = [
 # Memory array and messages to test array of Points
 #------------------------------------------------------------------------------
 # offset, size, type, fields
+# RZ: the offset must be specified in bytes
+#     the size must reflect C-style padding, so its not just sizeof(Type)
 
 vec_point_mem = mem_array_point( 8,
                                     [ # metadata

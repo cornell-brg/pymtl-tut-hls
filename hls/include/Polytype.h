@@ -10,7 +10,7 @@
 #include "MetaData.h"
 #include "Types.h"
 
-#if 1
+#if 0
   #define DB( x ) x
 #else
   #define DB( x )
@@ -24,7 +24,7 @@ extern volatile DtuIfaceType g_dtu_iface;
 //----------------------------------------------------------------------
 class Polytype {
   private:
-    const MetaData& m_metadata;
+    const MetaData m_metadata;
 
   public:
     unsigned data[MAX_FIELDS];
@@ -231,7 +231,7 @@ class ReferenceProxy <Polytype> {
     DtuIterType m_iter;
 
     // metadata
-    const MetaData& m_metadata;
+    const MetaData m_metadata;
 
   public:
 
@@ -255,24 +255,21 @@ class ReferenceProxy <Polytype> {
       unsigned md = m_metadata.getData(0);
       ap_uint<8> n_fields = GET_FIELDS(md);
 
-        resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, 0);
-        p.data[0] = DTU_RESP_DATA(resp);
-/*
       // primitive type
       if (n_fields == 0) {
-        resp = dtu_read (g_dtu_iface, m_ds_id, m_iter);
+        resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, 0);
         p.data[0] = DTU_RESP_DATA(resp);
       }
       // struct
       else {
         for (int i = 1; i < MAX_FIELDS; ++i) {
-          if (i < n_fields) {
+          if (i <= n_fields) {
             resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, i);
             p.data[i] = DTU_RESP_DATA(resp);
           }
         }
       }
-*/
+
       return p;
     }
 
@@ -289,20 +286,18 @@ class ReferenceProxy <Polytype> {
       unsigned md = m_metadata.getData(0);
       ap_uint<8> n_fields = GET_FIELDS(md);
         
-        resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 0, p.data[0]);
-
       // primitive type
-      /*if (n_fields == 0) {
+      if (n_fields == 0) {
         resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 0, p.data[0]);
       }
       // struct
       else {
         for (int i = 1; i < MAX_FIELDS; ++i) {
-          if (i < n_fields) {
+          if (i <= n_fields) {
             resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, i, p.data[i]);
           }
         }
-      }*/
+      }
 
       // do nothing!
       return *this;
@@ -340,7 +335,7 @@ class _iterator<Polytype> {
     unsigned m_index;
     
     // metadata
-    const MetaData& m_metadata;
+    const MetaData m_metadata;
 
   public:
 

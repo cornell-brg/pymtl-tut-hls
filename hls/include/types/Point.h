@@ -146,7 +146,7 @@ template<>
 class MetaCreator <Point> {
   public:
     MetaCreator() {
-      unsigned int data[4];
+      unsigned int data[MAX_FIELDS];
 
       // descripter for point
       SET_OFFSET( data[0], 0               );

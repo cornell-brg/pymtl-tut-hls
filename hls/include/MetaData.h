@@ -42,7 +42,7 @@
 
 // For now this is the maximum number of primitive fields a
 // struct can have
-#define MAX_FIELDS 11
+#define MAX_FIELDS 6
 
 class MetaData {
   private:
