@@ -60,7 +60,7 @@ void top (volatile AcIfaceType &ac, volatile MemIfaceType &mem)
     if (AC_REQ_ADDR(req) == 0) {
       // read the metadata from memory
       MetaData metadata;
-    #if 1
+    #if 0
       unsigned md[MAX_FIELDS];
       SET_OFFSET( md[0], 0 );
       SET_SIZE  ( md[0], sizeof(int) );
@@ -94,11 +94,14 @@ void top (volatile AcIfaceType &ac, volatile MemIfaceType &mem)
     #else
       mem_read_metadata (mem, s_dt_desc_ptr, metadata);
     #endif
-      /*printf ("%u %u\n%u %u\n", (unsigned)s_first_ds_id, (unsigned)s_first_index, 
-                                (unsigned)s_last_ds_id,  (unsigned)s_last_index);*/
+
+      unsigned md0 = metadata.getData(0);
+      ap_uint<8> type = GET_TYPE(md0);
+      ap_uint<8> fields = GET_FIELDS(md0);
+
       s_result = findif<Polytype> (
-                   iterator(s_first_ds_id, s_first_index, metadata),
-                   iterator(s_last_ds_id, s_last_index, metadata),
+                   iterator(s_first_ds_id, s_first_index, type, fields),
+                   iterator(s_last_ds_id, s_last_index, type, fields),
                    s_pred
                  ).get_index();
     }

@@ -59,12 +59,16 @@ void top (volatile AcIfaceType &ac, volatile MemIfaceType &mem)
     #else
       mem_read_metadata (mem, s_dt_desc_ptr, metadata);
     #endif
+      
+      unsigned md0 = metadata.getData(0);
+      ap_uint<8> type = GET_TYPE(md0);
+      ap_uint<8> fields = GET_FIELDS(md0);
 
       /*printf ("%u %u\n%u %u\n", (unsigned)s_first_ds_id, (unsigned)s_first_index, 
                                 (unsigned)s_last_ds_id,  (unsigned)s_last_index);*/
       s_result = empty<Polytype> (
-                   iterator(s_first_ds_id, s_first_index, metadata),
-                   iterator(s_last_ds_id, s_last_index, metadata),
+                   iterator(s_first_ds_id, s_first_index, type, field),
+                   iterator(s_last_ds_id, s_last_index, type, field),
                    s_pred
                  ).get_index();
     }

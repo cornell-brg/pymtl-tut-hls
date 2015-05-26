@@ -24,7 +24,7 @@ extern volatile DtuIfaceType g_dtu_iface;
 //----------------------------------------------------------------------
 class Polytype {
   private:
-    const MetaData m_metadata;
+    const ap_uint<8> m_type;
 
   public:
     unsigned data[MAX_FIELDS];
@@ -33,12 +33,9 @@ class Polytype {
     //------------------------------------------------------------------
     // Constructors
     //------------------------------------------------------------------
-    Polytype() : m_metadata( MetaData() ) {}
-    Polytype( const MetaData& md ) : m_metadata( md ) {}
-    Polytype( const Polytype& p ) : m_metadata( p.m_metadata ) {
-      for (int i = 0; i < MAX_FIELDS; ++i)
-        data[i] = p.data[i];
-    }
+    Polytype() : m_type( 0 ) {}
+    Polytype( const ap_uint<8> type ) : m_type( type ) {}
+    Polytype( const Polytype& p ) : m_type( p.m_type ) {}
     
     //------------------------------------------------------------------
     // Helpers
@@ -49,9 +46,15 @@ class Polytype {
     //------------------------------------------------------------------
 
     bool operator==(const int rhs) const {
-      unsigned md0 = m_metadata.getData(0);
-      ap_uint<8> type = GET_TYPE(md0);
-      switch (type) {
+      /*if (m_type == TYPE_POINT) {
+        Point t;
+        t.label = data[0];
+        t.x = data[1];
+        t.y = data[2];
+        return t.x == rhs && t.y == rhs;
+      }*/
+
+      switch (m_type) {
         case TYPE_CHAR:
           return ap_int<8>(data[0]) == ap_int<8>(rhs);
         case TYPE_UCHAR:
@@ -74,9 +77,7 @@ class Polytype {
     }
 
     bool operator<=(const int rhs) const {
-      unsigned md0 = m_metadata.getData(0);
-      ap_uint<8> type = GET_TYPE(md0);
-      switch (type) {
+      switch (m_type) {
         case TYPE_CHAR:
           return ap_int<8>(data[0]) <= ap_int<8>(rhs);
         case TYPE_UCHAR:
@@ -99,9 +100,7 @@ class Polytype {
     }
 
     bool operator<(const int rhs) const {
-      unsigned md0 = m_metadata.getData(0);
-      ap_uint<8> type = GET_TYPE(md0);
-      switch (type) {
+      switch (m_type) {
         case TYPE_CHAR:
           return ap_int<8>(data[0]) < ap_int<8>(rhs);
         case TYPE_UCHAR:
@@ -135,9 +134,7 @@ class Polytype {
 
     // basic operators
     bool operator==(const Polytype& rhs) const {
-      unsigned md0 = m_metadata.getData(0);
-      ap_uint<8> type = GET_TYPE(md0);
-      switch (type) {
+      switch (m_type) {
         case TYPE_CHAR:
           return ap_int<8>(data[0]) == ap_int<8>(rhs.data[0]);
         case TYPE_UCHAR:
@@ -160,9 +157,7 @@ class Polytype {
     }
 
     bool operator<=(const Polytype& rhs) const {
-      unsigned md0 = m_metadata.getData(0);
-      ap_uint<8> type = GET_TYPE(md0);
-      switch (type) {
+      switch (m_type) {
         case TYPE_CHAR:
           return ap_int<8>(data[0]) <= ap_int<8>(rhs.data[0]);
         case TYPE_UCHAR:
@@ -184,9 +179,7 @@ class Polytype {
       return false; 
     }
     bool operator< (const Polytype& rhs) const {
-      unsigned md0 = m_metadata.getData(0);
-      ap_uint<8> type = GET_TYPE(md0);
-      switch (type) {
+      switch (m_type) {
         case TYPE_CHAR:
           return ap_int<8>(data[0]) < ap_int<8>(rhs.data[0]);
         case TYPE_UCHAR:
@@ -231,14 +224,16 @@ class ReferenceProxy <Polytype> {
     DtuIterType m_iter;
 
     // metadata
-    const MetaData m_metadata;
+    const ap_uint<8> m_type;
+    const ap_uint<8> m_fields;
 
   public:
 
     // Constructors
-    ReferenceProxy() : m_ds_id( 0 ), m_iter( 0 ), m_metadata ( MetaData() ) {}
-    ReferenceProxy( DtuIdType ds_id, DtuIterType iter, const MetaData& md )
-      : m_ds_id( ds_id ), m_iter( iter ), m_metadata( md ) {}
+    ReferenceProxy() : m_ds_id( 0 ), m_iter( 0 ), m_type ( 0 ) {}
+    ReferenceProxy( DtuIdType ds_id, DtuIterType iter, 
+                    const ap_uint<8> type, const ap_uint<8> fields )
+      : m_ds_id( ds_id ), m_iter( iter ), m_type( type ), m_fields( fields ) {}
 
     ~ReferenceProxy(){}
 
@@ -249,24 +244,19 @@ class ReferenceProxy <Polytype> {
 
     operator Polytype() const
     {
-      Polytype p (m_metadata);
+      Polytype p (m_type);
       DtuRespType resp;
       
-      unsigned md = m_metadata.getData(0);
-      ap_uint<8> n_fields = GET_FIELDS(md);
-
       // primitive type
-      if (n_fields == 0) {
+      if (m_fields == 0) {
         resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, 0);
         p.data[0] = DTU_RESP_DATA(resp);
       }
       // struct
       else {
-        for (int i = 1; i < MAX_FIELDS; ++i) {
-          if (i <= n_fields) {
-            resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, i);
-            p.data[i] = DTU_RESP_DATA(resp);
-          }
+        for (int i = 0; i < m_fields; ++i) {
+          resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, i+1);
+          p.data[i] = DTU_RESP_DATA(resp);
         }
       }
 
@@ -283,19 +273,14 @@ class ReferenceProxy <Polytype> {
       DtuRespType resp;
       DtuDataType data;
       
-      unsigned md = m_metadata.getData(0);
-      ap_uint<8> n_fields = GET_FIELDS(md);
-        
       // primitive type
-      if (n_fields == 0) {
+      if (m_fields == 0) {
         resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 0, p.data[0]);
       }
       // struct
       else {
-        for (int i = 1; i < MAX_FIELDS; ++i) {
-          if (i <= n_fields) {
-            resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, i, p.data[i]);
-          }
+        for (int i = 0; i < m_fields; ++i) {
+          resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, i+1, p.data[i]);
         }
       }
 
@@ -335,7 +320,8 @@ class _iterator<Polytype> {
     unsigned m_index;
     
     // metadata
-    const MetaData m_metadata;
+    const ap_uint<8> m_type;
+    const ap_uint<8> m_fields;
 
   public:
 
@@ -344,14 +330,16 @@ class _iterator<Polytype> {
     //--------------------------------------------------------------
 
     // default constructor
-    _iterator() : m_ds_id( 0 ), m_index( 0 ), m_metadata( MetaData() ) {}
+    _iterator() : m_ds_id( 0 ), m_index( 0 ), m_type( 0 ) {}
 
-    _iterator( unsigned ds_id, unsigned index, const MetaData& md ) :
-      m_ds_id( ds_id ), m_index( index ), m_metadata( md ) {}
+    _iterator( unsigned ds_id, unsigned index, 
+               const ap_uint<8> type, const ap_uint<8> fields ) :
+      m_ds_id( ds_id ), m_index( index ), m_type( type ), m_fields( fields ) {}
 
     // copy constructor
     _iterator( const _iterator& it )
-      : m_ds_id( it.m_ds_id ), m_index( it.m_index ), m_metadata( it.m_metadata ) {}
+      : m_ds_id( it.m_ds_id ), m_index( it.m_index ), 
+        m_type( it.m_type ), m_fields( it.m_fields) {}
 
     //--------------------------------------------------------------
     // set_state
@@ -484,7 +472,7 @@ class _iterator<Polytype> {
     // dereference operator will return a ReferenceProxy object
     reference operator*() const
     {
-      return reference( m_ds_id, m_index, m_metadata );
+      return reference( m_ds_id, m_index, m_type, m_fields );
     }
 
 }; // end class _iterator
