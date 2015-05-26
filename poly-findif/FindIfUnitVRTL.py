@@ -45,7 +45,15 @@ class FindIfUnitVRTL ( VerilogModel ):
       valrdy_to_str( s.cfgreq.msg,
                      s.cfgreq.val,
                      s.cfgreq.rdy ),
+
+      valrdy_to_str( s.memreq.msg,
+                     s.memreq.val,
+                     s.memreq.rdy ),
       
+      valrdy_to_str( s.memresp.msg,
+                     s.memresp.val,
+                     s.memresp.rdy ),
+
       valrdy_to_str( s.itureq.msg,
                      s.itureq.val,
                      s.itureq.rdy ),

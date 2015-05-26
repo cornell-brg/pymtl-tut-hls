@@ -84,8 +84,9 @@ class TestHarness( Model ):
 
   def line_trace( s ):
             #s.itu.line_trace() + " > " + \
-    return  s.src.line_trace() + " > " + \
-            s.asu.line_trace() + " > " + \
+            #s.src.line_trace() + " > " + \
+    return  s.asu.line_trace() + " > " + \
+            s.mem.line_trace() + " > " + \
             s.sink.line_trace() + " > "
 
 #-------------------------------------------------------------------------
