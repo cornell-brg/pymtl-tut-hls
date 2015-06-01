@@ -54,7 +54,9 @@ class TestHarness( Model ):
     s.connect( s.asu.cfgresp, s.sink.in_ )
 
     # asu <-> mem
-    s.connect( s.asu.memreq,   s.mem.reqs[0]  )
+    #s.connect( s.asu.memreq,   s.mem.reqs[0] )
+    s.connect( s.asu.memreq.val,   s.mem.reqs[0].val )
+    s.connect( s.asu.memreq.rdy,   s.mem.reqs[0].rdy )
     s.connect( s.asu.memresp,  s.mem.resps[0] )
 
     # asu <-> itu
@@ -71,6 +73,7 @@ class TestHarness( Model ):
     @s.combinational
     def convert():
       s.itu.xcelreq.msg.value = asu_itu_ifc.req.unpck( s.asu.itureq.msg )
+      s.mem.reqs[0].msg.value = mem_ifc.req.unpck( s.asu.memreq.msg )
       #s.asu.ituresp.msg.value = s.itu.xcelresp.msg
 
     # testbench -> asu request bundle var/rdy signals

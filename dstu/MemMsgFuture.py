@@ -113,6 +113,11 @@ class MemReqMsg( BitStructDefinition ):
 
     return msg
 
+  def unpck( s, msg ):
+    req       = s()
+    req.value = msg
+    return req
+
   def __str__( s ):
 
     if s.type_ == MemReqMsg.TYPE_READ:
