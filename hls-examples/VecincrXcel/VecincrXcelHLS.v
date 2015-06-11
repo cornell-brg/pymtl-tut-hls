@@ -29,10 +29,11 @@ module VecincrXcelHLS (
 
 parameter    ap_const_logic_1 = 1'b1;
 parameter    ap_const_logic_0 = 1'b0;
-parameter    ap_ST_st1_fsm_0 = 2'b00;
-parameter    ap_ST_st2_fsm_1 = 2'b1;
-parameter    ap_ST_st3_fsm_2 = 2'b10;
-parameter    ap_ST_st4_fsm_3 = 2'b11;
+parameter    ap_ST_st1_fsm_0 = 3'b000;
+parameter    ap_ST_st2_fsm_1 = 3'b1;
+parameter    ap_ST_st3_fsm_2 = 3'b10;
+parameter    ap_ST_st4_fsm_3 = 3'b11;
+parameter    ap_ST_st5_fsm_4 = 3'b100;
 parameter    ap_const_lv1_0 = 1'b0;
 parameter    ap_const_lv32_0 = 32'b00000000000000000000000000000000;
 parameter    ap_const_lv5_3 = 5'b11;
@@ -79,41 +80,40 @@ reg   [0:0] vecincrState = 1'b0;
 reg   [31:0] base_V = 32'b00000000000000000000000000000000;
 reg   [31:0] size_V = 32'b00000000000000000000000000000000;
 reg   [31:0] incr_V = 32'b00000000000000000000000000000000;
-reg   [0:0] vecincrState_load_reg_405;
-reg   [1:0] ap_CS_fsm = 2'b00;
+reg   [0:0] vecincrState_load_reg_396;
+reg   [2:0] ap_CS_fsm = 3'b000;
 wire   [0:0] grp_nbreadreq_fu_92_p3;
-reg    ap_sig_bdd_40;
-wire   [4:0] this_assign_load_2_new_fu_219_p4;
+reg    ap_sig_bdd_41;
+wire   [4:0] this_assign_load_2_new_fu_211_p4;
 reg    ap_sig_ioackin_xcelresp_V_ap_ack;
-reg   [31:0] base_V_load_reg_415;
-reg   [31:0] size_V_load_reg_420;
-reg   [31:0] incr_V_load_reg_425;
-wire   [31:0] i_V_fu_326_p2;
-reg   [31:0] i_V_reg_433;
-wire   [0:0] exitcond_i_fu_321_p2;
-reg    ap_sig_bdd_85;
+reg   [31:0] base_V_load_reg_406;
+reg   [31:0] size_V_load_reg_411;
+reg   [31:0] incr_V_load_reg_416;
+wire   [31:0] i_fu_318_p2;
+reg   [31:0] i_reg_424;
+wire   [0:0] exitcond_fu_313_p2;
+reg    ap_sig_bdd_86;
 reg    ap_sig_ioackin_memreq_V_ap_ack;
-wire   [31:0] tmp_addr_V_fu_338_p2;
-reg   [31:0] tmp_addr_V_reg_438;
-reg   [31:0] p_024_0_i_reg_169;
-wire   [0:0] tmp_7_nbreadreq_fu_149_p3;
-reg    ap_sig_bdd_107;
-wire   [51:0] tmp_475_fu_235_p4;
-wire   [51:0] tmp_362_fu_255_p4;
-wire   [51:0] tmp_249_fu_275_p4;
-wire   [51:0] tmp_130_fu_289_p4;
-wire   [51:0] tmp_10_fu_362_p4;
+wire   [31:0] tmp_addr_V_fu_330_p2;
+reg   [31:0] tmp_addr_V_reg_429;
+wire   [31:0] temp_V_fu_376_p2;
+reg   [31:0] temp_V_reg_437;
+reg   [31:0] i_0_i_reg_161;
+wire   [51:0] tmp_475_fu_227_p4;
+wire   [51:0] tmp_362_fu_247_p4;
+wire   [51:0] tmp_249_fu_267_p4;
+wire   [51:0] tmp_130_fu_281_p4;
+wire   [51:0] tmp_10_fu_354_p4;
 reg    ap_reg_ioackin_xcelresp_V_ap_ack = 1'b0;
-wire   [76:0] tmp_5_1_fu_343_p4;
-wire   [76:0] tmp_7_1_fu_389_p5;
+wire   [76:0] tmp_588_fu_335_p4;
+wire   [76:0] tmp_7_1_fu_381_p5;
 reg    ap_reg_ioackin_memreq_V_ap_ack = 1'b0;
-wire   [8:0] grp_fu_185_p4;
-wire   [10:0] tmp_id_V_fu_205_p1;
-wire   [31:0] tmp_6_fu_332_p2;
-wire   [10:0] tmp_id_V_1_fu_358_p1;
-wire   [31:0] tmp_8_fu_380_p1;
-wire   [31:0] temp_V_fu_384_p2;
-reg   [1:0] ap_NS_fsm;
+wire   [8:0] grp_fu_177_p4;
+wire   [10:0] tmp_id_V_fu_197_p1;
+wire   [31:0] tmp_7_fu_324_p2;
+wire   [10:0] tmp_id_V_1_fu_350_p1;
+wire   [31:0] tmp_8_fu_372_p1;
+reg   [2:0] ap_NS_fsm;
 
 
 
@@ -134,9 +134,9 @@ begin : ap_ret_ap_reg_ioackin_memreq_V_ap_ack
     if (ap_rst == 1'b1) begin
         ap_reg_ioackin_memreq_V_ap_ack <= ap_const_logic_0;
     end else begin
-        if ((((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & ~(ap_sig_bdd_85 | (~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2)))) | ((ap_ST_st3_fsm_2 == ap_CS_fsm) & ~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3) & ~(ap_sig_bdd_107 | ((ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack) & ~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3)))))) begin
+        if ((((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & ~(ap_sig_bdd_86 | (~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2)))) | ((ap_ST_st4_fsm_3 == ap_CS_fsm) & ~(ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)))) begin
             ap_reg_ioackin_memreq_V_ap_ack <= ap_const_logic_0;
-        end else if ((((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & ~ap_sig_bdd_85 & (ap_const_logic_1 == memreq_V_ap_ack)) | ((ap_ST_st3_fsm_2 == ap_CS_fsm) & ~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3) & (ap_const_logic_1 == memreq_V_ap_ack) & ~ap_sig_bdd_107))) begin
+        end else if ((((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & ~ap_sig_bdd_86 & (ap_const_logic_1 == memreq_V_ap_ack)) | ((ap_ST_st4_fsm_3 == ap_CS_fsm) & (ap_const_logic_1 == memreq_V_ap_ack)))) begin
             ap_reg_ioackin_memreq_V_ap_ack <= ap_const_logic_1;
         end
     end
@@ -148,9 +148,9 @@ begin : ap_ret_ap_reg_ioackin_xcelresp_V_ap_ack
     if (ap_rst == 1'b1) begin
         ap_reg_ioackin_xcelresp_V_ap_ack <= ap_const_logic_0;
     end else begin
-        if ((((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0)))) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0)))) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0)))) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0)))) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2) & ~(ap_sig_bdd_85 | (~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2)))))) begin
+        if ((((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0)))) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0)))) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0)))) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0)))) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2) & ~(ap_sig_bdd_86 | (~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2)))))) begin
             ap_reg_ioackin_xcelresp_V_ap_ack <= ap_const_logic_0;
-        end else if ((((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_1 == xcelresp_V_ap_ack) & ~ap_sig_bdd_40) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2) & (ap_const_logic_1 == xcelresp_V_ap_ack) & ~ap_sig_bdd_40) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1) & (ap_const_logic_1 == xcelresp_V_ap_ack) & ~ap_sig_bdd_40) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0) & (ap_const_logic_1 == xcelresp_V_ap_ack) & ~ap_sig_bdd_40) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2) & (ap_const_logic_1 == xcelresp_V_ap_ack) & ~ap_sig_bdd_85))) begin
+        end else if ((((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_1 == xcelresp_V_ap_ack) & ~ap_sig_bdd_41) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2) & (ap_const_logic_1 == xcelresp_V_ap_ack) & ~ap_sig_bdd_41) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1) & (ap_const_logic_1 == xcelresp_V_ap_ack) & ~ap_sig_bdd_41) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0) & (ap_const_logic_1 == xcelresp_V_ap_ack) & ~ap_sig_bdd_41) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2) & (ap_const_logic_1 == xcelresp_V_ap_ack) & ~ap_sig_bdd_86))) begin
             ap_reg_ioackin_xcelresp_V_ap_ack <= ap_const_logic_1;
         end
     end
@@ -159,19 +159,19 @@ end
 /// assign process. ///
 always @(posedge ap_clk)
 begin
-    if (((ap_ST_st3_fsm_2 == ap_CS_fsm) & (ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3) & ~(ap_sig_bdd_107 | ((ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack) & ~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3))))) begin
-        p_024_0_i_reg_169 <= i_V_reg_433;
-    end else if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0))) & ~(ap_const_lv1_0 == vecincrState))) begin
-        p_024_0_i_reg_169 <= ap_const_lv32_0;
+    if ((~(memresp_V_ap_vld == ap_const_logic_0) & (ap_ST_st5_fsm_4 == ap_CS_fsm))) begin
+        i_0_i_reg_161 <= i_reg_424;
+    end else if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0))) & ~(ap_const_lv1_0 == vecincrState))) begin
+        i_0_i_reg_161 <= ap_const_lv32_0;
     end
 end
 
 /// assign process. ///
 always @(posedge ap_clk)
 begin
-    if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0))))) begin
+    if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0))))) begin
         vecincrState <= ap_const_lv1_1;
-    end else if ((((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0)))) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0)))) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0)))) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2) & ~(ap_sig_bdd_85 | (~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2)))))) begin
+    end else if ((((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0)))) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0)))) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0)))) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2) & ~(ap_sig_bdd_86 | (~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2)))))) begin
         vecincrState <= ap_const_lv1_0;
     end
 end
@@ -179,7 +179,7 @@ end
 /// assign process. ///
 always @(posedge ap_clk)
 begin
-    if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0))))) begin
+    if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0))))) begin
         base_V <= {{xcelreq_V[ap_const_lv32_2A : ap_const_lv32_B]}};
     end
 end
@@ -187,25 +187,25 @@ end
 /// assign process. ///
 always @(posedge ap_clk)
 begin
-    if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0))) & ~(ap_const_lv1_0 == vecincrState))) begin
-        base_V_load_reg_415 <= base_V;
-        incr_V_load_reg_425 <= incr_V;
-        size_V_load_reg_420 <= size_V;
+    if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0))) & ~(ap_const_lv1_0 == vecincrState))) begin
+        base_V_load_reg_406 <= base_V;
+        incr_V_load_reg_416 <= incr_V;
+        size_V_load_reg_411 <= size_V;
     end
 end
 
 /// assign process. ///
 always @(posedge ap_clk)
 begin
-    if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_sig_bdd_85 | (~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2))))) begin
-        i_V_reg_433 <= i_V_fu_326_p2;
+    if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_sig_bdd_86 | (~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2))))) begin
+        i_reg_424 <= i_fu_318_p2;
     end
 end
 
 /// assign process. ///
 always @(posedge ap_clk)
 begin
-    if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0))))) begin
+    if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0))))) begin
         incr_V <= {{xcelreq_V[ap_const_lv32_2A : ap_const_lv32_B]}};
     end
 end
@@ -213,7 +213,7 @@ end
 /// assign process. ///
 always @(posedge ap_clk)
 begin
-    if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0))))) begin
+    if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0))))) begin
         size_V <= {{xcelreq_V[ap_const_lv32_2A : ap_const_lv32_B]}};
     end
 end
@@ -221,16 +221,24 @@ end
 /// assign process. ///
 always @(posedge ap_clk)
 begin
-    if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & ~(ap_sig_bdd_85 | (~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2))))) begin
-        tmp_addr_V_reg_438 <= tmp_addr_V_fu_338_p2;
+    if (((ap_ST_st3_fsm_2 == ap_CS_fsm) & ~(memresp_V_ap_vld == ap_const_logic_0))) begin
+        temp_V_reg_437 <= temp_V_fu_376_p2;
     end
 end
 
 /// assign process. ///
 always @(posedge ap_clk)
 begin
-    if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0))))) begin
-        vecincrState_load_reg_405 <= vecincrState;
+    if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & ~(ap_sig_bdd_86 | (~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2))))) begin
+        tmp_addr_V_reg_429 <= tmp_addr_V_fu_330_p2;
+    end
+end
+
+/// assign process. ///
+always @(posedge ap_clk)
+begin
+    if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0))))) begin
+        vecincrState_load_reg_396 <= vecincrState;
     end
 end
 
@@ -255,21 +263,21 @@ begin
 end
 
 /// memreq_V assign process. ///
-always @ (vecincrState_load_reg_405 or ap_CS_fsm or grp_nbreadreq_fu_92_p3 or ap_sig_ioackin_xcelresp_V_ap_ack or exitcond_i_fu_321_p2 or ap_sig_bdd_85 or ap_sig_ioackin_memreq_V_ap_ack or tmp_7_nbreadreq_fu_149_p3 or ap_sig_bdd_107 or tmp_5_1_fu_343_p4 or tmp_7_1_fu_389_p5)
+always @ (vecincrState_load_reg_396 or ap_CS_fsm or grp_nbreadreq_fu_92_p3 or ap_sig_ioackin_xcelresp_V_ap_ack or exitcond_fu_313_p2 or ap_sig_bdd_86 or ap_sig_ioackin_memreq_V_ap_ack or tmp_588_fu_335_p4 or tmp_7_1_fu_381_p5)
 begin
-    if (((ap_ST_st3_fsm_2 == ap_CS_fsm) & ~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3) & ~(ap_sig_bdd_107 | ((ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack) & ~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3))))) begin
-        memreq_V = tmp_7_1_fu_389_p5;
-    end else if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & ~(ap_sig_bdd_85 | (~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2))))) begin
-        memreq_V = tmp_5_1_fu_343_p4;
+    if (((ap_ST_st4_fsm_3 == ap_CS_fsm) & ~(ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack))) begin
+        memreq_V = tmp_7_1_fu_381_p5;
+    end else if (((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & ~(ap_sig_bdd_86 | (~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2))))) begin
+        memreq_V = tmp_588_fu_335_p4;
     end else begin
         memreq_V = 'bx;
     end
 end
 
 /// memreq_V_ap_vld assign process. ///
-always @ (vecincrState_load_reg_405 or ap_CS_fsm or exitcond_i_fu_321_p2 or ap_sig_bdd_85 or tmp_7_nbreadreq_fu_149_p3 or ap_sig_bdd_107 or ap_reg_ioackin_memreq_V_ap_ack)
+always @ (vecincrState_load_reg_396 or ap_CS_fsm or exitcond_fu_313_p2 or ap_sig_bdd_86 or ap_reg_ioackin_memreq_V_ap_ack)
 begin
-    if ((((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & ~ap_sig_bdd_85 & (ap_const_logic_0 == ap_reg_ioackin_memreq_V_ap_ack)) | ((ap_ST_st3_fsm_2 == ap_CS_fsm) & ~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3) & (ap_const_logic_0 == ap_reg_ioackin_memreq_V_ap_ack) & ~ap_sig_bdd_107))) begin
+    if ((((ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & ~ap_sig_bdd_86 & (ap_const_logic_0 == ap_reg_ioackin_memreq_V_ap_ack)) | ((ap_ST_st4_fsm_3 == ap_CS_fsm) & (ap_const_logic_0 == ap_reg_ioackin_memreq_V_ap_ack)))) begin
         memreq_V_ap_vld = ap_const_logic_1;
     end else begin
         memreq_V_ap_vld = ap_const_logic_0;
@@ -277,9 +285,9 @@ begin
 end
 
 /// memresp_V_ap_ack assign process. ///
-always @ (memresp_V_ap_vld or ap_CS_fsm or ap_sig_ioackin_memreq_V_ap_ack or tmp_7_nbreadreq_fu_149_p3 or ap_sig_bdd_107)
+always @ (memresp_V_ap_vld or ap_CS_fsm)
 begin
-    if ((((ap_ST_st3_fsm_2 == ap_CS_fsm) & ~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3) & ~(ap_sig_bdd_107 | ((ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack) & ~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3)))) | ((ap_ST_st4_fsm_3 == ap_CS_fsm) & ~(memresp_V_ap_vld == ap_const_logic_0)))) begin
+    if ((((ap_ST_st3_fsm_2 == ap_CS_fsm) & ~(memresp_V_ap_vld == ap_const_logic_0)) | (~(memresp_V_ap_vld == ap_const_logic_0) & (ap_ST_st5_fsm_4 == ap_CS_fsm)))) begin
         memresp_V_ap_ack = ap_const_logic_1;
     end else begin
         memresp_V_ap_ack = ap_const_logic_0;
@@ -287,9 +295,9 @@ begin
 end
 
 /// xcelreq_V_ap_ack assign process. ///
-always @ (vecincrState or vecincrState_load_reg_405 or ap_CS_fsm or grp_nbreadreq_fu_92_p3 or ap_sig_bdd_40 or this_assign_load_2_new_fu_219_p4 or ap_sig_ioackin_xcelresp_V_ap_ack or exitcond_i_fu_321_p2 or ap_sig_bdd_85 or ap_sig_ioackin_memreq_V_ap_ack)
+always @ (vecincrState or vecincrState_load_reg_396 or ap_CS_fsm or grp_nbreadreq_fu_92_p3 or ap_sig_bdd_41 or this_assign_load_2_new_fu_211_p4 or ap_sig_ioackin_xcelresp_V_ap_ack or exitcond_fu_313_p2 or ap_sig_bdd_86 or ap_sig_ioackin_memreq_V_ap_ack)
 begin
-    if (((~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2) & ~(ap_sig_bdd_85 | (~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2)))) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0)))))) begin
+    if (((~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2) & ~(ap_sig_bdd_86 | (~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2)))) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0)))))) begin
         xcelreq_V_ap_ack = ap_const_logic_1;
     end else begin
         xcelreq_V_ap_ack = ap_const_logic_0;
@@ -297,104 +305,101 @@ begin
 end
 
 /// xcelresp_V assign process. ///
-always @ (vecincrState or vecincrState_load_reg_405 or ap_CS_fsm or grp_nbreadreq_fu_92_p3 or ap_sig_bdd_40 or this_assign_load_2_new_fu_219_p4 or ap_sig_ioackin_xcelresp_V_ap_ack or exitcond_i_fu_321_p2 or ap_sig_bdd_85 or ap_sig_ioackin_memreq_V_ap_ack or tmp_475_fu_235_p4 or tmp_362_fu_255_p4 or tmp_249_fu_275_p4 or tmp_130_fu_289_p4 or tmp_10_fu_362_p4)
+always @ (vecincrState or vecincrState_load_reg_396 or ap_CS_fsm or grp_nbreadreq_fu_92_p3 or ap_sig_bdd_41 or this_assign_load_2_new_fu_211_p4 or ap_sig_ioackin_xcelresp_V_ap_ack or exitcond_fu_313_p2 or ap_sig_bdd_86 or ap_sig_ioackin_memreq_V_ap_ack or tmp_475_fu_227_p4 or tmp_362_fu_247_p4 or tmp_249_fu_267_p4 or tmp_130_fu_281_p4 or tmp_10_fu_354_p4)
 begin
-    if ((~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2) & ~(ap_sig_bdd_85 | (~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2))))) begin
-        xcelresp_V = tmp_10_fu_362_p4;
-    end else if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0))))) begin
-        xcelresp_V = tmp_130_fu_289_p4;
-    end else if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0))))) begin
-        xcelresp_V = tmp_249_fu_275_p4;
-    end else if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0))))) begin
-        xcelresp_V = tmp_362_fu_255_p4;
-    end else if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & ~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0))))) begin
-        xcelresp_V = tmp_475_fu_235_p4;
+    if ((~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2) & ~(ap_sig_bdd_86 | (~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2))))) begin
+        xcelresp_V = tmp_10_fu_354_p4;
+    end else if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0))))) begin
+        xcelresp_V = tmp_130_fu_281_p4;
+    end else if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0))))) begin
+        xcelresp_V = tmp_249_fu_267_p4;
+    end else if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0))))) begin
+        xcelresp_V = tmp_362_fu_247_p4;
+    end else if (((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & ~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0))))) begin
+        xcelresp_V = tmp_475_fu_227_p4;
     end else begin
         xcelresp_V = 'bx;
     end
 end
 
 /// xcelresp_V_ap_vld assign process. ///
-always @ (vecincrState or vecincrState_load_reg_405 or ap_CS_fsm or grp_nbreadreq_fu_92_p3 or ap_sig_bdd_40 or this_assign_load_2_new_fu_219_p4 or exitcond_i_fu_321_p2 or ap_sig_bdd_85 or ap_reg_ioackin_xcelresp_V_ap_ack)
+always @ (vecincrState or vecincrState_load_reg_396 or ap_CS_fsm or grp_nbreadreq_fu_92_p3 or ap_sig_bdd_41 or this_assign_load_2_new_fu_211_p4 or exitcond_fu_313_p2 or ap_sig_bdd_86 or ap_reg_ioackin_xcelresp_V_ap_ack)
 begin
-    if ((((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & ~ap_sig_bdd_40 & (ap_const_logic_0 == ap_reg_ioackin_xcelresp_V_ap_ack)) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2) & ~ap_sig_bdd_40 & (ap_const_logic_0 == ap_reg_ioackin_xcelresp_V_ap_ack)) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1) & ~ap_sig_bdd_40 & (ap_const_logic_0 == ap_reg_ioackin_xcelresp_V_ap_ack)) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0) & ~ap_sig_bdd_40 & (ap_const_logic_0 == ap_reg_ioackin_xcelresp_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2) & (ap_const_logic_0 == ap_reg_ioackin_xcelresp_V_ap_ack) & ~ap_sig_bdd_85))) begin
+    if ((((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & ~ap_sig_bdd_41 & (ap_const_logic_0 == ap_reg_ioackin_xcelresp_V_ap_ack)) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2) & ~ap_sig_bdd_41 & (ap_const_logic_0 == ap_reg_ioackin_xcelresp_V_ap_ack)) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1) & ~ap_sig_bdd_41 & (ap_const_logic_0 == ap_reg_ioackin_xcelresp_V_ap_ack)) | ((ap_ST_st1_fsm_0 == ap_CS_fsm) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0) & ~ap_sig_bdd_41 & (ap_const_logic_0 == ap_reg_ioackin_xcelresp_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_ST_st2_fsm_1 == ap_CS_fsm) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2) & (ap_const_logic_0 == ap_reg_ioackin_xcelresp_V_ap_ack) & ~ap_sig_bdd_86))) begin
         xcelresp_V_ap_vld = ap_const_logic_1;
     end else begin
         xcelresp_V_ap_vld = ap_const_logic_0;
     end
 end
-always @ (memresp_V_ap_vld or vecincrState or vecincrState_load_reg_405 or ap_CS_fsm or grp_nbreadreq_fu_92_p3 or ap_sig_bdd_40 or this_assign_load_2_new_fu_219_p4 or ap_sig_ioackin_xcelresp_V_ap_ack or exitcond_i_fu_321_p2 or ap_sig_bdd_85 or ap_sig_ioackin_memreq_V_ap_ack or tmp_7_nbreadreq_fu_149_p3 or ap_sig_bdd_107)
+always @ (memresp_V_ap_vld or vecincrState or vecincrState_load_reg_396 or ap_CS_fsm or grp_nbreadreq_fu_92_p3 or ap_sig_bdd_41 or this_assign_load_2_new_fu_211_p4 or ap_sig_ioackin_xcelresp_V_ap_ack or exitcond_fu_313_p2 or ap_sig_bdd_86 or ap_sig_ioackin_memreq_V_ap_ack)
 begin
     case (ap_CS_fsm)
         ap_ST_st1_fsm_0 :
-            if (~(ap_sig_bdd_40 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_219_p4 == ap_const_lv5_0)))) begin
+            if (~(ap_sig_bdd_41 | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_2)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_1)) | ((ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & (this_assign_load_2_new_fu_211_p4 == ap_const_lv5_0)))) begin
                 ap_NS_fsm = ap_ST_st2_fsm_1;
             end else begin
                 ap_NS_fsm = ap_ST_st1_fsm_0;
             end
         ap_ST_st2_fsm_1 :
-            if ((~(ap_sig_bdd_85 | (~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2))) & ((ap_const_lv1_0 == vecincrState_load_reg_405) | ~(ap_const_lv1_0 == exitcond_i_fu_321_p2)))) begin
+            if ((~(ap_sig_bdd_86 | (~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2))) & ((ap_const_lv1_0 == vecincrState_load_reg_396) | ~(ap_const_lv1_0 == exitcond_fu_313_p2)))) begin
                 ap_NS_fsm = ap_ST_st1_fsm_0;
-            end else if ((~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & ~(ap_sig_bdd_85 | (~(ap_const_lv1_0 == vecincrState_load_reg_405) & (ap_const_lv1_0 == exitcond_i_fu_321_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2))))) begin
+            end else if ((~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & ~(ap_sig_bdd_86 | (~(ap_const_lv1_0 == vecincrState_load_reg_396) & (ap_const_lv1_0 == exitcond_fu_313_p2) & (ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) | (~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & (ap_const_logic_0 == ap_sig_ioackin_xcelresp_V_ap_ack) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2))))) begin
                 ap_NS_fsm = ap_ST_st3_fsm_2;
             end else begin
                 ap_NS_fsm = ap_ST_st2_fsm_1;
             end
         ap_ST_st3_fsm_2 :
-            if ((~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3) & ~(ap_sig_bdd_107 | ((ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack) & ~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3))))) begin
+            if (~(memresp_V_ap_vld == ap_const_logic_0)) begin
                 ap_NS_fsm = ap_ST_st4_fsm_3;
-            end else if (((ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3) & ~(ap_sig_bdd_107 | ((ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack) & ~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3))))) begin
-                ap_NS_fsm = ap_ST_st2_fsm_1;
             end else begin
                 ap_NS_fsm = ap_ST_st3_fsm_2;
             end
         ap_ST_st4_fsm_3 :
-            if (~(memresp_V_ap_vld == ap_const_logic_0)) begin
-                ap_NS_fsm = ap_ST_st3_fsm_2;
+            if (~(ap_const_logic_0 == ap_sig_ioackin_memreq_V_ap_ack)) begin
+                ap_NS_fsm = ap_ST_st5_fsm_4;
             end else begin
                 ap_NS_fsm = ap_ST_st4_fsm_3;
+            end
+        ap_ST_st5_fsm_4 :
+            if (~(memresp_V_ap_vld == ap_const_logic_0)) begin
+                ap_NS_fsm = ap_ST_st2_fsm_1;
+            end else begin
+                ap_NS_fsm = ap_ST_st5_fsm_4;
             end
         default :
             ap_NS_fsm = 'bx;
     endcase
 end
 
-/// ap_sig_bdd_107 assign process. ///
-always @ (memresp_V_ap_vld or tmp_7_nbreadreq_fu_149_p3)
-begin
-    ap_sig_bdd_107 = ((memresp_V_ap_vld == ap_const_logic_0) & ~(ap_const_lv1_0 == tmp_7_nbreadreq_fu_149_p3));
-end
-
-/// ap_sig_bdd_40 assign process. ///
+/// ap_sig_bdd_41 assign process. ///
 always @ (xcelreq_V_ap_vld or vecincrState or grp_nbreadreq_fu_92_p3)
 begin
-    ap_sig_bdd_40 = ((xcelreq_V_ap_vld == ap_const_logic_0) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3));
+    ap_sig_bdd_41 = ((xcelreq_V_ap_vld == ap_const_logic_0) & (ap_const_lv1_0 == vecincrState) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3));
 end
 
-/// ap_sig_bdd_85 assign process. ///
-always @ (xcelreq_V_ap_vld or vecincrState_load_reg_405 or grp_nbreadreq_fu_92_p3 or exitcond_i_fu_321_p2)
+/// ap_sig_bdd_86 assign process. ///
+always @ (xcelreq_V_ap_vld or vecincrState_load_reg_396 or grp_nbreadreq_fu_92_p3 or exitcond_fu_313_p2)
 begin
-    ap_sig_bdd_85 = ((xcelreq_V_ap_vld == ap_const_logic_0) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & ~(ap_const_lv1_0 == vecincrState_load_reg_405) & ~(ap_const_lv1_0 == exitcond_i_fu_321_p2));
+    ap_sig_bdd_86 = ((xcelreq_V_ap_vld == ap_const_logic_0) & ~(ap_const_lv1_0 == grp_nbreadreq_fu_92_p3) & ~(ap_const_lv1_0 == vecincrState_load_reg_396) & ~(ap_const_lv1_0 == exitcond_fu_313_p2));
 end
-assign exitcond_i_fu_321_p2 = (p_024_0_i_reg_169 == size_V_load_reg_420? 1'b1: 1'b0);
-assign grp_fu_185_p4 = {{xcelreq_V[ap_const_lv32_38 : ap_const_lv32_30]}};
+assign exitcond_fu_313_p2 = (i_0_i_reg_161 == size_V_load_reg_411? 1'b1: 1'b0);
+assign grp_fu_177_p4 = {{xcelreq_V[ap_const_lv32_38 : ap_const_lv32_30]}};
 assign grp_nbreadreq_fu_92_p3 = xcelreq_V_ap_vld;
-assign i_V_fu_326_p2 = (p_024_0_i_reg_169 + ap_const_lv32_1);
-assign temp_V_fu_384_p2 = (incr_V_load_reg_425 + tmp_8_fu_380_p1);
-assign this_assign_load_2_new_fu_219_p4 = {{xcelreq_V[ap_const_lv32_2F : ap_const_lv32_2B]}};
-assign tmp_10_fu_362_p4 = {{{grp_fu_185_p4}, {ap_const_lv32_1}}, {tmp_id_V_1_fu_358_p1}};
-assign tmp_130_fu_289_p4 = {{{grp_fu_185_p4}, {ap_const_lv32_0}}, {tmp_id_V_fu_205_p1}};
-assign tmp_249_fu_275_p4 = {{{grp_fu_185_p4}, {ap_const_lv32_0}}, {tmp_id_V_fu_205_p1}};
-assign tmp_362_fu_255_p4 = {{{grp_fu_185_p4}, {ap_const_lv32_0}}, {tmp_id_V_fu_205_p1}};
-assign tmp_475_fu_235_p4 = {{{grp_fu_185_p4}, {ap_const_lv32_0}}, {tmp_id_V_fu_205_p1}};
-assign tmp_5_1_fu_343_p4 = {{{ap_const_lv11_0}, {tmp_addr_V_fu_338_p2}}, {ap_const_lv34_0}};
-assign tmp_6_fu_332_p2 = p_024_0_i_reg_169 << ap_const_lv32_2;
-assign tmp_7_1_fu_389_p5 = {{{{ap_const_lv11_100}, {tmp_addr_V_reg_438}}, {ap_const_lv2_0}}, {temp_V_fu_384_p2}};
-assign tmp_7_nbreadreq_fu_149_p3 = memresp_V_ap_vld;
-assign tmp_8_fu_380_p1 = memresp_V[31:0];
-assign tmp_addr_V_fu_338_p2 = (base_V_load_reg_415 + tmp_6_fu_332_p2);
-assign tmp_id_V_1_fu_358_p1 = xcelreq_V[10:0];
-assign tmp_id_V_fu_205_p1 = xcelreq_V[10:0];
+assign i_fu_318_p2 = (i_0_i_reg_161 + ap_const_lv32_1);
+assign temp_V_fu_376_p2 = (incr_V_load_reg_416 + tmp_8_fu_372_p1);
+assign this_assign_load_2_new_fu_211_p4 = {{xcelreq_V[ap_const_lv32_2F : ap_const_lv32_2B]}};
+assign tmp_10_fu_354_p4 = {{{grp_fu_177_p4}, {ap_const_lv32_1}}, {tmp_id_V_1_fu_350_p1}};
+assign tmp_130_fu_281_p4 = {{{grp_fu_177_p4}, {ap_const_lv32_0}}, {tmp_id_V_fu_197_p1}};
+assign tmp_249_fu_267_p4 = {{{grp_fu_177_p4}, {ap_const_lv32_0}}, {tmp_id_V_fu_197_p1}};
+assign tmp_362_fu_247_p4 = {{{grp_fu_177_p4}, {ap_const_lv32_0}}, {tmp_id_V_fu_197_p1}};
+assign tmp_475_fu_227_p4 = {{{grp_fu_177_p4}, {ap_const_lv32_0}}, {tmp_id_V_fu_197_p1}};
+assign tmp_588_fu_335_p4 = {{{ap_const_lv11_0}, {tmp_addr_V_fu_330_p2}}, {ap_const_lv34_0}};
+assign tmp_7_1_fu_381_p5 = {{{{ap_const_lv11_100}, {tmp_addr_V_reg_429}}, {ap_const_lv2_0}}, {temp_V_reg_437}};
+assign tmp_7_fu_324_p2 = i_0_i_reg_161 << ap_const_lv32_2;
+assign tmp_8_fu_372_p1 = memresp_V[31:0];
+assign tmp_addr_V_fu_330_p2 = (base_V_load_reg_406 + tmp_7_fu_324_p2);
+assign tmp_id_V_1_fu_350_p1 = xcelreq_V[10:0];
+assign tmp_id_V_fu_197_p1 = xcelreq_V[10:0];
 
 
 endmodule //VecincrXcelHLS

@@ -38,25 +38,28 @@ void vecincr( ap_uint<32> base,
 {
 #pragma HLS INLINE
 
-  MemReqMsg  req;
   MemRespMsg resp;
 
   ap_uint<32> temp;
-  ap_uint<32> i = 0;
 
-  for ( i = 0; i < size; ++ i ) {
+  for ( int i = 0; i < size; ++ i ) {
+    // memory read request
+    memreq.write( MemReqMsg( 0, 0, (base + i*4), 0, READ ) );
+    ap_wait();
 
-    req = MemReqMsg( 0, 0, (base + i*4), 0, READ );
-    memreq.write( req );
+    // memory read response
+    memresp.read( resp );
+    ap_wait();
 
-    while ( !memresp.empty() ) {
-      memresp.read( resp );
-      temp = resp.data + incr;
-      req = MemReqMsg( temp, 0, (base + i*4), 0, WRITE );
-      memreq.write( req );
-      memresp.read();
-    }
+    // increment the element
+    temp = resp.data + incr;
 
+    // memory write request
+    memreq.write( MemReqMsg( temp, 0, (base + i*4), 0, WRITE ) );
+    ap_wait();
+
+    // memory write response
+    memresp.read();
   }
 
 }

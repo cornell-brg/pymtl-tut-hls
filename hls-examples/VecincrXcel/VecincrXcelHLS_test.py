@@ -43,16 +43,19 @@ class TestHarness (Model):
 
     # Connect
 
-    s.connect( s.src.out,       s.xcel.xcelreq )
+    s.connect( s.src.out,          s.xcel.xcelreq     )
+    s.connect( s.xcel.xcelresp,    s.sink.in_         )
+    s.connect( s.xcel.memreq,      s.mem.reqs[0]      )
+    s.connect( s.xcel.memresp.msg, s.mem.resps[0].msg )
+    s.connect( s.xcel.memresp.val, s.mem.resps[0].val )
 
-    s.connect( s.xcel.xcelresp, s.sink.in_     )
-
-    s.connect( s.xcel.memreq,  s.mem.reqs[0]  )
-
-    s.connect( s.xcel.memresp.msg,  s.mem.resps[0].msg )
-    s.connect( s.xcel.memresp.val,  s.mem.resps[0].val )
-
-    s.connect( s.mem.resps[0].rdy, 1 )
+    # NOTE: I think the test memory response valid depends on response ready
+    # in Vivado HLS, for input ports the input ready depends on input valid
+    # which is why I am hardcoding the ready to be 1 as the xcel is always
+    # ready to receive a respsonse when it sends one. The FSM transitions
+    # in the xcel handle situations otherwise. XXX: Need to write a test to
+    # catch this in the TestMemory and fix it.
+    s.connect( s.mem.resps[0].rdy, 1                  )
 
   def done( s ):
     return s.src.done and s.sink.done
