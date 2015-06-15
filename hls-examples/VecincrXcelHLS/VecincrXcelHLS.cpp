@@ -5,7 +5,7 @@
 // Date    : June 10, 2015
 //
 // C++ implementation for the VecincrXcel. Increments all elements in a
-// vector stored in memory Accelerator register interface:
+// vector stored in memory. Accelerator register interface:
 //
 //  xr0 : go/done
 //  xr1 : base address of the array
