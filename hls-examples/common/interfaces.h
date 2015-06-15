@@ -99,4 +99,37 @@ struct MemRespMsg {
 
 };
 
+//------------------------------------------------------------------------
+// IteratorReqMsg
+//------------------------------------------------------------------------
+
+struct IteratorReqMsg {
+  ap_uint<32> data;
+  ap_uint<32> field;
+  ap_uint<22> iter;
+  ap_uint<11> ds_id;
+  ap_uint<1>  type;
+  ap_uint<8>  opq;
+};
+
+//------------------------------------------------------------------------
+// IteratorRespMsg
+//------------------------------------------------------------------------
+
+struct IteratorRespMsg {
+  ap_uint<11> ds_id;
+  ap_uint<32> data;
+  ap_uint<1>  type;
+  ap_uint<8>  opq;
+
+  IteratorRespMsg() :ds_id(0), data(0), type(0), opq(0) {}
+
+  IteratorRespMsg( ap_uint<11> id_, ap_uint<32> data_,
+    ap_uint<1> type_, ap_uint<8> opq_ )
+  : ds_id( id_ ), data( data_ ),
+    type( type_ ), opq( opq_ ) {}
+
+
+};
+
 #endif
