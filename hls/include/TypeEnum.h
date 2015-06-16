@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------
 // Type enum
 //----------------------------------------------------------------------
+
 enum TYPE_ENUM {
   ERROR,
   TYPE_CHAR,
@@ -14,9 +15,9 @@ enum TYPE_ENUM {
   TYPE_UINT,
   TYPE_FLOAT,
 
-  TYPE_PRIMITIVE_MAX,
+  TYPE_MAX_PRIMITIVE=10,
 
-  TYPE_POINT
+  TYPE_POINT=TYPE_MAX_PRIMITIVE+1
 };
 
 //----------------------------------------------------------------------

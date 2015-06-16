@@ -61,13 +61,15 @@ void top (volatile AcIfaceType &ac, volatile MemIfaceType &mem)
       // read the metadata from memory
       MetaData metadata;
     #if 0
+      /*
       unsigned md[MAX_FIELDS];
       SET_OFFSET( md[0], 0 );
       SET_SIZE  ( md[0], sizeof(int) );
       SET_TYPE  ( md[0], TypeEnum<int>::get() );
       SET_FIELDS( md[0], 0 );
       metadata.init(md);
-    #elif 1
+      */
+      /*
       unsigned md[MAX_FIELDS];
       // descripter for point
       SET_OFFSET( md[0], 0               );
@@ -89,7 +91,7 @@ void top (volatile AcIfaceType &ac, volatile MemIfaceType &mem)
       SET_SIZE  ( md[3], sizeof( int   ) );
       SET_TYPE  ( md[3], TYPE_INT        );
       SET_FIELDS( md[3], 0               );
-      
+      */
       metadata.init(md);
     #else
       mem_read_metadata (mem, s_dt_desc_ptr, metadata);

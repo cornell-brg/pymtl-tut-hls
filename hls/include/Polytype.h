@@ -46,14 +46,6 @@ class Polytype {
     //------------------------------------------------------------------
 
     bool operator==(const int rhs) const {
-      /*if (m_type == TYPE_POINT) {
-        Point t;
-        t.label = data[0];
-        t.x = data[1];
-        t.y = data[2];
-        return t.x == rhs && t.y == rhs;
-      }*/
-
       switch (m_type) {
         case TYPE_CHAR:
           return ap_int<8>(data[0]) == ap_int<8>(rhs);
@@ -91,7 +83,13 @@ class Polytype {
         case TYPE_UINT:
           return ap_uint<32>(data[0]) <= ap_uint<32>(rhs);
         case TYPE_POINT:
-          //return *((Point*)data) <= rhs;
+          // RZ: vivado_hls produces an error if we use pointer
+          // typecast for this operator
+          Point t;
+          t.label = data[0];
+          t.x = data[1];
+          t.y = data[2];
+          return t <= rhs;
         default:
           break;
       }
@@ -114,7 +112,13 @@ class Polytype {
         case TYPE_UINT:
           return ap_uint<32>(data[0]) < ap_uint<32>(rhs);
         case TYPE_POINT:
-          //return *((Point*)data) < rhs;
+          // RZ: vivado_hls produces an error if we use pointer
+          // typecast for this operator
+          Point t;
+          t.label = data[0];
+          t.x = data[1];
+          t.y = data[2];
+          return t < rhs;
         default:
           break;
       }
