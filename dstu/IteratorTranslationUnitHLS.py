@@ -26,7 +26,7 @@ class IteratorTranslationUnitHLS( VerilogModel ):
     s.xcelreq  = InValRdyBundle  ( IteratorMsg(32).req  )
     s.xcelresp = OutValRdyBundle ( IteratorMsg(32).resp )
 
-    s.debug    = OutValRdyBundle ( Bits(32)  )
+    #s.debug    = OutValRdyBundle ( Bits(32)  )
 
     s.memreq   = OutValRdyBundle ( MemMsg(8,32,32).req   )
     s.memresp  = InValRdyBundle  ( MemMsg(8,32,32).resp  )
@@ -51,9 +51,9 @@ class IteratorTranslationUnitHLS( VerilogModel ):
       'cfgreq_V_ap_ack'   : s.cfgreq.rdy,
       'cfgresp_V'         : s.cfgresp.msg,
       'cfgresp_V_ap_vld'  : s.cfgresp.val,
-      'cfgresp_V_ap_ack'  : s.cfgresp.rdy,
-      'debug_V_V'         : s.debug.msg,
-      'debug_V_V_ap_vld'  : s.debug.val,
-      'debug_V_V_ap_ack'  : s.debug.rdy
+      'cfgresp_V_ap_ack'  : s.cfgresp.rdy
+      #'debug_V_V'         : s.debug.msg,
+      #'debug_V_V_ap_vld'  : s.debug.val,
+      #'debug_V_V_ap_ack'  : s.debug.rdy
     })
 

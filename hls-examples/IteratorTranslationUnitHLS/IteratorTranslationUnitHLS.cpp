@@ -106,8 +106,8 @@ void IteratorTranslationUnitHLS(
   hls::stream<IteratorReqMsg>&  xcelreq,
   hls::stream<IteratorRespMsg>& xcelresp,
   hls::stream<MemReqMsg>&       memreq,
-  hls::stream<MemRespMsg>&      memresp,
-  hls::stream<ap_uint<32> >     debug
+  hls::stream<MemRespMsg>&      memresp
+  //hls::stream<ap_uint<32> >     debug
 )
 {
 
@@ -187,7 +187,6 @@ void IteratorTranslationUnitHLS(
         ap_wait();
 
         dtValue dt_desc = dtValue( mem_resp.data );
-        debug.write( mem_resp.data );
 
         // handle primitive data types
         if ( dt_desc.type < USER_DEFINED ) {
@@ -216,9 +215,9 @@ void IteratorTranslationUnitHLS(
           ap_wait();
 
           dtValue field_dt_desc = dtValue( mem_resp.data );
-          debug.write( mem_resp.data );
-
           ap_uint<32> mem_addr = base + ( xcel_req.iter * dt_desc.size ) + field_dt_desc.offset;
+
+          ap_wait();
 
           if ( xcel_req.type == READ  ) {
             memreq.write( MemReqMsg( 0, field_dt_desc.size, mem_addr, 0, READ ) );
@@ -246,7 +245,7 @@ void IteratorTranslationUnitHLS(
         ap_wait();
 
         dtValue dt_desc = dtValue( mem_resp.data );
-        debug.write( mem_resp.data );
+        //debug.write( mem_resp.data );
 
         // handle primitive data types
         if ( dt_desc.type < USER_DEFINED ) {
@@ -283,7 +282,7 @@ void IteratorTranslationUnitHLS(
           ap_wait();
 
           dtValue field_dt_desc = dtValue( mem_resp.data );
-          debug.write( mem_resp.data );
+          //debug.write( mem_resp.data );
 
           if ( xcel_req.iter > 0 ) {
             for ( int i = 0; i < xcel_req.iter; ++ i ) {
@@ -295,6 +294,7 @@ void IteratorTranslationUnitHLS(
           }
 
           ap_uint<32> mem_addr = node_ptr + field_dt_desc.offset;
+          ap_wait();
 
           if ( xcel_req.type == READ  ) {
             memreq.write( MemReqMsg( 0, dt_desc.size, mem_addr, 0, READ ) );

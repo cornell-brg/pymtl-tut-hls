@@ -21,7 +21,7 @@ set_directive_interface -mode ap_hs $top xcelreq
 set_directive_interface -mode ap_hs $top xcelresp
 set_directive_interface -mode ap_hs $top memreq
 set_directive_interface -mode ap_hs $top memresp
-set_directive_interface -mode ap_hs $top debug
+#set_directive_interface -mode ap_hs $top debug
 
 set_directive_data_pack $top cfgreq
 set_directive_data_pack $top cfgresp

@@ -53,7 +53,7 @@ class TestHarness( Model ):
     s.connect( s.itu.memresp.val,  s.mem.resps[0].val )
     s.connect( s.mem.resps[0].rdy, 1 )
 
-    s.connect( s.itu.debug.rdy, 1 )
+    #s.connect( s.itu.debug.rdy, 1 )
 
     @s.combinational
     def logic():
@@ -71,7 +71,7 @@ class TestHarness( Model ):
 #------------------------------------------------------------------------------
 # run_itu_test
 #------------------------------------------------------------------------------
-def run_itu_test( model, mem_array, ds_type, dump_vcd = None ):
+def run_itu_test( model, mem_array, ds_type, ds_offset, dump_vcd = None ):
 
   # Elaborate
   model.vcd_file = dump_vcd
@@ -117,9 +117,9 @@ def run_itu_test( model, mem_array, ds_type, dump_vcd = None ):
 
   # Init data structure - ds_desc
   model.itu.cfgreq.val.next       = 1
-  model.itu.cfgreq.msg.data.next  = mem_array[0]+4 # base addr
-  model.itu.cfgreq.msg.raddr.next = 1              # init
-  model.itu.cfgreq.msg.id.next    = alloc_ds_id    # id of the ds
+  model.itu.cfgreq.msg.data.next  = mem_array[0]+ds_offset # base addr
+  model.itu.cfgreq.msg.raddr.next = 1                      # init
+  model.itu.cfgreq.msg.id.next    = alloc_ds_id            # id of the ds
 
   while model.itu.cfgreq.rdy.value == 0:
     sim.cycle()
@@ -298,25 +298,81 @@ list_int_msgs = [
   req_rd( 0, 2, 0, 0 ), resp_rd( 0x00000007 ),
 ]
 
+#------------------------------------------------------------------------------
+# Memory array and messages to test vector of points
+#------------------------------------------------------------------------------
+
+# preload the memory to known values
+vec_pts_mem = mem_array_int( 0,
+                               [  # metadata
+                                  0x000c0e03,
+                                  0x00020000,
+                                  0x04040000,
+                                  0x08040000,
+                                  # point1
+                                  0x00000001,
+                                  0x00000001,
+                                  0x00000001,
+                                  # point2
+                                  0x00000002,
+                                  0x00000002,
+                                  0x00000002,
+                                  # point3
+                                  0x00000003,
+                                  0x00000003,
+                                  0x00000003,
+                                  # point4
+                                  0x00000004,
+                                  0x00000004,
+                                  0x00000004
+                               ]
+                             )
+
+# messages that assume memory is preloaded and test for the case using the
+# data structure with an id value to be 0
+vector_pts_msgs = [
+  req_rd( 0, 0, 1, 0 ), resp_rd( 0x00000001 ),
+  req_rd( 0, 0, 2, 0 ), resp_rd( 0x00000001 ),
+  req_rd( 0, 0, 3, 0 ), resp_rd( 0x00000001 ),
+  req_rd( 0, 1, 1, 0 ), resp_rd( 0x00000002 ),
+  req_rd( 0, 1, 2, 0 ), resp_rd( 0x00000002 ),
+  req_rd( 0, 1, 3, 0 ), resp_rd( 0x00000002 ),
+  req_rd( 0, 2, 1, 0 ), resp_rd( 0x00000003 ),
+  req_rd( 0, 2, 2, 0 ), resp_rd( 0x00000003 ),
+  req_rd( 0, 2, 3, 0 ), resp_rd( 0x00000003 ),
+  req_rd( 0, 3, 1, 0 ), resp_rd( 0x00000004 ),
+  req_rd( 0, 3, 2, 0 ), resp_rd( 0x00000004 ),
+  req_rd( 0, 3, 3, 0 ), resp_rd( 0x00000004 ),
+  req_wr( 0, 0, 1, 5 ), resp_wr( 0x00000000 ),
+  req_wr( 0, 0, 2, 6 ), resp_wr( 0x00000000 ),
+  req_wr( 0, 0, 3, 7 ), resp_wr( 0x00000000 ),
+  req_rd( 0, 0, 1, 0 ), resp_rd( 0x00000005 ),
+  req_rd( 0, 0, 2, 0 ), resp_rd( 0x00000006 ),
+  req_rd( 0, 0, 3, 0 ), resp_rd( 0x00000007 ),
+]
 
 #-------------------------------------------------------------------------
 # Test Case Table
 #-------------------------------------------------------------------------
 
 test_case_table = mk_test_case_table([
-  (                         "msgs              src sink stall lat  mem            ds" ),
-  [ "vec_int_0x0_0.0_0",    vector_int_msgs,   0,  0,   0.0,  0,   vec_int_mem,   0 ],
-  [ "vec_int_5x0_0.5_0",    vector_int_msgs,   5,  0,   0.5,  0,   vec_int_mem,   0 ],
-  [ "vec_int_0x5_0.0_4",    vector_int_msgs,   0,  5,   0.0,  4,   vec_int_mem,   0 ],
-  [ "vec_int_3x9_0.5_3",    vector_int_msgs,   3,  9,   0.5,  3,   vec_int_mem,   0 ],
-  [ "vec_uchar_0x0_0.0_0",  vector_uchar_msgs, 0,  0,   0.0,  0,   vec_uchar_mem, 0 ],
-  [ "vec_uchar_5x0_0.5_0",  vector_uchar_msgs, 5,  0,   0.5,  0,   vec_uchar_mem, 0 ],
-  [ "vec_uchar_0x5_0.0_4",  vector_uchar_msgs, 0,  5,   0.0,  4,   vec_uchar_mem, 0 ],
-  [ "vec_uchar_3x9_0.5_3",  vector_uchar_msgs, 3,  9,   0.5,  3,   vec_uchar_mem, 0 ],
-  [ "list_int_0x0_0.0_0",   list_int_msgs,     0,  0,   0.0,  0,   list_int_mem,  1 ],
-  [ "list_int_5x0_0.5_0",   list_int_msgs,     5,  0,   0.5,  0,   list_int_mem,  1 ],
-  [ "list_int_0x5_0.0_4",   list_int_msgs,     0,  5,   0.0,  4,   list_int_mem,  1 ],
-  [ "list_int_3x9_0.5_3",   list_int_msgs,     3,  9,   0.5,  3,   list_int_mem,  1 ],
+  (                         "msgs              src sink stall lat  mem            ds  ds_offset" ),
+  [ "vec_int_0x0_0.0_0",    vector_int_msgs,   0,  0,   0.0,  0,   vec_int_mem,   0,  4],
+  [ "vec_int_5x0_0.5_0",    vector_int_msgs,   5,  0,   0.5,  0,   vec_int_mem,   0,  4],
+  [ "vec_int_0x5_0.0_4",    vector_int_msgs,   0,  5,   0.0,  4,   vec_int_mem,   0,  4],
+  [ "vec_int_3x9_0.5_3",    vector_int_msgs,   3,  9,   0.5,  3,   vec_int_mem,   0,  4],
+  [ "vec_uchar_0x0_0.0_0",  vector_uchar_msgs, 0,  0,   0.0,  0,   vec_uchar_mem, 0,  4],
+  [ "vec_uchar_5x0_0.5_0",  vector_uchar_msgs, 5,  0,   0.5,  0,   vec_uchar_mem, 0,  4],
+  [ "vec_uchar_0x5_0.0_4",  vector_uchar_msgs, 0,  5,   0.0,  4,   vec_uchar_mem, 0,  4],
+  [ "vec_uchar_3x9_0.5_3",  vector_uchar_msgs, 3,  9,   0.5,  3,   vec_uchar_mem, 0,  4],
+  [ "list_int_0x0_0.0_0",   list_int_msgs,     0,  0,   0.0,  0,   list_int_mem,  1,  4],
+  [ "list_int_5x0_0.5_0",   list_int_msgs,     5,  0,   0.5,  0,   list_int_mem,  1,  4],
+  [ "list_int_0x5_0.0_4",   list_int_msgs,     0,  5,   0.0,  4,   list_int_mem,  1,  4],
+  [ "list_int_3x9_0.5_3",   list_int_msgs,     3,  9,   0.5,  3,   list_int_mem,  1,  4],
+  [ "vec_pts_0x0_0.0_0",    vector_pts_msgs,   0,  0,   0.0,  0,   vec_pts_mem,   0, 16],
+  [ "vec_pts_5x0_0.5_0",    vector_pts_msgs,   5,  0,   0.5,  0,   vec_pts_mem,   0, 16],
+  [ "vec_pts_0x5_0.0_4",    vector_pts_msgs,   0,  5,   0.0,  4,   vec_pts_mem,   0, 16],
+  [ "vec_pts_3x9_0.5_3",    vector_pts_msgs,   3,  9,   0.5,  3,   vec_pts_mem,   0, 16],
 ])
 
 #-------------------------------------------------------------------------
@@ -336,4 +392,5 @@ def test( test_params, dump_vcd ):
                               test_params.lat ),
                 test_params.mem,
                 test_params.ds,
+                test_params.ds_offset,
                 dump_vcd )
