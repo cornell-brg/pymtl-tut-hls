@@ -267,6 +267,38 @@ list_int_msgs = [
   req_rd( 0, 2, 0, 0 ), resp_rd( 0x00000007 ),
 ]
 
+#------------------------------------------------------------------------------
+# Memory array and messages to test list of integers
+#------------------------------------------------------------------------------
+
+# preload the memory to known values
+list_int_mem = mem_array_int( 0,
+                                [   #metadata
+                                    0x00040000,
+                                    # value prev next
+                                    1,      4, 16,
+                                    2,      4, 28,
+                                    3,     16, 40,
+                                    4,     28, 0,
+                                ]
+                             )
+
+# messages that assume memory is preloaded and test for the case using the
+# data structure with an id value to be 0
+list_int_msgs = [
+  req_rd( 0, 0, 0, 0 ), resp_rd( 0x00000001 ),
+  req_rd( 0, 1, 0, 0 ), resp_rd( 0x00000002 ),
+  req_rd( 0, 2, 0, 0 ), resp_rd( 0x00000003 ),
+  req_rd( 0, 3, 0, 0 ), resp_rd( 0x00000004 ),
+  req_wr( 0, 0, 0, 5 ), resp_wr( 0x00000000 ),
+  req_wr( 0, 1, 0, 6 ), resp_wr( 0x00000000 ),
+  req_wr( 0, 2, 0, 7 ), resp_wr( 0x00000000 ),
+  req_rd( 0, 1, 0, 0 ), resp_rd( 0x00000006 ),
+  req_rd( 0, 0, 0, 0 ), resp_rd( 0x00000005 ),
+  req_rd( 0, 2, 0, 0 ), resp_rd( 0x00000007 ),
+]
+
+
 #-------------------------------------------------------------------------
 # Test Case Table
 #-------------------------------------------------------------------------
@@ -281,6 +313,10 @@ test_case_table = mk_test_case_table([
   [ "vec_uchar_5x0_0.5_0",  vector_uchar_msgs, 5,  0,   0.5,  0,   vec_uchar_mem, 0 ],
   [ "vec_uchar_0x5_0.0_4",  vector_uchar_msgs, 0,  5,   0.0,  4,   vec_uchar_mem, 0 ],
   [ "vec_uchar_3x9_0.5_3",  vector_uchar_msgs, 3,  9,   0.5,  3,   vec_uchar_mem, 0 ],
+  [ "list_int_0x0_0.0_0",   list_int_msgs,     0,  0,   0.0,  0,   list_int_mem,  1 ],
+  [ "list_int_5x0_0.5_0",   list_int_msgs,     5,  0,   0.5,  0,   list_int_mem,  1 ],
+  [ "list_int_0x5_0.0_4",   list_int_msgs,     0,  5,   0.0,  4,   list_int_mem,  1 ],
+  [ "list_int_3x9_0.5_3",   list_int_msgs,     3,  9,   0.5,  3,   list_int_mem,  1 ],
 ])
 
 #-------------------------------------------------------------------------

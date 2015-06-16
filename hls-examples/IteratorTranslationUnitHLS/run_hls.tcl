@@ -2,7 +2,7 @@
 
 set top "IteratorTranslationUnitHLS"
 
-open_project IteratorTranslationUnit.prj
+open_project IteratorTranslationUnitHLS.prj
 
 set_top $top
 

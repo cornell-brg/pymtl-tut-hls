@@ -98,6 +98,7 @@ void dstuTable::setDTDescriptor( ap_uint<5> dsId, ap_uint<32> dtDescriptor )
 #define WRITE 1
 #define USER_DEFINED 14
 #define VECTOR 0
+#define LIST 1
 
 void IteratorTranslationUnitHLS(
   hls::stream<XcelReqMsg>&      cfgreq,
@@ -124,14 +125,13 @@ void IteratorTranslationUnitHLS(
   static enum {IDLE, CONFIGURE, TRANSLATE} dstuState = IDLE;
 
   switch ( dstuState ) {
-
     case IDLE:
     {
       if ( !cfgreq.empty() ) {
         cfgreq.read( cfg_req );
         dstuState = CONFIGURE;
       }
-      else if ( !xcelreq.empty() )  {
+      else if ( !xcelreq.empty() ) {
         xcelreq.read( xcel_req );
         dstuState = TRANSLATE;
       }
@@ -191,7 +191,6 @@ void IteratorTranslationUnitHLS(
 
         // handle primitive data types
         if ( dt_desc.type < USER_DEFINED ) {
-          //ap_uint<32> mem_addr = base + xcel_req.iter * ( ( mem_resp.data >> 16 ) & 0xff );
           ap_uint<32> mem_addr = base + xcel_req.iter * dt_desc.size;
           if ( xcel_req.type == READ  ) {
             memreq.write( MemReqMsg( 0, dt_desc.size, mem_addr, 0, READ ) );
@@ -201,6 +200,45 @@ void IteratorTranslationUnitHLS(
           }
           else if ( xcel_req.type == WRITE ) {
             memreq.write( MemReqMsg( xcel_req.data, dt_desc.size, mem_addr, 0, WRITE ) );
+            ap_wait();
+            memresp.read( mem_resp );
+            xcelresp.write( IteratorRespMsg( xcel_req.ds_id, 0, xcel_req.type, xcel_req.opq ) );
+          }
+        }
+      }
+      else if ( dsType == LIST ) {
+        ap_uint<32> node_ptr = dsTable.getDSDescriptor( xcel_req.ds_id );
+        // get the dt_desc_ptr
+        ap_uint<32> dt_ptr = dsTable.getDTDescriptor( xcel_req.ds_id );
+
+        // read the dt_descriptor
+        memreq.write( MemReqMsg( 0, 0, dt_ptr, 0, READ ) );
+        ap_wait();
+        memresp.read( mem_resp );
+        ap_wait();
+
+        dtValue dt_desc = dtValue( mem_resp.data );
+        debug.write( mem_resp.data );
+
+        // handle primitive data types
+        if ( dt_desc.type < USER_DEFINED ) {
+          if ( xcel_req.iter > 0 ) {
+            for ( int i = 0; i < xcel_req.iter; ++ i ) {
+              memreq.write( MemReqMsg( 0, 0, node_ptr + 8, 0, READ ) );
+              ap_wait();
+              memresp.read( mem_resp );
+              node_ptr = mem_resp.data;
+            }
+          }
+
+          if ( xcel_req.type == READ  ) {
+            memreq.write( MemReqMsg( 0, dt_desc.size, node_ptr, 0, READ ) );
+            ap_wait();
+            memresp.read( mem_resp );
+            xcelresp.write( IteratorRespMsg( xcel_req.ds_id, mem_resp.data, xcel_req.type, xcel_req.opq ) );
+          }
+          else if ( xcel_req.type == WRITE ) {
+            memreq.write( MemReqMsg( xcel_req.data, dt_desc.size, node_ptr, 0, WRITE ) );
             ap_wait();
             memresp.read( mem_resp );
             xcelresp.write( IteratorRespMsg( xcel_req.ds_id, 0, xcel_req.type, xcel_req.opq ) );
