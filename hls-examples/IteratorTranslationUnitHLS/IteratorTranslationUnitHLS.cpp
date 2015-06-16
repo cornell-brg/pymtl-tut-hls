@@ -97,7 +97,7 @@ void dstuTable::setDTDescriptor( ap_uint<5> dsId, ap_uint<32> dtDescriptor )
 #define DSTU_ID 3
 #define READ 0
 #define WRITE 1
-#define USER_DEFINED 14
+#define USER_DEFINED 11
 #define VECTOR 0
 #define LIST 1
 
