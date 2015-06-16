@@ -2,8 +2,7 @@
 #define COMMON_H
 
 #include "DtuIface.h"
-#include "AccelIface.h"
-#include "MemIface.h"
+#include "interfaces.h"
 #include "Iterator.h"
 #include "MetaData.h"
 

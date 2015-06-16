@@ -20,6 +20,11 @@ set_directive_interface -mode ap_hs $top mem.resp
 set_directive_interface -mode ap_hs $top g_dtu_iface.req
 set_directive_interface -mode ap_hs $top g_dtu_iface.resp
 
+set_directive_data_pack $top ac.req
+set_directive_data_pack $top ac.resp
+set_directive_data_pack $top mem.req
+set_directive_data_pack $top mem.resp
+
 csynth_design
 
 #cosim_design -rtl systemc

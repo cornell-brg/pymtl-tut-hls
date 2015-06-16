@@ -110,16 +110,15 @@ class MetaCreator {
 //----------------------------------------------------------------------
 // Read MetaData
 //----------------------------------------------------------------------
-#include "MemIface.h"
+#include "interfaces.h"
 
-void mem_read_metadata (volatile MemIfaceType &iface, MemAddrType addr, MetaData &metadata) {
-  MemReqType req;
-  MemRespType resp;
+void mem_read_metadata (MemIfaceType &iface, MemAddrType addr, MetaData &metadata) {
+  MemRespMsg resp;
   unsigned mdata[MAX_FIELDS];
 
   // read the first field
   resp = mem_read (iface, addr, 0);
-  mdata[0] = MEM_RESP_DATA(resp);
+  mdata[0] = resp.data;
   ap_uint<8> n_fields = GET_FIELDS(mdata[0]);
 
   // read extra entries if struct
@@ -127,7 +126,7 @@ void mem_read_metadata (volatile MemIfaceType &iface, MemAddrType addr, MetaData
     if (i < n_fields) {
       addr += sizeof(unsigned);
       resp = mem_read (iface, addr, 0);
-      mdata[i] = MEM_RESP_DATA(resp);
+      mdata[i] = resp.data;
     }
   }
 

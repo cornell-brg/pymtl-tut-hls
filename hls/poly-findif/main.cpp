@@ -41,7 +41,7 @@ _iterator<T> findif (_iterator<T> begin, _iterator<T> end, PredicateType pred_va
 // This function takes care of the accelerator interface to the
 // processor, and calls the user algorithm
 // ------------------------------------------------------------------
-void top (volatile AcIfaceType &ac, volatile MemIfaceType &mem)
+void top (AcIfaceType &ac, MemIfaceType &mem)
 {
   static AcDataType s_first_ds_id;
   static AcDataType s_first_index;
@@ -51,13 +51,13 @@ void top (volatile AcIfaceType &ac, volatile MemIfaceType &mem)
   static AcDataType s_dt_desc_ptr;
   static AcDataType s_result;
 
-  AcReqType req = ac.req;
-  AcRespType resp;
+  AcReqMsg req = ac.req.read();
+  AcRespMsg resp;
 
   // handle write request
-  if (AC_REQ_TYPE(req) != 0) {
+  if (req.type != 0) {
     // call the accelerator
-    if (AC_REQ_ADDR(req) == 0) {
+    if (req.addr == 0) {
       // read the metadata from memory
       MetaData metadata;
     #if 0
@@ -109,19 +109,19 @@ void top (volatile AcIfaceType &ac, volatile MemIfaceType &mem)
     }
     else {
       // write internal regs
-      switch (AC_REQ_ADDR(req)) {
+      switch (req.addr) {
         case 1:
-          s_first_ds_id = AC_REQ_DATA(req); break;
+          s_first_ds_id = req.data; break;
         case 2:
-          s_first_index = AC_REQ_DATA(req); break;
+          s_first_index = req.data; break;
         case 3:
-          s_last_ds_id = AC_REQ_DATA(req); break;
+          s_last_ds_id = req.data; break;
         case 4:
-          s_last_index = AC_REQ_DATA(req); break;
+          s_last_index = req.data; break;
         case 5:
-          s_pred = AC_REQ_DATA(req); break;
+          s_pred = req.data; break;
         case 6:
-          s_dt_desc_ptr = AC_REQ_DATA(req); break;
+          s_dt_desc_ptr = req.data; break;
         default:
           break;
       }
@@ -129,20 +129,19 @@ void top (volatile AcIfaceType &ac, volatile MemIfaceType &mem)
   
     // this is a dummy block to make sure the input/output
     // type of the mem iface is generated correctly
-    if ( AC_REQ_ADDR(req) == 11 ) {
-      MemReqType mreq = 0;
-      mem.req = mreq;
-      MemRespType mresp = mem.resp;
-    }
+    /*if ( req.addr == 11 ) {
+      mem.req.write( MemReqMsg() );
+      MemRespMsg mresp = mem.resp.read();
+    }*/
 
-    // ID, data, RW
-    resp = make_ac_resp( AC_REQ_ID(req), 0, 1 );
+    // ID, data, RW, opq
+    resp = AcRespMsg( req.id, 0, MSG_WRITE, 0 );
   }
   // handle read request
   else {
     AcDataType data = 0;
 
-    switch (AC_REQ_ADDR(req)) {
+    switch (req.addr) {
       case 0:
         data = s_result; break;
       case 1:
@@ -161,28 +160,31 @@ void top (volatile AcIfaceType &ac, volatile MemIfaceType &mem)
         break;
     }
 
-    // ID, data, RW
-    resp = make_ac_resp( AC_REQ_ID(req), data, 0 );
+    // ID, data, RW, opq
+    resp = AcRespMsg( req.id, data, MSG_READ, 0 );
   }
 
-  ac.resp = resp;
+  ap_wait();
+  ac.resp.write( resp );
 }
 
 // ------------------------------------------------------------------
 // helpers for main
 // ------------------------------------------------------------------
-void print_req (AcReqType req) {
-  //printf ("req:  %s\n", req.to_string(16).c_str());
-}
-void print_resp (AcRespType resp) {
-  //printf ("resp: %s\n", resp.to_string(16).c_str());
-}
-
-bool check_resp (AcRespType resp) {
-  if (AC_RESP_TYPE(resp) != 1) return false;
+bool check_resp (AcRespMsg resp) {
+  if (resp.type != 1) return false;
   return true;
 }
 
+void call_accel (AcIfaceType& ac, MemIfaceType& mem, AcReqMsg msg) {
+  ac.req.write( msg );
+  top ( ac, mem );
+  assert( check_resp( ac.resp.read() ) );
+}
+
+// ------------------------------------------------------------------
+// main
+// ------------------------------------------------------------------
 int main () {
   AcIfaceType ac_iface;
   MemIfaceType mem_iface;
@@ -194,68 +196,39 @@ int main () {
 
   // set first ds id
   data = 0;   raddr = 1;
-  ac_iface.req = make_ac_req( id, data, raddr, 1 );
-  print_req (ac_iface.req);
-  top( ac_iface, mem_iface );
-  print_resp (ac_iface.resp);
-  assert( check_resp(ac_iface.resp) );
+  call_accel( ac_iface, mem_iface, AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
   
   // set first index
   data = 0;   raddr = 2;
-  ac_iface.req = make_ac_req( id, data, raddr, 1 );
-  print_req (ac_iface.req);
-  top( ac_iface, mem_iface );
-  print_resp (ac_iface.resp);
-  assert( check_resp(ac_iface.resp) );
+  call_accel( ac_iface, mem_iface, AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
 
   // set last ds id
   data = 0;   raddr = 3;
-  ac_iface.req = make_ac_req( id, data, raddr, 1 );
-  print_req (ac_iface.req);
-  top( ac_iface, mem_iface );
-  print_resp (ac_iface.resp);
-  assert( check_resp(ac_iface.resp) );
+  call_accel( ac_iface, mem_iface, AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
 
   // set last index
   data = 7;   raddr = 4;
-  ac_iface.req = make_ac_req( id, data, raddr, 1 );
-  print_req (ac_iface.req);
-  top( ac_iface, mem_iface );
-  print_resp (ac_iface.resp);
-  assert( check_resp(ac_iface.resp) );
+  call_accel( ac_iface, mem_iface, AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
 
   // set metadata pointer
   data = m;   raddr = 4;
-  ac_iface.req = make_ac_req( id, data, raddr, 1 );
-  print_req (ac_iface.req);
-  top( ac_iface, mem_iface );
-  print_resp (ac_iface.resp);
-  assert( check_resp(ac_iface.resp) );
+  call_accel( ac_iface, mem_iface, AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
 
   // set pred
   data = 2;   raddr = 5;
-  ac_iface.req = make_ac_req( id, data, raddr, 1 );
-  print_req (ac_iface.req);
-  top( ac_iface, mem_iface );
-  print_resp (ac_iface.resp);
-  assert( check_resp(ac_iface.resp) );
+  call_accel( ac_iface, mem_iface, AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
 
   // start accelerator
   data = 0;   raddr = 0;
-  ac_iface.req = make_ac_req( id, data, raddr, 1 );
-  print_req (ac_iface.req);
-  top( ac_iface, mem_iface );
-  print_resp (ac_iface.resp);
-  assert( check_resp(ac_iface.resp) );
+  call_accel( ac_iface, mem_iface, AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
 
   // read result
   data = 0;   raddr = 0;
-  ac_iface.req = make_ac_req( id, data, raddr, 0 );
-  print_req (ac_iface.req);
+  ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_READ, 0 ) );
   top( ac_iface, mem_iface );
-  print_resp (ac_iface.resp);
 
-  unsigned s = AC_RESP_DATA(ac_iface.resp);
+  AcRespMsg resp = ac_iface.resp.read();
+  unsigned s = resp.data;
   printf ("--------------------\n");
   printf ("Result: %X\n", s);
   printf ("--------------------\n");

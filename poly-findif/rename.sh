@@ -11,7 +11,9 @@ cat top.v | sed s/ap_clk/clk/g > temp.v
 cat temp.v | sed s/ap_rst/reset/g > temp2.v && mv temp2.v temp.v
 
 # add verilator pragmas to ignore bitwdith differences
-cat temp.v | sed "/^module top (/i \ \/\* verilator lint_off WIDTH \*\/" > temp2.v && mv temp2.v temp.v
+echo "/* verilator lint_off WIDTH */" > temp2.v
+cat temp.v >> temp2.v && mv temp2.v temp.v
+#cat temp.v | sed "/^module top (/i \ \/\* verilator lint_off WIDTH \*\/" > temp2.v && mv temp2.v temp.v
 echo "/* lint_on */" >> temp.v
 
 # rename module name
