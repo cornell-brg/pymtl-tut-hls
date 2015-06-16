@@ -29,6 +29,7 @@ ap_uint<11> dstuTable::allocate( ap_uint<4> dsType )
   for ( ap_uint<5> i = 0; i < noOfDstuEntries; ++i ) {
     if ( this->table[i].valid == 0 ) {
       this->table[i].ds_type = dsType;
+      this->table[i].valid = 1;
       return ( 1024 + i );
     }
   }
