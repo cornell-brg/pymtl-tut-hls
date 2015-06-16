@@ -205,6 +205,34 @@ void IteratorTranslationUnitHLS(
             xcelresp.write( IteratorRespMsg( xcel_req.ds_id, 0, xcel_req.type, xcel_req.opq ) );
           }
         }
+        // handle user-defined data types
+        // XXX: only upto one-level of recursion
+        else {
+          ap_uint<32> field_dt_ptr = dt_ptr + xcel_req.field * 4;
+          // read the field_dt_descriptor
+          memreq.write( MemReqMsg( 0, 0, field_dt_ptr, 0, READ ) );
+          ap_wait();
+          memresp.read( mem_resp );
+          ap_wait();
+
+          dtValue field_dt_desc = dtValue( mem_resp.data );
+          debug.write( mem_resp.data );
+
+          ap_uint<32> mem_addr = base + ( xcel_req.iter * dt_desc.size ) + field_dt_desc.offset;
+
+          if ( xcel_req.type == READ  ) {
+            memreq.write( MemReqMsg( 0, field_dt_desc.size, mem_addr, 0, READ ) );
+            ap_wait();
+            memresp.read( mem_resp );
+            xcelresp.write( IteratorRespMsg( xcel_req.ds_id, mem_resp.data, xcel_req.type, xcel_req.opq ) );
+          }
+          else if ( xcel_req.type == WRITE ) {
+            memreq.write( MemReqMsg( xcel_req.data, field_dt_desc.size, mem_addr, 0, WRITE ) );
+            ap_wait();
+            memresp.read( mem_resp );
+            xcelresp.write( IteratorRespMsg( xcel_req.ds_id, 0, xcel_req.type, xcel_req.opq ) );
+          }
+        }
       }
       else if ( dsType == LIST ) {
         ap_uint<32> node_ptr = dsTable.getDSDescriptor( xcel_req.ds_id );
@@ -239,6 +267,43 @@ void IteratorTranslationUnitHLS(
           }
           else if ( xcel_req.type == WRITE ) {
             memreq.write( MemReqMsg( xcel_req.data, dt_desc.size, node_ptr, 0, WRITE ) );
+            ap_wait();
+            memresp.read( mem_resp );
+            xcelresp.write( IteratorRespMsg( xcel_req.ds_id, 0, xcel_req.type, xcel_req.opq ) );
+          }
+        }
+        // handle user-defined data types
+        // XXX: only upto one-level of recursion
+        else {
+          ap_uint<32> field_dt_ptr = dt_ptr + xcel_req.field * 4;
+          // read the field_dt_descriptor
+          memreq.write( MemReqMsg( 0, 0, field_dt_ptr, 0, READ ) );
+          ap_wait();
+          memresp.read( mem_resp );
+          ap_wait();
+
+          dtValue field_dt_desc = dtValue( mem_resp.data );
+          debug.write( mem_resp.data );
+
+          if ( xcel_req.iter > 0 ) {
+            for ( int i = 0; i < xcel_req.iter; ++ i ) {
+              memreq.write( MemReqMsg( 0, 0, node_ptr + 4 + dt_desc.size, 0, READ ) );
+              ap_wait();
+              memresp.read( mem_resp );
+              node_ptr = mem_resp.data;
+            }
+          }
+
+          ap_uint<32> mem_addr = node_ptr + field_dt_desc.offset;
+
+          if ( xcel_req.type == READ  ) {
+            memreq.write( MemReqMsg( 0, dt_desc.size, mem_addr, 0, READ ) );
+            ap_wait();
+            memresp.read( mem_resp );
+            xcelresp.write( IteratorRespMsg( xcel_req.ds_id, mem_resp.data, xcel_req.type, xcel_req.opq ) );
+          }
+          else if ( xcel_req.type == WRITE ) {
+            memreq.write( MemReqMsg( xcel_req.data, dt_desc.size, mem_addr, 0, WRITE ) );
             ap_wait();
             memresp.read( mem_resp );
             xcelresp.write( IteratorRespMsg( xcel_req.ds_id, 0, xcel_req.type, xcel_req.opq ) );
