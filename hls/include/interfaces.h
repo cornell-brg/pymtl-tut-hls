@@ -7,9 +7,12 @@
 #define MSG_READ 0
 #define MSG_WRITE 1
 
-//------------------------------------------------------------------------
-// Accel Iface Types
-//------------------------------------------------------------------------
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//
+// Accel Iface
+//
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 typedef ap_uint<11> AcIdType;
 typedef ap_uint<32> AcDataType;
 typedef ap_uint<5>  AcAddrType;
@@ -17,8 +20,7 @@ typedef ap_uint<1>  AcRwType;
 typedef ap_uint<8>  AcOpqType;
 
 //------------------------------------------------------------------------
-// AcReqMsg
-//------------------------------------------------------------------------
+
 struct AcReqMsg {
   AcIdType   id;
   AcDataType data;
@@ -35,8 +37,7 @@ struct AcReqMsg {
 };
 
 //------------------------------------------------------------------------
-// AcRespMsg
-//------------------------------------------------------------------------
+
 struct AcRespMsg {
   AcIdType   id;
   AcDataType data;
@@ -52,67 +53,100 @@ struct AcRespMsg {
 };
 
 //------------------------------------------------------------------------
-// Accel Iface
-//------------------------------------------------------------------------
+
 typedef struct _AcIfaceType {
   hls::stream<AcReqMsg>  req;
   hls::stream<AcRespMsg> resp;
 } AcIfaceType;
 
-//------------------------------------------------------------------------
-// Dtu Iface Types
-//------------------------------------------------------------------------
-/*typedef ap_uint<32> DtuDataType;
-typedef ap_uint<32> DtuFieldType;
-typedef ap_uint<22> DtuIterType;
-typedef ap_uint<11> DtuIdType;
-typedef ap_uint<1>  DtuRwType;
-typedef ap_uint<8>  DtuOpqType;
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//
+// Dstu Iface
+//
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+typedef ap_uint<32> DstuDataType;
+typedef ap_uint<32> DstuFieldType;
+typedef ap_uint<22> DstuIterType;
+typedef ap_uint<11> DstuIdType;
+typedef ap_uint<1>  DstuRwType;
+typedef ap_uint<8>  DstuOpqType;
 
 //------------------------------------------------------------------------
-// DtuReqMsg
-//------------------------------------------------------------------------
 
-struct DtuReqMsg {
-  DtuDataType  data;
-  DtuFieldType field;
-  DtuIterType  iter;
-  DtuIdType    id;
-  DtuRwType    type;
-  DtuOpqType   opq;
+struct DstuReqMsg {
+  DstuDataType  data;
+  DstuFieldType field;
+  DstuIterType  iter;
+  DstuIdType    id;
+  DstuRwType    type;
+  DstuOpqType   opq;
 
-  DtuReqMsg()
+  DstuReqMsg()
   : data( 0 ), field( 0 ), iter( 0 ), id( 0 ),
     type( 0 ), opq( 0 ) {}
 
-  DtuReqMsg( ap_uint<32> data_, ap_uint<32> field_, ap_uint<22> iter_,
-    ap_uint<11> id_, ap_uint<1> type_, ap_uint<8> opq_ )
+  DstuReqMsg( DstuDataType data_, DstuFieldType field_, DstuIterType iter_,
+    DstuIdType id_, DstuRwType type_, DstuOpqType opq_ )
   : data( data_ ), field( field_ ), iter( iter_ ), id( id_ ),
     type( type_ ), opq( opq_ ) {}
 };
 
 //------------------------------------------------------------------------
-// DtuRespMsg
-//------------------------------------------------------------------------
 
-struct DtuRespMsg {
-  DtuIdType   id;
-  DtuDataType data;
-  DtuRwType   type;
-  DtuOpqType  opq;
+struct DstuRespMsg {
+  DstuIdType   id;
+  DstuDataType data;
+  DstuRwType   type;
+  DstuOpqType  opq;
 
-  DtuRespMsg()
+  DstuRespMsg()
   : id( 0 ), data( 0 ), type( 0 ), opq( 0 ) {}
 
-  DtuRespMsg( ap_uint<11> id_, ap_uint<32> data_,
-    ap_uint<1> type_, ap_uint<8> opq_ )
+  DstuRespMsg( DstuIdType id_, DstuDataType data_,
+    DstuRwType type_, DstuOpqType opq_ )
   : id( id_ ), data( data_ ), type( type_ ), opq( opq_ ) {}
 };
-*/
 
 //------------------------------------------------------------------------
-// Mem Iface Types
+
+typedef struct _DstuIfaceType {
+  hls::stream<DstuReqMsg>  req;
+  hls::stream<DstuRespMsg> resp;
+} DstuIfaceType;
+
 //------------------------------------------------------------------------
+
+DstuRespMsg dstu_read (
+    DstuIfaceType &iface,
+    DstuIdType id, DstuIterType iter,
+    DstuFieldType field)
+{
+  #pragma HLS INLINE
+  iface.req.write( DstuReqMsg( 0, field, iter, id, 0, 0 ) );
+  ap_wait();
+  DstuRespMsg resp = iface.resp.read();
+  return resp;
+}
+
+DstuRespMsg dstu_write (
+    DstuIfaceType &iface,
+    DstuIdType id, DstuIterType iter, 
+    DstuFieldType field, DstuDataType data)
+{
+  #pragma HLS INLINE
+  iface.req.write( DstuReqMsg( data, field, iter, id, 1, 0 ) );
+  ap_wait();
+  DstuRespMsg resp = iface.resp.read();
+  return resp;
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//
+// Mem Iface
+//
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 typedef ap_uint<32> MemDataType;
 typedef ap_uint<2>  MemLenType;
 typedef ap_uint<32> MemAddrType;
@@ -120,8 +154,7 @@ typedef ap_uint<8>  MemOpqType;
 typedef ap_uint<3>  MemRwType;
 
 //------------------------------------------------------------------------
-// MemReqMsg
-//------------------------------------------------------------------------
+
 struct MemReqMsg {
   MemDataType data;
   MemLenType  len;
@@ -135,12 +168,10 @@ struct MemReqMsg {
   MemReqMsg( MemDataType data_, MemLenType len_,
     MemAddrType addr_, MemOpqType opq_, MemRwType type_ )
   : data( data_ ), len( len_ ), addr( addr_ ), opq( opq_ ), type( type_ ) {}
-
 };
 
 //------------------------------------------------------------------------
-// MemRespMsg
-//------------------------------------------------------------------------
+
 struct MemRespMsg {
   MemDataType data;
   MemLenType  len;
@@ -153,39 +184,37 @@ struct MemRespMsg {
   MemRespMsg( MemDataType data_, MemLenType len_,
     MemOpqType opq_, MemRwType type_ )
   : data( data_ ), len( len_ ), opq( opq_ ), type( type_ ) {}
-
 };
 
 //------------------------------------------------------------------------
-// Mem Iface
-//------------------------------------------------------------------------
+
 typedef struct _MemIfaceType {
   hls::stream<MemReqMsg>  req;
   hls::stream<MemRespMsg> resp;
 } MemIfaceType;
 
-MemRespMsg mem_read (MemIfaceType& iface,
-                     MemAddrType addr, MemLenType len)
+//------------------------------------------------------------------------
+
+MemRespMsg mem_read (
+    MemIfaceType& iface,
+    MemAddrType addr, MemLenType len)
 {
   #pragma HLS INLINE
   // note that a len of 0 means max number of bytes
   iface.req.write( MemReqMsg( 0, len, addr, 0, 0 ) );
-  
   ap_wait();
-
   MemRespMsg resp = iface.resp.read();
   return resp;
 }
 
-MemRespMsg mem_write (MemIfaceType& iface, 
-                      MemAddrType addr, MemLenType len, MemDataType data)
+MemRespMsg mem_write (
+    MemIfaceType& iface, 
+    MemAddrType addr, MemLenType len, MemDataType data)
 {
   #pragma HLS INLINE
   // note that a len of 0 means max number of bytes
   iface.req.write( MemReqMsg( data, len, addr, 0, 1 ) );
-  
   ap_wait();
-
   MemRespMsg resp = iface.resp.read();
   return resp;
 }

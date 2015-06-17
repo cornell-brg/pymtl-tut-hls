@@ -9,7 +9,7 @@
 typedef _iterator<Polytype> iterator;
 
 // mark this as volatile to enforce stores/loads
-volatile DtuIfaceType g_dtu_iface;
+DstuIfaceType g_dstu_iface;
 
 typedef ap_uint<3> PredicateType;
 
@@ -55,7 +55,7 @@ void top (AcIfaceType &ac, MemIfaceType &mem)
   AcRespMsg resp;
 
   // handle write request
-  if (req.type != 0) {
+  if (req.type != MSG_READ) {
     // call the accelerator
     if (req.addr == 0) {
       // read the metadata from memory

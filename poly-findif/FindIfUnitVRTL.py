@@ -32,12 +32,12 @@ class FindIfUnitVRTL ( VerilogModel ):
       'mem_resp_V'         :  s.memresp.msg,
       'mem_resp_V_ap_vld'  :  s.memresp.val,
       'mem_resp_V_ap_ack'  :  s.memresp.rdy,
-      'g_dtu_iface_req_V'         :   s.itureq.msg,
-      'g_dtu_iface_req_V_ap_vld'  :   s.itureq.val,
-      'g_dtu_iface_req_V_ap_ack'  :   s.itureq.rdy,
-      'g_dtu_iface_resp_V'        :   s.ituresp.msg,
-      'g_dtu_iface_resp_V_ap_vld' :   s.ituresp.val,
-      'g_dtu_iface_resp_V_ap_ack' :   s.ituresp.rdy,
+      'g_dstu_iface_req_V'         :   s.itureq.msg,
+      'g_dstu_iface_req_V_ap_vld'  :   s.itureq.val,
+      'g_dstu_iface_req_V_ap_ack'  :   s.itureq.rdy,
+      'g_dstu_iface_resp_V'        :   s.ituresp.msg,
+      'g_dstu_iface_resp_V_ap_vld' :   s.ituresp.val,
+      'g_dstu_iface_resp_V_ap_ack' :   s.ituresp.rdy,
     });
 
   def line_trace( s ):

@@ -58,10 +58,10 @@ template<>
 class ReferenceProxy <Point> {
   private:
     // data structure id
-    DtuIdType m_ds_id;
+    DstuIdType m_ds_id;
 
     // index to an data element
-    DtuIterType m_iter;
+    DstuIterType m_iter;
 
   public:
 
@@ -72,7 +72,7 @@ class ReferenceProxy <Point> {
 
     // Constructors
     ReferenceProxy() : m_ds_id( 0 ), m_iter( 0 ) {}
-    ReferenceProxy( DtuIdType ds_id, DtuIterType iter )
+    ReferenceProxy( DstuIdType ds_id, DstuIterType iter )
       : m_ds_id( ds_id ), m_iter( iter ) {}
 
     ~ReferenceProxy(){}
@@ -85,19 +85,19 @@ class ReferenceProxy <Point> {
     operator Point() const
     {
       Point p;
-      DtuRespType resp;
+      DstuRespMsg resp;
       
       // read p.label
-      resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, 1);
-      p.label = DTU_RESP_DATA(resp);
+      resp = dstu_read (g_dstu_iface, m_ds_id, m_iter, 1);
+      p.label = resp.data;
 
       // read p.x
-      resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, 2);
-      p.x = DTU_RESP_DATA(resp);
+      resp = dstu_read (g_dstu_iface, m_ds_id, m_iter, 2);
+      p.x = resp.data;
       
       // read p.x
-      resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, 3);
-      p.y = DTU_RESP_DATA(resp);
+      resp = dstu_read (g_dstu_iface, m_ds_id, m_iter, 3);
+      p.y = resp.data;
 
       return p;
     }
@@ -109,20 +109,20 @@ class ReferenceProxy <Point> {
 
     ReferenceProxy& operator=( Point p )
     {
-      DtuRespType resp;
-      DtuDataType data;
+      DstuRespMsg resp;
+      DstuDataType data;
 
       // set label
       data = p.label;
-      resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 1, data);
+      resp = dstu_write (g_dstu_iface, m_ds_id, m_iter, 1, data);
       
       // set x
       data = p.x;
-      resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 2, data);
+      resp = dstu_write (g_dstu_iface, m_ds_id, m_iter, 2, data);
 
       // set y
       data = p.y;
-      resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 3, data);
+      resp = dstu_write (g_dstu_iface, m_ds_id, m_iter, 3, data);
 
       // allows for "chaining" i.e. a = b = c = d;
       return *this;

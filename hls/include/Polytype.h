@@ -16,7 +16,7 @@
   #define DB( x )
 #endif
 
-extern volatile DtuIfaceType g_dtu_iface;
+extern DstuIfaceType g_dstu_iface;
 
 //----------------------------------------------------------------------
 // The Polytype class is meant to represent any struct or
@@ -222,10 +222,10 @@ template<>
 class ReferenceProxy <Polytype> {
   private:
     // data structure id
-    DtuIdType m_ds_id;
+    DstuIdType m_ds_id;
 
     // index to an data element
-    DtuIterType m_iter;
+    DstuIterType m_iter;
 
     // metadata
     const ap_uint<8> m_type;
@@ -235,7 +235,7 @@ class ReferenceProxy <Polytype> {
 
     // Constructors
     ReferenceProxy() : m_ds_id( 0 ), m_iter( 0 ), m_type ( 0 ) {}
-    ReferenceProxy( DtuIdType ds_id, DtuIterType iter, 
+    ReferenceProxy( DstuIdType ds_id, DstuIterType iter, 
                     const ap_uint<8> type, const ap_uint<8> fields )
       : m_ds_id( ds_id ), m_iter( iter ), m_type( type ), m_fields( fields ) {}
 
@@ -249,18 +249,18 @@ class ReferenceProxy <Polytype> {
     operator Polytype() const
     {
       Polytype p (m_type);
-      DtuRespType resp;
+      DstuRespMsg resp;
       
       // primitive type
       if (m_fields == 0) {
-        resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, 0);
-        p.data[0] = DTU_RESP_DATA(resp);
+        resp = dstu_read (g_dstu_iface, m_ds_id, m_iter, 0);
+        p.data[0] = resp.data;
       }
       // struct
       else {
         for (int i = 0; i < m_fields; ++i) {
-          resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, i+1);
-          p.data[i] = DTU_RESP_DATA(resp);
+          resp = dstu_read (g_dstu_iface, m_ds_id, m_iter, i+1);
+          p.data[i] = resp.data;
         }
       }
 
@@ -274,17 +274,17 @@ class ReferenceProxy <Polytype> {
 
     ReferenceProxy& operator=( Polytype p )
     {
-      DtuRespType resp;
-      DtuDataType data;
+      DstuRespMsg resp;
+      DstuDataType data;
       
       // primitive type
       if (m_fields == 0) {
-        resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, 0, p.data[0]);
+        resp = dstu_write (g_dstu_iface, m_ds_id, m_iter, 0, p.data[0]);
       }
       // struct
       else {
         for (int i = 0; i < m_fields; ++i) {
-          resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, i+1, p.data[i]);
+          resp = dstu_write (g_dstu_iface, m_ds_id, m_iter, i+1, p.data[i]);
         }
       }
 

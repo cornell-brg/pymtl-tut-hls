@@ -1,9 +1,9 @@
 #ifndef REFERENCEPROXY_H
 #define REFERENCEPROXY_H
 
-#include "DtuIface.h"
+#include "interfaces.h"
 
-extern volatile DtuIfaceType g_dtu_iface;
+extern DstuIfaceType g_dstu_iface;
 
 //-------------------------------------------------------------------
 // Class ReferenceProxy
@@ -13,15 +13,15 @@ class ReferenceProxy {
 
   private:
     // data structure id
-    DtuIdType m_ds_id;
+    DstuIdType m_ds_id;
 
     // index to an data element
-    DtuIterType m_iter;
+    DstuIterType m_iter;
 
   public:
 
     ReferenceProxy() : m_ds_id( 0 ), m_iter( 0 ) {}
-    ReferenceProxy( DtuIdType ds_id, DtuIterType iter )
+    ReferenceProxy( DstuIdType ds_id, DstuIterType iter )
       : m_ds_id( ds_id ), m_iter( iter ) {}
 
     ~ReferenceProxy(){}
@@ -35,8 +35,8 @@ class ReferenceProxy {
     {
       //#pragma HLS INLINE self off
       //send a read request
-      DtuRespType resp = dtu_read (g_dtu_iface, m_ds_id, m_iter, field);
-      T data = DTU_RESP_DATA(resp);
+      DstuRespMsg resp = dstu_read (g_dstu_iface, m_ds_id, m_iter, field);
+      T data = resp.data;
       return data;
     }
 
@@ -49,8 +49,8 @@ class ReferenceProxy {
     {
       //#pragma HLS INLINE self off
       //send a write request
-      DtuDataType d = data;
-      DtuRespType resp = dtu_write_field (g_dtu_iface, m_ds_id, m_iter, field, d);
+      DstuDataType d = data;
+      DstuRespMsg resp = dstu_write (g_dstu_iface, m_ds_id, m_iter, field, d);
       // verify first bit of resp is 1?
       return *this;
     }
