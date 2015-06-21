@@ -13,6 +13,11 @@ struct Point {
   int x;
   int y;
 
+  Point() : label( 0 ), x( 0 ), y( 0 ) {}
+  Point(int x_, int y_) : label( 0 ), x( x_ ), y( y_ ) {}
+  Point(short label_, int x_, int y_) : label( label_ ), x( x_ ), y( y_ ) {}
+  Point( const Point& p ) : label( p.label ), x( p.x ), y( p.y ) {}
+
   //--------------------------------------------------------------------
   // Boolean operator with Int
   //--------------------------------------------------------------------
