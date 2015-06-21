@@ -261,35 +261,86 @@ list_int_msgs = [
 # RZ: the offset must be specified in bytes
 #     the size must reflect C-style padding, so its not just sizeof(Type)
 
-vec_point_mem = mem_array_point( 8,
-                                    [ # metadata
-                                      0x000C0B03,
-                                      0x00040300,
-                                      0x04040500,
-                                      0x08040500,
-                                    ],
-                                    [ # values
-                                      Point( 0, 2, 3 ),
-                                      Point( 1, 4, 5 ),
-                                      Point( 2, 9, 1 ),
-                                      Point( 3, 2, 7 ),
-                                      Point( 4, 0, 1 ),
-                                      Point( 5, 1, 0 ),
-                                      Point( 6, 0, 0 ),
-                                    ]
-                                  )
+vec_pts_mem = mem_array_point( 8,
+                                  [ # metadata
+                                    0x000C0B03,
+                                    0x00020300,
+                                    0x04040500,
+                                    0x08040500,
+                                  ],
+                                  [ # values
+                                    Point( 0, 2, 3 ),
+                                    Point( 1, 4, 5 ),
+                                    Point( 2, 9, 1 ),
+                                    Point( 3, 2, 7 ),
+                                    Point( 4, 0, 1 ),
+                                    Point( 5, 1, 0 ),
+                                    Point( 6, 0, 0 ),
+                                  ]
+                                )
 
 # configure the asu state and expect a response for a given predicate
-vector_point_msgs = [
-                      req( 0, 1, 1, 0, 0 ), resp( 0, 1, 0, 0 ), # first ds-id
-                      req( 0, 1, 2, 0, 0 ), resp( 0, 1, 0, 0 ), # first iter
-                      req( 0, 1, 3, 0, 0 ), resp( 0, 1, 0, 0 ), # last ds-id
-                      req( 0, 1, 4, 7, 0 ), resp( 0, 1, 0, 0 ), # last iter
-                      req( 0, 1, 5, 2, 0 ), resp( 0, 1, 0, 0 ), # predicate val = EqZero
-                      req( 0, 1, 6, 8, 0 ), resp( 0, 1, 0, 0 ), # dt_desc_ptr
-                      req( 0, 1, 0, 0, 0 ), resp( 0, 1, 0, 0 ), # go
-                      req( 0, 0, 0, 0, 0 ), resp( 0, 0, 6, 0 )  # check done
-                    ]
+vector_pts_msgs = [
+                    req( 0, 1, 1, 0, 0 ), resp( 0, 1, 0, 0 ), # first ds-id
+                    req( 0, 1, 2, 0, 0 ), resp( 0, 1, 0, 0 ), # first iter
+                    req( 0, 1, 3, 0, 0 ), resp( 0, 1, 0, 0 ), # last ds-id
+                    req( 0, 1, 4, 7, 0 ), resp( 0, 1, 0, 0 ), # last iter
+                    req( 0, 1, 5, 2, 0 ), resp( 0, 1, 0, 0 ), # predicate val = EqZero
+                    req( 0, 1, 6, 8, 0 ), resp( 0, 1, 0, 0 ), # dt_desc_ptr
+                    req( 0, 1, 0, 0, 0 ), resp( 0, 1, 0, 0 ), # go
+                    req( 0, 0, 0, 0, 0 ), resp( 0, 0, 6, 0 )  # check done
+                  ]
+
+#------------------------------------------------------------------------------
+# Memory array and messages to test list of points
+#------------------------------------------------------------------------------
+
+# preload the memory to known values
+list_pts_mem = mem_array_int( 0,
+                               [  # metadata
+                                  0x000c0B03, #  0
+                                  0x00020000, #  4
+                                  0x04040000, #  8
+                                  0x08040000, # 12
+                                  # point1
+                                  0x00000001, # 16
+                                  0x00000001, # 20
+                                  0x00000001, # 24
+                                  16,         # 28
+                                  36,         # 32
+                                  # point2
+                                  0x00000002, # 36
+                                  0x00000002, # 40
+                                  0x00000002, # 44
+                                  16,         # 48
+                                  56,         # 52
+                                  # point3
+                                  0x00000003, # 56
+                                  0x00000003, # 60
+                                  0x00000003, # 64
+                                  36,         # 68
+                                  76,         # 72
+                                  # point4
+                                  0x00000004, # 76
+                                  0x00000004, # 80
+                                  0x00000004, # 84
+                                  56,         # 88
+                                  76          # 92
+                               ]
+                             )
+
+# messages that assume memory is preloaded and test for the case using the
+# data structure with an id value to be 0
+list_pts_msgs = [
+                 req( 0, 1, 1, 0, 0 ), resp( 0, 1, 0, 0 ), # first ds-id
+                 req( 0, 1, 2, 0, 0 ), resp( 0, 1, 0, 0 ), # first iter
+                 req( 0, 1, 3, 0, 0 ), resp( 0, 1, 0, 0 ), # last ds-id
+                 req( 0, 1, 4, 3, 0 ), resp( 0, 1, 0, 0 ), # last iter
+                 req( 0, 1, 5, 2, 0 ), resp( 0, 1, 0, 0 ), # predicate val = EqZero
+                 req( 0, 1, 6, 0, 0 ), resp( 0, 1, 0, 0 ), # dt_desc_ptr
+                 req( 0, 1, 0, 0, 0 ), resp( 0, 1, 0, 0 ), # go
+                 req( 0, 0, 0, 0, 0 ), resp( 0, 0, 4, 0 )  # check done
+                ]
 
 #-------------------------------------------------------------------------
 # Test Case Table
@@ -309,10 +360,14 @@ test_case_table = mk_test_case_table([
   [ "list_int_5x0_0.5_0",   list_int_msgs,     5,  0,   0.5,  0,   list_int_mem,  ITU.LIST   ],
   [ "list_int_0x5_0.0_4",   list_int_msgs,     0,  5,   0.0,  4,   list_int_mem,  ITU.LIST   ],
   [ "list_int_3x9_0.5_3",   list_int_msgs,     3,  9,   0.5,  3,   list_int_mem,  ITU.LIST   ],
-  [ "vec_point_0x0_0.0_0",  vector_point_msgs, 0,  0,   0.0,  0,   vec_point_mem, ITU.VECTOR ],
-  [ "vec_point_5x0_0.5_0",  vector_point_msgs, 5,  0,   0.5,  0,   vec_point_mem, ITU.VECTOR ],
-  [ "vec_point_0x5_0.0_4",  vector_point_msgs, 0,  5,   0.0,  4,   vec_point_mem, ITU.VECTOR ],
-  [ "vec_point_3x9_0.5_3",  vector_point_msgs, 3,  9,   0.5,  3,   vec_point_mem, ITU.VECTOR ],
+  [ "vec_pts_0x0_0.0_0",    vector_pts_msgs,   0,  0,   0.0,  0,   vec_pts_mem,   ITU.VECTOR ],
+  [ "vec_pts_5x0_0.5_0",    vector_pts_msgs,   5,  0,   0.5,  0,   vec_pts_mem,   ITU.VECTOR ],
+  [ "vec_pts_0x5_0.0_4",    vector_pts_msgs,   0,  5,   0.0,  4,   vec_pts_mem,   ITU.VECTOR ],
+  [ "vec_pts_3x9_0.5_3",    vector_pts_msgs,   3,  9,   0.5,  3,   vec_pts_mem,   ITU.VECTOR ],
+  #[ "list_pts_0x0_0.0_0",   list_pts_msgs,     0,  0,   0.0,  0,   list_pts_mem,  ITU.LIST   ],
+  #[ "list_pts_5x0_0.5_0",   list_pts_msgs,     5,  0,   0.5,  0,   list_pts_mem,  ITU.LIST   ],
+  #[ "list_pts_0x5_0.0_4",   list_pts_msgs,     0,  5,   0.0,  4,   list_pts_mem,  ITU.LIST   ],
+  #[ "list_pts_3x9_0.5_3",   list_pts_msgs,     3,  9,   0.5,  3,   list_pts_mem,  ITU.LIST   ],
 ])
 
 #-------------------------------------------------------------------------
