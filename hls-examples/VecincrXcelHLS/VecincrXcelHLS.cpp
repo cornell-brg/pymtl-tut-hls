@@ -49,7 +49,7 @@ void vecincr( ap_uint<32> base,
     memreq.write( MemReqMsg( 0, 0, (base + i*4), 0, READ ) );
     ap_wait();
     // memory read response
-    memresp.read( resp );
+    resp = memresp.read();
 
     // increment the element
     temp = resp.data + incr;
@@ -58,7 +58,7 @@ void vecincr( ap_uint<32> base,
     memreq.write( MemReqMsg( temp, 0, (base + i*4), 0, WRITE ) );
     ap_wait();
     // memory write response
-    memresp.read();
+    resp = memresp.read();
   }
 
 }
@@ -83,24 +83,24 @@ void VecincrXcelHLS( hls::stream<XcelReqMsg>&  xcelreq,
   xcelresp.write( XcelRespMsg( req.id, 0, req.type, req.opq ) );
 
   //  2. Write the number of elements in the array to xr2
-  xcelreq.read( req );
+  req = xcelreq.read();
   ap_uint<32> size = req.data;
   xcelresp.write( XcelRespMsg( req.id, 0, req.type, req.opq ) );
 
   //  3. Write the value to increment the array elemments to xr3
-  xcelreq.read( req );
+  req = xcelreq.read();
   ap_uint<32> incr = req.data;
   xcelresp.write( XcelRespMsg( req.id, 0, req.type, req.opq ) );
 
   //  4. Tell accelerator to go by writing xr0
-  xcelreq.read( req );
+  req = xcelreq.read();
   xcelresp.write( XcelRespMsg( req.id, 0, req.type, req.opq ) );
 
   // Compute
   vecincr( base, size, incr, memreq, memresp );
 
   //  5. Wait for accelerator to finish by reading xr0, result will be 1
-  xcelreq.read( req );
+  req = xcelreq.read();
   xcelresp.write( XcelRespMsg( req.id, 1, req.type, req.opq ) );
 
 }

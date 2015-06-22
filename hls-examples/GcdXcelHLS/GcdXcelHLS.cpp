@@ -54,19 +54,19 @@ void GcdXcelHLS( hls::stream<XcelReqMsg>& xcelreq,
   xcelresp.write( XcelRespMsg( req.id, 0, req.type, req.opq ) );
 
   //  2. Write the operand B by writing to xr2
-  xcelreq.read( req );
+  req = xcelreq.read();
   ap_uint<32> opB = req.data;
   xcelresp.write( XcelRespMsg( req.id, 0, req.type, req.opq ) );
 
   //  3. Tell accelerator to go by writing xr0
-  xcelreq.read( req );
+  req = xcelreq.read();
   xcelresp.write( XcelRespMsg( req.id, 0, req.type, req.opq ) );
 
   // Compute
   ap_uint<32> result = gcd( opA, opB );
 
   //  4. Wait for accelerator to finish by reading xr0, return result of gcd
-  xcelreq.read( req );
+  req = xcelreq.read();
   xcelresp.write( XcelRespMsg( req.id, result, req.type, req.opq ) );
 
 }
