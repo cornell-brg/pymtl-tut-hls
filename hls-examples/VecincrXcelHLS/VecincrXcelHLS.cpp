@@ -16,8 +16,8 @@
 //  1. Write the base address of the array to xr1
 //  2. Write the number of elements in the array to xr2
 //  3. Write the value to increment the array elemments to xr3
-//  3. Tell accelerator to go by writing xr0
-//  4. Wait for accelerator to finish by reading xr0, result will be 1
+//  4. Tell accelerator to go by writing xr0
+//  5. Wait for accelerator to finish by reading xr0, result will be 1
 
 #include "../common/interfaces.h"
 #include <ap_utils.h>
@@ -43,13 +43,13 @@ void vecincr( ap_uint<32> base,
   ap_uint<32> temp;
 
   for ( int i = 0; i < size; ++ i ) {
+#pragma HLS PIPELINE
+
     // memory read request
     memreq.write( MemReqMsg( 0, 0, (base + i*4), 0, READ ) );
     ap_wait();
-
     // memory read response
     memresp.read( resp );
-    ap_wait();
 
     // increment the element
     temp = resp.data + incr;
@@ -57,7 +57,6 @@ void vecincr( ap_uint<32> base,
     // memory write request
     memreq.write( MemReqMsg( temp, 0, (base + i*4), 0, WRITE ) );
     ap_wait();
-
     // memory write response
     memresp.read();
   }
@@ -75,68 +74,44 @@ void VecincrXcelHLS( hls::stream<XcelReqMsg>&  xcelreq,
                    )
 {
 
+  // Local variables
+  XcelReqMsg  req;
+  XcelRespMsg resp;
+
+  // State
   static ap_uint<32> base = 0;
   static ap_uint<32> size = 0;
   static ap_uint<32> incr = 0;
 
-  static enum { CONFIGURE, COMPUTE } vecincrState = CONFIGURE;
+  //  1. Write the base address of the array to xr1
+  xcelreq.read( req );
+  base = req.data;
+  resp = XcelRespMsg( req.id, 0, req.type, req.opq );
+  xcelresp.write( resp );
 
-  XcelReqMsg  req;
-  XcelRespMsg resp;
+  //  2. Write the number of elements in the array to xr2
+  xcelreq.read( req );
+  size = req.data;
+  resp = XcelRespMsg( req.id, 0, req.type, req.opq );
+  xcelresp.write( resp );
 
-  switch( vecincrState ) {
+  //  3. Write the value to increment the array elemments to xr3
+  xcelreq.read( req );
+  incr = req.data;
+  resp = XcelRespMsg( req.id, 0, req.type, req.opq );
+  xcelresp.write( resp );
 
-    case CONFIGURE:
-    {
-      if ( !xcelreq.empty() ) {
-        xcelreq.read( req );
+  //  4. Tell accelerator to go by writing xr0
+  xcelreq.read( req );
+  resp = XcelRespMsg( req.id, 0, req.type, req.opq );
+  xcelresp.write( resp );
 
-        switch ( req.addr ) {
-          case 0:
-            resp = XcelRespMsg( req.id, 0, req.type, req.opq );
-            xcelresp.write( resp );
-            vecincrState  = COMPUTE;
-            break;
+  // Compute
+  vecincr( base, size, incr, memreq, memresp );
 
-          case 1:
-            base = req.data;
-            resp = XcelRespMsg( req.id, 0, req.type, req.opq );
-            xcelresp.write( resp );
-            vecincrState  = CONFIGURE;
-            break;
-
-          case 2:
-            size = req.data;
-            resp = XcelRespMsg( req.id, 0, req.type, req.opq );
-            xcelresp.write( resp );
-            vecincrState  = CONFIGURE;
-            break;
-
-          case 3:
-            incr = req.data;
-            resp = XcelRespMsg( req.id, 0, req.type, req.opq );
-            xcelresp.write( resp );
-            vecincrState  = CONFIGURE;
-            break;
-        }
-      }
-      break;
-    }
-
-    case COMPUTE:
-    {
-
-      vecincr( base, size, incr, memreq, memresp );
-
-      if ( !xcelreq.empty() ) {
-        xcelreq.read( req );
-        resp = XcelRespMsg( req.id, 1, req.type, req.opq );
-        xcelresp.write( resp );
-        vecincrState = CONFIGURE;
-      }
-      break;
-    }
-
-  }
+  //  5. Wait for accelerator to finish by reading xr0, result will be 1
+  xcelreq.read( req );
+  resp = XcelRespMsg( req.id, 1, req.type, req.opq );
+  xcelresp.write( resp );
 
 }
