@@ -89,6 +89,7 @@ void top (AcIfaceType &ac, MemIfaceType &mem)
   // 7. start
   ac.req.read( req );
   ac.resp.write( AcRespMsg( req.id, 0, req.type, req.opq ) );
+  ap_wait();
 
   // Compute
   #if 0
