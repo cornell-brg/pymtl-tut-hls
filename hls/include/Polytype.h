@@ -48,15 +48,11 @@ class Polytype {
     bool operator==(const int rhs) const {
       switch (m_type) {
         case TYPE_CHAR:
-          return ap_int<8>(data[0]) == ap_int<8>(rhs);
-        case TYPE_UCHAR:
-          return ap_uint<8>(data[0]) == ap_uint<8>(rhs);
         case TYPE_SHORT:
-          return ap_int<16>(data[0]) == ap_int<16>(rhs);
-        case TYPE_USHORT:
-          return ap_uint<16>(data[0]) == ap_uint<16>(rhs);
         case TYPE_INT:
           return ap_int<32>(data[0]) == ap_int<32>(rhs);
+        case TYPE_UCHAR:
+        case TYPE_USHORT:
         case TYPE_UINT:
           return ap_uint<32>(data[0]) == ap_uint<32>(rhs);
         case TYPE_POINT:
@@ -71,18 +67,18 @@ class Polytype {
     bool operator<=(const int rhs) const {
       switch (m_type) {
         case TYPE_CHAR:
-          return ap_int<8>(data[0]) <= ap_int<8>(rhs);
-        case TYPE_UCHAR:
-          return ap_uint<8>(data[0]) <= ap_uint<8>(rhs);
         case TYPE_SHORT:
-          return ap_int<16>(data[0]) <= ap_int<16>(rhs);
-        case TYPE_USHORT:
-          return ap_uint<16>(data[0]) <= ap_uint<16>(rhs);
         case TYPE_INT:
           return ap_int<32>(data[0]) <= ap_int<32>(rhs);
+        case TYPE_UCHAR:
+        case TYPE_USHORT:
         case TYPE_UINT:
           return ap_uint<32>(data[0]) <= ap_uint<32>(rhs);
-        case TYPE_POINT:
+        default:
+          break;
+      }
+
+      if (m_type == TYPE_POINT) {
           // RZ: vivado_hls produces an error if we use pointer
           // typecast for this operator
           Point t;
@@ -90,8 +86,6 @@ class Polytype {
           t.x = data[1];
           t.y = data[2];
           return t <= rhs;
-        default:
-          break;
       }
 
       return false; 
@@ -100,18 +94,18 @@ class Polytype {
     bool operator<(const int rhs) const {
       switch (m_type) {
         case TYPE_CHAR:
-          return ap_int<8>(data[0]) < ap_int<8>(rhs);
-        case TYPE_UCHAR:
-          return ap_uint<8>(data[0]) < ap_uint<8>(rhs);
         case TYPE_SHORT:
-          return ap_int<16>(data[0]) < ap_int<16>(rhs);
-        case TYPE_USHORT:
-          return ap_uint<16>(data[0]) < ap_uint<16>(rhs);
         case TYPE_INT:
           return ap_int<32>(data[0]) < ap_int<32>(rhs);
+        case TYPE_UCHAR:
+        case TYPE_USHORT:
         case TYPE_UINT:
           return ap_uint<32>(data[0]) < ap_uint<32>(rhs);
-        case TYPE_POINT:
+        default:
+          break;
+      }
+
+      if (m_type == TYPE_POINT) {
           // RZ: vivado_hls produces an error if we use pointer
           // typecast for this operator
           Point t;
@@ -119,8 +113,6 @@ class Polytype {
           t.x = data[1];
           t.y = data[2];
           return t < rhs;
-        default:
-          break;
       }
 
       return false; 
@@ -140,15 +132,11 @@ class Polytype {
     bool operator==(const Polytype& rhs) const {
       switch (m_type) {
         case TYPE_CHAR:
-          return ap_int<8>(data[0]) == ap_int<8>(rhs.data[0]);
-        case TYPE_UCHAR:
-          return ap_uint<8>(data[0]) == ap_uint<8>(rhs.data[0]);
         case TYPE_SHORT:
-          return ap_int<16>(data[0]) == ap_int<16>(rhs.data[0]);
-        case TYPE_USHORT:
-          return ap_uint<16>(data[0]) == ap_uint<16>(rhs.data[0]);
         case TYPE_INT:
           return ap_int<32>(data[0]) == ap_int<32>(rhs.data[0]);
+        case TYPE_UCHAR:
+        case TYPE_USHORT:
         case TYPE_UINT:
           return ap_uint<32>(data[0]) == ap_uint<32>(rhs.data[0]);
         case TYPE_POINT:
@@ -163,15 +151,11 @@ class Polytype {
     bool operator<=(const Polytype& rhs) const {
       switch (m_type) {
         case TYPE_CHAR:
-          return ap_int<8>(data[0]) <= ap_int<8>(rhs.data[0]);
-        case TYPE_UCHAR:
-          return ap_uint<8>(data[0]) <= ap_uint<8>(rhs.data[0]);
         case TYPE_SHORT:
-          return ap_int<16>(data[0]) <= ap_int<16>(rhs.data[0]);
-        case TYPE_USHORT:
-          return ap_uint<16>(data[0]) <= ap_uint<16>(rhs.data[0]);
         case TYPE_INT:
           return ap_int<32>(data[0]) <= ap_int<32>(rhs.data[0]);
+        case TYPE_UCHAR:
+        case TYPE_USHORT:
         case TYPE_UINT:
           return ap_uint<32>(data[0]) <= ap_uint<32>(rhs.data[0]);
         case TYPE_POINT:
@@ -185,15 +169,11 @@ class Polytype {
     bool operator< (const Polytype& rhs) const {
       switch (m_type) {
         case TYPE_CHAR:
-          return ap_int<8>(data[0]) < ap_int<8>(rhs.data[0]);
-        case TYPE_UCHAR:
-          return ap_uint<8>(data[0]) < ap_uint<8>(rhs.data[0]);
         case TYPE_SHORT:
-          return ap_int<16>(data[0]) < ap_int<16>(rhs.data[0]);
-        case TYPE_USHORT:
-          return ap_uint<16>(data[0]) < ap_uint<16>(rhs.data[0]);
         case TYPE_INT:
           return ap_int<32>(data[0]) < ap_int<32>(rhs.data[0]);
+        case TYPE_UCHAR:
+        case TYPE_USHORT:
         case TYPE_UINT:
           return ap_uint<32>(data[0]) < ap_uint<32>(rhs.data[0]);
         case TYPE_POINT:
@@ -248,6 +228,7 @@ class ReferenceProxy <Polytype> {
 
     operator Polytype() const
     {
+      //#pragma HLS PIPELINE
       Polytype p (m_type);
       DstuRespMsg resp;
       
@@ -258,9 +239,12 @@ class ReferenceProxy <Polytype> {
       }
       // struct
       else {
-        for (int i = 0; i < m_fields; ++i) {
-          resp = dstu_read (g_dstu_iface, m_ds_id, m_iter, i+1);
-          p.data[i] = resp.data;
+        for (int i = 0; i < MAX_FIELDS; ++i) {
+        //#pragma HLS UNROLL
+          if (i < m_fields) {
+            resp = dstu_read (g_dstu_iface, m_ds_id, m_iter, i+1);
+            p.data[i] = resp.data;
+          }
         }
       }
 
@@ -274,6 +258,7 @@ class ReferenceProxy <Polytype> {
 
     ReferenceProxy& operator=( Polytype p )
     {
+      //#pragma HLS PIPELINE
       DstuRespMsg resp;
       DstuDataType data;
       
@@ -283,8 +268,10 @@ class ReferenceProxy <Polytype> {
       }
       // struct
       else {
-        for (int i = 0; i < m_fields; ++i) {
-          resp = dstu_write (g_dstu_iface, m_ds_id, m_iter, i+1, p.data[i]);
+        for (int i = 0; i < MAX_FIELDS; ++i) {
+        //#pragma HLS UNROLL
+          if (i < m_fields)
+            resp = dstu_write (g_dstu_iface, m_ds_id, m_iter, i+1, p.data[i]);
         }
       }
 

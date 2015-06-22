@@ -123,6 +123,7 @@ void mem_read_metadata (MemIfaceType &iface, MemAddrType addr, MetaData &metadat
 
   // read extra entries if struct
   for (ap_uint<8> i = 1; i < MAX_FIELDS; ++i) {
+  #pragma HLS pipeline
     if (i < n_fields) {
       addr += sizeof(unsigned);
       resp = mem_read (iface, addr, 0);
