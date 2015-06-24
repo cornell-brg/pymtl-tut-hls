@@ -77,7 +77,8 @@ class TestHarness( Model ):
 
   def line_trace( s ):
     return  s.asu.line_trace() + " > " + \
-            s.itu.line_trace()
+            s.itu.line_trace() + " > " + \
+            s.mem.line_trace()
 
 #------------------------------------------------------------------------------
 # run_asu_test
@@ -176,6 +177,11 @@ def mem_array_point( base_addr, metadata, data):
   dbytes = ''.join( [d.pack() for d in data] )
   return [base_addr, 4*len(metadata), mbytes+dbytes]
 
+# data is a list of int
+def mem_array_point_from_int( base_addr, metadata_length, data ):
+  bytes = struct.pack( "<{}i".format( len(data) ), *data )
+  return [base_addr, metadata_length, bytes]
+
 #------------------------------------------------------------------------------
 # Helper functions for Test src/sink messages
 #------------------------------------------------------------------------------
@@ -263,14 +269,14 @@ list_int_msgs = [
 
 vec_pts_mem = mem_array_point( 8,
                                   [ # metadata
-                                    0x000C0B03,
-                                    0x00020300,
-                                    0x04040500,
-                                    0x08040500,
+                                    0x000C0B03,         # 8
+                                    0x00020300,         # c
+                                    0x04040500,         # 10
+                                    0x08040500,         # 14
                                   ],
                                   [ # values
-                                    Point( 0, 2, 3 ),
-                                    Point( 1, 4, 5 ),
+                                    Point( 0, 2, 3 ),   # 18, 1c, 20
+                                    Point( 1, 4, 5 ),   # 24, 28, 2c
                                     Point( 2, 9, 1 ),
                                     Point( 3, 2, 7 ),
                                     Point( 4, 0, 1 ),
@@ -296,36 +302,36 @@ vector_pts_msgs = [
 #------------------------------------------------------------------------------
 
 # preload the memory to known values
-list_pts_mem = mem_array_int( 0,
-                               [  # metadata
+list_pts_mem = mem_array_point_from_int( 0, 16,
+                                [ # metadata
                                   0x000c0B03, #  0
                                   0x00020000, #  4
                                   0x04040000, #  8
-                                  0x08040000, # 12
+                                  0x08040000, #  c
                                   # point1
-                                  0x00000001, # 16
-                                  0x00000001, # 20
-                                  0x00000001, # 24
-                                  16,         # 28
-                                  36,         # 32
+                                  0x00000001, # 10
+                                  0x00000001, # 14
+                                  0x00000001, # 18
+                                  0x10,       # 1c
+                                  0x24,       # 20
                                   # point2
-                                  0x00000002, # 36
-                                  0x00000002, # 40
-                                  0x00000002, # 44
-                                  16,         # 48
-                                  56,         # 52
+                                  0x00000002, # 24
+                                  0x00000002, # 28
+                                  0x00000002, # 2c
+                                  0x10,       # 30
+                                  0x38,       # 34
                                   # point3
-                                  0x00000003, # 56
-                                  0x00000003, # 60
-                                  0x00000003, # 64
-                                  36,         # 68
-                                  76,         # 72
+                                  0x00000003, # 38
+                                  0x00000003, # 3c
+                                  0x00000003, # 40
+                                  0x24,       # 44
+                                  0x4c,       # 48
                                   # point4
-                                  0x00000004, # 76
-                                  0x00000004, # 80
-                                  0x00000004, # 84
-                                  56,         # 88
-                                  76          # 92
+                                  0x00000004, # 4c
+                                  0x00000004, # 50
+                                  0x00000004, # 54
+                                  0x38,       # 58
+                                  0x4c        # 5c
                                ]
                              )
 
@@ -335,7 +341,7 @@ list_pts_msgs = [
                  req( 0, 1, 1, 0, 0 ), resp( 0, 1, 0, 0 ), # first ds-id
                  req( 0, 1, 2, 0, 0 ), resp( 0, 1, 0, 0 ), # first iter
                  req( 0, 1, 3, 0, 0 ), resp( 0, 1, 0, 0 ), # last ds-id
-                 req( 0, 1, 4, 3, 0 ), resp( 0, 1, 0, 0 ), # last iter
+                 req( 0, 1, 4, 4, 0 ), resp( 0, 1, 0, 0 ), # last iter
                  req( 0, 1, 5, 2, 0 ), resp( 0, 1, 0, 0 ), # predicate val = EqZero
                  req( 0, 1, 6, 0, 0 ), resp( 0, 1, 0, 0 ), # dt_desc_ptr
                  req( 0, 1, 0, 0, 0 ), resp( 0, 1, 0, 0 ), # go
@@ -364,10 +370,10 @@ test_case_table = mk_test_case_table([
   [ "vec_pts_5x0_0.5_0",    vector_pts_msgs,   5,  0,   0.5,  0,   vec_pts_mem,   ITU.VECTOR ],
   [ "vec_pts_0x5_0.0_4",    vector_pts_msgs,   0,  5,   0.0,  4,   vec_pts_mem,   ITU.VECTOR ],
   [ "vec_pts_3x9_0.5_3",    vector_pts_msgs,   3,  9,   0.5,  3,   vec_pts_mem,   ITU.VECTOR ],
-  #[ "list_pts_0x0_0.0_0",   list_pts_msgs,     0,  0,   0.0,  0,   list_pts_mem,  ITU.LIST   ],
-  #[ "list_pts_5x0_0.5_0",   list_pts_msgs,     5,  0,   0.5,  0,   list_pts_mem,  ITU.LIST   ],
-  #[ "list_pts_0x5_0.0_4",   list_pts_msgs,     0,  5,   0.0,  4,   list_pts_mem,  ITU.LIST   ],
-  #[ "list_pts_3x9_0.5_3",   list_pts_msgs,     3,  9,   0.5,  3,   list_pts_mem,  ITU.LIST   ],
+  [ "list_pts_0x0_0.0_0",   list_pts_msgs,     0,  0,   0.0,  0,   list_pts_mem,  ITU.LIST   ],
+  [ "list_pts_5x0_0.5_0",   list_pts_msgs,     5,  0,   0.5,  0,   list_pts_mem,  ITU.LIST   ],
+  [ "list_pts_0x5_0.0_4",   list_pts_msgs,     0,  5,   0.0,  4,   list_pts_mem,  ITU.LIST   ],
+  [ "list_pts_3x9_0.5_3",   list_pts_msgs,     3,  9,   0.5,  3,   list_pts_mem,  ITU.LIST   ],
 ])
 
 #-------------------------------------------------------------------------
