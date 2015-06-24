@@ -97,9 +97,9 @@ class FindIfUnitFL( Model ):
       if   s.predicate_val == 0: return data > 0
       elif s.predicate_val == 1: return data < 0
       elif s.predicate_val == 2: return data == 0
-      #elif s.predicate_val == 3: return ( data % 2 ) == 1
-      #elif s.predicate_val == 4: return ( data % 2 ) == 0
-    
+      elif s.predicate_val == 3: return ( data % 2 ) == 1
+      elif s.predicate_val == 4: return ( data % 2 ) == 0
+
     def predicate_point( px, py ):
       if   s.predicate_val == 0: return px > 0 and py > 0
       elif s.predicate_val == 1: return px < 0 and py < 0
@@ -147,7 +147,7 @@ class FindIfUnitFL( Model ):
         s.metadata_valid = False
 
       if s.go:
-      
+
         # First fetch the metadata
         if not s.metadata_valid:
           dt_value = s.mem[s.dt_desc_ptr:s.dt_desc_ptr+4]
@@ -225,7 +225,7 @@ class FindIfUnitFL( Model ):
                 s.go = False
               else:
                 s.iter_first_iter = s.iter_first_iter + 1
-              
+
               s.loaded_fields = []
 
           else:
