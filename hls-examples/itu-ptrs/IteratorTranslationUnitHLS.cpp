@@ -179,7 +179,7 @@ void IteratorTranslationUnitHLS(
       }
       // store request
       else if ( xcel_req.opc == 1 ) {
-        memreq.write( MemReqMsg( 0, dt_desc.size, xcel_req.addr, 0, WRITE ) );
+        memreq.write( MemReqMsg( xcel_req.data, dt_desc.size, xcel_req.addr, 0, WRITE ) );
         ap_wait();
         mem_resp = memresp.read();
         xcelresp.write( IteratorRespMsg( 0, xcel_req.addr, xcel_req.opc, xcel_req.ds_id, xcel_req.opq ) );
