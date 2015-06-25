@@ -189,14 +189,14 @@ void IteratorTranslationUnitHLS(
         memreq.write( MemReqMsg( 0, 0, xcel_req.addr+8, 0, READ ) );
         ap_wait();
         mem_resp = memresp.read();
-        xcelresp.write( IteratorRespMsg( mem_resp.data, xcel_req.addr, xcel_req.opc, xcel_req.ds_id, xcel_req.opq ) );
+        xcelresp.write( IteratorRespMsg( 0, mem_resp.data, xcel_req.opc, xcel_req.ds_id, xcel_req.opq ) );
       }
       // decrement address
       else if ( xcel_req.opc == 3 ) {
         memreq.write( MemReqMsg( 0, 0, xcel_req.addr+4, 0, READ ) );
         ap_wait();
         mem_resp = memresp.read();
-        xcelresp.write( IteratorRespMsg( mem_resp.data, xcel_req.addr, xcel_req.opc, xcel_req.ds_id, xcel_req.opq ) );
+        xcelresp.write( IteratorRespMsg( 0, mem_resp.data, xcel_req.opc, xcel_req.ds_id, xcel_req.opq ) );
       }
     }
   }

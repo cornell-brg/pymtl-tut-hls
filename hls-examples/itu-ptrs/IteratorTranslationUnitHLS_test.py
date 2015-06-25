@@ -246,10 +246,10 @@ list_int_msgs = [
   req_dec( 0, 0, 28, 0 ), resp_dec( 0, 16, 0 ),
   req_dec( 0, 0, 40, 0 ), resp_dec( 0, 28, 0 ),
 
-  req_wr ( 0, 0, 4,  5 ), resp_rd ( 0, 4,  0 ),
-  req_wr ( 0, 0, 16, 6 ), resp_rd ( 0, 16, 0 ),
-  req_wr ( 0, 0, 28, 7 ), resp_rd ( 0, 28, 0 ),
-  req_wr ( 0, 0, 40, 8 ), resp_rd ( 0, 40, 0 ),
+  req_wr ( 0, 0, 4,  5 ), resp_wr ( 0, 4,  0 ),
+  req_wr ( 0, 0, 16, 6 ), resp_wr ( 0, 16, 0 ),
+  req_wr ( 0, 0, 28, 7 ), resp_wr ( 0, 28, 0 ),
+  req_wr ( 0, 0, 40, 8 ), resp_wr ( 0, 40, 0 ),
 
   req_rd ( 0, 0, 4,  0 ), resp_rd ( 0, 4,  5 ),
   req_rd ( 0, 0, 16, 0 ), resp_rd ( 0, 16, 6 ),
