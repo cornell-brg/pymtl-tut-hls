@@ -1,9 +1,7 @@
 #=============================================================================
 # FindIfUnitFL_test.py
 #=============================================================================
-# XXX: Configure dt_desc_ptr in the asu
 # XXX: Check accel-id returned in responses
-# XXX: Tests for user-defined types
 
 import pytest
 import struct

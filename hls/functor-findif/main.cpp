@@ -3,41 +3,25 @@
 #include "ap_utils.h"
 #define N 10
 
+#include "../include/Functors.h"
 #include "../include/Polytype.h"
 #include "../include/common.h"
 
 typedef _iterator<Polytype> iterator;
 
-// mark this as volatile to enforce stores/loads
 DstuIfaceType g_dstu_iface;
-
-typedef ap_uint<3> PredicateType;
+PeIfaceType   g_pe_iface;
 
 // ------------------------------------------------------------------
 // Polymorphic User Algorithm
 // findif
 // ------------------------------------------------------------------
 template <typename T>
-_iterator<T> findif (_iterator<T> begin, _iterator<T> end, PredicateType pred_val) {
+_iterator<T> findif (_iterator<T> begin, _iterator<T> end, UnaryPredicate pred) {
   for (; begin != end; ++begin) {
-    const T temp = *begin;
-    switch (pred_val) {
-      case 0:
-        if (temp > 1) return begin;
-        break;
-      case 1:
-        if (temp < 1) return begin;
-        break;
-      case 2:
-        if (temp == 0) return begin;
-        break;
-      case 3:
-        if ((temp % 2) == 1) return begin;
-        break;
-      case 4:
-        if ((temp % 2) == 0) return begin;
-        break;
-    };
+    T temp = *begin;
+    if ( pred( temp ) )
+      return begin;
   }
   return begin;
 }
@@ -54,7 +38,7 @@ void top (AcIfaceType &ac, MemIfaceType &mem)
   static AcDataType s_first_index;
   static AcDataType s_last_ds_id;
   static AcDataType s_last_index;
-  static PredicateType s_pred;
+  static AcDataType s_pred;
   static AcDataType s_dt_desc_ptr;
   static AcDataType s_result;
 
@@ -100,7 +84,7 @@ void top (AcIfaceType &ac, MemIfaceType &mem)
   // Compute
   #if 0
     unsigned md[MAX_FIELDS];
-    // descripter for point
+    // descriptor for point
     SET_OFFSET( md[0], 0               );
     SET_SIZE  ( md[0], sizeof( Point ) );
     SET_TYPE  ( md[0], TYPE_POINT      );
@@ -120,6 +104,7 @@ void top (AcIfaceType &ac, MemIfaceType &mem)
     SET_SIZE  ( md[3], sizeof( int   ) );
     SET_TYPE  ( md[3], TYPE_INT        );
     SET_FIELDS( md[3], 0               );
+
     metadata.init(md);
   #else
     mem_read_metadata (mem, s_dt_desc_ptr, metadata);
@@ -132,7 +117,7 @@ void top (AcIfaceType &ac, MemIfaceType &mem)
   s_result = findif<Polytype> (
                iterator(s_first_ds_id, s_first_index, type, fields),
                iterator(s_last_ds_id, s_last_index, type, fields),
-               s_pred
+               UnaryPredicate()
              ).get_index();
 
   // 8. Return result

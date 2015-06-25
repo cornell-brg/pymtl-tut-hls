@@ -23,7 +23,7 @@ from FindIfUnitVRTL                import FindIfUnitVRTL
 #------------------------------------------------------------------------------
 class TestHarness( Model ):
 
-  def __init__( s, FindIfUnit, TranslationUnit,
+  def __init__( s, FindIfUnit, TranslationUnit, PEUnit,
                 src_msgs,  sink_msgs,
                 src_delay, sink_delay,
                 stall_prob, latency,
@@ -42,6 +42,7 @@ class TestHarness( Model ):
     s.src = TestSource( asu_cfg_ifc.req, src_msgs, src_delay )
     s.asu = FindIfUnit( )
     s.itu = TranslationUnit( itu_cfg_ifc, asu_itu_ifc, mem_ifc )
+    s.pe  = PEUnit( )
     s.sink = TestSink( asu_cfg_ifc.resp, sink_msgs, sink_delay )
     s.mem = TestMemory( mem_ifc, 2, stall_prob, latency )
 
@@ -62,6 +63,10 @@ class TestHarness( Model ):
     s.connect( s.asu.ituresp, s.itu.xcelresp  )
     s.connect( s.asu.itureq.val, s.itu.xcelreq.val)
     s.connect( s.asu.itureq.rdy, s.itu.xcelreq.rdy)
+
+    # asu <-> pe
+    s.connect( s.asu.pereq,   s.pe.pereq  )
+    s.connect( s.asu.peresp,  s.pe.peresp )
 
     # itu <-> mem
     s.connect( s.itu.memreq,   s.mem.reqs[1]  )

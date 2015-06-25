@@ -1,5 +1,5 @@
 #====================================================================
-# FindIfUnitVRTL
+# FunctorUnitVRTL
 #====================================================================
 # PyMtl wrapper for HLS-synthesized Verilog module of find-if unit
 #
@@ -16,6 +16,8 @@ class FindIfUnitVRTL ( VerilogModel ):
     s.ituresp     = InValRdyBundle  ( 52 );
     s.memreq      = OutValRdyBundle ( 77 )
     s.memresp     = InValRdyBundle  ( 45 )
+    s.pereq       = OutValRdyBundle ( 36 )
+    s.peresp      = OutValRdyBundle ( 36 )
 
     s.set_ports ({
       'clk'   :   s.clk,
@@ -38,10 +40,16 @@ class FindIfUnitVRTL ( VerilogModel ):
       'g_dstu_iface_resp_V'        :   s.ituresp.msg,
       'g_dstu_iface_resp_V_ap_vld' :   s.ituresp.val,
       'g_dstu_iface_resp_V_ap_ack' :   s.ituresp.rdy,
+      'g_pe_iface_req_V'         :   s.pereq.msg,
+      'g_pe_iface_req_V_ap_vld'  :   s.pereq.val,
+      'g_pe_iface_req_V_ap_ack'  :   s.pereq.rdy,
+      'g_pe_iface_resp_V'        :   s.peresp.msg,
+      'g_pe_iface_resp_V_ap_vld' :   s.peresp.val,
+      'g_pe_iface_resp_V_ap_ack' :   s.peresp.rdy,
     });
 
   def line_trace( s ):
-    return "{}{}|{}{}".format(
+    return "{}{}|{}{}|{}{}".format(
       valrdy_to_str( s.memreq.msg,
                      s.memreq.val,
                      s.memreq.rdy ),
@@ -57,5 +65,13 @@ class FindIfUnitVRTL ( VerilogModel ):
       valrdy_to_str( s.ituresp.msg,
                      s.ituresp.val,
                      s.ituresp.rdy ),
+      
+      valrdy_to_str( s.pereq.msg,
+                     s.pereq.val,
+                     s.pereq.rdy ),
+
+      valrdy_to_str( s.peresp.msg,
+                     s.peresp.val,
+                     s.peresp.rdy ),
     )
     
