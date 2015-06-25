@@ -168,6 +168,9 @@ void IteratorTranslationUnitHLS(
       ap_wait();
       memresp.read( mem_resp );
 
+      // NOTE: Not sure why I need this ap_wait statement here!!!
+      ap_wait();
+
       dtValue dt_desc = dtValue( mem_resp.data );
 
       // load request
