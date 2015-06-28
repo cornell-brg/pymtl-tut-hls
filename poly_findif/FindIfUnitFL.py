@@ -119,32 +119,35 @@ class FindIfUnitFL( Model ):
       #-------------------------------------------------------------------
       # Configure the ASU
       #-------------------------------------------------------------------
-      if not s.cfgreq_q.empty() and not s.cfgresp_q.full():
+      if not s.go:
 
-        # get the coprocessor message
-        req = s.cfgreq_q.deq()
+        if not s.cfgreq_q.empty() and not s.cfgresp_q.full():
 
-        # check if it is a write request
-        if req.type_ == 1:
+          # get the coprocessor message
+          req = s.cfgreq_q.deq()
 
-          # send the ack for mtx messages
-          s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( 0, 1, 0, 0 ) )
+          # check if it is a write request
+          if req.type_ == 1:
 
-          # check the address and configure
-          if   req.raddr == 0: s.go = True                   # go
-          elif req.raddr == 1: s.iter_first_ds_id = req.data # first ds-id
-          elif req.raddr == 2: s.iter_first_iter  = req.data # first iter
-          elif req.raddr == 3: s.iter_last_ds_id  = req.data # last ds-id
-          elif req.raddr == 4: s.iter_last_iter   = req.data # last iter
-          elif req.raddr == 5: s.predicate_val    = req.data # predicate
-          elif req.raddr == 6: s.dt_desc_ptr      = req.data # dt_desc_ptr
+            # send the ack for mtx messages
+            s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg( 0, 1, 0, 0 ) )
+
+            # check the address and configure
+            if   req.raddr == 0:
+              s.go = True                   # go
+              s.itu_req_set = False
+              s.metadata_valid = False
+              s.loaded_fields = []
+            elif req.raddr == 1: s.iter_first_ds_id = req.data # first ds-id
+            elif req.raddr == 2: s.iter_first_iter  = req.data # first iter
+            elif req.raddr == 3: s.iter_last_ds_id  = req.data # last ds-id
+            elif req.raddr == 4: s.iter_last_iter   = req.data # last iter
+            elif req.raddr == 5: s.predicate_val    = req.data # predicate
+            elif req.raddr == 6: s.dt_desc_ptr      = req.data # dt_desc_ptr
 
       #-------------------------------------------------------------------
       # Go State
       #-------------------------------------------------------------------
-
-      if not s.go:
-        s.metadata_valid = False
 
       if s.go:
 
@@ -155,7 +158,7 @@ class FindIfUnitFL( Model ):
           s.metadata_valid = True
 
         # if the iterators dont't belong to the same data structure bail
-        elif not s.iter_first_ds_id == s.iter_last_ds_id:
+        if not s.iter_first_ds_id == s.iter_last_ds_id:
           # return the last iterator iter
           if not s.cfgresp_q.full():
             s.cfgresp_q.enq( cfg_ifc_types.resp.mk_msg(0,0,s.iter_last_iter,0) )
@@ -174,7 +177,7 @@ class FindIfUnitFL( Model ):
         # iterator msg is (opaque, type, ds_id, iter, field, data)
 
         else:
-
+        
           # handle primitive types
           if s.dt_desc.type_ < TypeEnum.MAX_PRIMITIVE:
 
@@ -226,7 +229,6 @@ class FindIfUnitFL( Model ):
               else:
                 s.iter_first_iter = s.iter_first_iter + 1
 
-              s.loaded_fields = []
 
           else:
             raise SystemExit( s.dt_desc.type_ )

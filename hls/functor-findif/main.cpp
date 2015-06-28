@@ -1,13 +1,9 @@
 #include <assert.h>
 #include <stdio.h>
 #include "ap_utils.h"
-#define N 10
 
-#include "../include/Functors.h"
-#include "../include/Polytype.h"
+#include "../include/PolyHSFunctors.h"
 #include "../include/common.h"
-
-typedef _iterator<Polytype> iterator;
 
 DstuIfaceType g_dstu_iface;
 PeIfaceType   g_pe_iface;
@@ -16,10 +12,10 @@ PeIfaceType   g_pe_iface;
 // Polymorphic User Algorithm
 // findif
 // ------------------------------------------------------------------
-template <typename T>
-_iterator<T> findif (_iterator<T> begin, _iterator<T> end, UnaryPredicate pred) {
+template <typename Iterator>
+Iterator findif (Iterator begin, Iterator end, UnaryPredicate pred) {
   for (; begin != end; ++begin) {
-    T temp = *begin;
+    typename Iterator::value_type temp = *begin;
     if ( pred( temp ) )
       return begin;
   }
@@ -27,7 +23,7 @@ _iterator<T> findif (_iterator<T> begin, _iterator<T> end, UnaryPredicate pred) 
 }
 
 // ------------------------------------------------------------------
-// Processor Interface
+// Wrapper
 // This function takes care of the accelerator interface to the
 // processor, and calls the user algorithm
 // ------------------------------------------------------------------
@@ -114,9 +110,9 @@ void top (AcIfaceType &ac, MemIfaceType &mem)
   ap_uint<8> type = GET_TYPE(md0);
   ap_uint<8> fields = GET_FIELDS(md0);
 
-  s_result = findif<Polytype> (
-               iterator(s_first_ds_id, s_first_index, type, fields),
-               iterator(s_last_ds_id, s_last_index, type, fields),
+  s_result = findif (
+               PolyHSIterator(s_first_ds_id, s_first_index, type, fields),
+               PolyHSIterator(s_last_ds_id, s_last_index, type, fields),
                UnaryPredicate()
              ).get_index();
 

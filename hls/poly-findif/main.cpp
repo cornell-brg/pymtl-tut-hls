@@ -1,14 +1,9 @@
 #include <assert.h>
 #include <stdio.h>
 #include "ap_utils.h"
-#define N 10
 
-#include "../include/Polytype.h"
 #include "../include/common.h"
 
-typedef _iterator<Polytype> iterator;
-
-// mark this as volatile to enforce stores/loads
 DstuIfaceType g_dstu_iface;
 
 typedef ap_uint<3> PredicateType;
@@ -17,10 +12,10 @@ typedef ap_uint<3> PredicateType;
 // Polymorphic User Algorithm
 // findif
 // ------------------------------------------------------------------
-template <typename T>
-_iterator<T> findif (_iterator<T> begin, _iterator<T> end, PredicateType pred_val) {
+template <typename Iterator>
+Iterator findif (Iterator begin, Iterator end, PredicateType pred_val) {
   for (; begin != end; ++begin) {
-    const T temp = *begin;
+    typename Iterator::value_type temp = *begin;
     switch (pred_val) {
       case 0:
         if (temp > 1) return begin;
@@ -129,9 +124,9 @@ void top (AcIfaceType &ac, MemIfaceType &mem)
   ap_uint<8> type = GET_TYPE(md0);
   ap_uint<8> fields = GET_FIELDS(md0);
 
-  s_result = findif<Polytype> (
-               iterator(s_first_ds_id, s_first_index, type, fields),
-               iterator(s_last_ds_id, s_last_index, type, fields),
+  s_result = findif<PolyHSIterator> (
+               PolyHSIterator(s_first_ds_id, s_first_index, type, fields),
+               PolyHSIterator(s_last_ds_id, s_last_index, type, fields),
                s_pred
              ).get_index();
 

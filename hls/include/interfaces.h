@@ -219,4 +219,69 @@ MemRespMsg mem_write (
   return resp;
 }
 
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//
+// Lane Unit Iface
+//
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+typedef ap_uint<3>  PeIdType;
+typedef ap_uint<1>  PeRwType;
+typedef ap_uint<32> PeDataType;
+
+//------------------------------------------------------------------------
+
+struct PeReqMsg {
+  PeIdType   id;
+  PeRwType   type;
+  PeDataType data;
+
+  PeReqMsg()
+  : id( 0 ), type( 0 ), data( 0 ) {}
+
+  PeReqMsg( PeIdType id_, PeRwType type_, PeDataType data_)
+  : id( id_ ), type( type_ ), data( data_ ) {}
+};
+
+//------------------------------------------------------------------------
+
+struct PeRespMsg {
+  PeIdType   id;
+  PeRwType   type;
+  PeDataType data;
+
+  PeRespMsg()
+  : id( 0 ), type( 0 ), data( 0 ) {}
+
+  PeRespMsg( PeIdType id_, PeRwType type_, PeDataType data_)
+  : id( id_ ), type( type_ ), data( data_ ) {}
+};
+
+//------------------------------------------------------------------------
+
+typedef struct _PeIfaceType {
+  hls::stream<PeReqMsg>  req;
+  hls::stream<PeRespMsg> resp;
+} PeIfaceType;
+
+//------------------------------------------------------------------------
+
+PeRespMsg pe_read (PeIfaceType& iface)
+{
+  #pragma HLS INLINE
+  iface.req.write( PeReqMsg( 0, MSG_READ, 0 ) );
+  ap_wait();
+  PeRespMsg resp = iface.resp.read();
+  return resp;
+}
+
+PeRespMsg pe_write (PeIfaceType& iface, PeDataType data)
+{
+  #pragma HLS INLINE
+  iface.req.write( PeReqMsg( 0, MSG_WRITE, data ) );
+  ap_wait();
+  PeRespMsg resp = iface.resp.read();
+  return resp;
+}
+
 #endif

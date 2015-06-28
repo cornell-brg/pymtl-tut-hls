@@ -49,4 +49,6 @@ foreach vfile $vfiles {
   close $fin
 }
 
+exec bash ./rename.sh
+
 exit
