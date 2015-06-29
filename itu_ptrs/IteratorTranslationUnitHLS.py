@@ -7,6 +7,7 @@ import os
 
 from pymtl      import *
 from pclib.ifcs import InValRdyBundle, OutValRdyBundle
+from pclib.ifcs import valrdy_to_str
 
 from IteratorMsg  import IteratorMsg
 
@@ -58,3 +59,29 @@ class IteratorTranslationUnitHLS( VerilogModel ):
       #'debug_V_V_ap_ack'  : s.debug.rdy
     })
 
+  #-----------------------------------------------------------------------
+  # line_trace
+  #-----------------------------------------------------------------------
+
+  def line_trace( s ):
+    return " {} | {} {} | {}".format(
+        valrdy_to_str(
+                       s.xcelreq.msg,
+                       s.xcelreq.val,
+                       s.xcelreq.rdy
+                     ),
+        valrdy_to_str(
+                       s.memreq.msg,
+                       s.memreq.val,
+                       s.memreq.rdy
+                     ),
+        valrdy_to_str(
+                       s.memresp.msg,
+                       s.memresp.val,
+                       s.memresp.rdy
+                     ),
+        valrdy_to_str(
+                       s.xcelresp.msg,
+                       s.xcelresp.val,
+                       s.xcelresp.rdy
+                     ) )

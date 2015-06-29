@@ -66,9 +66,10 @@ class TestHarness( Model ):
     return s.src.done and s.sink.done
 
   def line_trace( s ):
-    return "{} | {} | {}".format( s.src.out,
-                                  s.mem.line_trace(),
-                                  s.sink.in_ )
+    return s.itu.line_trace()
+    #return "{} | {} | {}".format( s.src.out,
+    #                              s.mem.line_trace(),
+    #                              s.sink.in_ )
 
 #------------------------------------------------------------------------------
 # run_itu_test
