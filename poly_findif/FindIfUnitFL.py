@@ -134,6 +134,11 @@ class FindIfUnitFL( Model ):
 
             # check the address and configure
             if   req.raddr == 0:
+              print "starting accel"
+              print "first iter =", s.iter_first_ds_id, s.iter_first_iter
+              print "last  iter =", s.iter_last_ds_id, s.iter_last_iter
+              print "pred =", s.predicate_val
+              print "mdata = ", s.dt_desc_ptr
               s.go = True                   # go
               s.itu_req_set = False
               s.metadata_valid = False
@@ -153,6 +158,7 @@ class FindIfUnitFL( Model ):
 
         # First fetch the metadata
         if not s.metadata_valid:
+          print "fetching mdata"
           dt_value = s.mem[s.dt_desc_ptr:s.dt_desc_ptr+4]
           s.dt_desc  = TypeDescriptor().unpck( dt_value )
           s.metadata_valid = True
@@ -177,6 +183,8 @@ class FindIfUnitFL( Model ):
         # iterator msg is (opaque, type, ds_id, iter, field, data)
 
         else:
+
+          print "doing work"
         
           # handle primitive types
           if s.dt_desc.type_ < TypeEnum.MAX_PRIMITIVE:
@@ -229,7 +237,6 @@ class FindIfUnitFL( Model ):
               else:
                 s.iter_first_iter = s.iter_first_iter + 1
 
-
           else:
             raise SystemExit( s.dt_desc.type_ )
 
@@ -241,4 +248,4 @@ class FindIfUnitFL( Model ):
     return "{} | {} {} | {}".format( s.cfgreq,
                                      s.itureq,
                                      s.ituresp,
-                                     s.cfgresp )
+                                     s.cfgresp)

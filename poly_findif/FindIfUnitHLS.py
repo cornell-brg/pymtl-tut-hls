@@ -1,5 +1,5 @@
 #====================================================================
-# FindIfUnitVRTL
+# FindIfUnitHLS
 #====================================================================
 # PyMtl wrapper for HLS-synthesized Verilog module of find-if unit
 #
@@ -8,7 +8,7 @@ from pymtl       import *
 from pclib.ifcs  import InValRdyBundle, OutValRdyBundle
 from pclib.ifcs  import valrdy_to_str
 
-class FindIfUnitVRTL ( VerilogModel ):
+class FindIfUnitHLS ( VerilogModel ):
   def __init__ ( s ):
     s.cfgreq      = InValRdyBundle  ( 57 );
     s.cfgresp     = OutValRdyBundle ( 52 );
@@ -18,8 +18,8 @@ class FindIfUnitVRTL ( VerilogModel ):
     s.memresp     = InValRdyBundle  ( 45 )
 
     s.set_ports ({
-      'clk'   :   s.clk,
-      'reset' :   s.reset,
+      'ap_clk'   :   s.clk,
+      'ap_rst'   :   s.reset,
       'ac_req_V'         :   s.cfgreq.msg,
       'ac_req_V_ap_vld'  :   s.cfgreq.val,
       'ac_req_V_ap_ack'  :   s.cfgreq.rdy,

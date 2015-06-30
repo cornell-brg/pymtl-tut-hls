@@ -1,9 +1,7 @@
 #=============================================================================
-# FindIfUnitFL_test.py
+# FindIfUnitHLS_test.py
 #=============================================================================
-# XXX: Configure dt_desc_ptr in the asu
 # XXX: Check accel-id returned in responses
-# XXX: Tests for user-defined types
 
 import pytest
 import struct
@@ -13,15 +11,12 @@ from pclib.test import TestSource, TestSink, mk_test_case_table
 
 from dstu.MemMsgFuture              import MemMsg
 from dstu.TestMemoryOpaque          import TestMemory
-from dstu.TypeDescriptor import TypeDescriptor
+from dstu.IteratorTranslationUnitFL import IteratorTranslationUnitFL as ITU
 from dstu.IteratorMsg               import IteratorMsg
 from dstu.XcelMsg                   import XcelMsg
-from dstu.UserTypes                 import Point
 
-from FindIfUnitFL_test              import *
-from AsuFL_ItuHLS_test              import run_asu_test
-from dstu.IteratorTranslationUnitHLS import IteratorTranslationUnitHLS as ITU
-from FindIfUnitVRTL import FindIfUnitVRTL
+from FindIfUnitFL_test             import *
+from FindIfUnitHLS                import FindIfUnitHLS
 
 #------------------------------------------------------------------------------
 # TestHarness
@@ -46,7 +41,7 @@ class TestHarness( Model ):
     # Instantiate Models
     s.src = TestSource( asu_cfg_ifc.req, src_msgs, src_delay )
     s.asu = FindIfUnit( )
-    s.itu = TranslationUnit( )
+    s.itu = TranslationUnit( itu_cfg_ifc, asu_itu_ifc, mem_ifc )
     s.sink = TestSink( asu_cfg_ifc.resp, sink_msgs, sink_delay )
     s.mem = TestMemory( mem_ifc, 2, stall_prob, latency )
 
@@ -63,8 +58,10 @@ class TestHarness( Model ):
     s.connect( s.asu.memresp,  s.mem.resps[0] )
 
     # asu <-> itu
-    s.connect( s.asu.itureq,    s.itu.xcelreq )
+    #s.connect( s.asu.itureq,   s.itu.xcelreq ) 
     s.connect( s.asu.ituresp, s.itu.xcelresp  )
+    s.connect( s.asu.itureq.val, s.itu.xcelreq.val)
+    s.connect( s.asu.itureq.rdy, s.itu.xcelreq.rdy)
 
     # itu <-> mem
     s.connect( s.itu.memreq,   s.mem.reqs[1]  )
@@ -73,8 +70,10 @@ class TestHarness( Model ):
     # asu -> itu convert Bits to BitStruct
     @s.combinational
     def convert():
+      s.itu.xcelreq.msg.value = asu_itu_ifc.req.unpck( s.asu.itureq.msg )
       s.mem.reqs[0].msg.value = mem_ifc.req.unpck( s.asu.memreq.msg )
 
+    # testbench -> asu request bundle var/rdy signals
     @s.combinational
     def logic():
       s.asu.cfgreq.val.value = s.src.out.val & s.go
@@ -84,9 +83,15 @@ class TestHarness( Model ):
     return s.src.done and s.sink.done
 
   def line_trace( s ):
+            #s.itu.line_trace() + " > " + \
+            #s.src.line_trace() + " > " + \
     return  s.asu.line_trace() + " > " + \
             s.mem.line_trace() + " > " + \
             s.sink.line_trace() + " > "
+
+#-------------------------------------------------------------------------
+# Other modules are imported from FindIfUnitFL
+#-------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------
 # Test cases
@@ -95,7 +100,7 @@ class TestHarness( Model ):
 @pytest.mark.parametrize( **test_case_table )
 def test( test_params, dump_vcd ):
 
-  run_asu_test( TestHarness(  FindIfUnitVRTL,
+  run_asu_test( TestHarness(  FindIfUnitHLS,
                               ITU,
                               test_params.msgs[::2],
                               test_params.msgs[1::2],

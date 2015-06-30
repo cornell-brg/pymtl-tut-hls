@@ -12,7 +12,7 @@ from pclib.test import TestSource, TestSink, mk_test_case_table
 from dstu.MemMsgFuture              import MemMsg
 from dstu.TestMemoryOpaque          import TestMemory
 from dstu.IteratorTranslationUnitFL import IteratorTranslationUnitFL as ITU
-from dstu.TypeDescriptor import TypeDescriptor
+from dstu.TypeDescriptor            import TypeDescriptor
 from dstu.IteratorMsg               import IteratorMsg
 from dstu.XcelMsg                   import XcelMsg
 from dstu.UserTypes                 import Point
@@ -195,7 +195,18 @@ resp = XcelMsg().resp.mk_msg
 vec_int_mem = mem_array_int( 8, [0x00040500,1,-1,3,-3,5,-7,0] )
 
 # configure the asu state and expect a response for a given predicate
+# run this test twice to ensure that the accelerator can handle
+# back-to-back requests
 vector_int_msgs = [
+                   req( 0, 1, 1, 0, 0 ), resp( 0, 1, 0, 0 ), # first ds-id
+                   req( 0, 1, 2, 0, 0 ), resp( 0, 1, 0, 0 ), # first iter
+                   req( 0, 1, 3, 0, 0 ), resp( 0, 1, 0, 0 ), # last ds-id
+                   req( 0, 1, 4, 7, 0 ), resp( 0, 1, 0, 0 ), # last iter
+                   req( 0, 1, 5, 2, 0 ), resp( 0, 1, 0, 0 ), # predicate val = EqZero
+                   req( 0, 1, 6, 8, 0 ), resp( 0, 1, 0, 0 ), # dt_desc_ptr
+                   req( 0, 1, 0, 0, 0 ), resp( 0, 1, 0, 0 ), # go
+                   req( 0, 0, 0, 0, 0 ), resp( 0, 0, 6, 0 ), # check done
+
                    req( 0, 1, 1, 0, 0 ), resp( 0, 1, 0, 0 ), # first ds-id
                    req( 0, 1, 2, 0, 0 ), resp( 0, 1, 0, 0 ), # first iter
                    req( 0, 1, 3, 0, 0 ), resp( 0, 1, 0, 0 ), # last ds-id
@@ -284,7 +295,18 @@ vec_pts_mem = mem_array_point( 8,
                                 )
 
 # configure the asu state and expect a response for a given predicate
+# run this test twice to ensure that the accelerator can handle
+# back-to-back requests
 vector_pts_msgs = [
+                    #req( 0, 1, 1, 0, 0 ), resp( 0, 1, 0, 0 ), # first ds-id
+                    #req( 0, 1, 2, 0, 0 ), resp( 0, 1, 0, 0 ), # first iter
+                    #req( 0, 1, 3, 0, 0 ), resp( 0, 1, 0, 0 ), # last ds-id
+                    #req( 0, 1, 4, 7, 0 ), resp( 0, 1, 0, 0 ), # last iter
+                    #req( 0, 1, 5, 2, 0 ), resp( 0, 1, 0, 0 ), # predicate val = EqZero
+                    #req( 0, 1, 6, 8, 0 ), resp( 0, 1, 0, 0 ), # dt_desc_ptr
+                    #req( 0, 1, 0, 0, 0 ), resp( 0, 1, 0, 0 ), # go
+                    #req( 0, 0, 0, 0, 0 ), resp( 0, 0, 6, 0 ), # check done
+
                     req( 0, 1, 1, 0, 0 ), resp( 0, 1, 0, 0 ), # first ds-id
                     req( 0, 1, 2, 0, 0 ), resp( 0, 1, 0, 0 ), # first iter
                     req( 0, 1, 3, 0, 0 ), resp( 0, 1, 0, 0 ), # last ds-id
