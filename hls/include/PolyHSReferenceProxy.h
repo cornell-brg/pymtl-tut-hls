@@ -23,10 +23,14 @@ class PolyHSReferenceProxy {
   public:
 
     // Constructors
-    PolyHSReferenceProxy() : m_ds_id( 0 ), m_iter( 0 ), m_type ( 0 ) {}
+    //PolyHSReferenceProxy() : m_ds_id( 0 ), m_iter( 0 ), m_type ( 0 ) {}
     PolyHSReferenceProxy( DstuIdType ds_id, DstuIterType iter, 
                     const ap_uint<8> type, const ap_uint<8> fields )
       : m_ds_id( ds_id ), m_iter( iter ), m_type( type ), m_fields( fields ) {}
+
+    PolyHSReferenceProxy( const PolyHSReferenceProxy & p )
+      : m_ds_id( p.m_ds_id ), m_iter( p.m_iter ),
+        m_type( p.m_type ), m_fields( p.m_fields ) {}
 
     //----------------------------------------------------------------
     // Overloaded typecast

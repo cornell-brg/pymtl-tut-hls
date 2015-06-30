@@ -13,13 +13,13 @@ PeIfaceType   g_pe_iface;
 // findif
 // ------------------------------------------------------------------
 template <typename Iterator>
-Iterator findif (Iterator begin, Iterator end, UnaryPredicate pred) {
-  for (; begin != end; ++begin) {
-    typename Iterator::value_type temp = *begin;
+Iterator findif (Iterator first, Iterator last, UnaryPredicate pred) {
+  for (; first != last; ++first) {
+    typename Iterator::value_type temp = *first;
     if ( pred( temp ) )
-      return begin;
+      return first;
   }
-  return begin;
+  return last;
 }
 
 // ------------------------------------------------------------------
@@ -75,49 +75,22 @@ void FindIfUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
   // 7. start
   ac.req.read( req );
   ac.resp.write( AcRespMsg( req.id, 0, req.type, req.opq ) );
-  ap_wait();
-
-  // Compute
-  #if 1
-    unsigned md[MAX_FIELDS];
-    /*// descriptor for point
-    SET_OFFSET( md[0], 0               );
-    SET_SIZE  ( md[0], sizeof( Point ) );
-    SET_TYPE  ( md[0], TYPE_POINT      );
-    SET_FIELDS( md[0], 3               );
-    // descriptor for label
-    SET_OFFSET( md[1], 0               );
-    SET_SIZE  ( md[1], sizeof( int   ) );
-    SET_TYPE  ( md[1], TYPE_SHORT      );
-    SET_FIELDS( md[1], 0               );
-    // descriptor for x
-    SET_OFFSET( md[2], 4               );
-    SET_SIZE  ( md[2], sizeof( int   ) );
-    SET_TYPE  ( md[2], TYPE_INT        );
-    SET_FIELDS( md[2], 0               );
-    // descriptor for y
-    SET_OFFSET( md[3], 8               );
-    SET_SIZE  ( md[3], sizeof( int   ) );
-    SET_TYPE  ( md[3], TYPE_INT        );
-    SET_FIELDS( md[3], 0               );*/
-    SET_OFFSET( md[0], 0               );
-    SET_SIZE  ( md[0], sizeof( int   ) );
-    SET_TYPE  ( md[0], TYPE_INT        );
-    SET_FIELDS( md[0], 0               );
-
-    metadata.init(md);
-  #else
-    mem_read_metadata (mem, s_dt_desc_ptr, metadata);
-  #endif
+  
+  // Read metadata
+  mem_read_metadata (mem, s_dt_desc_ptr, metadata);
 
   unsigned md0 = metadata.getData(0);
   ap_uint<8> type = GET_TYPE(md0);
   ap_uint<8> fields = GET_FIELDS(md0);
+  
+  // construct iterators and call the algorithm
+  PolyHSIterator first(s_first_ds_id, s_first_index, type, fields);
+  PolyHSIterator last(s_last_ds_id, s_last_index, type, fields);
 
   s_result = findif (
-               PolyHSIterator(s_first_ds_id, s_first_index, type, fields),
-               PolyHSIterator(s_last_ds_id, s_last_index, type, fields),
-               UnaryPredicate()
+                first,
+                last,
+                UnaryPredicate()
              ).get_index();
 
   // 8. Return result

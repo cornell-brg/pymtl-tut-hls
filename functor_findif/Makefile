@@ -4,15 +4,20 @@ VHLS_INC ?= ${VHLS_PATH}/include
 
 CFLAGS=-DBIT_ACCURATE -I../hls/include
 
-FindIfUnitHLS: FindIfUnitHLS.cpp
+all: findif eqzero
+
+findif: FindIfUnitHLS.cpp
 	g++ -I${VHLS_INC} $(CFLAGS) $< -o $@
 
-findif:
+eqzero: EqZero.cpp
+	g++ -I${VHLS_INC} $(CFLAGS) $< -o $@
+
+hls_findif:
 	vivado_hls run_hls_findif.tcl
 
-eqzero:
+hls_eqzero:
 	vivado_hls run_hls_eqzero.tcl
 
 clean:
-	rm -f main
-	rm -rf hls.prj
+	rm -f findif eqzero
+	rm -rf findif.prj eqzero.prj

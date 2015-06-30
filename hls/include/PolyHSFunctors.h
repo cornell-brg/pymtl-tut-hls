@@ -13,7 +13,7 @@ extern PeIfaceType g_pe_iface;
 
 class UnaryPredicate {
   public:
-    bool operator() ( PolyHSValue P ) const {
+    bool operator() ( const PolyHSValue& P ) const {
       switch ( P.type() ) {
         case TYPE_CHAR:
         case TYPE_SHORT:
