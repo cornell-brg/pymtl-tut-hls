@@ -151,9 +151,8 @@ void IteratorTranslationUnitHLS(
       }
     }
   }
-
   // Check if an iterator request exists and process it
-  if ( !xcelreq.empty() ) {
+  else if ( !xcelreq.empty() ) {
     xcelreq.read( xcel_req );
 
     // get the ds_type
@@ -167,9 +166,6 @@ void IteratorTranslationUnitHLS(
       memreq.write( MemReqMsg( 0, 0, dt_ptr, 0, READ ) );
       ap_wait();
       memresp.read( mem_resp );
-
-      // NOTE: Not sure why I need this ap_wait statement here!!!
-      ap_wait();
 
       dtValue dt_desc = dtValue( mem_resp.data );
 
