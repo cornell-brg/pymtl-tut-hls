@@ -50,10 +50,7 @@ class TestHarness( Model ):
 
     s.connect( s.itu.xcelresp, s.sink.in_     )
     s.connect( s.itu.memreq,   s.mem.reqs[0]  )
-
-    s.connect( s.itu.memresp.msg,  s.mem.resps[0].msg )
-    s.connect( s.itu.memresp.val,  s.mem.resps[0].val )
-    s.connect( s.mem.resps[0].rdy, 1 )
+    s.connect( s.itu.memresp,  s.mem.resps[0] )
 
     #s.connect( s.itu.debug.rdy, 1 )
 

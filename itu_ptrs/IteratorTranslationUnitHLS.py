@@ -9,6 +9,8 @@ from pymtl      import *
 from pclib.ifcs import InValRdyBundle, OutValRdyBundle
 from pclib.ifcs import valrdy_to_str
 
+from pclib.rtl  import SingleElementBypassQueue
+
 from IteratorMsg  import IteratorMsg
 
 from dstu.XcelMsg      import XcelMsg
@@ -28,10 +30,10 @@ class IteratorTranslationUnitHLS( VerilogModel ):
     s.xcelreq  = InValRdyBundle  ( IteratorMsg(32).req  )
     s.xcelresp = OutValRdyBundle ( IteratorMsg(32).resp )
 
-    #s.debug    = OutValRdyBundle ( Bits(32)  )
-
     s.memreq   = OutValRdyBundle ( MemMsg(8,32,32).req   )
     s.memresp  = InValRdyBundle  ( MemMsg(8,32,32).resp  )
+
+    #s.debug    = OutValRdyBundle ( Bits(32)  )
 
     s.set_ports({
       'ap_clk'            : s.clk,
