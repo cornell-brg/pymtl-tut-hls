@@ -11,7 +11,7 @@ add_files IteratorTranslationUnitHLS.cpp
 open_solution "solution1" -reset
 
 set_part {xc7z020clg484-1}
-create_clock -period 5
+create_clock -period 10
 
 config_rtl -reset state
 

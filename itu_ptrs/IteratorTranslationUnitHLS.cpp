@@ -15,6 +15,7 @@
 
 dstuTable::dstuTable()
 {
+#pragma HLS resource variable=table core=RAM_2P_1S
   for ( ap_uint<6> i = 0; i < noOfDstuEntries; ++i )
     this->table[i].valid = 0;
 }
