@@ -14,10 +14,10 @@ PeIfaceType   g_pe_iface;
 // ------------------------------------------------------------------
 template <typename Iterator>
 Iterator findif (Iterator first, Iterator last, UnaryPredicate pred) {
-  for (; first != last; ++first) {
-    typename Iterator::value_type temp = *first;
-    if ( pred( temp ) )
+  while (first != last) {
+    if ( pred( *first ) )
       return first;
+    ++first;
   }
   return last;
 }

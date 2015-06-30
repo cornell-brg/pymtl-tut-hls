@@ -13,32 +13,33 @@ typedef ap_uint<3> PredicateType;
 // findif
 // ------------------------------------------------------------------
 template <typename Iterator>
-Iterator findif (Iterator begin, Iterator end, PredicateType pred_val) {
-  for (; begin != end; ++begin) {
-    typename Iterator::value_type temp = *begin;
+Iterator findif (Iterator first, Iterator last, PredicateType pred_val) {
+  while (first != last) {
+    typename Iterator::value_type temp = *first;
     switch (pred_val) {
       case 0:
-        if (temp > 1) return begin;
+        if (temp > 1) return first;
         break;
       case 1:
-        if (temp < 1) return begin;
+        if (temp < 1) return first;
         break;
       case 2:
-        if (temp == 0) return begin;
+        if (temp == 0) return first;
         break;
       case 3:
-        if ((temp % 2) == 1) return begin;
+        if ((temp % 2) == 1) return first;
         break;
       case 4:
-        if ((temp % 2) == 0) return begin;
+        if ((temp % 2) == 0) return first;
         break;
     };
+    ++first;
   }
-  return begin;
+  return last;
 }
 
 // ------------------------------------------------------------------
-// Processor Interface
+// Wrapper
 // This function takes care of the accelerator interface to the
 // processor, and calls the user algorithm
 // ------------------------------------------------------------------
@@ -141,12 +142,6 @@ void FindIfUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
 bool check_resp (AcRespMsg resp) {
   if (resp.type != 1) return false;
   return true;
-}
-
-void call_accel (AcIfaceType& ac, MemIfaceType& mem, AcReqMsg msg) {
-  ac.req.write( msg );
-  FindIfUnitHLS ( ac, mem );
-  assert( check_resp( ac.resp.read() ) );
 }
 
 // ------------------------------------------------------------------
