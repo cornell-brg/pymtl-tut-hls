@@ -123,7 +123,7 @@ DstuRespMsg dstu_read (
     DstuFieldType field)
 {
   #pragma HLS INLINE
-  iface.req.write( DstuReqMsg( 0, field, iter, id, 0, 0 ) );
+  iface.req.write( DstuReqMsg( 0, field, iter, id, MSG_READ, 0 ) );
   ap_wait();
   DstuRespMsg resp = iface.resp.read();
   return resp;
@@ -135,7 +135,7 @@ DstuRespMsg dstu_write (
     DstuFieldType field, DstuDataType data)
 {
   #pragma HLS INLINE
-  iface.req.write( DstuReqMsg( data, field, iter, id, 1, 0 ) );
+  iface.req.write( DstuReqMsg( data, field, iter, id, MSG_WRITE, 0 ) );
   ap_wait();
   DstuRespMsg resp = iface.resp.read();
   return resp;
@@ -201,7 +201,7 @@ MemRespMsg mem_read (
 {
   #pragma HLS INLINE
   // note that a len of 0 means max number of bytes
-  iface.req.write( MemReqMsg( 0, len, addr, 0, 0 ) );
+  iface.req.write( MemReqMsg( 0, len, addr, 0, MSG_READ ) );
   ap_wait();
   MemRespMsg resp = iface.resp.read();
   return resp;
@@ -213,7 +213,7 @@ MemRespMsg mem_write (
 {
   #pragma HLS INLINE
   // note that a len of 0 means max number of bytes
-  iface.req.write( MemReqMsg( data, len, addr, 0, 1 ) );
+  iface.req.write( MemReqMsg( data, len, addr, 0, MSG_WRITE ) );
   ap_wait();
   MemRespMsg resp = iface.resp.read();
   return resp;

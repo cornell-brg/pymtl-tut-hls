@@ -2,7 +2,7 @@
 VHLS_PATH := $(dir $(shell which vivado_hls))/..
 VHLS_INC ?= ${VHLS_PATH}/include
 
-CFLAGS=-DBIT_ACCURATE -I../hls/include
+CFLAGS=-DBIT_ACCURATE -DCPP_COMPILE -I../hls/include
 
 all: findif
 

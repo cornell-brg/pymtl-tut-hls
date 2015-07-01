@@ -39,7 +39,7 @@ Iterator findif (Iterator first, Iterator last, PredicateType pred_val) {
 }
 
 // ------------------------------------------------------------------
-// Wrapper
+// FindIfUnitHLS Wrapper
 // This function takes care of the accelerator interface to the
 // processor, and calls the user algorithm
 // ------------------------------------------------------------------
@@ -91,11 +91,11 @@ void FindIfUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
   // 7. start
   ac.req.read( req );
   ac.resp.write( AcRespMsg( req.id, 0, req.type, req.opq ) );
-  ap_wait();
 
   // Compute
-  #if 0
+  #ifdef CPP_COMPILE
     unsigned md[MAX_FIELDS];
+    /*
     // descripter for point
     SET_OFFSET( md[0], 0               );
     SET_SIZE  ( md[0], sizeof( Point ) );
@@ -115,7 +115,11 @@ void FindIfUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
     SET_OFFSET( md[3], 8               );
     SET_SIZE  ( md[3], sizeof( int   ) );
     SET_TYPE  ( md[3], TYPE_INT        );
-    SET_FIELDS( md[3], 0               );
+    SET_FIELDS( md[3], 0               );*/
+    SET_OFFSET( md[0], 0               );
+    SET_SIZE  ( md[0], sizeof( int   ) );
+    SET_TYPE  ( md[0], TYPE_INT        );
+    SET_FIELDS( md[0], 0               );
     metadata.init(md);
   #else
     mem_read_metadata (mem, s_dt_desc_ptr, metadata);
@@ -137,17 +141,33 @@ void FindIfUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
 }
 
 // ------------------------------------------------------------------
-// helpers for main
+// dstu model for simulation
 // ------------------------------------------------------------------
-bool check_resp (AcRespMsg resp) {
-  if (resp.type != 1) return false;
-  return true;
+
+// dstu_preprocess
+//  Writes [n+1] pieces of data into the dstu resp queue, the
+//  last piece of data is the zero
+void dstu_preprocess( AcIdType id, const unsigned n ) {
+  // id, data, rw type, opaque
+  for (int i = 0; i < n; ++i) {
+    g_dstu_iface.resp.write( DstuRespMsg( id, i+1, 0, 0 ));
+  }
+  g_dstu_iface.resp.write( DstuRespMsg( id, 0, 0, 0 ));
+}
+
+// dstu_postprocess
+//  Reads [n+1] pieces of data from the dstu req queue
+void dstu_postprocess( const unsigned n ) {
+  DstuReqMsg req;
+  for (int i = 0; i <= n; ++i) {
+    g_dstu_iface.req.read( req );
+  }
 }
 
 // ------------------------------------------------------------------
-// main
+// helpers for main
 // ------------------------------------------------------------------
-int main () {
+bool test_findif ( const unsigned n ) {
   AcIfaceType ac_iface;
   MemIfaceType mem_iface;
   AcDataType data;
@@ -160,52 +180,60 @@ int main () {
   // 1. set first ds id
   data = 0;   raddr = 1;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
-  
   // 2. set first index
   data = 0;   raddr = 2;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
-
   // 3. set last ds id
   data = 0;   raddr = 3;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
-
   // 4. set last index
-  data = 7;   raddr = 4;
+  data = n+1; raddr = 4;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
-
-  // 5. set metadata pointer
-  data = m;   raddr = 4;
-  ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
-
-  // 6. set pred
+  // 5. set pred
   data = 2;   raddr = 5;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
-
+  // 6. set metadata pointer
+  data = m;   raddr = 6;
+  ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
   // 7. start accelerator
   data = 0;   raddr = 0;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
-
   // 8. read result
   data = 0;   raddr = 0;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_READ, 0 ) );
 
+  dstu_preprocess( id, n );
+
   FindIfUnitHLS( ac_iface, mem_iface );
   
-  ac_iface.resp.read ( resp );
-  ac_iface.resp.read ( resp );
-  ac_iface.resp.read ( resp );
-  ac_iface.resp.read ( resp );
-  ac_iface.resp.read ( resp );
-  ac_iface.resp.read ( resp );
-  ac_iface.resp.read ( resp );
-  ac_iface.resp.read ( resp );
+  dstu_postprocess( n );
+  
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
 
   unsigned s = resp.data;
   printf ("--------------------\n");
-  printf ("Result: %X\n", s);
+  printf ("Expected : %X\n", n);
+  printf ("Result   : %X\n", s);
   printf ("--------------------\n");
-  //assert (s == 6);
 
+  return n == s;
+}
+
+// ------------------------------------------------------------------
+// main
+// ------------------------------------------------------------------
+int main () {
+  for (int i = 0; i < 10; ++i) {
+    assert( test_findif( i ) );
+  }
+  printf ("All tests passed\n");
   return 0;
 }
 
