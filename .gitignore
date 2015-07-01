@@ -1,6 +1,7 @@
 *.ll
-hls.prj
+*.prj
 vivado_hls.log
 main
 *.pyc
 *.vcd
+*.v

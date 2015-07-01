@@ -28,9 +28,9 @@ ap_uint<11> dstuTable::allocate( ap_uint<4> dsType )
 {
   // XXX: Need to handle the case when all entries are occupies
   for ( ap_uint<5> i = 0; i < noOfDstuEntries; ++i ) {
-    if ( this->table[i].valid == 0 ) {
-      this->table[i].ds_type = dsType;
-      this->table[i].valid = 1;
+    if ( table[i].valid == 0 ) {
+      table[i].ds_type = dsType;
+      table[i].valid = 1;
       return ( 1024 + i );
     }
   }
@@ -43,7 +43,7 @@ ap_uint<11> dstuTable::allocate( ap_uint<4> dsType )
 
 void dstuTable::deallocate( ap_uint<5> dsId )
 {
-  this->table[dsId].valid = 0;
+  table[dsId].valid = 0;
 }
 
 //------------------------------------------------------------------------
@@ -52,7 +52,7 @@ void dstuTable::deallocate( ap_uint<5> dsId )
 
 ap_uint<4> dstuTable::getDSType( ap_uint<5> dsId )
 {
-  return this->table[dsId].ds_type;
+  return table[dsId].ds_type;
 }
 
 //------------------------------------------------------------------------
@@ -61,7 +61,7 @@ ap_uint<4> dstuTable::getDSType( ap_uint<5> dsId )
 
 ap_uint<32> dstuTable::getDSDescriptor( ap_uint<5> dsId )
 {
-  return this->table[dsId].ds_desc_ptr;
+  return table[dsId].ds_desc_ptr;
 }
 
 //------------------------------------------------------------------------
@@ -70,7 +70,7 @@ ap_uint<32> dstuTable::getDSDescriptor( ap_uint<5> dsId )
 
 ap_uint<32> dstuTable::getDTDescriptor( ap_uint<5> dsId )
 {
-  return this->table[dsId].dt_desc_ptr;
+  return table[dsId].dt_desc_ptr;
 }
 
 //------------------------------------------------------------------------
@@ -79,7 +79,7 @@ ap_uint<32> dstuTable::getDTDescriptor( ap_uint<5> dsId )
 
 void dstuTable::setDSDescriptor( ap_uint<5> dsId, ap_uint<32> dsDescriptor )
 {
-  this->table[dsId].ds_desc_ptr = dsDescriptor;
+  table[dsId].ds_desc_ptr = dsDescriptor;
 }
 
 //------------------------------------------------------------------------
@@ -88,7 +88,7 @@ void dstuTable::setDSDescriptor( ap_uint<5> dsId, ap_uint<32> dsDescriptor )
 
 void dstuTable::setDTDescriptor( ap_uint<5> dsId, ap_uint<32> dtDescriptor )
 {
-  this->table[dsId].dt_desc_ptr = dtDescriptor;
+  table[dsId].dt_desc_ptr = dtDescriptor;
 }
 
 //------------------------------------------------------------------------
