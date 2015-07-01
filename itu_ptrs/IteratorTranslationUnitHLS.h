@@ -63,6 +63,7 @@ struct dstuTableEntry{
 class dstuTable {
   public:
     dstuTableEntry table[noOfDstuEntries];
+    unsigned int   dtCache[noOfDstuEntries];
 
     dstuTable();
 
@@ -86,7 +87,9 @@ class dstuTable {
     void setDSDescriptor( ap_uint<5> dsId, ap_uint<32> dsDescriptor );
 
     // sets the dt_descriptor given an index
-    void setDTDescriptor( ap_uint<5> dsId, ap_uint<32> dtDescriptor );
+    void setDTDescriptor( ap_uint<5> dsId, ap_uint<32> dtDescriptor,
+                          hls::stream<MemReqMsg>&  memreq,
+                          hls::stream<MemRespMsg>& memresp );
 
 };
 

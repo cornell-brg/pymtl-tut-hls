@@ -16,6 +16,7 @@
 dstuTable::dstuTable()
 {
 #pragma HLS resource variable=table core=RAM_2P_1S
+#pragma HLS resource variable=dtCache core=RAM_2P_1S
   for ( ap_uint<6> i = 0; i < noOfDstuEntries; ++i )
     this->table[i].valid = 0;
 }
@@ -70,7 +71,9 @@ ap_uint<32> dstuTable::getDSDescriptor( ap_uint<5> dsId )
 
 ap_uint<32> dstuTable::getDTDescriptor( ap_uint<5> dsId )
 {
-  return table[dsId].dt_desc_ptr;
+  // XXX: Currently, I am assuming that only primitive data-types exist. We
+  // return the dtCache value
+  return dtCache[dsId];
 }
 
 //------------------------------------------------------------------------
@@ -86,9 +89,22 @@ void dstuTable::setDSDescriptor( ap_uint<5> dsId, ap_uint<32> dsDescriptor )
 // dstu::setDTDescriptor
 //------------------------------------------------------------------------
 
-void dstuTable::setDTDescriptor( ap_uint<5> dsId, ap_uint<32> dtDescriptor )
+void dstuTable::setDTDescriptor( ap_uint<5> dsId, ap_uint<32> dtDescriptor,
+                                 hls::stream<MemReqMsg>&  memreq,
+                                 hls::stream<MemRespMsg>& memresp )
 {
   table[dsId].dt_desc_ptr = dtDescriptor;
+
+  // XXX: Currently, I am assuming that only primitive data-types exist. We
+  // load the dtCache at the configure phase for primitive data-types
+  MemRespMsg mem_resp;
+
+  // read the datatype descriptor
+  memreq.write( MemReqMsg( 0, 0, dtDescriptor, 0, 0 ) );
+  ap_wait();
+  memresp.read( mem_resp );
+  dtCache[dsId] = mem_resp.data;
+
 }
 
 //------------------------------------------------------------------------
@@ -147,7 +163,7 @@ void IteratorTranslationUnitHLS(
       }
       // Set DT descriptor
       else if ( cfg_req.addr == 2 ) {
-        dsTable.setDTDescriptor( ( cfg_req.id ), cfg_req.data );
+        dsTable.setDTDescriptor( ( cfg_req.id ), cfg_req.data, memreq, memresp );
         cfgresp.write( XcelRespMsg( cfg_req.id, 0, cfg_req.type, cfg_req.opq ) );
       }
     }
@@ -160,15 +176,8 @@ void IteratorTranslationUnitHLS(
     ap_uint<4> dsType = dsTable.getDSType( xcel_req.ds_id );
 
     if ( dsType == LIST ) {
-      // get the dt_desc_ptr
-      ap_uint<32> dt_ptr = dsTable.getDTDescriptor( xcel_req.ds_id );
-
-      // read the datatype descriptor
-      memreq.write( MemReqMsg( 0, 0, dt_ptr, 0, READ ) );
-      ap_wait();
-      memresp.read( mem_resp );
-
-      dtValue dt_desc = dtValue( mem_resp.data );
+      // get the dt_descriptor
+      dtValue dt_desc = dtValue( dsTable.getDTDescriptor( xcel_req.ds_id ) );
 
       // load request
       if      ( xcel_req.opc == 0 ) {
