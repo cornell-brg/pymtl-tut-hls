@@ -9,12 +9,16 @@ from pymtl      import *
 from pclib.ifcs import InValRdyBundle, OutValRdyBundle
 from pclib.ifcs import valrdy_to_str
 
-from pclib.rtl  import SingleElementBypassQueue
+from pclib.rtl  import SingleElementPipelinedQueue
 
 from IteratorMsg  import IteratorMsg
 
 from dstu.XcelMsg      import XcelMsg
 from dstu.MemMsgFuture import MemMsg
+
+#-------------------------------------------------------------------------
+# IteratorTranslationUnitHLS
+#-------------------------------------------------------------------------
 
 class IteratorTranslationUnitHLS( VerilogModel ):
 
@@ -61,29 +65,48 @@ class IteratorTranslationUnitHLS( VerilogModel ):
       #'debug_V_V_ap_ack'  : s.debug.rdy
     })
 
-  #-----------------------------------------------------------------------
-  # line_trace
-  #-----------------------------------------------------------------------
+#-------------------------------------------------------------------------
+# IteratorTranslationUnitHLS_Wrapper
+#-------------------------------------------------------------------------
+
+class IteratorTranslationUnitHLS_Wrapper( Model ):
+
+  def __init__( s ):
+
+    #---------------------------------------------------------------------
+    # Interfaces
+    #---------------------------------------------------------------------
+
+    s.cfgreq   = InValRdyBundle  ( XcelMsg().req   )
+    s.cfgresp  = OutValRdyBundle ( XcelMsg().resp  )
+
+    s.xcelreq  = InValRdyBundle  ( IteratorMsg(32).req  )
+    s.xcelresp = OutValRdyBundle ( IteratorMsg(32).resp )
+
+    s.memreq   = OutValRdyBundle ( MemMsg(8,32,32).req   )
+    s.memresp  = InValRdyBundle  ( MemMsg(8,32,32).resp  )
+
+    s.cfgresp_q  = SingleElementPipelinedQueue ( XcelMsg().resp       )
+    s.xcelresp_q = SingleElementPipelinedQueue ( IteratorMsg(32).resp )
+
+    s.hls = IteratorTranslationUnitHLS()
+
+    s.connect( s.cfgreq,        s.hls.cfgreq     )
+    s.connect( s.cfgresp_q.enq, s.hls.cfgresp    )
+    s.connect( s.cfgresp,       s.cfgresp_q.deq  )
+
+    s.connect( s.xcelreq,       s.hls.xcelreq    )
+    s.connect( s.xcelresp_q.enq,s.hls.xcelresp   )
+    s.connect( s.xcelresp,      s.xcelresp_q.deq )
+
+    s.connect( s.memreq,        s.hls.memreq     )
+    s.connect( s.memresp,       s.hls.memresp    )
 
   def line_trace( s ):
-    return " {} | {} {} | {}".format(
-        valrdy_to_str(
-                       s.xcelreq.msg,
-                       s.xcelreq.val,
-                       s.xcelreq.rdy
-                     ),
-        valrdy_to_str(
-                       s.memreq.msg,
-                       s.memreq.val,
-                       s.memreq.rdy
-                     ),
-        valrdy_to_str(
-                       s.memresp.msg,
-                       s.memresp.val,
-                       s.memresp.rdy
-                     ),
-        valrdy_to_str(
-                       s.xcelresp.msg,
-                       s.xcelresp.val,
-                       s.xcelresp.rdy
-                     ) )
+    return "{} {}|{} {}|{} {}".format(
+      s.cfgreq,
+      s.cfgresp,
+      s.xcelreq,
+      s.xcelresp,
+      s.memreq,
+      s.memresp )

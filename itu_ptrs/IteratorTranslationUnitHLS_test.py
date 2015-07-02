@@ -14,7 +14,7 @@ from dstu.MemMsgFuture import MemMsg
 
 from dstu.TestMemoryOpaque  import TestMemory
 
-from IteratorTranslationUnitHLS import IteratorTranslationUnitHLS as ITU
+from IteratorTranslationUnitHLS import IteratorTranslationUnitHLS_Wrapper as ITU
 from dstu.TypeDescriptor import TypeDescriptor
 
 #------------------------------------------------------------------------------
@@ -101,19 +101,21 @@ def run_itu_test( model, mem_array, ds_type, ds_offset, dump_vcd = None ):
   model.itu.cfgresp.rdy.next      = 1
 
   while model.itu.cfgreq.rdy.value == 0:
+    sim.print_line_trace()
     sim.cycle()
 
-  print "Sent ALLOC"
+  #print "Sent ALLOC"
 
   model.itu.cfgreq.val.next       = 0
 
   while model.itu.cfgresp.val.value == 0:
+    sim.print_line_trace()
     sim.cycle()
 
   # ds-id allocated by the itu
   alloc_ds_id = model.itu.cfgresp.msg.data
 
-  print "Received ALLOC response:", alloc_ds_id
+  #print "Received ALLOC response:", alloc_ds_id
 
   # Init data structure - ds_desc
   model.itu.cfgreq.val.next       = 1
@@ -122,16 +124,18 @@ def run_itu_test( model, mem_array, ds_type, ds_offset, dump_vcd = None ):
   model.itu.cfgreq.msg.id.next    = alloc_ds_id            # id of the ds
 
   while model.itu.cfgreq.rdy.value == 0:
+    sim.print_line_trace()
     sim.cycle()
 
-  print "Sent DS Descriptor"
+  #print "Sent DS Descriptor"
 
   model.itu.cfgreq.val.next       = 0
 
   while model.itu.cfgresp.val.value == 0:
+    sim.print_line_trace()
     sim.cycle()
 
-  print "Received DS Descriptor response", model.itu.cfgresp.msg
+  #print "Received DS Descriptor response", model.itu.cfgresp.msg
 
   # Init data structure - dt_desc
   model.itu.cfgreq.val.next       = 1
@@ -140,17 +144,19 @@ def run_itu_test( model, mem_array, ds_type, ds_offset, dump_vcd = None ):
   model.itu.cfgreq.msg.id.next    = alloc_ds_id  # id of the ds
 
   while model.itu.cfgreq.rdy.value == 0:
+    sim.print_line_trace()
     sim.cycle()
 
-  print "Sent DT Descriptor"
+  #print "Sent DT Descriptor"
 
   model.itu.cfgreq.val.next       = 0
 
   # End itu configuration
   while model.itu.cfgresp.val.value == 0:
+    sim.print_line_trace()
     sim.cycle()
 
-  print "Received DT Descriptor response", model.itu.cfgresp.msg
+  #print "Received DT Descriptor response", model.itu.cfgresp.msg
 
   # Allow source to inject messages
   model.go.next = 1
