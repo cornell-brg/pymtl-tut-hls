@@ -44,7 +44,7 @@ class TestHarness( Model ):
     s.src = TestSource( asu_cfg_ifc.req, src_msgs, src_delay )
     s.asu = FindIfUnit( )
     s.itu = TranslationUnit( itu_cfg_ifc, asu_itu_ifc, mem_ifc )
-    s.pe  = ProcessingElement ( )
+    s.pe  = ProcessingElement( )
     s.sink = TestSink( asu_cfg_ifc.resp, sink_msgs, sink_delay )
     s.mem = TestMemory( mem_ifc, 2, stall_prob, latency )
 
@@ -80,7 +80,7 @@ class TestHarness( Model ):
       s.itu.xcelreq.msg.value = asu_itu_ifc.req.unpck( s.asu.itureq.msg )
       s.mem.reqs[0].msg.value = mem_ifc.req.unpck( s.asu.memreq.msg )
 
-    # testbench -> asu request bundle var/rdy signals
+    # testbench -> asu request bundle val/rdy signals
     @s.combinational
     def logic():
       s.asu.cfgreq.val.value = s.src.out.val & s.go

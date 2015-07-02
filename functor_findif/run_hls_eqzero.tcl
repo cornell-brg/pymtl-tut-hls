@@ -14,11 +14,11 @@ set_part {xc7z020clg484-1}
 create_clock -period 5
 
 set_directive_interface -mode ap_ctrl_none $top
-set_directive_interface -mode ap_hs $top ac.req
-set_directive_interface -mode ap_hs $top ac.resp
+set_directive_interface -mode ap_hs $top pe.req
+set_directive_interface -mode ap_hs $top pe.resp
 
-set_directive_data_pack $top ac.req
-set_directive_data_pack $top ac.resp
+set_directive_data_pack $top pe.req
+set_directive_data_pack $top pe.resp
 
 csynth_design
 

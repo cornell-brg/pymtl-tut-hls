@@ -1,4 +1,5 @@
 #include "ap_utils.h"
+#include "assert.h"
 
 #include "../hls/include/Types.h"
 
@@ -6,57 +7,102 @@
 // Saccilized Processing Element
 // Compare Point Equal to Zero
 // ------------------------------------------------------------------
-void EqZero (PeIfaceType &ac) {
+void EqZero( PeIfaceType &pe ) {
   PeReqMsg  req;
-  Point p;
+  PeDataType x,y;
 
   // read x value
-  ac.req.read( req );
-  p.x = req.data;
-  ac.resp.write( PeRespMsg( req.id, req.type, 0 ) );
-
+  pe.req.read( req );
+  ap_wait();
+  x = req.data;
+  pe.resp.write( PeRespMsg( req.id, req.type, 0 ) );
+  ap_wait();
+  
   // read y value
-  ac.req.read( req );
-  p.y = req.data;
-  ac.resp.write( PeRespMsg( req.id, req.type, 0 ) );
-
+  pe.req.read( req );
+  ap_wait();
+  y = req.data;
+  pe.resp.write( PeRespMsg( req.id, req.type, 0 ) );
+  ap_wait();
+  
   // write back result
-  ac.req.read( req );
-  PeDataType data = p == 0 ? 1 : 0;
-  ac.resp.write( PeRespMsg( req.id, req.type, data ) );
+  pe.req.read( req );
+  ap_wait();
+  PeDataType data = (x==0 && y == 0) ? 1 : 0;
+  pe.resp.write( PeRespMsg( req.id, req.type, data ) );
 }
 
-int test_point (Point p) {
-  PeIfaceType aciface;
+// ------------------------------------------------------------------
+// ASU model for simulation
+// ------------------------------------------------------------------
+
+// asu_postprocess
+//  Writes 3x[n+1] pieces of data to the pe req queue
+//  First [n] data are non-zeros, last data is a zero
+void asu_preprocess( PeIfaceType& iface, PeIdType id, const int n ) {
+  for (int i = 0; i < n; ++i) {
+    // write x value
+    iface.req.write( PeReqMsg( id, MSG_WRITE, i+1 ) );
+    // write y value
+    iface.req.write( PeReqMsg( id, MSG_WRITE, i+1 ) );
+    // read result
+    iface.req.write( PeReqMsg( id, MSG_READ, 0 ) );
+  }
+  iface.req.write( PeReqMsg( id, MSG_WRITE, 0 ) );
+  iface.req.write( PeReqMsg( id, MSG_WRITE, 0 ) );
+  iface.req.write( PeReqMsg( id, MSG_READ, 0 ) );
+}
+
+// asu_postprocess
+//  Reads 3x[n] piece of data from the pe resp queue
+//  All data should be zeros
+void asu_postprocess( PeIfaceType& iface, const int n ) {
   PeRespMsg resp;
-
-  // 1. send x value
-  aciface.req.write( PeReqMsg( 1, MSG_WRITE, 0) );
-  // 2. send y value
-  aciface.req.write( PeReqMsg( 1, MSG_WRITE, 1) );
-  // 3. read result
-  aciface.req.write( PeReqMsg( 1, MSG_READ, 0) );
-
-  EqZero( aciface );
-
-  aciface.resp.read( resp );
-  aciface.resp.read( resp );
-  aciface.resp.read( resp );
-
-  return resp.data;
+  for (int i = 0; i < n; ++i) {
+    iface.resp.read( resp );
+    iface.resp.read( resp );
+    iface.resp.read( resp );
+    assert( resp.data == 0 );
+  }
 }
 
+// ------------------------------------------------------------------
+// helpers for main
+// ------------------------------------------------------------------
+bool test_eqzero( const unsigned n ) {
+  PeIfaceType iface;
+  PeIdType id = 0;
+
+  asu_preprocess( iface, id, n );
+
+  for (int i = 0; i <= n; ++i) {
+    EqZero( iface );
+  }
+  
+  asu_postprocess( iface, n );
+
+  // read the last response, which should be a non-zero
+  PeRespMsg resp;
+  iface.resp.read( resp );
+  iface.resp.read( resp );
+  iface.resp.read( resp );
+  int s = resp.data;
+  printf ("--------------------\n");
+  printf ("Expected : nonzero (n = %d)\n", n);
+  printf ("Result   : %X\n", s);
+  printf ("--------------------\n");
+  
+  return s != 0;
+}
+
+// ------------------------------------------------------------------
+// main
+// ------------------------------------------------------------------
 int main () {
-  Point p1(0,1);
-  int res1 = test_point( p1 );
-  Point p2(3,0);
-  int res2 = test_point( p2 );
-  Point p3(0,0);
-  int res3 = test_point( p3 );
-
-  printf ("--------------------\n");
-  printf ("Result 1: %d\n", res1);
-  printf ("Result 2: %d\n", res2);
-  printf ("Result 3: %d\n", res3);
-  printf ("--------------------\n");
+  for (int i = 0; i < 10; ++i) {
+    assert( test_eqzero( i ) );
+  }
+  printf ("All tests passed\n");
+  return 0;
 }
+

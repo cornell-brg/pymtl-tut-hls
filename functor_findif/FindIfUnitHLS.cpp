@@ -160,7 +160,7 @@ void dstu_postprocess( const DstuDataType n ) {
 // ------------------------------------------------------------------
 
 // pe_postprocess
-//  Writes 3x[n+1] pieces of data from the pe resp queue
+//  Writes 3x[n+1] pieces of data to the pe resp queue
 void pe_preprocess( AcIdType id, const PeDataType n ) {
   for (int i = 0; i < n; ++i) {
     // respond to write x value
@@ -189,7 +189,7 @@ void pe_postprocess( const PeDataType n ) {
 // ------------------------------------------------------------------
 // helpers for main
 // ------------------------------------------------------------------
-bool test_findif ( const unsigned n ) {
+bool test_findif( const unsigned n ) {
   AcIfaceType ac_iface;
   MemIfaceType mem_iface;
   AcDataType data;
