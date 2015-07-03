@@ -17,8 +17,8 @@ from dstu.XcelMsg                   import XcelMsg
 from dstu.UserTypes                 import Point
 
 from poly_findif.FindIfUnitFL_test  import *
-from FindIfUnitHLS                  import FindIfUnitHLS
-from EqZero                         import EqZero
+from FindIfUnitHLS                  import FindIfUnitHLS_Wrapper as ASU
+from EqZero                         import EqZero_Wrapper as PE
 
 #------------------------------------------------------------------------------
 # TestHarness
@@ -103,9 +103,9 @@ class TestHarness( Model ):
 @pytest.mark.parametrize( **test_case_table )
 def test( test_params, dump_vcd ):
 
-  run_asu_test( TestHarness(  FindIfUnitHLS,
+  run_asu_test( TestHarness(  ASU,
                               ITU,
-                              EqZero,
+                              PE,
                               test_params.msgs[::2],
                               test_params.msgs[1::2],
                               test_params.src,

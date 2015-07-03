@@ -10,24 +10,20 @@
 void EqZero( PeIfaceType &pe ) {
   PeReqMsg  req;
   PeDataType x,y;
+  unsigned  n_args;
 
   // read x value
   pe.req.read( req );
-  ap_wait();
   x = req.data;
   pe.resp.write( PeRespMsg( req.id, req.type, 0 ) );
-  ap_wait();
   
   // read y value
   pe.req.read( req );
-  ap_wait();
   y = req.data;
   pe.resp.write( PeRespMsg( req.id, req.type, 0 ) );
-  ap_wait();
   
   // write back result
   pe.req.read( req );
-  ap_wait();
   PeDataType data = (x==0 && y == 0) ? 1 : 0;
   pe.resp.write( PeRespMsg( req.id, req.type, data ) );
 }

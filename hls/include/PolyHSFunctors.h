@@ -11,27 +11,53 @@
 
 extern PeIfaceType g_pe_iface;
 
-class PolyHSEqZero {
+class PolyHSUnaryPredicate {
+  ap_uint<8> m_pred;
+
   public:
+    PolyHSUnaryPredicate( const ap_uint<8> pred ) : 
+      m_pred( pred )
+    { }
 
     bool operator() ( const PolyHSValue& P ) const {
       PeRespMsg resp;
       switch ( P.type() ) {
         case TYPE_CHAR:
         case TYPE_SHORT:
-        case TYPE_INT:
-          return ap_int<32>(P.data[0]) == 0;
+        case TYPE_INT: {
+          switch ( m_pred ) {
+            case 0:
+              return ap_int<32>(P.data[0]) > 0;
+            case 1:
+              return ap_int<32>(P.data[0]) < 0;
+            case 2:
+              return ap_int<32>(P.data[0]) == 0;
+            case 3:
+              return ap_int<32>(P.data[0]) % 2 == 1;
+            case 4:
+              return ap_int<32>(P.data[0]) % 2 == 0;
+          }
           break;
+        }
         case TYPE_UCHAR:
         case TYPE_USHORT:
         case TYPE_UINT:
-          return ap_uint<32>(P.data[0]) == 0;
+          switch ( m_pred ) {
+            case 0:
+              return ap_uint<32>(P.data[0]) > 0;
+            case 1:
+              return ap_uint<32>(P.data[0]) < 0;
+            case 2:
+              return ap_uint<32>(P.data[0]) == 0;
+            case 3:
+              return ap_uint<32>(P.data[0]) % 2 == 1;
+            case 4:
+              return ap_uint<32>(P.data[0]) % 2 == 0;
+          }
           break;
         case TYPE_POINT:
           pe_write( g_pe_iface, P.data[1] );  // point.x
-          ap_wait();
           pe_write( g_pe_iface, P.data[2] );  // point.y
-          ap_wait();
           resp = pe_read( g_pe_iface );
           return (resp.data != 0);
           break;
@@ -41,9 +67,5 @@ class PolyHSEqZero {
       return false;
     }
 };
-
-PolyHSEqZero PolyHSUnaryPredicate ( const unsigned pred ) {
-  return PolyHSEqZero();
-}
 
 #endif
