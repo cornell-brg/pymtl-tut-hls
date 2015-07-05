@@ -86,8 +86,13 @@ class IteratorTranslationUnitHLS_Wrapper( Model ):
     s.memreq   = OutValRdyBundle ( MemMsg(8,32,32).req   )
     s.memresp  = InValRdyBundle  ( MemMsg(8,32,32).resp  )
 
+    # NOTE: We need a queue to cut the combinational path from the cfgreq
+    # port (valid signal) to the cfgresp port (ready signal). The queue is
+    # added to the output channel and not the input channel to optimize the
+    # state transitions in the generated HLS hardware. XXX: We do not need
+    # a queue on the output channel for xcelresp as no such combination
+    # path between the xcelreq and the xcelresp ports exists.
     s.cfgresp_q  = SingleElementPipelinedQueue ( XcelMsg().resp       )
-    s.xcelresp_q = SingleElementPipelinedQueue ( IteratorMsg(32).resp )
 
     s.hls = IteratorTranslationUnitHLS()
 
@@ -96,8 +101,7 @@ class IteratorTranslationUnitHLS_Wrapper( Model ):
     s.connect( s.cfgresp,       s.cfgresp_q.deq  )
 
     s.connect( s.xcelreq,       s.hls.xcelreq    )
-    s.connect( s.xcelresp_q.enq,s.hls.xcelresp   )
-    s.connect( s.xcelresp,      s.xcelresp_q.deq )
+    s.connect( s.xcelresp,      s.hls.xcelresp   )
 
     s.connect( s.memreq,        s.hls.memreq     )
     s.connect( s.memresp,       s.hls.memresp    )
