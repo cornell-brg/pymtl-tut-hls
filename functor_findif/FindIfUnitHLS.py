@@ -7,6 +7,7 @@
 from pymtl       import *
 from pclib.ifcs  import InValRdyBundle, OutValRdyBundle
 from pclib.ifcs  import valrdy_to_str
+from pclib.rtl   import SingleElementBypassQueue
 from pclib.rtl   import SingleElementPipelinedQueue
 
 #--------------------------------------------------------------------
@@ -67,9 +68,9 @@ class FindIfUnitHLS_Wrapper( Model ):
     s.peresp      = InValRdyBundle  ( 36 )
 
     s.cfgresp_q   = SingleElementPipelinedQueue ( 52 )
-    s.itureq_q    = SingleElementPipelinedQueue ( 106 )
-    s.memreq_q    = SingleElementPipelinedQueue ( 77 )
-    s.pereq_q     = SingleElementPipelinedQueue ( 36 )
+    s.itureq_q    = SingleElementBypassQueue ( 106 )
+    s.memreq_q    = SingleElementBypassQueue ( 77 )
+    s.pereq_q     = SingleElementBypassQueue ( 36 )
 
     s.hls = FindIfUnitHLS()
 
