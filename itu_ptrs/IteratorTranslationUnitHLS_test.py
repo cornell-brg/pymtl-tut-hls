@@ -15,6 +15,7 @@ from dstu.MemMsgFuture import MemMsg
 from dstu.TestMemoryOpaque  import TestMemory
 
 from IteratorTranslationUnitHLS import IteratorTranslationUnitHLS_Wrapper as ITU
+#from IteratorTranslationUnitHLSAlt import IteratorTranslationUnitHLSAlt as ITU
 from dstu.TypeDescriptor import TypeDescriptor
 
 #------------------------------------------------------------------------------

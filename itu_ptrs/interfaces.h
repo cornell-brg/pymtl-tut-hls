@@ -131,4 +131,28 @@ struct IteratorRespMsg {
 
 };
 
+//------------------------------------------------------------------------
+// PolyDsuReqMsg
+//------------------------------------------------------------------------
+
+struct PolyDsuReqMsg {
+  ap_uint<4>  dstype;
+  ap_uint<32> dtdesc;
+  ap_uint<32> data;
+  ap_uint<32> addr;
+  ap_uint<22> iter;
+  ap_uint<4>  opc;
+  ap_uint<11> ds_id;
+  ap_uint<8>  opq;
+
+  PolyDsuReqMsg() : dstype(0), dtdesc(0), data(0), addr(0), iter(0),
+    opc(0), ds_id(0), opq(0) {}
+
+  PolyDsuReqMsg( ap_uint<4> dstype_, ap_uint<32> dtdesc_, ap_uint<32> data_,
+    ap_uint<32> addr_, ap_uint<22> iter_, ap_uint<4> opc_, ap_uint<11> id_,
+    ap_uint<8> opq_ )
+    : dstype(dstype_), dtdesc(dtdesc_), data(data_), addr(addr_), iter(iter_),
+      opc(opc_), ds_id(id_), opq(opq_) {}
+};
+
 #endif
