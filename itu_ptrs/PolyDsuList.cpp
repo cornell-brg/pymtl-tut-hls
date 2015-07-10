@@ -31,52 +31,59 @@
 //------------------------------------------------------------------------
 
 void PolyDsuList(
-  hls::stream<PolyDsuReqMsg>&   polydsureq,
+  //hls::stream<PolyDsuReqMsg>&   polydsureq,
+  hls::stream<IteratorReqMsg>& xcelreq,
   hls::stream<IteratorRespMsg>& xcelresp,
   hls::stream<MemReqMsg>&       memreq,
-  hls::stream<MemRespMsg>&      memresp
+  hls::stream<MemRespMsg>&      memresp,
+  ap_uint<5>&                   addr,
+  ap_uint<32>                   dtdesc
 )
 {
-#pragma HLS PIPELINE
+
+#pragma HLS PIPELINE II=1 enable_flush
 
   // Local variables
-  PolyDsuReqMsg   dsu_req;
   MemRespMsg      mem_resp;
 
-  // Read the dsu request
-  polydsureq.read( dsu_req );
+  if ( !xcelreq.empty() ) {
+
+  IteratorReqMsg xcel_req = xcelreq.read();
 
   // get the dt_descriptor
-  dtValue dt_desc = dtValue( dsu_req.dtdesc );
+  addr            = xcel_req.ds_id;
+  dtValue dt_desc = dtValue( dtdesc );
 
   // load request
-  if      ( dsu_req.opc == 0 ) {
-    memreq.write( MemReqMsg( 0, dt_desc.size, dsu_req.addr, 0, READ ) );
+  if      ( xcel_req.opc == 0 ) {
+    memreq.write( MemReqMsg( 0, dt_desc.size, xcel_req.addr, 0, READ ) );
     ap_wait();
     mem_resp = memresp.read();
-    xcelresp.write( IteratorRespMsg( mem_resp.data, dsu_req.addr, dsu_req.opc, dsu_req.ds_id, dsu_req.opq ) );
+    xcelresp.write( IteratorRespMsg( mem_resp.data, xcel_req.addr, xcel_req.opc, xcel_req.ds_id, xcel_req.opq ) );
   }
   // store request
-  else if ( dsu_req.opc == 1 ) {
-    memreq.write( MemReqMsg( dsu_req.data, dt_desc.size, dsu_req.addr, 0, WRITE ) );
+  else if ( xcel_req.opc == 1 ) {
+    memreq.write( MemReqMsg( xcel_req.data, dt_desc.size, xcel_req.addr, 0, WRITE ) );
     ap_wait();
     mem_resp = memresp.read();
-    xcelresp.write( IteratorRespMsg( 0, dsu_req.addr, dsu_req.opc, dsu_req.ds_id, dsu_req.opq ) );
+    xcelresp.write( IteratorRespMsg( 0, xcel_req.addr, xcel_req.opc, xcel_req.ds_id, xcel_req.opq ) );
   }
   // increment address
-  else if ( dsu_req.opc == 2 ) {
-    memreq.write( MemReqMsg( 0, 0, dsu_req.addr+8, 0, READ ) );
+  else if ( xcel_req.opc == 2 ) {
+    memreq.write( MemReqMsg( 0, 0, xcel_req.addr+8, 0, READ ) );
     ap_wait();
     mem_resp = memresp.read();
-    xcelresp.write( IteratorRespMsg( 0, mem_resp.data, dsu_req.opc, dsu_req.ds_id, dsu_req.opq ) );
+    xcelresp.write( IteratorRespMsg( 0, mem_resp.data, xcel_req.opc, xcel_req.ds_id, xcel_req.opq ) );
   }
   // decrement address
-  else if ( dsu_req.opc == 3 ) {
-    memreq.write( MemReqMsg( 0, 0, dsu_req.addr+4, 0, READ ) );
+  else if ( xcel_req.opc == 3 ) {
+    memreq.write( MemReqMsg( 0, 0, xcel_req.addr+4, 0, READ ) );
     ap_wait();
     mem_resp = memresp.read();
-    xcelresp.write( IteratorRespMsg( 0, mem_resp.data, dsu_req.opc, dsu_req.ds_id, dsu_req.opq ) );
+    xcelresp.write( IteratorRespMsg( 0, mem_resp.data, xcel_req.opc, xcel_req.ds_id, xcel_req.opq ) );
   }
+
+ }
 
 }
 

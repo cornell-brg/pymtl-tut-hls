@@ -56,32 +56,33 @@ struct dsuTableEntry{
 
 class dsuTable {
   public:
-    dsuTableEntry table[noOfDsuEntries];
-    unsigned int   dtCache[noOfDsuEntries];
+    ap_uint<1>    table[noOfDsuEntries];
+    //unsigned int  dtCache[noOfDsuEntries];
 
     dsuTable();
 
     // allocates an entry in the dsuTable and returns the index of the
     // entry allocated for the requested data-structure type
-    ap_uint<11> allocate( ap_uint<4> dsType );
+    ap_uint<11> allocate( ap_uint<4> dsType, ap_uint<4> dstype[32] );
 
     // de-allocates an entry in the dsuTable given the ds-id
     void deallocate( ap_uint<5> dsId );
 
     // gets the ds_type given an index
-    ap_uint<4> getDSType( ap_uint<5> dsId );
+    //ap_uint<4> getDSType( ap_uint<5> dsId );
 
     // gets the ds_descriptor given an index
-    ap_uint<32> getDSDescriptor( ap_uint<5> dsId );
+    //ap_uint<32> getDSDescriptor( ap_uint<5> dsId );
 
     // gets the dt_descriptor given an index
-    ap_uint<32> getDTDescriptor( ap_uint<5> dsId );
+    //ap_uint<32> getDTDescriptor( ap_uint<5> dsId );
 
     // sets the ds_descriptor given an index
-    void setDSDescriptor( ap_uint<5> dsId, ap_uint<32> dsDescriptor );
+    //void setDSDescriptor( ap_uint<5> dsId, ap_uint<32> dsDescriptor );
 
     // sets the dt_descriptor given an index
     void setDTDescriptor( ap_uint<5> dsId, ap_uint<32> dtDescriptor,
+                          ap_uint<32> dtdesc[32],
                           hls::stream<MemReqMsg>&  memreq,
                           hls::stream<MemRespMsg>& memresp );
 
@@ -94,10 +95,12 @@ class dsuTable {
 void PolyDsuDispatch(
   hls::stream<XcelReqMsg>&     cfgreq,
   hls::stream<XcelRespMsg>&    cfgresp,
-  hls::stream<IteratorReqMsg>& xcelreq,
-  hls::stream<PolyDsuReqMsg>&  polydsureq,
+  //hls::stream<IteratorReqMsg>& xcelreq,
+  //hls::stream<PolyDsuReqMsg>&  polydsureq,
   hls::stream<MemReqMsg>&      memreq,
-  hls::stream<MemRespMsg>&     memresp
+  hls::stream<MemRespMsg>&     memresp,
+  ap_uint<4>  dstype[32],
+  ap_uint<32> dtdesc[32]
 );
 
 #endif

@@ -10,6 +10,7 @@ from pclib.ifcs import InValRdyBundle, OutValRdyBundle
 from pclib.ifcs import valrdy_to_str
 
 from pclib.rtl  import SingleElementPipelinedQueue
+from pclib.rtl  import RegisterFile
 
 from FunnelRouter import FunnelRouter
 from IteratorMsg  import IteratorMsg
@@ -32,11 +33,18 @@ class PolyDsuDispatch( VerilogModel ):
     s.cfgreq     = InValRdyBundle  ( XcelMsg().req   )
     s.cfgresp    = OutValRdyBundle ( XcelMsg().resp  )
 
-    s.xcelreq    = InValRdyBundle  ( IteratorMsg(32).req  )
-    s.polydsureq = OutValRdyBundle ( 145 )
-
     s.memreq     = OutValRdyBundle ( MemMsg(8,32,32).req   )
     s.memresp    = InValRdyBundle  ( MemMsg(8,32,32).resp  )
+
+    s.dstype_ce   = OutPort( 1 )
+    s.dstype_we   = OutPort( 1 )
+    s.dstype_data = OutPort( 4 )
+    s.dstype_addr = OutPort( 5 )
+
+    s.dtdesc_ce   = OutPort( 1 )
+    s.dtdesc_we   = OutPort( 1 )
+    s.dtdesc_data = OutPort( 32 )
+    s.dtdesc_addr = OutPort( 5 )
 
     s.set_ports({
       'ap_clk'              : s.clk,
@@ -47,18 +55,20 @@ class PolyDsuDispatch( VerilogModel ):
       'cfgresp_V'           : s.cfgresp.msg,
       'cfgresp_V_ap_vld'    : s.cfgresp.val,
       'cfgresp_V_ap_ack'    : s.cfgresp.rdy,
-      'xcelreq_V'           : s.xcelreq.msg,
-      'xcelreq_V_ap_vld'    : s.xcelreq.val,
-      'xcelreq_V_ap_ack'    : s.xcelreq.rdy,
-      'polydsureq_V'        : s.polydsureq.msg,
-      'polydsureq_V_ap_vld' : s.polydsureq.val,
-      'polydsureq_V_ap_ack' : s.polydsureq.rdy,
       'memreq_V'            : s.memreq.msg,
       'memreq_V_ap_vld'     : s.memreq.val,
       'memreq_V_ap_ack'     : s.memreq.rdy,
       'memresp_V'           : s.memresp.msg,
       'memresp_V_ap_vld'    : s.memresp.val,
-      'memresp_V_ap_ack'    : s.memresp.rdy
+      'memresp_V_ap_ack'    : s.memresp.rdy,
+      'dstype_V_address0'   : s.dstype_addr,
+      'dstype_V_ce0'        : s.dstype_ce,
+      'dstype_V_we0'        : s.dstype_we,
+      'dstype_V_d0'         : s.dstype_data,
+      'dtdesc_V_address0'   : s.dtdesc_addr,
+      'dtdesc_V_ce0'        : s.dtdesc_ce,
+      'dtdesc_V_we0'        : s.dtdesc_we,
+      'dtdesc_V_d0'         : s.dtdesc_data
   })
 
 #-------------------------------------------------------------------------
@@ -73,18 +83,23 @@ class PolyDsuList( VerilogModel ):
     # Interfaces
     #---------------------------------------------------------------------
 
-    s.polydsureq = InValRdyBundle ( 145 )
+    s.xcelreq    = InValRdyBundle  ( IteratorMsg(32).req  )
     s.xcelresp   = OutValRdyBundle ( IteratorMsg(32).resp )
 
     s.memreq     = OutValRdyBundle ( MemMsg(8,32,32).req   )
     s.memresp    = InValRdyBundle  ( MemMsg(8,32,32).resp  )
 
+    s.addr       = OutPort( 5 )
+    s.addr_val   = OutPort( 1 )
+
+    s.dtdesc     = InPort ( 32 )
+
     s.set_ports({
       'ap_clk'              : s.clk,
       'ap_rst'              : s.reset,
-      'polydsureq_V'        : s.polydsureq.msg,
-      'polydsureq_V_ap_vld' : s.polydsureq.val,
-      'polydsureq_V_ap_ack' : s.polydsureq.rdy,
+      'xcelreq_V'           : s.xcelreq.msg,
+      'xcelreq_V_ap_vld'    : s.xcelreq.val,
+      'xcelreq_V_ap_ack'    : s.xcelreq.rdy,
       'xcelresp_V'          : s.xcelresp.msg,
       'xcelresp_V_ap_vld'   : s.xcelresp.val,
       'xcelresp_V_ap_ack'   : s.xcelresp.rdy,
@@ -93,7 +108,10 @@ class PolyDsuList( VerilogModel ):
       'memreq_V_ap_ack'     : s.memreq.rdy,
       'memresp_V'           : s.memresp.msg,
       'memresp_V_ap_vld'    : s.memresp.val,
-      'memresp_V_ap_ack'    : s.memresp.rdy
+      'memresp_V_ap_ack'    : s.memresp.rdy,
+      'addr_V'              : s.addr,
+      'addr_V_ap_vld'       : s.addr_val,
+      'dtdesc_V'            : s.dtdesc
   })
 
 #-------------------------------------------------------------------------
@@ -135,6 +153,9 @@ class IteratorTranslationUnitHLSAlt( Model ):
 
     s.fr           = FunnelRouter( 2, MemMsg(8,32,32).req, MemMsg(8,32,32).resp )
 
+    s.dstype_rf    = RegisterFile( dtype=4  )
+    s.dtdesc_rf    = RegisterFile( dtype=32 )
+
     #---------------------------------------------------------------------
     # Connections
     #---------------------------------------------------------------------
@@ -143,10 +164,8 @@ class IteratorTranslationUnitHLSAlt( Model ):
     s.connect( s.cfgresp_q.enq, s.hls_dispatch.cfgresp )
     s.connect( s.cfgresp,       s.cfgresp_q.deq        )
 
-    s.connect( s.xcelreq,       s.hls_dispatch.xcelreq )
+    s.connect( s.xcelreq,       s.hls_list.xcelreq     )
     s.connect( s.xcelresp,      s.hls_list.xcelresp    )
-
-    s.connect( s.hls_dispatch.polydsureq, s.hls_list.polydsureq )
 
     s.connect( s.fr.funnel_in[0], s.hls_dispatch.memreq )
     s.connect( s.fr.funnel_in[1], s.hls_list.memreq     )
@@ -155,6 +174,17 @@ class IteratorTranslationUnitHLSAlt( Model ):
     s.connect( s.memresp,          s.fr.router_in         )
     s.connect( s.fr.router_out[0], s.hls_dispatch.memresp )
     s.connect( s.fr.router_out[1], s.hls_list.memresp     )
+
+    s.connect( s.dstype_rf.wr_en,   s.hls_dispatch.dstype_we   )
+    s.connect( s.dstype_rf.wr_addr, s.hls_dispatch.dstype_addr )
+    s.connect( s.dstype_rf.wr_data, s.hls_dispatch.dstype_data )
+
+    s.connect( s.dtdesc_rf.wr_en,   s.hls_dispatch.dtdesc_we   )
+    s.connect( s.dtdesc_rf.wr_addr, s.hls_dispatch.dtdesc_addr )
+    s.connect( s.dtdesc_rf.wr_data, s.hls_dispatch.dtdesc_data )
+
+    s.connect( s.dtdesc_rf.rd_addr[0], s.hls_list.addr   )
+    s.connect( s.dtdesc_rf.rd_data[0], s.hls_list.dtdesc )
 
   def line_trace( s ):
     return "{} {}|{} {}|{} {}".format(

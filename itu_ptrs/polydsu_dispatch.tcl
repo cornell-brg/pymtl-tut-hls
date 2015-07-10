@@ -19,14 +19,14 @@ set_directive_interface -mode ap_ctrl_none $top
 
 set_directive_interface -mode ap_hs $top cfgreq
 set_directive_interface -mode ap_hs $top cfgresp
-set_directive_interface -mode ap_hs $top xcelreq
+#set_directive_interface -mode ap_hs $top xcelreq
 set_directive_interface -mode ap_hs $top polydsureq
 set_directive_interface -mode ap_hs $top memreq
 set_directive_interface -mode ap_hs $top memresp
 
 set_directive_data_pack $top cfgreq
 set_directive_data_pack $top cfgresp
-set_directive_data_pack $top xcelreq
+#set_directive_data_pack $top xcelreq
 set_directive_data_pack $top polydsureq
 set_directive_data_pack $top memreq
 set_directive_data_pack $top memresp
