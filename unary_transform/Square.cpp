@@ -5,14 +5,13 @@
 
 // ------------------------------------------------------------------
 // Specialized Processing Element
-// Compare Equal to Zero
-//  - first reads the number of args
-//  - then reads n_args data points
-//  - on the last response returns the result of the comparison
+// Calculate Square of input
 // ------------------------------------------------------------------
-void EqZero( PeIfaceType &pe ) {
+void Square( PeIfaceType &pe ) {
   PeReqMsg  req;
+  PeDataType x,y;
   bool result = true;
+  PeDataType m_data[10];
 
   // read number of args
   pe.req.read( req );
@@ -22,13 +21,16 @@ void EqZero( PeIfaceType &pe ) {
   // read args
   for (PeDataType i = 0; i < n_args; ++i) {
     pe.req.read( req );
+    m_data[i] = req.data;
     pe.resp.write( PeRespMsg( req.id, req.type, 0 ) );
-    result &= req.data == 0;
   }
 
-  // write result
-  pe.req.read( req );
-  pe.resp.write( PeRespMsg( req.id, req.type, result ) );
+  // return result
+  for (PeDataType i = 0; i < n_args; ++i) {
+    pe.req.read( req );
+    PeDataType temp = m_data[i];
+    pe.resp.write( PeRespMsg( req.id, req.type, temp*temp ) );
+  }
 }
 
 // ------------------------------------------------------------------
@@ -36,36 +38,38 @@ void EqZero( PeIfaceType &pe ) {
 // ------------------------------------------------------------------
 
 // asu_postprocess
-//  Writes 3x[n+1] pieces of data to the pe req queue
-//  First [n] data are non-zeros, last data is a zero
+//  Tests the PE with n data points
+//  Writes the n values to the PE
 void asu_preprocess( PeIfaceType& iface, PeIdType id, const int n ) {
+  // write num of args 
+  iface.req.write( PeReqMsg( id, MSG_WRITE, n ) );
+  
+  // write data
   for (int i = 0; i < n; ++i) {
-    // write num of args
-    iface.req.write( PeReqMsg( id, MSG_WRITE, 2 ) );
-    // write x value
-    iface.req.write( PeReqMsg( id, MSG_WRITE, i+1 ) );
-    // write y value
-    iface.req.write( PeReqMsg( id, MSG_WRITE, i+1 ) );
-    // read result
+    iface.req.write( PeReqMsg( id, MSG_WRITE, i ) );
+  }
+  
+  // read results
+  for (int i = 0; i < n; ++i) {
     iface.req.write( PeReqMsg( id, MSG_READ, 0 ) );
   }
-  iface.req.write( PeReqMsg( id, MSG_WRITE, 2 ) );
-  iface.req.write( PeReqMsg( id, MSG_WRITE, 0 ) );
-  iface.req.write( PeReqMsg( id, MSG_WRITE, 0 ) );
-  iface.req.write( PeReqMsg( id, MSG_READ, 0 ) );
 }
 
 // asu_postprocess
-//  Reads 3x[n] piece of data from the pe resp queue
-//  All data should be zeros
+//  Tests the PE with n data points
+//  Reads n values from the PE
 void asu_postprocess( PeIfaceType& iface, const int n ) {
   PeRespMsg resp;
+  iface.resp.read( resp );
+  
   for (int i = 0; i < n; ++i) {
     iface.resp.read( resp );
-    iface.resp.read( resp );
-    iface.resp.read( resp );
-    iface.resp.read( resp );
     assert( resp.data == 0 );
+  }
+  
+  for (int i = 0; i < n; ++i) {
+    iface.resp.read( resp );
+    assert( resp.data == i*i );
   }
 }
 
@@ -78,32 +82,23 @@ bool test_eqzero( const unsigned n ) {
 
   asu_preprocess( iface, id, n );
 
-  for (int i = 0; i <= n; ++i) {
-    EqZero( iface );
-  }
+  Square( iface );
   
   asu_postprocess( iface, n );
 
-  // read the last response, which should be a non-zero
-  PeRespMsg resp;
-  iface.resp.read( resp );
-  iface.resp.read( resp );
-  iface.resp.read( resp );
-  iface.resp.read( resp );
-  int s = resp.data;
+  // pass as long as we don't exit in asu_postprocess
   printf ("--------------------\n");
-  printf ("Expected : nonzero (%d elements)\n", n);
-  printf ("Result   : %X\n", s);
+  printf ("Result   : Pass\n");
   printf ("--------------------\n");
   
-  return s != 0;
+  return true;
 }
 
 // ------------------------------------------------------------------
 // main
 // ------------------------------------------------------------------
 int main () {
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 1; i <= 10; ++i) {
     assert( test_eqzero( i ) );
   }
   printf ("All tests passed\n");

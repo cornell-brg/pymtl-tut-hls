@@ -10,31 +10,32 @@ PeIfaceType g_pe_iface;
 
 // ------------------------------------------------------------------
 // Polymorphic User Algorithm
-// findif
+// transform
 // ------------------------------------------------------------------
-template <typename Iterator, typename UnaryPredicate>
-Iterator findif (Iterator first, Iterator last, UnaryPredicate pred) {
-  while (first != last) {
-    if ( pred( *first ) )
-      return first;
-    ++first;
+template <typename Iterator, typename UnaryOperator>
+Iterator findif (Iterator first1, Iterator last1, Iterator first2, UnaryOperator u_op) {
+  while (first1 != last1) {
+    *first2++ = u_op( *first1++ );
   }
-  return last;
+  return first2;
 }
 
 // ------------------------------------------------------------------
-// FindIfUnitHLS Wrapper
+// TransformUnitHLS Wrapper
 // This function takes care of the accelerator interface to the
 // processor, and calls the user algorithm
+// FIXME: should return an iterator not an index
 // ------------------------------------------------------------------
-void FindIfUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
+void TransformUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
 {
   // state variables
   static AcDataType s_first_ds_id;
   static AcDataType s_first_index;
   static AcDataType s_last_ds_id;
   static AcDataType s_last_index;
-  static AcDataType s_pred;
+  static AcDataType s_first2_ds_id;
+  static AcDataType s_first2_index;
+  static AcDataType s_operator;
   static AcDataType s_dt_desc_ptr;
   static AcDataType s_result;
 
@@ -62,17 +63,27 @@ void FindIfUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
   s_last_index = req.data;
   ac.resp.write( AcRespMsg( req.id, 0, req.type, req.opq ) );
 
-  // 5. Predicate
+  // 5. First2 ds id
   ac.req.read( req );
-  s_pred = req.data;
+  s_first2_ds_id = req.data;
   ac.resp.write( AcRespMsg( req.id, 0, req.type, req.opq ) );
 
-  // 6. metadata ptr
+  // 6. First2 index
+  ac.req.read( req );
+  s_first2_index = req.data;
+  ac.resp.write( AcRespMsg( req.id, 0, req.type, req.opq ) );
+
+  // 7. Operator
+  ac.req.read( req );
+  s_operator = req.data;
+  ac.resp.write( AcRespMsg( req.id, 0, req.type, req.opq ) );
+
+  // 8. metadata ptr
   ac.req.read( req );
   s_dt_desc_ptr = req.data;
   ac.resp.write( AcRespMsg( req.id, 0, req.type, req.opq ) );
 
-  // 7. start
+  // 9. start
   ac.req.read( req );
   ac.resp.write( AcRespMsg( req.id, 0, req.type, req.opq ) );
   
@@ -109,13 +120,15 @@ void FindIfUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
   ap_uint<8> fields = GET_FIELDS(md0);
 
   // construct iterators and call the algorithm
-  PolyHSIterator first(s_first_ds_id, s_first_index, type, fields);
-  PolyHSIterator last(s_last_ds_id, s_last_index, type, fields);
+  PolyHSIterator first1(s_first_ds_id, s_first_index, type, fields);
+  PolyHSIterator last1(s_last_ds_id, s_last_index, type, fields);
+  PolyHSIterator first2(s_first2_ds_id, s_first2_index, type, fields);
 
   s_result = findif (
-                first,
-                last,
-                PolyHSUnaryPredicate( s_pred )
+                first1,
+                last1,
+                first2,
+                PolyHSUnaryOperator( s_operator )
              ).get_index();
 
   // 8. Return result
@@ -128,30 +141,37 @@ void FindIfUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
 // ------------------------------------------------------------------
 
 // dstu_preprocess
-//  Writes 3x[n+1] pieces of data into the dstu resp queue, the
-//  last piece of data is the zero
-//  Simulates a zero at index [n]
+//  Writes 3x[n] pieces of data into the dstu resp queue
+//  Simulates [n] dstu point requests
 void dstu_preprocess( AcIdType id, const DstuDataType n ) {
   // id, data, rw type, opaque
-  for (int i = 0; i < n; ++i) {
-    g_dstu_iface.resp.write( DstuRespMsg( id, i+1, 0, 0 ));
-    g_dstu_iface.resp.write( DstuRespMsg( id, i+1, 0, 0 ));
-    g_dstu_iface.resp.write( DstuRespMsg( id, i+1, 0, 0 ));
+  for (int i = 1; i <= n; ++i) {
+    unsigned k = i+1;
+    // respond to read on index, x, y
+    g_dstu_iface.resp.write( DstuRespMsg( id, k, MSG_READ, 0 ));
+    g_dstu_iface.resp.write( DstuRespMsg( id, k, MSG_READ, 0 ));
+    g_dstu_iface.resp.write( DstuRespMsg( id, k, MSG_READ, 0 ));
+    // respond to write on index, x, y
+    g_dstu_iface.resp.write( DstuRespMsg( id, k*k, MSG_WRITE, 0 ));
+    g_dstu_iface.resp.write( DstuRespMsg( id, k*k, MSG_WRITE, 0 ));
+    g_dstu_iface.resp.write( DstuRespMsg( id, k*k, MSG_WRITE, 0 ));
   }
-  g_dstu_iface.resp.write( DstuRespMsg( id, 0, 0, 0 ));
-  g_dstu_iface.resp.write( DstuRespMsg( id, 0, 0, 0 ));
-  g_dstu_iface.resp.write( DstuRespMsg( id, 0, 0, 0 ));
 }
 
 // dstu_postprocess
-//  Reads 3x[n+1] pieces of data from the dstu req queue
-//  Simulates [n+1] dstu point requests
+//  Reads 3x[n] pieces of data from the dstu req queue
+//  Simulates [n] dstu point requests
 void dstu_postprocess( const DstuDataType n ) {
   DstuReqMsg req;
-  for (int i = 0; i <= n; ++i) {
+  for (int i = 1; i <= n; ++i) {
+    // read point
     g_dstu_iface.req.read( req );
     g_dstu_iface.req.read( req );
     g_dstu_iface.req.read( req );
+    // write point
+    g_dstu_iface.req.write( req );
+    g_dstu_iface.req.write( req );
+    g_dstu_iface.req.write( req );
   }
 }
 
@@ -160,29 +180,31 @@ void dstu_postprocess( const DstuDataType n ) {
 // ------------------------------------------------------------------
 
 // pe_postprocess
-//  Writes 3x[n+1] pieces of data to the pe resp queue
+//  Writes [n] points to the pe resp queue
 void pe_preprocess( AcIdType id, const PeDataType n ) {
-  for (int i = 0; i < n; ++i) {
-    // respond to write num of args
+  for (int i = 1; i <= n; ++i) {
+    // respond to num_args
     g_pe_iface.resp.write( PeRespMsg( id, MSG_WRITE, 0 ) );
     // respond to write x value
     g_pe_iface.resp.write( PeRespMsg( id, MSG_WRITE, 0 ) );
     // respond to write y value
     g_pe_iface.resp.write( PeRespMsg( id, MSG_WRITE, 0 ) );
-    // respond with result
-    g_pe_iface.resp.write( PeRespMsg( id, MSG_READ, 0 ) );
+
+    unsigned k = i + 1;
+
+    // write back result x
+    g_pe_iface.resp.write( PeRespMsg( id, MSG_READ, k*k ) );
+    // write back result y
+    g_pe_iface.resp.write( PeRespMsg( id, MSG_READ, k*k ) );
   }
-  g_pe_iface.resp.write( PeRespMsg( id, MSG_WRITE, 0 ) );
-  g_pe_iface.resp.write( PeRespMsg( id, MSG_WRITE, 0 ) );
-  g_pe_iface.resp.write( PeRespMsg( id, MSG_WRITE, 0 ) );
-  g_pe_iface.resp.write( PeRespMsg( id, MSG_READ, n+1 ) );
 }
 
 // pe_postprocess
-//  Reads 3x[n+1] piece of data from the pe req queue
+//  Reads 3x[n] piece of data from the pe req queue
 void pe_postprocess( const PeDataType n ) {
   PeReqMsg req;
-  for (int i = 0; i <= n; ++i) {
+  for (int i = 1; i <= n; ++i) {
+    g_pe_iface.req.read( req );
     g_pe_iface.req.read( req );
     g_pe_iface.req.read( req );
     g_pe_iface.req.read( req );
@@ -213,45 +235,52 @@ bool test_findif( const unsigned n ) {
   data = 0;   raddr = 3;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
   // 4. set last index
-  data = n+1; raddr = 4;
+  data = n; raddr = 4;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
-  // 5. set pred
+  // 5. set first2 ds id
+  data = 0;   raddr = 3;
+  ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
+  // 6. set first2 index
+  data = 0; raddr = 4;
+  ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
+  // 7. set pred
   data = 2;   raddr = 5;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
-  // 6. set metadata pointer
+  // 8. set metadata pointer
   data = m;   raddr = 6;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
-  // 7. start accelerator
+  // 9. start accelerator
   data = 0;   raddr = 0;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
-  // 8. read result
+  // 10. read result
   data = 0;   raddr = 0;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_READ, 0 ) );
 
   dstu_preprocess( id, n );
   pe_preprocess  ( id, n );
 
-  FindIfUnitHLS( ac_iface, mem_iface );
+  TransformUnitHLS( ac_iface, mem_iface );
   
   pe_postprocess  ( n );
   dstu_postprocess( n );
+
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
+  ac_iface.resp.read( resp );
   
-  ac_iface.resp.read( resp );
-  ac_iface.resp.read( resp );
-  ac_iface.resp.read( resp );
-  ac_iface.resp.read( resp );
-  ac_iface.resp.read( resp );
-  ac_iface.resp.read( resp );
-  ac_iface.resp.read( resp );
-  ac_iface.resp.read( resp );
+  //printf ("--------------------\n");
+  //printf ("Expected : %X\n", n);
+  //printf ("Result   : %X\n", s);
+  //printf ("--------------------\n");
 
-  unsigned s = resp.data;
-  printf ("--------------------\n");
-  printf ("Expected : %X\n", n);
-  printf ("Result   : %X\n", s);
-  printf ("--------------------\n");
-
-  return n == s;
+  return true;
 }
 
 // ------------------------------------------------------------------

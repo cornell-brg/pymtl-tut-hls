@@ -11,12 +11,19 @@
 
 extern PeIfaceType g_pe_iface;
 
+//---------------------------------------------------------
+// UnaryPredicate
+//---------------------------------------------------------
 class PolyHSUnaryPredicate {
   ap_uint<8> m_pred;
 
   public:
+    // Constructors
     PolyHSUnaryPredicate( const ap_uint<8> pred ) : 
       m_pred( pred )
+    { }
+    PolyHSUnaryPredicate( const PolyHSUnaryPredicate& p ) :
+      m_pred( p.m_pred )
     { }
 
     bool operator() ( const PolyHSValue& P ) const {
@@ -24,7 +31,7 @@ class PolyHSUnaryPredicate {
       switch ( P.type() ) {
         case TYPE_CHAR:
         case TYPE_SHORT:
-        case TYPE_INT: {
+        case TYPE_INT:
           switch ( m_pred ) {
             case 0:
               return ap_int<32>(P.data[0]) > 0;
@@ -38,7 +45,6 @@ class PolyHSUnaryPredicate {
               return ap_int<32>(P.data[0]) % 2 == 0;
           }
           break;
-        }
         case TYPE_UCHAR:
         case TYPE_USHORT:
         case TYPE_UINT:
@@ -56,6 +62,7 @@ class PolyHSUnaryPredicate {
           }
           break;
         case TYPE_POINT:
+          pe_write( g_pe_iface, 2);           // number of args
           pe_write( g_pe_iface, P.data[1] );  // point.x
           pe_write( g_pe_iface, P.data[2] );  // point.y
           resp = pe_read( g_pe_iface );
@@ -65,6 +72,56 @@ class PolyHSUnaryPredicate {
           break;
       };
       return false;
+    }
+};
+
+class PolyHSUnaryOperator {
+  ap_uint<8> m_op;
+
+  public:
+    // Constructors
+    PolyHSUnaryOperator( const ap_uint<8> op ) : 
+      m_op( op )
+    { }
+    PolyHSUnaryOperator( const PolyHSUnaryOperator& p ) :
+      m_op( p.m_op )
+    { }
+
+    PolyHSValue operator() ( const PolyHSValue& P ) const {
+      PolyHSValue P2( P );
+      PeRespMsg resp;
+      unsigned d;
+      switch ( P.type() ) {
+        case TYPE_CHAR:
+        case TYPE_SHORT:
+        case TYPE_INT:
+          //switch ( m_op ) {
+          //};
+          d = P.data[0];
+          P2.data[0] = d*d;
+          break;
+        case TYPE_UCHAR:
+        case TYPE_USHORT:
+        case TYPE_UINT:
+          //switch ( m_op ) {
+          //};
+          d = P.data[0];
+          P2.data[0] = d*d;
+          break;
+        case TYPE_POINT:
+          P2.data[0] = P.data[0];
+          pe_write( g_pe_iface, 2);           // number of args
+          pe_write( g_pe_iface, P.data[1] );  // point.x
+          pe_write( g_pe_iface, P.data[2] );  // point.y
+          resp = pe_read( g_pe_iface );
+          P2.data[1] = resp.data;
+          resp = pe_read( g_pe_iface );
+          P2.data[2] = resp.data;
+          break;
+        default:
+          break;
+      }
+      return P;
     }
 };
 
