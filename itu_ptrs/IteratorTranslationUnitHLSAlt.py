@@ -18,6 +18,8 @@ from IteratorMsg  import IteratorMsg
 from dstu.XcelMsg      import XcelMsg
 from dstu.MemMsgFuture import MemMsg
 
+from PolyDsuListRTL    import PolyDsuListRTL
+
 #-------------------------------------------------------------------------
 # PolyDsuDispatch
 #-------------------------------------------------------------------------
@@ -149,7 +151,8 @@ class IteratorTranslationUnitHLSAlt( Model ):
 
     s.hls_dispatch = PolyDsuDispatch()
 
-    s.hls_list     = PolyDsuList()
+    s.hls_list     = PolyDsuListRTL()
+    #s.hls_list     = PolyDsuList()
 
     s.fr           = FunnelRouter( 2, MemMsg(8,32,32).req, MemMsg(8,32,32).resp )
 
