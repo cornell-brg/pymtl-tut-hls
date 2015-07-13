@@ -46,7 +46,7 @@ class PolyDsuListRTL( Model ):
     @s.combinational
     def send_request():
 
-      s.addr.value = s.xcelreq.msg.ds_id
+      s.addr.value = s.xcelreq.msg.ds_id & 0x1f
 
       # we do accept a new message unless the memory port can accept a new
       # request and if the receive stage is not blocking
