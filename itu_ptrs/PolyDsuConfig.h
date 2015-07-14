@@ -1,19 +1,18 @@
 //========================================================================
-// PolyDsuDispatch.h
+// PolyDsuConfig.h
 //========================================================================
 // Author  : Shreesha Srinath
 // Date    : July 09, 2015
 //
-// C++ implementation of the data-structure dispatch unit. The dispatch
-// unit receives a configuration or a iterator message from the processor
-// unit and dispatches data-structure request to the appropriate
-// data-structure unit.
+// C++ implementation of the data-structure unit configuration logic.
+// The unit receives a configuration message and sets state for the
+// data-structure unit. The state that stores data-structure/
+// data-type descriptors and the data-structre type.
 //
-// NOTE: Currently, the dispatch unit stores the dsu table and the metadata
-// cache for primitive data-types. TBD: Handle user-defined data-types.
+// NOTE: The design currently supports only primitive data-types.
 
-#ifndef POLYDSU_DISPATCH_H
-#define POLYDSU_DISPATCH_H
+#ifndef POLYDSU_CONFIG_H
+#define POLYDSU_CONFIG_H
 
 #include <ap_utils.h>
 
@@ -57,7 +56,6 @@ struct dsuTableEntry{
 class dsuTable {
   public:
     ap_uint<1>    table[noOfDsuEntries];
-    //unsigned int  dtCache[noOfDsuEntries];
 
     dsuTable();
 
@@ -67,36 +65,15 @@ class dsuTable {
 
     // de-allocates an entry in the dsuTable given the ds-id
     void deallocate( ap_uint<5> dsId );
-
-    // gets the ds_type given an index
-    //ap_uint<4> getDSType( ap_uint<5> dsId );
-
-    // gets the ds_descriptor given an index
-    //ap_uint<32> getDSDescriptor( ap_uint<5> dsId );
-
-    // gets the dt_descriptor given an index
-    //ap_uint<32> getDTDescriptor( ap_uint<5> dsId );
-
-    // sets the ds_descriptor given an index
-    //void setDSDescriptor( ap_uint<5> dsId, ap_uint<32> dsDescriptor );
-
-    // sets the dt_descriptor given an index
-    void setDTDescriptor( ap_uint<5> dsId, ap_uint<32> dtDescriptor,
-                          ap_uint<32> dtdesc[32],
-                          hls::stream<MemReqMsg>&  memreq,
-                          hls::stream<MemRespMsg>& memresp );
-
 };
 
 //------------------------------------------------------------------------
-// PolyDsuDispatch
+// PolyDsuConfig
 //------------------------------------------------------------------------
 
-void PolyDsuDispatch(
+void PolyDsuConfig(
   hls::stream<XcelReqMsg>&     cfgreq,
   hls::stream<XcelRespMsg>&    cfgresp,
-  //hls::stream<IteratorReqMsg>& xcelreq,
-  //hls::stream<PolyDsuReqMsg>&  polydsureq,
   hls::stream<MemReqMsg>&      memreq,
   hls::stream<MemRespMsg>&     memresp,
   ap_uint<4>  dstype[32],

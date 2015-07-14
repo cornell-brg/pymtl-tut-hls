@@ -21,10 +21,10 @@ from dstu.MemMsgFuture import MemMsg
 from PolyDsuListRTL    import PolyDsuListRTL
 
 #-------------------------------------------------------------------------
-# PolyDsuDispatch
+# PolyDsuConfig
 #-------------------------------------------------------------------------
 
-class PolyDsuDispatch( VerilogModel ):
+class PolyDsuConfig( VerilogModel ):
 
   def __init__( s ):
 
@@ -42,6 +42,11 @@ class PolyDsuDispatch( VerilogModel ):
     s.dstype_we   = OutPort( 1 )
     s.dstype_data = OutPort( 4 )
     s.dstype_addr = OutPort( 5 )
+
+    s.dsdesc_ce   = OutPort( 1 )
+    s.dsdesc_we   = OutPort( 1 )
+    s.dsdesc_data = OutPort( 32 )
+    s.dsdesc_addr = OutPort( 5 )
 
     s.dtdesc_ce   = OutPort( 1 )
     s.dtdesc_we   = OutPort( 1 )
@@ -67,10 +72,14 @@ class PolyDsuDispatch( VerilogModel ):
       'dstype_V_ce0'        : s.dstype_ce,
       'dstype_V_we0'        : s.dstype_we,
       'dstype_V_d0'         : s.dstype_data,
+      'dsdesc_V_address0'   : s.dsdesc_addr,
+      'dsdesc_V_ce0'        : s.dsdesc_ce,
+      'dsdesc_V_we0'        : s.dsdesc_we,
+      'dsdesc_V_d0'         : s.dsdesc_data,
       'dtdesc_V_address0'   : s.dtdesc_addr,
       'dtdesc_V_ce0'        : s.dtdesc_ce,
       'dtdesc_V_we0'        : s.dtdesc_we,
-      'dtdesc_V_d0'         : s.dtdesc_data
+      'dtdesc_V_d0'         : s.dtdesc_data,
   })
 
 #-------------------------------------------------------------------------
@@ -149,14 +158,14 @@ class IteratorTranslationUnitHLSAlt( Model ):
     # path between the xcelreq and the xcelresp ports exists.
     s.cfgresp_q    = SingleElementPipelinedQueue ( XcelMsg().resp       )
 
-    s.hls_dispatch = PolyDsuDispatch()
+    s.hls_dispatch = PolyDsuConfig()
 
     s.hls_list     = PolyDsuListRTL()
-    #s.hls_list     = PolyDsuList()
 
     s.fr           = FunnelRouter( 2, MemMsg(8,32,32).req, MemMsg(8,32,32).resp )
 
     s.dstype_rf    = RegisterFile( dtype=4  )
+    s.dsdesc_rf    = RegisterFile( dtype=32 )
     s.dtdesc_rf    = RegisterFile( dtype=32 )
 
     #---------------------------------------------------------------------
@@ -181,6 +190,10 @@ class IteratorTranslationUnitHLSAlt( Model ):
     s.connect( s.dstype_rf.wr_en,   s.hls_dispatch.dstype_we   )
     s.connect( s.dstype_rf.wr_addr, s.hls_dispatch.dstype_addr )
     s.connect( s.dstype_rf.wr_data, s.hls_dispatch.dstype_data )
+
+    s.connect( s.dsdesc_rf.wr_en,   s.hls_dispatch.dsdesc_we   )
+    s.connect( s.dsdesc_rf.wr_addr, s.hls_dispatch.dsdesc_addr )
+    s.connect( s.dsdesc_rf.wr_data, s.hls_dispatch.dsdesc_data )
 
     s.connect( s.dtdesc_rf.wr_en,   s.hls_dispatch.dtdesc_we   )
     s.connect( s.dtdesc_rf.wr_addr, s.hls_dispatch.dtdesc_addr )
