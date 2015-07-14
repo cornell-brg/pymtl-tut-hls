@@ -1,5 +1,5 @@
 //========================================================================
-// PolyDsuConfig.h
+// PolyDsuConfigHLS.h
 //========================================================================
 // Author  : Shreesha Srinath
 // Date    : July 09, 2015
@@ -12,7 +12,7 @@
 //
 // NOTE: The design currently supports only primitive data-types.
 
-#include "PolyDsuConfig.h"
+#include "PolyDsuConfigHLS.h"
 
 //------------------------------------------------------------------------
 // dsuTable::dsuTable
@@ -52,10 +52,10 @@ void dsuTable::deallocate( ap_uint<5> dsId )
 }
 
 //------------------------------------------------------------------------
-// PolyDsuConfig
+// PolyDsuConfigHLS
 //------------------------------------------------------------------------
 
-void PolyDsuConfig(
+void PolyDsuConfigHLS(
   hls::stream<XcelReqMsg>&     cfgreq,
   hls::stream<XcelRespMsg>&    cfgresp,
   hls::stream<MemReqMsg>&      memreq,

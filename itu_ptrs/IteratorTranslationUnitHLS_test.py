@@ -15,7 +15,9 @@ from dstu.MemMsgFuture import MemMsg
 from dstu.TestMemoryOpaque  import TestMemory
 
 #from IteratorTranslationUnitHLS import IteratorTranslationUnitHLS_Wrapper as ITU
-from IteratorTranslationUnitHLSAlt import IteratorTranslationUnitHLSAlt as ITU
+#from IteratorTranslationUnitHLSAlt import IteratorTranslationUnitHLSAlt as ITU
+from PolyDsu import PolyDsu as ITU
+
 from dstu.TypeDescriptor import TypeDescriptor
 
 #------------------------------------------------------------------------------
@@ -218,6 +220,50 @@ def resp_dec( ds_id, addr, data ):
   return resp( 0, ds_id, 3, addr, data )
 
 #------------------------------------------------------------------------------
+# Memory array and messages to test vector of integers
+#------------------------------------------------------------------------------
+
+# preload the memory to known values
+vector_int_mem = mem_array_int( 8, [0x00040000,1,2,3,4] )
+
+# messages that assume memory is preloaded and test for the case using the
+# data structure with an id value to be 0
+vector_int_msgs = [
+  req_rd ( 0, 0, 12, 0 ), resp_rd ( 0, 12, 1 ),
+  req_rd ( 0, 1, 16, 0 ), resp_rd ( 0, 16, 2 ),
+  req_rd ( 0, 2, 20, 0 ), resp_rd ( 0, 20, 3 ),
+  req_rd ( 0, 3, 24, 0 ), resp_rd ( 0, 24, 4 ),
+  req_wr ( 0, 3, 24, 5 ), resp_wr ( 0, 24, 0 ),
+  req_wr ( 0, 2, 20, 6 ), resp_wr ( 0, 20, 0 ),
+  req_rd ( 0, 2, 20, 0 ), resp_rd ( 0, 20, 6 ),
+  req_rd ( 0, 3, 24, 0 ), resp_rd ( 0, 24, 5 ),
+  req_inc( 0, 2, 20, 0 ), resp_inc( 0, 24, 0 ),
+  req_dec( 0, 2, 20, 0 ), resp_dec( 0, 16, 0 ),
+]
+
+#------------------------------------------------------------------------------
+# Memory array and messages to test vector of unsigned chars
+#------------------------------------------------------------------------------
+
+# preload the memory to known values
+# NOTE: The first four bytes describe the dt_descriptor written out in
+# little-endian format
+vector_uchar_mem = mem_array_uchar( 8, [0,0,1,0,1,2,3,4] )
+
+vector_uchar_msgs = [
+  req_rd ( 0, 0, 12, 0 ), resp_rd ( 0, 12, 1 ),
+  req_rd ( 0, 1, 13, 0 ), resp_rd ( 0, 13, 2 ),
+  req_rd ( 0, 2, 14, 0 ), resp_rd ( 0, 14, 3 ),
+  req_rd ( 0, 3, 15, 0 ), resp_rd ( 0, 15, 4 ),
+  req_wr ( 0, 3, 15, 5 ), resp_wr ( 0, 15, 0 ),
+  req_wr ( 0, 2, 14, 6 ), resp_wr ( 0, 14, 0 ),
+  req_rd ( 0, 2, 14, 0 ), resp_rd ( 0, 14, 6 ),
+  req_rd ( 0, 3, 15, 0 ), resp_rd ( 0, 15, 5 ),
+  req_inc( 0, 2, 13, 0 ), resp_inc( 0, 14, 0 ),
+  req_dec( 0, 2, 12, 0 ), resp_dec( 0, 11, 0 ),
+]
+
+#------------------------------------------------------------------------------
 # Memory array and messages to test list of integers
 #------------------------------------------------------------------------------
 
@@ -267,11 +313,19 @@ list_int_msgs = [
 #-------------------------------------------------------------------------
 
 test_case_table = mk_test_case_table([
-  (                         "msgs              src sink stall lat  mem            ds  ds_offset" ),
-  [ "list_int_0x0_0.0_0",   list_int_msgs,     0,  0,   0.0,  0,   list_int_mem,  1,  4],
-  [ "list_int_5x0_0.5_0",   list_int_msgs,     5,  0,   0.5,  0,   list_int_mem,  1,  4],
-  [ "list_int_0x5_0.0_4",   list_int_msgs,     0,  5,   0.0,  4,   list_int_mem,  1,  4],
-  [ "list_int_3x9_0.5_3",   list_int_msgs,     3,  9,   0.5,  3,   list_int_mem,  1,  4],
+  (                           "msgs              src sink stall lat  mem               ds  ds_offset" ),
+  [ "list_int_0x0_0.0_0",     list_int_msgs,     0,  0,   0.0,  0,   list_int_mem,     1,  4],
+  [ "list_int_5x0_0.5_0",     list_int_msgs,     5,  0,   0.5,  0,   list_int_mem,     1,  4],
+  [ "list_int_0x5_0.0_4",     list_int_msgs,     0,  5,   0.0,  4,   list_int_mem,     1,  4],
+  [ "list_int_3x9_0.5_3",     list_int_msgs,     3,  9,   0.5,  3,   list_int_mem,     1,  4],
+  [ "vector_int_0x0_0.0_0",   vector_int_msgs,   0,  0,   0.0,  0,   vector_int_mem,   0,  4],
+  [ "vector_int_5x0_0.5_0",   vector_int_msgs,   5,  0,   0.5,  0,   vector_int_mem,   0,  4],
+  [ "vector_int_0x5_0.0_4",   vector_int_msgs,   0,  5,   0.0,  4,   vector_int_mem,   0,  4],
+  [ "vector_int_3x9_0.5_3",   vector_int_msgs,   3,  9,   0.5,  3,   vector_int_mem,   0,  4],
+  [ "vector_uchar_0x0_0.0_0", vector_uchar_msgs, 0,  0,   0.0,  0,   vector_uchar_mem, 0,  4],
+  [ "vector_uchar_5x0_0.5_0", vector_uchar_msgs, 5,  0,   0.5,  0,   vector_uchar_mem, 0,  4],
+  [ "vector_uchar_0x5_0.0_4", vector_uchar_msgs, 0,  5,   0.0,  4,   vector_uchar_mem, 0,  4],
+  [ "vector_uchar_3x9_0.5_3", vector_uchar_msgs, 3,  9,   0.5,  3,   vector_uchar_mem, 0,  4],
 ])
 
 #-------------------------------------------------------------------------
