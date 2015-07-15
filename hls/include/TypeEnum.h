@@ -17,7 +17,8 @@ enum TYPE_ENUM {
 
   TYPE_MAX_PRIMITIVE=10,
 
-  TYPE_POINT=TYPE_MAX_PRIMITIVE+1
+  TYPE_POINT=TYPE_MAX_PRIMITIVE+1,
+  TYPE_RGBA=TYPE_MAX_PRIMITIVE+2
 };
 
 //----------------------------------------------------------------------

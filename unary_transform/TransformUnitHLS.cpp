@@ -13,7 +13,7 @@ PeIfaceType g_pe_iface;
 // transform
 // ------------------------------------------------------------------
 template <typename Iterator, typename UnaryOperator>
-Iterator findif (Iterator first1, Iterator last1, Iterator first2, UnaryOperator u_op) {
+Iterator transform(Iterator first1, Iterator last1, Iterator first2, UnaryOperator u_op) {
   while (first1 != last1) {
     *first2++ = u_op( *first1++ );
   }
@@ -90,26 +90,11 @@ void TransformUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
   // Read metadata
   #ifdef CPP_COMPILE
     unsigned md[MAX_FIELDS];
-    // descripter for point
+    // descripter for RGBA
     SET_OFFSET( md[0], 0               );
-    SET_SIZE  ( md[0], sizeof( Point ) );
-    SET_TYPE  ( md[0], TYPE_POINT      );
-    SET_FIELDS( md[0], 3               );
-    // descriptor for label
-    SET_OFFSET( md[1], 0               );
-    SET_SIZE  ( md[1], sizeof( int   ) );
-    SET_TYPE  ( md[1], TYPE_SHORT      );
-    SET_FIELDS( md[1], 0               );
-    // descriptor for x
-    SET_OFFSET( md[2], 4               );
-    SET_SIZE  ( md[2], sizeof( int   ) );
-    SET_TYPE  ( md[2], TYPE_INT        );
-    SET_FIELDS( md[2], 0               );
-    // descriptor for y
-    SET_OFFSET( md[3], 8               );
-    SET_SIZE  ( md[3], sizeof( int   ) );
-    SET_TYPE  ( md[3], TYPE_INT        );
-    SET_FIELDS( md[3], 0               );
+    SET_SIZE  ( md[0], sizeof( int )   );
+    SET_TYPE  ( md[0], TYPE_RGBA       );
+    SET_FIELDS( md[0], 0               );
     metadata.init(md);
   #else
     mem_read_metadata (mem, s_dt_desc_ptr, metadata);
@@ -124,7 +109,7 @@ void TransformUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
   PolyHSIterator last1(s_last_ds_id, s_last_index, type, fields);
   PolyHSIterator first2(s_first2_ds_id, s_first2_index, type, fields);
 
-  s_result = findif (
+  s_result = transform(
                 first1,
                 last1,
                 first2,
@@ -141,37 +126,31 @@ void TransformUnitHLS (AcIfaceType &ac, MemIfaceType &mem)
 // ------------------------------------------------------------------
 
 // dstu_preprocess
-//  Writes 3x[n] pieces of data into the dstu resp queue
-//  Simulates [n] dstu point requests
+//  Writes [n] pieces of data into the dstu resp queue
+//  Simulates [n] dstu data requests
 void dstu_preprocess( AcIdType id, const DstuDataType n ) {
   // id, data, rw type, opaque
   for (int i = 1; i <= n; ++i) {
     unsigned k = i+1;
-    // respond to read on index, x, y
+    // respond to read
     g_dstu_iface.resp.write( DstuRespMsg( id, k, MSG_READ, 0 ));
-    g_dstu_iface.resp.write( DstuRespMsg( id, k, MSG_READ, 0 ));
-    g_dstu_iface.resp.write( DstuRespMsg( id, k, MSG_READ, 0 ));
-    // respond to write on index, x, y
-    g_dstu_iface.resp.write( DstuRespMsg( id, k*k, MSG_WRITE, 0 ));
-    g_dstu_iface.resp.write( DstuRespMsg( id, k*k, MSG_WRITE, 0 ));
-    g_dstu_iface.resp.write( DstuRespMsg( id, k*k, MSG_WRITE, 0 ));
+    // respond to write
+    g_dstu_iface.resp.write( DstuRespMsg( id, 0, MSG_WRITE, 0 ));
   }
 }
 
 // dstu_postprocess
-//  Reads 3x[n] pieces of data from the dstu req queue
-//  Simulates [n] dstu point requests
+//  Reads [n] pieces of data from the dstu req queue
+//  Simulates [n] dstu data requests
 void dstu_postprocess( const DstuDataType n ) {
   DstuReqMsg req;
   for (int i = 1; i <= n; ++i) {
-    // read point
+    // read request
     g_dstu_iface.req.read( req );
+    printf ("dstu req: %s %x\n", req.type ? "write" : " read", (unsigned)req.data);
+    // write request
     g_dstu_iface.req.read( req );
-    g_dstu_iface.req.read( req );
-    // write point
-    g_dstu_iface.req.write( req );
-    g_dstu_iface.req.write( req );
-    g_dstu_iface.req.write( req );
+    printf ("dstu req: %s %x\n", req.type ? "write" : " read", (unsigned)req.data);
   }
 }
 
@@ -183,39 +162,32 @@ void dstu_postprocess( const DstuDataType n ) {
 //  Writes [n] points to the pe resp queue
 void pe_preprocess( AcIdType id, const PeDataType n ) {
   for (int i = 1; i <= n; ++i) {
-    // respond to num_args
-    g_pe_iface.resp.write( PeRespMsg( id, MSG_WRITE, 0 ) );
-    // respond to write x value
-    g_pe_iface.resp.write( PeRespMsg( id, MSG_WRITE, 0 ) );
-    // respond to write y value
+    // respond to data write
     g_pe_iface.resp.write( PeRespMsg( id, MSG_WRITE, 0 ) );
 
     unsigned k = i + 1;
 
-    // write back result x
-    g_pe_iface.resp.write( PeRespMsg( id, MSG_READ, k*k ) );
-    // write back result y
+    // write back result
     g_pe_iface.resp.write( PeRespMsg( id, MSG_READ, k*k ) );
   }
 }
 
 // pe_postprocess
-//  Reads 3x[n] piece of data from the pe req queue
+//  Reads [n] piece of data from the pe req queue
 void pe_postprocess( const PeDataType n ) {
   PeReqMsg req;
   for (int i = 1; i <= n; ++i) {
     g_pe_iface.req.read( req );
+    printf ("pe req: %s %x\n", req.type ? "write" : " read", (unsigned)req.data);
     g_pe_iface.req.read( req );
-    g_pe_iface.req.read( req );
-    g_pe_iface.req.read( req );
-    g_pe_iface.req.read( req );
+    printf ("pe req: %s %x\n", req.type ? "write" : " read", (unsigned)req.data);
   }
 }
 
 // ------------------------------------------------------------------
 // helpers for main
 // ------------------------------------------------------------------
-bool test_findif( const unsigned n ) {
+bool test_transform( const unsigned n ) {
   AcIfaceType ac_iface;
   MemIfaceType mem_iface;
   AcDataType data;
@@ -288,7 +260,7 @@ bool test_findif( const unsigned n ) {
 // ------------------------------------------------------------------
 int main () {
   for (int i = 0; i < 10; ++i) {
-    assert( test_findif( i ) );
+    assert( test_transform( i ) );
   }
   printf ("All tests passed\n");
   return 0;

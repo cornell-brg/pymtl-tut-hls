@@ -95,7 +95,7 @@ class TransformUnitHLS_Wrapper( Model ):
     s.connect( s.pereq,       s.pereq_q.deq )
 
   def line_trace( s ):
-    return "{}{}|{}{}|{}{}".format(
+    return "mem {}{}|itu {}{}|pe {}{}".format(
       s.memreq,
       s.memresp,
       s.itureq,

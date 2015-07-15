@@ -57,7 +57,7 @@ struct TypeEnum<Point> {
 };
 
 //----------------------------------------------------------------------
-// Point Specialization
+// ReferenceProxy - Point Specialization
 //----------------------------------------------------------------------
 template<>
 class ReferenceProxy <Point> {

@@ -6,5 +6,6 @@
 #define TYPES_H
 
 #include "types/Point.h"
+#include "types/RGBA.h"
 
 #endif

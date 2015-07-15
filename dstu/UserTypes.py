@@ -14,6 +14,7 @@ class TypeEnum( ):
   FLOAT  = 7
   MAX_PRIMITIVE = 10
   POINT  = 11
+  RGBA   = 12
 
 #=========================================================================
 # Point Type
