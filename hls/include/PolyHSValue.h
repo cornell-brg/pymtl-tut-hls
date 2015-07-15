@@ -25,7 +25,10 @@ class PolyHSValue {
     //------------------------------------------------------------------
     PolyHSValue() : m_type( 0 ) {}
     PolyHSValue( const ap_uint<8> type ) : m_type( type ) {}
-    PolyHSValue( const PolyHSValue& p ) : m_type( p.m_type ) {}
+    PolyHSValue( const PolyHSValue& p ) : m_type( p.m_type ) {
+      for (int i = 0; i < MAX_FIELDS; ++i)
+        data[i] = p.data[i];
+    }
     
     ap_uint<8> type() const { return m_type; }
     

@@ -165,10 +165,10 @@ void pe_preprocess( AcIdType id, const PeDataType n ) {
     // respond to data write
     g_pe_iface.resp.write( PeRespMsg( id, MSG_WRITE, 0 ) );
 
-    unsigned k = i + 1;
+    unsigned k = i+1;
 
     // write back result
-    g_pe_iface.resp.write( PeRespMsg( id, MSG_READ, k*k ) );
+    g_pe_iface.resp.write( PeRespMsg( id, MSG_READ, k+2 ) );
   }
 }
 
@@ -210,16 +210,16 @@ bool test_transform( const unsigned n ) {
   data = n; raddr = 4;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
   // 5. set first2 ds id
-  data = 0;   raddr = 3;
+  data = 0;   raddr = 5;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
   // 6. set first2 index
-  data = 0; raddr = 4;
+  data = 0; raddr = 6;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
   // 7. set pred
-  data = 2;   raddr = 5;
+  data = 2;   raddr = 7;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
   // 8. set metadata pointer
-  data = m;   raddr = 6;
+  data = m;   raddr = 8;
   ac_iface.req.write( AcReqMsg( id, data, raddr, MSG_WRITE, 0 ) );
   // 9. start accelerator
   data = 0;   raddr = 0;

@@ -82,15 +82,15 @@ class PolyHSUnaryOperator {
     // Constructors
     PolyHSUnaryOperator( const ap_uint<8> op ) : 
       m_op( op )
-    { }
+    {}
     PolyHSUnaryOperator( const PolyHSUnaryOperator& p ) :
       m_op( p.m_op )
-    { }
+    {}
 
     PolyHSValue operator() ( const PolyHSValue& P ) const {
       PolyHSValue P2( P );
       PeRespMsg resp;
-      unsigned d;
+      ap_uint<32> d;
       switch ( P.type() ) {
         case TYPE_CHAR:
         case TYPE_SHORT:
@@ -109,19 +109,24 @@ class PolyHSUnaryOperator {
           P2.data[0] = d*d;
           break;
         case TYPE_POINT:
-          P2.data[0] = P.data[0];
+          /*P2.data[0] = P.data[0];
           pe_write( g_pe_iface, 2);           // number of args
           pe_write( g_pe_iface, P.data[1] );  // point.x
           pe_write( g_pe_iface, P.data[2] );  // point.y
           resp = pe_read( g_pe_iface );
           P2.data[1] = resp.data;
           resp = pe_read( g_pe_iface );
-          P2.data[2] = resp.data;
+          P2.data[2] = resp.data;*/
+          break;
+        case TYPE_RGBA:
+          pe_write( g_pe_iface, P.data[0] );
+          resp = pe_read( g_pe_iface );
+          P2.data[0] = resp.data;
           break;
         default:
           break;
       }
-      return P;
+      return P2;
     }
 };
 

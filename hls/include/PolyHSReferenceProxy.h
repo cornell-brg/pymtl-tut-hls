@@ -67,7 +67,7 @@ class PolyHSReferenceProxy {
     //----------------------------------------------------------------
     // lvalue use of the proxy object
 
-    PolyHSReferenceProxy& operator=( PolyHSValue p )
+    PolyHSReferenceProxy& operator=( const PolyHSValue p )
     {
       //#pragma HLS PIPELINE
       DstuRespMsg resp;

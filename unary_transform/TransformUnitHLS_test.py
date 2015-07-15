@@ -179,9 +179,12 @@ def run_asu_test( model, input_data, output_data, ds_type, dump_vcd = None ):
   result_bytes = model.mem.read_mem( base_addr, len(input_data) )
   result = struct.unpack("<{}B".format( len(input_data )), result_bytes)
 
-  print "input: ", input_data
+  print "input:  ", input_data
   print "result: ", result
   print "expect: ", output_data
+
+  for i in range(0,len(input_data)):
+    assert( result[i] == output_data[i] )
 
 #------------------------------------------------------------------------------
 # Helper functions for Test src/sink messages
