@@ -10,6 +10,8 @@ from pclib.ifcs import InValRdyBundle, OutValRdyBundle
 from pclib.ifcs import valrdy_to_str
 
 from pclib.rtl  import SingleElementPipelinedQueue
+from pclib.rtl  import SingleElementBypassQueue
+from pclib.rtl  import SingleElementNormalQueue
 from pclib.rtl  import RegisterFile
 
 from dstu.XcelMsg      import XcelMsg
@@ -80,6 +82,16 @@ class PolyDsu( Model ):
     # path between the xcelreq and the xcelresp ports exists.
     s.cfgresp_q    = SingleElementPipelinedQueue ( XcelMsg().resp )
 
+    # NOTE: We need a bypass queue here to cut combinational paths that
+    # could cause deadlocks. This is because an xcelreq port could be
+    # connected to the output port of a funnel model. Since, the xcelreq
+    # port then feeds the polydsu-Router model and the incoming message
+    # from the message determines the polydsu-router ready, we can cause a
+    # combinational loop as the Funnel model uses the ready signals to
+    # determine the output for the funnel model but the ready signals
+    # depend on the message that comes from the funnel model.
+    s.byp_q        = SingleElementBypassQueue ( IteratorMsg(32).req )
+
     #---------------------------------------------------------------------
     # Connections
     #---------------------------------------------------------------------
@@ -88,7 +100,7 @@ class PolyDsu( Model ):
 
     @s.combinational
     def comb():
-      s.ds_id.value = s.xcelreq.msg.ds_id & 0x1f
+      s.ds_id.value = s.byp_q.deq.msg.ds_id & 0x1f
 
     # config_hls <-> dstype_rf connections
     s.connect( s.dstype_rf.wr_en,      s.config_hls.dstype_we   )
@@ -115,7 +127,8 @@ class PolyDsu( Model ):
     s.connect( s.cfgresp,       s.cfgresp_q.deq      )
 
     # dsu router connections
-    s.connect( s.xcelreq,                  s.dsu_router.in_     )
+    s.connect( s.xcelreq,                  s.byp_q.enq          )
+    s.connect( s.byp_q.deq,                s.dsu_router.in_     )
     s.connect( s.dsu_router.out[0],        s.vector_rtl.xcelreq )
     s.connect( s.dsu_router.dtdesc_out[0], s.vector_rtl.dtdesc  )
     s.connect( s.dsu_router.out[1],        s.list_rtl.xcelreq   )
@@ -146,8 +159,8 @@ class PolyDsu( Model ):
     return "{} {}|{} {}|{} {}".format(
       s.cfgreq,
       s.cfgresp,
-      s.vector_rtl.xcelreq,
-      s.vector_rtl.xcelresp,
+      s.xcelreq,
+      s.xcelresp,
       s.memreq,
       s.memresp
   )
