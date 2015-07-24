@@ -184,8 +184,6 @@ class FindIfUnitFL( Model ):
 
         else:
 
-          print "doing work"
-        
           # handle primitive types
           if s.dt_desc.type_ < TypeEnum.MAX_PRIMITIVE:
 

@@ -19,7 +19,8 @@ struct RGBA {
     // Constructors
     //------------------------------------------------------------------
     RGBA() : data( 0 ) {}
-    RGBA( ap_uint<32> d ) : data( d ) {}
+    RGBA(ap_uint<32> d) : data( d ) {}
+    RGBA(const unsigned array[]) : data( array[0] ) {}
 
     //------------------------------------------------------------------
     // Reading each byte
@@ -36,6 +37,14 @@ struct RGBA {
     void setG( ap_uint<8> x ) { data(8,15) = x;  }
     void setB( ap_uint<8> x ) { data(16,23) = x; }
     void setA( ap_uint<8> x ) { data(24,31) = x; }
+
+    //--------------------------------------------------------------------
+    // Boolean operator with Self
+    //--------------------------------------------------------------------
+    bool operator==(const RGBA& rhs) const {
+      return data == rhs.data;
+    }
+    
 };
 
 //----------------------------------------------------------------------

@@ -47,7 +47,7 @@ class PolyHSValue {
         case TYPE_UINT:
           return ap_uint<32>(data[0]) == ap_uint<32>(rhs);
         case TYPE_POINT:
-          return *((Point*)data) == rhs;
+          return Point(data) == rhs;
         default:
           break;
       }
@@ -65,18 +65,10 @@ class PolyHSValue {
         case TYPE_USHORT:
         case TYPE_UINT:
           return ap_uint<32>(data[0]) <= ap_uint<32>(rhs);
+        case TYPE_POINT:
+          return Point(data) <= rhs;
         default:
           break;
-      }
-
-      if (m_type == TYPE_POINT) {
-          // RZ: vivado_hls produces an error if we use pointer
-          // typecast for this operator
-          Point t;
-          t.label = data[0];
-          t.x = data[1];
-          t.y = data[2];
-          return t <= rhs;
       }
 
       return false; 
@@ -92,18 +84,10 @@ class PolyHSValue {
         case TYPE_USHORT:
         case TYPE_UINT:
           return ap_uint<32>(data[0]) < ap_uint<32>(rhs);
+        case TYPE_POINT:
+          return Point(data) < rhs;
         default:
           break;
-      }
-
-      if (m_type == TYPE_POINT) {
-          // RZ: vivado_hls produces an error if we use pointer
-          // typecast for this operator
-          Point t;
-          t.label = data[0];
-          t.x = data[1];
-          t.y = data[2];
-          return t < rhs;
       }
 
       return false; 

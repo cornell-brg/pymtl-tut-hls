@@ -16,7 +16,8 @@ struct Point {
   Point() : label( 0 ), x( 0 ), y( 0 ) {}
   Point(int x_, int y_) : label( 0 ), x( x_ ), y( y_ ) {}
   Point(short label_, int x_, int y_) : label( label_ ), x( x_ ), y( y_ ) {}
-  Point( const Point& p ) : label( p.label ), x( p.x ), y( p.y ) {}
+  Point(const unsigned array[]) : label( array[0] ), x( array[1] ), y( array[2] ) {}
+  Point(const Point& p) : label( p.label ), x( p.x ), y( p.y ) {}
 
   //--------------------------------------------------------------------
   // Boolean operator with Int
