@@ -17,7 +17,7 @@
 //--------------------------------------------------------------------
 template <typename T>
 typename list<T>::iterator list<T>::insert( const_iterator pos, const T& val ) {
-  list_node* new_node = new list_node(val);
+  NodePtrProxy<T> new_node( get_new_node() );
   new_node->m_next = pos.p;
   new_node->m_prev = pos.p->m_prev;
   pos.p->m_prev->m_next = new_node;
@@ -47,11 +47,11 @@ typename list<T>::iterator list<T>::insert( const_iterator pos, const_iterator f
 //--------------------------------------------------------------------
 template <typename T>
 typename list<T>::iterator list<T>::erase( const_iterator pos) {
-  list_node* prev_node = pos.p->m_prev;
-  list_node* next_node = pos.p->m_next;
+  NodePtrProxy<T> prev_node = pos.p->m_prev;
+  NodePtrProxy<T> next_node = pos.p->m_next;
   prev_node->m_next = next_node;
   next_node->m_prev = prev_node;
-  delete pos.p;
+  put_node( pos.p );
   return iterator(next_node);
 }
 
@@ -68,7 +68,7 @@ typename list<T>::iterator list<T>::erase( const_iterator first, const_iterator 
 //--------------------------------------------------------------------
 template <typename T>
 void list<T>::swap( list& x ) {
-  list_node* tmp = m_node;
+  NodePtrProxy<T> tmp = m_node;
   m_node = x.m_node;
   x.m_node = tmp;
 }

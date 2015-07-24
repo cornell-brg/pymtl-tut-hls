@@ -17,14 +17,17 @@
 //--------------------------------------------------------------------
 template<typename T>
 inline list<T>::list()
-  : m_node(new list_node(T()))
+  : m_node( get_new_node() )
 {
+  printf ("m_node: %x\n", m_node.get_ptr());
+  printf ("m_node->m_next: %x\n", m_node->m_next.get_ptr());
+  printf ("m_node->m_next: %x\n", m_node->m_next.get_ptr());
   m_node->m_next = m_node->m_prev = m_node;
 }
 
 template<typename T>
 inline list<T>::list( size_type n, const T& value )
-  : m_node(new list_node(T()))
+  : m_node( get_new_node() )
 {
   m_node->m_next = m_node->m_prev = m_node;
   insert(begin(), n, value);
@@ -32,7 +35,7 @@ inline list<T>::list( size_type n, const T& value )
 
 template<typename T>
 inline list<T>::list( iterator first, iterator last )
-  : m_node(new list_node(T()))
+  : m_node( get_new_node() )
 {
   m_node->m_next = m_node->m_prev = m_node;
   insert(begin(), first, last);
@@ -40,7 +43,7 @@ inline list<T>::list( iterator first, iterator last )
 
 template<typename T>
 inline list<T>::list( const list& x )
-  : m_node(new list_node(T()))
+  : m_node( get_new_node() )
 {
   m_node->m_next = m_node->m_prev = m_node;
   insert (begin(), x.begin(), x.end());
@@ -52,7 +55,7 @@ inline list<T>::list( const list& x )
 template<typename T>
 inline list<T>::~list() {
   clear();
-  delete m_node;
+  put_node( m_node );
 }
 
 //--------------------------------------------------------------------

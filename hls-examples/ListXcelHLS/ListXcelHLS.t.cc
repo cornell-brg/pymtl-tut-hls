@@ -33,7 +33,7 @@ void test_insert()
 
   int i = 1;
   for (it = L1.begin(); it != L1.end(); ++it) {
-    printf ("%d %d\n", *it, i);
+    printf ("%d %d\n", (int)*it, i);
     UTST_CHECK_EQ( *it, i++ );
   }
 
