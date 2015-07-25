@@ -15,8 +15,8 @@ from dstu.MemMsgFuture import MemMsg
 from dstu.TestMemoryOpaque  import TestMemory
 
 #from IteratorTranslationUnitHLS import IteratorTranslationUnitHLS_Wrapper as ITU
-#from IteratorTranslationUnitHLSAlt import IteratorTranslationUnitHLSAlt as ITU
-from PolyDsu import PolyDsu as ITU
+from IteratorTranslationUnitHLSAlt import IteratorTranslationUnitHLSAlt as ITU
+#from PolyDsu import PolyDsu as ITU
 
 from dstu.TypeDescriptor import TypeDescriptor
 
@@ -29,7 +29,9 @@ class TestHarness( Model ):
                 src_msgs,   sink_msgs,
                 src_delay,  sink_delay,
                 stall_prob, latency,
-                dump_vcd=False ):
+                dump_vcd=False,
+                test_verilog=False
+              ):
 
     # Interfaces
     cfg_ifc = XcelMsg()
@@ -42,7 +44,11 @@ class TestHarness( Model ):
     # Instantiate Models
     s.src  = TestSource ( itu_ifc.req, src_msgs, src_delay )
 
-    s.itu  = model()
+    # Translate the model into verilog
+    if test_verilog:
+      s.itu = TranslationTool( model() )
+    else:
+      s.itu  = model()
 
     s.sink = TestSink ( itu_ifc.resp, sink_msgs, sink_delay )
 
@@ -74,10 +80,12 @@ class TestHarness( Model ):
 #------------------------------------------------------------------------------
 # run_itu_test
 #------------------------------------------------------------------------------
-def run_itu_test( model, mem_array, ds_type, ds_offset, dump_vcd = None ):
+def run_itu_test( model, mem_array, ds_type, ds_offset, dump_vcd = None,
+                  test_verilog = None ):
 
-  # Elaborate
   model.vcd_file = dump_vcd
+
+  # Elaborate the model
   model.elaborate()
 
   # Create a simulator
@@ -333,7 +341,7 @@ test_case_table = mk_test_case_table([
 #-------------------------------------------------------------------------
 
 @pytest.mark.parametrize( **test_case_table )
-def test( test_params, dump_vcd ):
+def test( test_params, dump_vcd, test_verilog ):
 
   ITU.vcd_file = dump_vcd
   run_itu_test( TestHarness(  ITU,
@@ -342,8 +350,11 @@ def test( test_params, dump_vcd ):
                               test_params.src,
                               test_params.sink,
                               test_params.stall,
-                              test_params.lat ),
+                              test_params.lat,
+                              dump_vcd,
+                              test_verilog ),
                 test_params.mem,
                 test_params.ds,
                 test_params.ds_offset,
-                dump_vcd )
+                dump_vcd,
+                test_verilog )

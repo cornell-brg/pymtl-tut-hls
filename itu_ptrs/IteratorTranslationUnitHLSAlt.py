@@ -10,6 +10,7 @@ from pclib.ifcs import InValRdyBundle, OutValRdyBundle
 from pclib.ifcs import valrdy_to_str
 
 from pclib.rtl  import SingleElementPipelinedQueue
+from pclib.rtl  import SingleElementBypassQueue
 from pclib.rtl  import RegisterFile
 
 from FunnelRouter import FunnelRouter
@@ -21,10 +22,10 @@ from dstu.MemMsgFuture import MemMsg
 from PolyDsuListRTL    import PolyDsuListRTL
 
 #-------------------------------------------------------------------------
-# PolyDsuConfig
+# PolyDsuConfigHLS
 #-------------------------------------------------------------------------
 
-class PolyDsuConfig( VerilogModel ):
+class PolyDsuConfigHLS( VerilogModel ):
 
   def __init__( s ):
 
@@ -83,10 +84,10 @@ class PolyDsuConfig( VerilogModel ):
   })
 
 #-------------------------------------------------------------------------
-# PolyDsuList
+# PolyDsuListHLS
 #-------------------------------------------------------------------------
 
-class PolyDsuList( VerilogModel ):
+class PolyDsuListHLS( VerilogModel ):
 
   def __init__( s ):
 
@@ -99,9 +100,6 @@ class PolyDsuList( VerilogModel ):
 
     s.memreq     = OutValRdyBundle ( MemMsg(8,32,32).req   )
     s.memresp    = InValRdyBundle  ( MemMsg(8,32,32).resp  )
-
-    s.addr       = OutPort( 5 )
-    s.addr_val   = OutPort( 1 )
 
     s.dtdesc     = InPort ( 32 )
 
@@ -120,8 +118,6 @@ class PolyDsuList( VerilogModel ):
       'memresp_V'           : s.memresp.msg,
       'memresp_V_ap_vld'    : s.memresp.val,
       'memresp_V_ap_ack'    : s.memresp.rdy,
-      'addr_V'              : s.addr,
-      'addr_V_ap_vld'       : s.addr_val,
       'dtdesc_V'            : s.dtdesc
   })
 
@@ -158,9 +154,12 @@ class IteratorTranslationUnitHLSAlt( Model ):
     # path between the xcelreq and the xcelresp ports exists.
     s.cfgresp_q    = SingleElementPipelinedQueue ( XcelMsg().resp       )
 
-    s.hls_dispatch = PolyDsuConfig()
+    s.hls_dispatch = PolyDsuConfigHLS()
 
-    s.hls_list     = PolyDsuListRTL()
+    s.hls_list     = PolyDsuListHLS()
+
+    s.pipe_q       = SingleElementPipelinedQueue( IteratorMsg(32).req )
+    s.byp_q        = SingleElementBypassQueue( IteratorMsg(32).resp )
 
     s.fr           = FunnelRouter( 2, MemMsg(8,32,32).req, MemMsg(8,32,32).resp )
 
@@ -176,8 +175,12 @@ class IteratorTranslationUnitHLSAlt( Model ):
     s.connect( s.cfgresp_q.enq, s.hls_dispatch.cfgresp )
     s.connect( s.cfgresp,       s.cfgresp_q.deq        )
 
-    s.connect( s.xcelreq,       s.hls_list.xcelreq     )
-    s.connect( s.xcelresp,      s.hls_list.xcelresp    )
+    #s.connect( s.xcelreq,       s.hls_list.xcelreq     )
+    #s.connect( s.xcelresp,      s.hls_list.xcelresp    )
+    s.connect( s.xcelreq,       s.pipe_q.enq )
+    s.connect( s.hls_list.xcelreq, s.pipe_q.deq )
+    s.connect( s.hls_list.xcelresp, s.byp_q.enq        )
+    s.connect( s.xcelresp, s.byp_q.deq )
 
     s.connect( s.fr.funnel_in[0], s.hls_dispatch.memreq )
     s.connect( s.fr.funnel_in[1], s.hls_list.memreq     )
@@ -199,7 +202,12 @@ class IteratorTranslationUnitHLSAlt( Model ):
     s.connect( s.dtdesc_rf.wr_addr, s.hls_dispatch.dtdesc_addr )
     s.connect( s.dtdesc_rf.wr_data, s.hls_dispatch.dtdesc_data )
 
-    s.connect( s.dtdesc_rf.rd_addr[0], s.hls_list.addr   )
+    s.ds_id = Wire( 5 )
+    s.combinational
+    def comb():
+      s.ds_id.value = s.hls_list.xcelreq.msg.ds_id & 0x1f
+
+    s.connect( s.dtdesc_rf.rd_addr[0], s.ds_id   )
     s.connect( s.dtdesc_rf.rd_data[0], s.hls_list.dtdesc )
 
   def line_trace( s ):

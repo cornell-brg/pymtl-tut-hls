@@ -1,5 +1,5 @@
 //========================================================================
-// PolyDsuList.cpp
+// PolyDsuListHLS.cpp
 //========================================================================
 // Author  : Shreesha Srinath
 // Date    : July 09, 2015
@@ -27,16 +27,14 @@
 #define USER_DEFINED 11
 
 //------------------------------------------------------------------------
-// PolyDsuList
+// PolyDsuListHLS
 //------------------------------------------------------------------------
 
-void PolyDsuList(
-  //hls::stream<PolyDsuReqMsg>&   polydsureq,
-  hls::stream<IteratorReqMsg>& xcelreq,
+void PolyDsuListHLS(
+  hls::stream<IteratorReqMsg>&  xcelreq,
   hls::stream<IteratorRespMsg>& xcelresp,
   hls::stream<MemReqMsg>&       memreq,
   hls::stream<MemRespMsg>&      memresp,
-  ap_uint<5>&                   addr,
   ap_uint<32>                   dtdesc
 )
 {
@@ -51,7 +49,6 @@ void PolyDsuList(
   IteratorReqMsg xcel_req = xcelreq.read();
 
   // get the dt_descriptor
-  addr            = xcel_req.ds_id;
   dtValue dt_desc = dtValue( dtdesc );
 
   // load request

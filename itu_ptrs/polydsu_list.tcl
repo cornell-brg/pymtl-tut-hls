@@ -1,12 +1,12 @@
 ############################################################
 
-set top "PolyDsuList"
+set top "PolyDsuListHLS"
 
-open_project PolyDsuList.prj
+open_project PolyDsuListHLS.prj
 
 set_top $top
 
-add_files PolyDsuList.cpp
+add_files PolyDsuListHLS.cpp
 
 open_solution "solution1" -reset
 
