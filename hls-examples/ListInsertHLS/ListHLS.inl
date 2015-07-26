@@ -10,7 +10,7 @@
 #ifndef POLYHS_LIST_INL
 #define POLYHS_LIST_INL
 
-#include "ListProxy.h"
+#include "ListHLS.h"
 
 //--------------------------------------------------------------------
 // Constructors

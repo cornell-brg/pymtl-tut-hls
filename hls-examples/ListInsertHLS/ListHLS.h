@@ -380,6 +380,6 @@ class list {
 
 // Include the implementation files which contains implementations for the
 // template functions
-#include "ListProxy.inl"
+#include "ListHLS.inl"
 
 #endif /*POLYHS_LIST_H*/

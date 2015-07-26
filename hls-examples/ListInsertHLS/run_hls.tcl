@@ -4,8 +4,8 @@ set prj "list_insert.prj"
 open_project $prj
 set_top $top
 
-add_files $top\.cpp
-add_files -tb $top\.cpp
+add_files $top\.t.cc
+add_files -tb $top\.t.cc
 
 open_solution "solution1" -reset
 config_interface -expose_global

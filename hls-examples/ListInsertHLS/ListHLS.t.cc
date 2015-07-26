@@ -2,7 +2,7 @@
 // PolyHS list implementation unit tests
 //========================================================================
 
-#include "ListProxy.h"
+#include "ListHLS.h"
 #include <stdio.h>
 #include <assert.h>
 

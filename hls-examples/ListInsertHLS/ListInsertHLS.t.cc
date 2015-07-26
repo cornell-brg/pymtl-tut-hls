@@ -3,7 +3,7 @@
 #include "../../itu_ptrs/common.h"
 #include "../../itu_ptrs/interfaces.h"
 
-#include "ListProxy.h"
+#include "ListHLS.h"
 #include <assert.h>
 
 #define UTST_CHECK_EQ(x,y) assert((x)==(y))

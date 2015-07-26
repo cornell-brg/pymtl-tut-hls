@@ -5,24 +5,23 @@ VHLS_INC ?= ${VHLS_PATH}/include
 HFLAGS=-DBIT_ACCURATE -I${VHLS_INC}
 CFLAGS=-DCPP_COMPILE
 
-PROG=ListProxy
+LIST=ListHLS
 INSERT=ListInsertHLS
+PROGS=$(LIST) $(INSERT)
 
-all: $(PROG) ListInsertHLS
+all: $(PROGS)
 
-$(PROG).t.o: $(PROG).t.cc $(PROG).h
-	$(CC) $(CFLAGS) $< -c -o $@
+$(LIST): $(LIST).t.cc $(LIST).h
+	$(CC) $(CFLAGS) $< -o $@
 
-$(PROG): $(PROG).t.o
-	$(CC) $(CFLAGS) $? -o $@
-
-$(INSERT): $(INSERT).cpp $(PROG).h
+$(INSERT): $(INSERT).t.cc $(LIST).h
 	$(CC) $(CFLAGS) $(HFLAGS) $< -o $@
 
-hls: ListInsertHLS.cpp run_hls.tcl
+hls: $(INSERT).t.cc run_hls.tcl
 	vivado_hls run_hls.tcl
 
 clean:
-	rm -f *.o 
-	rm -f $(PROG) $(INSERT)
+	rm -f *.o
+	rm -f $(PROGS)
+	rm -rf *.prj
 
