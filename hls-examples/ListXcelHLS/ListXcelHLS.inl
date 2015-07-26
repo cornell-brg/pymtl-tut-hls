@@ -17,35 +17,32 @@
 //--------------------------------------------------------------------
 template<typename T>
 inline list<T>::list()
-  : m_node( get_new_node() )
+  : m_node( get_node( T() ) )
 {
-  printf ("m_node: %x\n", m_node.get_ptr());
-  printf ("m_node->m_next: %x\n", m_node->m_next.get_ptr());
-  printf ("m_node->m_next: %x\n", m_node->m_next.get_ptr());
-  m_node->m_next = m_node->m_prev = m_node;
+  (*m_node).m_next = (*m_node).m_prev = m_node;
 }
 
 template<typename T>
 inline list<T>::list( size_type n, const T& value )
-  : m_node( get_new_node() )
+  : m_node( get_node() )
 {
-  m_node->m_next = m_node->m_prev = m_node;
+  (*m_node).m_next = (*m_node).m_prev = m_node;
   insert(begin(), n, value);
 }
 
 template<typename T>
 inline list<T>::list( iterator first, iterator last )
-  : m_node( get_new_node() )
+  : m_node( get_node() )
 {
-  m_node->m_next = m_node->m_prev = m_node;
+  (*m_node).m_next = (*m_node).m_prev = m_node;
   insert(begin(), first, last);
 }
 
 template<typename T>
 inline list<T>::list( const list& x )
-  : m_node( get_new_node() )
+  : m_node( get_node() )
 {
-  m_node->m_next = m_node->m_prev = m_node;
+  (*m_node).m_next = (*m_node).m_prev = m_node;
   insert (begin(), x.begin(), x.end());
 }
 
@@ -79,7 +76,7 @@ inline bool list<T>::empty() const {
 //--------------------------------------------------------------------
 template<typename T>
 inline typename list<T>::const_iterator list<T>::begin() const {
-  return const_iterator(m_node->m_next);
+  return const_iterator((*m_node).m_next);
 }
 
 template<typename T>
@@ -89,7 +86,7 @@ inline typename list<T>::const_iterator list<T>::end() const {
 
 template<typename T>
 inline typename list<T>::const_iterator list<T>::cbegin() const {
-  return const_iterator(m_node->m_next);
+  return const_iterator((*m_node).m_next);
 }
 
 template<typename T>
@@ -99,7 +96,7 @@ inline typename list<T>::const_iterator list<T>::cend() const {
 
 template<typename T>
 inline typename list<T>::iterator list<T>::begin() {
-  return iterator(m_node->m_next);
+  return iterator((*m_node).m_next);
 }
 
 template<typename T>
@@ -132,14 +129,6 @@ template <typename T>
 inline void list<T>::pop_back() {
   iterator tmp = end();
   erase (--tmp);
-}
-
-//--------------------------------------------------------------------
-// Clear
-//--------------------------------------------------------------------
-template <typename T>
-inline void list<T>::clear() {
-  erase( begin(), end() );
 }
 
 #endif // POLYHS_LIST_INL

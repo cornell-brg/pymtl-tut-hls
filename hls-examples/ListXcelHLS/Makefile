@@ -5,8 +5,8 @@ PROG=ListXcelHLS
 
 all: $(PROG)
 
-$(PROG).t.o: $(PROG).t.cc
-	$(CC) $(CFLAGS) $? -c -o $@
+$(PROG).t.o: $(PROG).t.cc $(PROG).h
+	$(CC) $(CFLAGS) $< -c -o $@
 
 $(PROG): $(PROG).t.o
 	$(CC) $(CFLAGS) $? -o $@

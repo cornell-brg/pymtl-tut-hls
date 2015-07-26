@@ -17,11 +17,11 @@
 //--------------------------------------------------------------------
 template <typename T>
 typename list<T>::iterator list<T>::insert( const_iterator pos, const T& val ) {
-  NodePtrProxy<T> new_node( get_new_node() );
-  new_node->m_next = pos.p;
-  new_node->m_prev = pos.p->m_prev;
-  pos.p->m_prev->m_next = new_node;
-  pos.p->m_prev = new_node;
+  NodeProxyPointer<T> new_node( get_node( val ) );
+  (*new_node).m_next = pos.p;
+  (*new_node).m_prev = (*(pos.p)).m_prev;
+  (*((*(pos.p)).m_prev)).m_next = new_node;
+  (*(pos.p)).m_prev = new_node;
   return iterator(new_node);
 }
 
@@ -47,10 +47,10 @@ typename list<T>::iterator list<T>::insert( const_iterator pos, const_iterator f
 //--------------------------------------------------------------------
 template <typename T>
 typename list<T>::iterator list<T>::erase( const_iterator pos) {
-  NodePtrProxy<T> prev_node = pos.p->m_prev;
-  NodePtrProxy<T> next_node = pos.p->m_next;
-  prev_node->m_next = next_node;
-  next_node->m_prev = prev_node;
+  NodePtrProxy<T> prev_node = (*(pos.p)).m_prev;
+  NodePtrProxy<T> next_node = (*(pos.p)).m_next;
+  (*prev_node).m_next = next_node;
+  (*next_node).m_prev = prev_node;
   put_node( pos.p );
   return iterator(next_node);
 }
@@ -89,9 +89,17 @@ void list<T>::resize( size_type n, const T& val ) {
 }
 
 //--------------------------------------------------------------------
-// Splice
+// Clear
 //--------------------------------------------------------------------
 template <typename T>
+inline void list<T>::clear() {
+  erase( begin(), end() );
+}
+
+//--------------------------------------------------------------------
+// Splice
+//--------------------------------------------------------------------
+/*template <typename T>
 void list<T>::splice( const_iterator pos, list& x ) {
   splice( pos, x, x.begin(), x.end() );
 }
@@ -113,6 +121,6 @@ template <typename T>
 void list<T>::splice( const_iterator pos, list& x, const_iterator i ) {
   const_iterator i1 = i;
   splice( pos, x, i, ++i1 );
-}
+}*/
 
 #endif // POLYHS_LIST_CC
