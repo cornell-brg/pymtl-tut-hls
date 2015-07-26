@@ -10,7 +10,7 @@
 #ifndef POLYHS_LIST_ALG_INL
 #define POLYHS_LIST_ALG_INL
 
-#include "ListXcelHLS.h"
+#include "ListProxy.h"
 
 //--------------------------------------------------------------------
 // Insert
@@ -20,6 +20,11 @@ typename list<T>::iterator list<T>::insert( const_iterator pos, const T& val ) {
   NodeProxyPointer<T> new_node( get_node( val ) );
   (*new_node).m_next = pos.p;
   (*new_node).m_prev = (*(pos.p)).m_prev;
+  
+  printf ("Inserting Node: %x\n", new_node.get_ptr());
+  printf ("  Prev: %x\n", *((*new_node).m_prev.get_ptr()));
+  printf ("  Next: %x\n", *((*new_node).m_next.get_ptr()));
+
   (*((*(pos.p)).m_prev)).m_next = new_node;
   (*(pos.p)).m_prev = new_node;
   return iterator(new_node);

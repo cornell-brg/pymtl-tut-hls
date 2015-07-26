@@ -304,7 +304,7 @@ class list {
 
 // Include the implementation files which contains implementations for the
 // template functions
-#include "ListXcelHLS.inl"
-#include "ListXcelHLS.alg.inl"
+#include "ListProxy.inl"
+#include "ListProxy.alg.inl"
 
 #endif /*POLYHS_LIST_H*/

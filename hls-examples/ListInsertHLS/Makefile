@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=
 
-PROG=ListXcelHLS
+PROG=ListProxy
 
 all: $(PROG)
 
