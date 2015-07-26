@@ -39,7 +39,6 @@ void test_insert()
   int i = 1;
   printf ("TEST: checking list\n");
   for (it = L1.begin(); it != L1.end(); ++it) {
-    printf ("%d %d\n", (int)*it, i);
     UTST_CHECK_EQ( *it, i++ );
   }
 
@@ -102,6 +101,6 @@ int main( int argc, char* argv[] )
 {
   test_insert();
   test_erase();
-  printf ("list tests completed\n");
+  printf ("#### list tests completed ####\n");
   return 0;
 }

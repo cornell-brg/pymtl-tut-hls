@@ -21,52 +21,95 @@ template<typename T> class NodePtrProxy;
 template<typename T> struct NodeProxy;
 template<typename T> class NodeProxyPointer;
 
+#ifndef CPP_COMPILE
+  #include "../../itu_ptrs/interfaces.h"
+  
+  #define MSG_READ  0
+  #define MSG_WRITE 1
+
+  extern hls::stream<MemReqMsg>  memreq;
+  extern hls::stream<MemRespMsg> memresp;
+  
+  typedef ap_uint<32> Address;
+#else
+  typedef unsigned char* Address;
+#endif
+
 //------------------------------------------------------------------------
 // List NodePtrProxy
 //------------------------------------------------------------------------
 template<typename T>
 class NodePtrProxy {
   public:
-    // base ptr of the NodeProxy pointed to by this Ptr
-    char** m_addr;
+    #ifndef CPP_COMPILE
+      typedef Address AddressPtr;
+    #else
+      typedef Address* AddressPtr;
+    #endif
 
-    // construct a NodePtrProxy from a base pointer and offset
-    NodePtrProxy( char* base_ptr )
-      : m_addr( (char**)base_ptr )
+    // base ptr of the NodeProxy pointed to by this Ptr
+    AddressPtr m_addr;
+
+    //----------------------------------------------------------------
+    // Constructors
+    //----------------------------------------------------------------
+    NodePtrProxy( Address base_ptr )
+      : m_addr( (AddressPtr)base_ptr )
     {}
-    // copy constructor
     NodePtrProxy( const NodePtrProxy& p ) 
       : m_addr( p.m_addr )
     {}
 
+    //----------------------------------------------------------------
+    // * and -> operators
+    //----------------------------------------------------------------
     // dereference operator constructs the NodeProxy pointed to by this Ptr
-    //TODO: mem read request
     NodeProxy<T> operator* () const {
-      return NodeProxy<T>( *m_addr );
+      #ifndef CPP_COMPILE
+        memreq.write( MemReqMsg( 0, sizeof(T), m_addr, 0, MSG_READ ) );
+        ap_wait();
+        MemRespMsg mem_resp = memresp.read();
+        return NodeProxy<T>( (Address) mem_resp.data );
+      #else
+        return NodeProxy<T>( (Address)*m_addr );
+      #endif
     }
     // arrow operator returns a pointer to the constructed NodeProxy
     /*NodePtrProxy<T> operator-> () const {
       return NodePtrProxy( *this );
     }*/
 
-    // rvalue use
-    //TODO: mem read request
+    //----------------------------------------------------------------
+    // rvalue and lvalue uses
+    //----------------------------------------------------------------
     operator NodeProxyPointer<T> () const {
-      return NodeProxyPointer<T>(*m_addr);
+      #ifndef CPP_COMPILE
+        memreq.write( MemReqMsg( 0, sizeof(T), m_addr, 0, MSG_READ ) );
+        ap_wait();
+        MemRespMsg mem_resp = memresp.read();
+        return NodeProxyPointer<T>( (Address)mem_resp.data );
+      #else
+        return NodeProxyPointer<T>( (Address)*m_addr );
+      #endif
     }
-    // lvalue use
-    //TODO: mem write request
     NodePtrProxy& operator=( const NodeProxyPointer<T>& p ) {
-      *(m_addr) = (char*)(p.get_ptr());
+      #ifndef CPP_COMPILE
+        memreq.write( MemReqMsg( p.get_addr(), sizeof(T), m_addr, 0, MSG_WRITE ) );
+        ap_wait();
+        MemRespMsg mem_resp = memresp.read();
+      #else
+        *(m_addr) = (Address)(p.get_addr());
+      #endif
       return *this;
     }
-    // lvalue copy
     NodePtrProxy& operator=( const NodePtrProxy& x ) {
       return operator=( static_cast<NodeProxyPointer<T> >( x ) );
     }
 
-    // debug
-    char** get_ptr() const { return m_addr; }
+    //----------------------------------------------------------------
+    // other
+    //----------------------------------------------------------------
+    AddressPtr get_addr() const { return m_addr; }
 };
 
 //------------------------------------------------------------------------
@@ -75,28 +118,46 @@ class NodePtrProxy {
 template<typename T>
 class ValueProxy {
   // pointer to the data managed by this proxy
-  char* m_addr;
+  Address m_addr;
 
   public:
-    ValueProxy( char* addr ) : m_addr( addr ) {}  
-    ValueProxy( const ValueProxy& p ) : m_addr( p.m_addr ) {}  
-    // rvalue use
-    //TODO: Mem read request at address m_addr
+    //----------------------------------------------------------------
+    // Constructors
+    //----------------------------------------------------------------
+    ValueProxy( Address addr ) : m_addr( addr ) {}
+    ValueProxy( const ValueProxy& p ) : m_addr( p.m_addr ) {}
+
+    //----------------------------------------------------------------
+    // rvalue and lvalue uses
+    //----------------------------------------------------------------
     operator T() const {
-      return *((T*)m_addr);
+      #ifndef CPP_COMPILE
+        memreq.write( MemReqMsg( 0, sizeof(T), m_addr, 0, MSG_READ ) );
+        ap_wait();
+        MemRespMsg mem_resp = memresp.read();
+        return ((T)mem_resp.data);
+      #else
+        return *((T*)m_addr);
+      #endif
     }
-    // lvalue use
-    //TODO: Mem write request at address m_addr
     ValueProxy& operator= ( T data ) {
-      *((T*)m_addr) = data;
+      #ifndef CPP_COMPILE
+        memreq.write( MemReqMsg( data, sizeof(T), m_addr, 0, MSG_WRITE ) );
+        ap_wait();
+        MemRespMsg mem_resp = memresp.read();
+      #else
+        *((T*)m_addr) = data;
+      #endif
       return *this;
     }
-    // lvalue copy
     ValueProxy& operator=( const ValueProxy& x ) {
       return operator=( static_cast<T>( x ) );
     }
 
-    char* get_ptr() const { return m_addr; }
+    //----------------------------------------------------------------
+    // other
+    //----------------------------------------------------------------
+    Address get_addr() const { return m_addr; }
 };
 
 //------------------------------------------------------------------------
@@ -108,10 +169,13 @@ struct NodeProxy {
   NodePtrProxy<T> m_prev;
   NodePtrProxy<T> m_next;
 
-  NodeProxy( char* base_ptr )
+  //----------------------------------------------------------------
+  // Constructors
+  //----------------------------------------------------------------
+  NodeProxy( Address base_ptr )
     : m_value( base_ptr ),
       m_prev( base_ptr+sizeof(T) ),
-      m_next( base_ptr+sizeof(T)+sizeof(char*) )
+      m_next( base_ptr+sizeof(T)+sizeof(Address) )
   {}
   NodeProxy( const NodeProxy& p ) 
     : m_value( p.m_value ),
@@ -119,7 +183,10 @@ struct NodeProxy {
       m_next( p.m_next )
   {}
 
-  char* get_ptr() const { return m_value.get_ptr(); }
+  //----------------------------------------------------------------
+  // other
+  //----------------------------------------------------------------
+  Address get_addr() const { return m_value.get_addr(); }
 };
 
 //------------------------------------------------------------------------
@@ -127,34 +194,39 @@ struct NodeProxy {
 //------------------------------------------------------------------------
 template<typename T>
 class NodeProxyPointer {
-  char* m_addr;
+  Address m_addr;
 
   public:
-    NodeProxyPointer( char* base_ptr )
+    //----------------------------------------------------------------
+    // Constructors
+    //----------------------------------------------------------------
+    NodeProxyPointer( Address base_ptr )
       : m_addr( base_ptr )
     {}
     NodeProxyPointer( const NodeProxyPointer& p )
       : m_addr( p.m_addr )
     {}
 
+    //----------------------------------------------------------------
+    // * and -> operators
+    //----------------------------------------------------------------
     NodeProxy<T> operator* () const {
       return NodeProxy<T>( m_addr );
     }
-    NodeProxy<T>* operator-> () const {
+    /*NodeProxy<T>* operator-> () const {
       return &(operator*());
-    }
-    
-    NodeProxyPointer& operator=( const NodeProxyPointer& p ) {
-      m_addr = p.m_addr;
-      return *this;
-    }
+    }*/
 
-    char* get_ptr() const { return m_addr; }
+    //----------------------------------------------------------------
+    // Other
+    //----------------------------------------------------------------
+    Address get_addr() const { return m_addr; }
 };
 
 template<typename T>
-inline bool operator==( const NodeProxyPointer<T>& lhs, const NodeProxyPointer<T>& rhs ) {
-  return lhs.get_ptr() == rhs.get_ptr();
+inline bool operator==( const NodeProxyPointer<T>& lhs,
+                        const NodeProxyPointer<T>& rhs ) {
+  return lhs.get_addr() == rhs.get_addr();
 }
 
 //------------------------------------------------------------------------
@@ -164,7 +236,6 @@ template<typename T>
 class list {
   public:
     typedef size_t            size_type;
-    typedef NodeProxy<T>      list_node;
   
   public:
     // These template structs let us use a single class for iterator
@@ -220,6 +291,8 @@ class list {
       //bool operator>=(const _iterator& rhs) const {return !(*this<rhs);}
 
       reference operator*() const {return ((*p).m_value);}
+
+      pointer get_ptr() { return p; }
     };
 
     typedef _iterator<T,false> iterator;
@@ -228,21 +301,25 @@ class list {
   private:
     NodeProxyPointer<T> m_node;
   
-    char* get_node_mem() {
-      return (char*)malloc(sizeof(T)+2*sizeof(char*));
+    Address get_node_mem() {
+      return (Address)malloc(sizeof(T)+2*sizeof(Address));
     }
+
     NodeProxyPointer<T> get_node( const T& val = T() ) {
       NodeProxyPointer<T> node( get_node_mem() );
       (*node).m_value = val;
       
       printf("Created new node\n");
-      printf("  Base: %x\n", (*node).get_ptr());
+      printf("  Base: %lx\n", (long unsigned)((*node).get_addr()));
       printf("  Data: %d\n", (int)((*node).m_value));
 
       return node;
     }
+
     void put_node( NodeProxyPointer<T> p ) {
-      free( p.get_ptr() );
+      #ifdef CPP_COMPILE
+        free( p.get_addr() );
+      #endif
     }
 
   public:
@@ -301,10 +378,8 @@ class list {
     void sort();*/
 };
 
-
 // Include the implementation files which contains implementations for the
 // template functions
 #include "ListProxy.inl"
-#include "ListProxy.alg.inl"
 
 #endif /*POLYHS_LIST_H*/
