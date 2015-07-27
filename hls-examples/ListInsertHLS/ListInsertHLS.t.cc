@@ -1,9 +1,8 @@
 #include <ap_utils.h>
 
-#include "../../itu_ptrs/common.h"
-#include "../../itu_ptrs/interfaces.h"
+#include "../common/interfaces.h"
 
-#include "ListHLS.h"
+#include "List.h"
 #include <assert.h>
 
 #define UTST_CHECK_EQ(x,y) assert((x)==(y))
@@ -11,7 +10,8 @@
 typedef int Type;
 typedef list<Type> List;
 
-#ifndef CPP_COMPILE
+#ifdef HLS_TEST
+#else
 hls::stream<MemReqMsg>  memreq;
 hls::stream<MemRespMsg> memresq;
 #endif

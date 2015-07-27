@@ -5,16 +5,17 @@ VHLS_INC ?= ${VHLS_PATH}/include
 HFLAGS=-DBIT_ACCURATE -I${VHLS_INC}
 CFLAGS=-DCPP_COMPILE
 
-LIST=ListHLS
+HEADERS=ListProxy.h List.h List.inl
+LIST=List
 INSERT=ListInsertHLS
 PROGS=$(LIST) $(INSERT)
 
 all: $(PROGS)
 
-$(LIST): $(LIST).t.cc $(LIST).h
+$(LIST): $(LIST).t.cc $(HEADERS)
 	$(CC) $(CFLAGS) $< -o $@
 
-$(INSERT): $(INSERT).t.cc $(LIST).h
+$(INSERT): $(INSERT).t.cc $(HEADERS)
 	$(CC) $(CFLAGS) $(HFLAGS) $< -o $@
 
 hls: $(INSERT).t.cc run_hls.tcl
