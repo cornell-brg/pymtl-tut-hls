@@ -1,20 +1,14 @@
 #include <ap_utils.h>
+#include "List.h"
 
 #include "../common/interfaces.h"
 
-#include "List.h"
 #include <assert.h>
 
 #define UTST_CHECK_EQ(x,y) assert((x)==(y))
 
 typedef int Type;
 typedef list<Type> List;
-
-#ifdef HLS_TEST
-#else
-hls::stream<MemReqMsg>  memreq;
-hls::stream<MemRespMsg> memresq;
-#endif
 
 // hls top function
 Address ListInsertHLS( Address pos, Address new_mem, const Type& val ) {

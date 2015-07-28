@@ -16,6 +16,7 @@ template<typename T> class NodePtrProxy;
 template<typename T> struct NodeProxy;
 template<typename T> class NodeProxyPointer;
 
+static unsigned PTR_SIZE = sizeof(void*);
 //------------------------------------------------------------------------
 // List NodePtrProxy
 //------------------------------------------------------------------------
@@ -43,7 +44,7 @@ class NodePtrProxy {
       #ifdef CPP_COMPILE
         return NodeProxy<T>( (Address)*m_addr );
       #else
-        memreq.write( MemReqMsg( 0, sizeof(void*), m_addr, 0, MSG_READ ) );
+        memreq.write( MemReqMsg( 0, PTR_SIZE, m_addr, 0, MSG_READ ) );
         ap_wait();
         MemRespMsg mem_resp = memresp.read();
         return NodeProxy<T>( (Address) mem_resp.data );
@@ -61,7 +62,7 @@ class NodePtrProxy {
       #ifdef CPP_COMPILE
         return NodeProxyPointer<T>( (Address)*m_addr );
       #else
-        memreq.write( MemReqMsg( 0, sizeof(void*), m_addr, 0, MSG_READ ) );
+        memreq.write( MemReqMsg( 0, PTR_SIZE, m_addr, 0, MSG_READ ) );
         ap_wait();
         MemRespMsg mem_resp = memresp.read();
         return NodeProxyPointer<T>( (Address)mem_resp.data );
@@ -71,7 +72,7 @@ class NodePtrProxy {
       #ifdef CPP_COMPILE
         *(m_addr) = (Address)(p.get_addr());
       #else
-        memreq.write( MemReqMsg( p.get_addr(), sizeof(void*), m_addr, 0, MSG_WRITE ) );
+        memreq.write( MemReqMsg( p.get_addr(), PTR_SIZE, m_addr, 0, MSG_WRITE ) );
         ap_wait();
         MemRespMsg mem_resp = memresp.read();
       #endif
@@ -110,7 +111,7 @@ class ValueProxy {
       #ifdef CPP_COMPILE
         return *((T*)m_addr);
       #else
-        memreq.write( MemReqMsg( 0, sizeof(void*), m_addr, 0, MSG_READ ) );
+        memreq.write( MemReqMsg( 0, PTR_SIZE, m_addr, 0, MSG_READ ) );
         ap_wait();
         MemRespMsg mem_resp = memresp.read();
         return ((T)mem_resp.data);
@@ -120,7 +121,7 @@ class ValueProxy {
       #ifdef CPP_COMPILE
         *((T*)m_addr) = data;
       #else
-        memreq.write( MemReqMsg( data, sizeof(void*), m_addr, 0, MSG_WRITE ) );
+        memreq.write( MemReqMsg( data, PTR_SIZE, m_addr, 0, MSG_WRITE ) );
         ap_wait();
         MemRespMsg mem_resp = memresp.read();
       #endif
@@ -151,8 +152,8 @@ struct NodeProxy {
   //----------------------------------------------------------------
   NodeProxy( Address base_ptr )
     : m_value( base_ptr ),
-      m_prev( base_ptr+sizeof(T) ),
-      m_next( base_ptr+sizeof(T)+sizeof(void*) )
+      m_prev( base_ptr+PTR_SIZE ),
+      m_next( base_ptr+PTR_SIZE+PTR_SIZE )
   {}
   NodeProxy( const NodeProxy& p ) 
     : m_value( p.m_value ),
@@ -166,8 +167,8 @@ struct NodeProxy {
   Address get_addr() const { return m_value.get_addr(); }
   void set_addr( const Address addr ) {
     m_value.set_addr( addr );
-    m_prev.set_addr( addr+sizeof(T) );
-    m_next.set_addr( addr+sizeof(T)+sizeof(void*) );
+    m_prev.set_addr( addr+PTR_SIZE );
+    m_next.set_addr( addr+PTR_SIZE+PTR_SIZE );
   }
 };
 

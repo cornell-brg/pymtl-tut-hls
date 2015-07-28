@@ -13,7 +13,7 @@ PROGS=$(LIST) $(INSERT)
 all: $(PROGS)
 
 $(LIST): $(LIST).t.cc $(HEADERS)
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $(HFLAGS) $< -o $@
 
 $(INSERT): $(INSERT).t.cc $(HEADERS)
 	$(CC) $(CFLAGS) $(HFLAGS) $< -o $@
