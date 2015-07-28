@@ -11,25 +11,29 @@ typedef int Type;
 typedef list<Type> List;
 
 // hls top function
-Address ListInsertHLS( Address pos, Address new_mem, const Type& val ) {
-  NodeProxyPointer<Type> pos_node( pos );
-  NodeProxyPointer<Type> new_node( new_mem );
+List::iterator ListInsertHLS
+(
+    List::const_iterator pos,
+    List::iterator::pointer new_node,
+    const Type& val
+){
+  List::iterator::pointer p = pos.get_ptr();
 
-  (*new_node).m_value = val;
-  (*new_node).m_next = pos_node;
-  (*new_node).m_prev = (*pos_node).m_prev;
-
-  (*(*pos_node).m_prev).m_next = new_node;
-  (*pos_node).m_prev = new_node;
-  return new_node.get_addr();
+  new_node->m_value = val;
+  new_node->m_next = p;
+  new_node->m_prev = p->m_prev;
+  
+  (*(p->m_prev)).m_next = new_node;
+  p->m_prev = new_node;
+  return List::iterator(new_node);
 }
 
 List::iterator insert_hls( List::const_iterator pos, const Type& val ) {
   // allocate memory
   Address mem = (Address)malloc(sizeof(Type)+2*sizeof(Address));
 
-  Address ret = ListInsertHLS( pos.get_ptr().get_addr(), mem, val );
-  return List::iterator( NodeProxyPointer<Type>( ret ) );
+  Address ret = ListInsertHLS( pos, List::iterator::pointer( mem ), val ).get_ptr().get_addr();
+  return List::iterator( List::node_ptr( ret ) );
 }
 
 //------------------------------------------------------------------------

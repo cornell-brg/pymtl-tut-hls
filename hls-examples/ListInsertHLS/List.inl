@@ -136,7 +136,7 @@ inline void list<T>::pop_back() {
 //--------------------------------------------------------------------
 template <typename T>
 typename list<T>::iterator list<T>::insert( const_iterator pos, const T& val ) {
-  NodeProxyPointer<T> new_node( get_node( val ) );
+  node_ptr new_node( get_node( val ) );
   new_node->m_next = pos.p;
   new_node->m_prev = pos.p->m_prev;
   
@@ -167,8 +167,8 @@ typename list<T>::iterator list<T>::insert( const_iterator pos, const_iterator f
 //--------------------------------------------------------------------
 template <typename T>
 typename list<T>::iterator list<T>::erase( const_iterator pos) {
-  NodeProxyPointer<T> prev_node = pos.p->m_prev;
-  NodeProxyPointer<T> next_node = pos.p->m_next;
+  node_ptr prev_node = pos.p->m_prev;
+  node_ptr next_node = pos.p->m_next;
   prev_node->m_next = next_node;
   next_node->m_prev = prev_node;
   put_node( pos.p );
@@ -188,7 +188,7 @@ typename list<T>::iterator list<T>::erase( const_iterator first, const_iterator 
 //--------------------------------------------------------------------
 template <typename T>
 void list<T>::swap( list& x ) {
-  NodeProxyPointer<T> tmp = m_node;
+  node_ptr tmp = m_node;
   m_node = x.m_node;
   x.m_node = tmp;
 }
@@ -251,7 +251,7 @@ void list<T>::splice( const_iterator pos, list& x, const_iterator first, const_i
   (*(first.p->m_prev)).m_next = last.p;
   (*(pos.p->m_prev)).m_next = first.p;
 
-  NodeProxyPointer<T> tmp = last.p->m_prev;
+  node_ptr tmp = last.p->m_prev;
   last.p->m_prev = first.p->m_prev;
   first.p->m_prev = pos.p->m_prev;
   pos.p->m_prev = tmp;

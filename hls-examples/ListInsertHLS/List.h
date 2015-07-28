@@ -16,6 +16,7 @@
 #include <stdio.h>
 
 #include "Common.h"
+#include "../common/Proxy.h"
 #include "ListProxy.h"
 
 //------------------------------------------------------------------------
@@ -24,7 +25,8 @@
 template<typename T>
 class list {
   public:
-    typedef size_t            size_type;
+    typedef size_t                          size_type;
+    typedef PointerProxy< NodeProxy<T> >    node_ptr;
   
   public:
     // These template structs let us use a single class for iterator
@@ -54,7 +56,7 @@ class list {
       typedef std::bidirectional_iterator_tag   iterator_category;
       typedef ptrdiff_t                         difference_type;
       typedef ValueProxy<T2>                    value_type;
-      typedef NodeProxyPointer<T2>              pointer;
+      typedef node_ptr                           pointer;
       typedef typename choose<isconst, const value_type, value_type>::type
                                                 reference;
     protected:
@@ -88,14 +90,14 @@ class list {
     typedef _iterator<T,true>  const_iterator;
 
   private:
-    NodeProxyPointer<T> m_node;
+    node_ptr m_node;
   
     Address get_node_mem() {
       return (Address)malloc(sizeof(T)+2*sizeof(Address));
     }
 
-    NodeProxyPointer<T> get_node( const T& val = T() ) {
-      NodeProxyPointer<T> node( get_node_mem() );
+    node_ptr get_node( const T& val = T() ) {
+      node_ptr node( get_node_mem() );
       node->m_value = val;
       
       //printf("Created new node\n");
@@ -105,7 +107,7 @@ class list {
       return node;
     }
 
-    void put_node( NodeProxyPointer<T> p ) {
+    void put_node( node_ptr p ) {
       #ifdef CPP_COMPILE
         free( p.get_addr() );
       #endif
