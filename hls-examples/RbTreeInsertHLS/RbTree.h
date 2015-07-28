@@ -1,0 +1,312 @@
+//========================================================================
+// PolyHS rbtree
+//========================================================================
+// Author  : Ritchie Zhao
+// Date    : July 17, 2015
+// Project : Polymorphic Hardware Specialization
+//
+#ifndef POLYHS_RBTREE_H
+#define POLYHS_RBTREE_H
+
+#include <cstddef>
+#include <iterator>
+#include <assert.h>
+
+typedef bool _RbTreeColorType;
+const _RbTreeColorType s_RbTreeRed = false;
+const _RbTreeColorType s_RbTreeBlack = true;
+
+//----------------------------------------------------------------------
+// template _RbTreeNode
+//----------------------------------------------------------------------
+template<class _Value>
+struct _RbTreeNode {
+  typedef _RbTreeColorType _ColorType;
+  typedef _RbTreeNode<_Value>* _NodePtr;
+  
+  _ColorType m_color;
+  _NodePtr m_parent;
+  _NodePtr m_left;
+  _NodePtr m_right;
+
+  _Value m_value;
+
+  _RbTreeNode( const _Value& x ) 
+    : m_value( x )
+  { }
+  
+  static _NodePtr s_minimum( _NodePtr x ) {
+    while( x->m_left != 0 ) x = x->m_left;
+    return x;
+  }
+  static _NodePtr s_maximum( _NodePtr x ) {
+    while( x->m_right != 0 ) x = x->m_right;
+    return x;
+  }
+};
+
+// tree rotation and recoloring
+// Note these were inline in the original stl impl.
+template<class _Value>
+void  _RbTreeRotateLeft( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root );
+template<class _Value>
+void  _RbTreeRotateRight( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root );
+template<class _Value>
+void  _RbTreeRebalance( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root );
+template<class _Value>
+_RbTreeNode<_Value>*
+_RbTreeRebalanceForErase( _RbTreeNode<_Value>* _z,
+                          _RbTreeNode<_Value>*& root,
+                          _RbTreeNode<_Value>*& leftmost,
+                          _RbTreeNode<_Value>*& rightmost );
+
+//----------------------------------------------------------------------
+// template _RbTreeIterator
+//   Adds the dereference, ++, -- operators to the BaseIterator
+//   Inherits the ==, != operators
+//----------------------------------------------------------------------
+template<class _Value, class _Ref, class _Ptr>
+struct _RbTreeIterator {
+  typedef std::bidirectional_iterator_tag iterator_category;
+  typedef ptrdiff_t                  difference_type;
+  
+  typedef _Value value_type;
+  typedef _Ref   reference;
+  typedef _Ptr   pointer;
+  typedef _RbTreeIterator<_Value,_Value&,_Value*> iterator;
+  typedef _RbTreeIterator<_Value,const _Value&,const _Value*> const_iterator;
+  typedef _RbTreeIterator<_Value,_Ref,_Ptr> _Self;
+  typedef _RbTreeNode<_Value>* _NodePtr;
+
+  _NodePtr m_node;
+
+  _RbTreeIterator() {}
+  _RbTreeIterator( _NodePtr x ) { m_node = x; }
+  _RbTreeIterator( const iterator& it ) { m_node = it.m_node; }
+
+  void _increment();
+  void _decrement();
+  
+  reference operator*() const { return _NodePtr(m_node)->m_value; }
+  pointer  operator->() const { return &(operator*()); }
+
+  _Self& operator++() { _increment(); return *this; }
+  _Self  operator++(int) {
+    _Self temp = *this;
+    _increment();
+    return temp;
+  }
+  _Self& operator--() { _decrement(); return *this; }
+  _Self  operator--(int) {
+    _Self temp = *this;
+    _decrement();
+    return temp;
+  }
+};
+
+//----------------------------------------------------------------------
+// _RbTreeIterator equality operators
+//----------------------------------------------------------------------
+template<class _Value, class _Ref, class _Ptr>
+inline bool operator==( const _RbTreeIterator<_Value,_Ref,_Ptr> x, 
+                        const _RbTreeIterator<_Value,_Ref,_Ptr> y ) {
+  return x.m_node == y.m_node;
+}
+template<class _Value, class _Ref, class _Ptr>
+inline bool operator!=( const _RbTreeIterator<_Value,_Ref,_Ptr> x, 
+                        const _RbTreeIterator<_Value,_Ref,_Ptr> y ) {
+  return x.m_node != y.m_node;
+}
+
+//----------------------------------------------------------------------
+// _RbTree template
+//   The STL rbtree is further templated on the KeyComp and Allocator.
+//   KeyComp is replaced by just key::operator==, and the Allocator
+//   is just new and delete for now.
+//
+//   For the map, _Value is a pair holding map::key and map::value
+//   and _KeyOfValue is a function which returns first from this pair
+//----------------------------------------------------------------------
+template<class _Key, class _Value, class _KeyOfValue>
+class _RbTree {
+protected:
+  typedef _RbTreeNode<_Value> _Node;
+  typedef _RbTreeColorType    _ColorType;
+public:
+  typedef _Key        key_type;
+  typedef _Value      value_type;
+  typedef value_type* pointer;
+  typedef value_type& reference;
+  typedef _Node*      _NodePtr;
+  typedef size_t      size_type;
+  typedef ptrdiff_t   difference_type;
+  typedef const value_type* const_pointer;
+  typedef const value_type& const_reference;
+  typedef _RbTree<_Key, _Value, _KeyOfValue> _Self;
+
+protected:
+  // The header is used to quickly access the root node, leftmost node,
+  // and rightmost node
+  _NodePtr m_header;
+  size_type m_node_count;
+
+//----------------------------------------------------------------------
+// Iterator Types
+//----------------------------------------------------------------------
+public:
+
+  typedef _RbTreeIterator<value_type, reference, pointer> iterator;
+  typedef _RbTreeIterator<value_type, const_reference, const_pointer>
+          const_iterator;
+
+//----------------------------------------------------------------------
+// Allocation/Deallocation
+//----------------------------------------------------------------------
+protected:
+
+  _NodePtr m_create_node( const value_type& x ) {
+    _NodePtr tmp = new _Node( x );
+    assert( tmp != 0 );
+    return tmp;
+  }
+  void m_destroy_node( _NodePtr p ) {
+    delete p;
+  }
+  _NodePtr m_clone_node ( _NodePtr x );
+
+//----------------------------------------------------------------------
+// Basic Operations
+//----------------------------------------------------------------------
+protected:
+
+  _NodePtr& m_root() const 
+    { return (_NodePtr&) m_header->m_parent; }
+  _NodePtr& m_leftmost() const 
+    { return (_NodePtr&) m_header->m_left; }
+  _NodePtr& m_rightmost() const 
+    { return (_NodePtr&) m_header->m_right; }
+
+  static _NodePtr& s_left( _NodePtr x )
+    { return (_NodePtr&)(x->m_left); }
+  static _NodePtr& s_right( _NodePtr x )
+    { return (_NodePtr&)(x->m_right); }
+  static _NodePtr& s_parent( _NodePtr x )
+    { return (_NodePtr&)(x->m_parent); }
+  static reference s_value( _NodePtr x )
+    { return x->m_value; }
+  static const _Key& s_key( _NodePtr x )
+    { return _KeyOfValue()(s_value(x)); }
+  static _ColorType& s_color( _NodePtr x )
+    { return (_ColorType&)(x->m_color); }
+
+  static _NodePtr s_minimum( _NodePtr x ) {
+    return _RbTreeNode<_Value>::s_minimum( x );
+  }
+  static _NodePtr s_maximum( _NodePtr x ) {
+    return _RbTreeNode<_Value>::s_maximum( x );
+  }
+
+//----------------------------------------------------------------------
+// Constructors / Destructors
+//----------------------------------------------------------------------
+public:
+
+  _RbTree();
+  _RbTree(const _Self& x);
+  ~_RbTree();
+
+//----------------------------------------------------------------------
+// Operators
+//   Just assignment for now
+//----------------------------------------------------------------------
+
+  _Self& operator=(const _Self& x);
+
+//----------------------------------------------------------------------
+// Private Helper Methods
+//----------------------------------------------------------------------
+private:
+
+  iterator m_insert(_NodePtr x, _NodePtr y, const value_type& v);
+  _NodePtr m_copy(_NodePtr x, _NodePtr p);
+  void m_erase(_NodePtr x);
+
+//----------------------------------------------------------------------
+// User Methods
+//----------------------------------------------------------------------
+public:    
+                                // accessors:
+  iterator begin() { return m_leftmost(); }
+  const_iterator begin() const { return m_leftmost(); }
+  iterator end() { return m_header; }
+  const_iterator end() const { return m_header; }
+  /*reverse_iterator rbegin() { return reverse_iterator(end()); }
+  const_reverse_iterator rbegin() const { 
+    return const_reverse_iterator(end()); 
+  }
+  reverse_iterator rend() { return reverse_iterator(begin()); }
+  const_reverse_iterator rend() const { 
+    return const_reverse_iterator(begin());
+  }*/
+  bool empty() const { return m_node_count == 0; }
+  size_type size() const { return m_node_count; }
+  size_type max_size() const { return size_type(-1); }
+
+  void swap(_Self& t) {
+    std::swap(m_header, t.m_header);
+    std::swap(m_node_count, t.m_node_count);
+  }
+    
+public:
+                                // insert/erase
+  // RZ:  insert_equal not supported as it is not used by
+  //      map or set
+  std::pair<iterator,bool> insert_unique(const value_type& x);
+  //iterator insert_equal(const value_type& x);
+  iterator insert_unique(iterator position, const value_type& x);
+  //iterator insert_equal(iterator position, const value_type& x);
+  void insert_unique(const_iterator first, const_iterator last);
+  void insert_unique(const value_type* first, const value_type* last);
+  //void insert_equal(const_iterator first, const_iterator last);
+  //void insert_equal(const value_type* first, const value_type* last);
+
+  void erase(iterator position);
+  size_type erase(const key_type& x);
+  void erase(iterator first, iterator last);
+  void erase(const key_type* first, const key_type* last);
+  void empty_initialize();
+  void clear();  
+
+public:
+                                // set operations:
+  // finds iterator to x
+  iterator find(const key_type& x);
+  const_iterator find(const key_type& x) const;
+  // counts number of elems with key equal to x (0 or 1)
+  size_type count(const key_type& x) const;
+  // returns an iterator to the first elem with key >= x 
+  iterator lower_bound(const key_type& x);
+  const_iterator lower_bound(const key_type& x) const;
+  // returns an iterator to the first elem with key > x 
+  iterator upper_bound(const key_type& x);
+  const_iterator upper_bound(const key_type& x) const;
+  
+  // returns bounds of a range containing elems with key == x
+  std::pair<iterator,iterator> equal_range(const key_type& x) {
+    return std::pair<iterator, iterator>(
+        lower_bound(x), upper_bound(x));
+  }
+  std::pair<const_iterator, const_iterator> equal_range(const key_type& x) const {
+    return std::pair<const_iterator,const_iterator>(
+        lower_bound(x), upper_bound(x));
+  }
+
+public:
+                                // Debugging.
+  int black_count(_NodePtr node, _NodePtr root) const;
+  bool _rb_verify() const;
+
+}; // end class _RbTree
+
+#include "RbTree.inl"
+#endif
