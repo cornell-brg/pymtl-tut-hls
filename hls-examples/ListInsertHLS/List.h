@@ -76,12 +76,9 @@ class list {
 
       bool operator==(const _iterator& rhs) const {return p==rhs.p;}
       bool operator!=(const _iterator& rhs) const {return !(*this==rhs);}
-      //bool operator< (const _iterator& rhs) const {return p<rhs.p;}
-      //bool operator<=(const _iterator& rhs) const {return p<=rhs.p;}
-      //bool operator> (const _iterator& rhs) const {return !(*this<=rhs);}
-      //bool operator>=(const _iterator& rhs) const {return !(*this<rhs);}
 
       reference operator*() const {return (*p).m_value;}
+      //reference operator*() const {return p->m_value;}
 
       pointer get_ptr() { return p; }
     };

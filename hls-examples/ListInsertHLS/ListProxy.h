@@ -59,44 +59,27 @@ class NodePtrProxy {
 
     // base ptr of the NodeProxy pointed to by this Ptr
     AddressPtr    m_addr;
-    //NodeProxy<T>  m_obj_temp;
 
   public:
     //----------------------------------------------------------------
     // Constructors
     //----------------------------------------------------------------
     NodePtrProxy( Address base_ptr )
-      : m_addr( (AddressPtr)base_ptr )//, m_obj_temp( 0 )
+      : m_addr( (AddressPtr)base_ptr )
     {}
     NodePtrProxy( const NodePtrProxy& p )
-      : m_addr( p.m_addr )//, m_obj_temp( p.m_obj_temp )
+      : m_addr( p.m_addr )
     {}
 
     //----------------------------------------------------------------
     // * and -> operators
     //----------------------------------------------------------------
     NodeProxy<T> operator* () const {
-      #ifdef CPP_COMPILE
-        return NodeProxy<T>( (Address)*m_addr );
-      #else
-        memreq.write( MemReqMsg( 0, PTR_SIZE, m_addr, 0, MSG_READ ) );
-        ap_wait();
-        MemRespMsg mem_resp = memresp.read();
-        return NodeProxy<T>( (Address) mem_resp.data );
-      #endif
+      return *(operator NodePointer());
     }
-    /*NodeProxy<T>* operator-> () {
-      #ifdef CPP_COMPILE
-        Address node_base = (Address)*m_addr;
-      #else
-        memreq.write( MemReqMsg( 0, PTR_SIZE, m_addr, 0, MSG_READ ) );
-        ap_wait();
-        MemRespMsg mem_resp = memresp.read();
-        Address node_base = mem_resp.data;
-      #endif
-      set_ptr( m_obj_temp, node_base );
-      return &m_obj_temp;
-    }*/
+    NodePointer operator-> () {
+      return operator NodePointer();
+    }
 
     //----------------------------------------------------------------
     // rvalue and lvalue uses

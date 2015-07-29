@@ -140,7 +140,7 @@ typename list<T>::iterator list<T>::insert( const_iterator pos, const T& val ) {
   new_node->m_next = pos.p;
   new_node->m_prev = pos.p->m_prev;
   
-  (*(pos.p->m_prev)).m_next = new_node;
+  pos.p->m_prev->m_next = new_node;
   pos.p->m_prev = new_node;
   return iterator(new_node);
 }
@@ -247,9 +247,9 @@ void list<T>::splice( const_iterator pos, list& x ) {
 template <typename T>
 void list<T>::splice( const_iterator pos, list& x, const_iterator first, const_iterator last ) {
   if (first == last) return;
-  (*(last.p->m_prev)).m_next = pos.p;
-  (*(first.p->m_prev)).m_next = last.p;
-  (*(pos.p->m_prev)).m_next = first.p;
+  last.p->m_prev->m_next = pos.p;
+  first.p->m_prev->m_next = last.p;
+  pos.p->m_prev->m_next = first.p;
 
   node_ptr tmp = last.p->m_prev;
   last.p->m_prev = first.p->m_prev;
