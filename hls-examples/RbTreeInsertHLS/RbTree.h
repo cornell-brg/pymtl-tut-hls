@@ -11,54 +11,22 @@
 #include <cstddef>
 #include <iterator>
 #include <assert.h>
-
-typedef bool _RbTreeColorType;
-const _RbTreeColorType s_RbTreeRed = false;
-const _RbTreeColorType s_RbTreeBlack = true;
+#include "RbTreeProxy.h"
 
 //----------------------------------------------------------------------
-// template _RbTreeNode
-//----------------------------------------------------------------------
-template<class _Value>
-struct _RbTreeNode {
-  typedef _RbTreeColorType _ColorType;
-  typedef _RbTreeNode<_Value>* _NodePtr;
-  
-  _ColorType m_color;
-  _NodePtr m_parent;
-  _NodePtr m_left;
-  _NodePtr m_right;
-
-  _Value m_value;
-
-  _RbTreeNode( const _Value& x ) 
-    : m_value( x )
-  { }
-  
-  static _NodePtr s_minimum( _NodePtr x ) {
-    while( x->m_left != 0 ) x = x->m_left;
-    return x;
-  }
-  static _NodePtr s_maximum( _NodePtr x ) {
-    while( x->m_right != 0 ) x = x->m_right;
-    return x;
-  }
-};
-
 // tree rotation and recoloring
-// Note these were inline in the original stl impl.
-template<class _Value>
-void  _RbTreeRotateLeft( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root );
-template<class _Value>
-void  _RbTreeRotateRight( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root );
-template<class _Value>
-void  _RbTreeRebalance( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root );
-template<class _Value>
-_RbTreeNode<_Value>*
-_RbTreeRebalanceForErase( _RbTreeNode<_Value>* _z,
-                          _RbTreeNode<_Value>*& root,
-                          _RbTreeNode<_Value>*& leftmost,
-                          _RbTreeNode<_Value>*& rightmost );
+//----------------------------------------------------------------------
+#define _NODE_PTR PointerProxy< _NodeProxy< _Value > >
+template<typename _Value>
+void  _RbTreeRotateLeft ( _NODE_PTR x, _NODE_PTR& root );
+template<typename _Value>
+void  _RbTreeRotateRight( _NODE_PTR x, _NODE_PTR& root );
+template<typename _Value>
+void  _RbTreeRebalance  ( _NODE_PTR x, _NODE_PTR& root );
+template<typename _Value>
+_NODE_PTR
+_RbTreeRebalanceForErase( _NODE_PTR _z,         _NODE_PTR& root,
+                          _NODE_PTR& leftmost,  _NODE_PTR& rightmost );
 
 //----------------------------------------------------------------------
 // template _RbTreeIterator
@@ -68,26 +36,27 @@ _RbTreeRebalanceForErase( _RbTreeNode<_Value>* _z,
 template<class _Value, class _Ref, class _Ptr>
 struct _RbTreeIterator {
   typedef std::bidirectional_iterator_tag iterator_category;
-  typedef ptrdiff_t                  difference_type;
+  typedef ptrdiff_t                       difference_type;
   
   typedef _Value value_type;
   typedef _Ref   reference;
   typedef _Ptr   pointer;
-  typedef _RbTreeIterator<_Value,_Value&,_Value*> iterator;
+  typedef _RbTreeIterator<_Value,_Value&,_Value*>             iterator;
   typedef _RbTreeIterator<_Value,const _Value&,const _Value*> const_iterator;
-  typedef _RbTreeIterator<_Value,_Ref,_Ptr> _Self;
-  typedef _RbTreeNode<_Value>* _NodePtr;
+  typedef _RbTreeIterator<_Value,_Ref,_Ptr>                   _Self;
+  typedef PointerProxy< _NodeProxy<_Value> >                  _NodePtr;
 
   _NodePtr m_node;
 
-  _RbTreeIterator() {}
-  _RbTreeIterator( _NodePtr x ) { m_node = x; }
-  _RbTreeIterator( const iterator& it ) { m_node = it.m_node; }
+  _RbTreeIterator(): m_node( 0 ) {}
+  _RbTreeIterator( _NodePtr x ) : m_node( x ) {}
+  _RbTreeIterator( const iterator& it ) : m_node( it.m_node ) {}
 
   void _increment();
   void _decrement();
   
-  reference operator*() const { return _NodePtr(m_node)->m_value; }
+  reference operator*() const { return (reference)m_node->m_value; }
+  //TODO: this should return a PointerProxy
   pointer  operator->() const { return &(operator*()); }
 
   _Self& operator++() { _increment(); return *this; }
@@ -130,19 +99,16 @@ inline bool operator!=( const _RbTreeIterator<_Value,_Ref,_Ptr> x,
 template<class _Key, class _Value, class _KeyOfValue>
 class _RbTree {
 protected:
-  typedef _RbTreeNode<_Value> _Node;
+  typedef _NodeProxy<_Value>  _Node;
   typedef _RbTreeColorType    _ColorType;
 public:
-  typedef _Key        key_type;
-  typedef _Value      value_type;
-  typedef value_type* pointer;
-  typedef value_type& reference;
-  typedef _Node*      _NodePtr;
-  typedef size_t      size_type;
-  typedef ptrdiff_t   difference_type;
-  typedef const value_type* const_pointer;
-  typedef const value_type& const_reference;
-  typedef _RbTree<_Key, _Value, _KeyOfValue> _Self;
+  typedef _Key                                key_type;
+  typedef _Value&                             reference;
+  typedef _Value*                             pointer;
+  typedef PointerProxy< _NodeProxy<_Value> >  _NodePtr;
+  typedef size_t                              size_type;
+  typedef ptrdiff_t                           difference_type;
+  typedef _RbTree<_Key, _Value, _KeyOfValue>  _Self;
 
 protected:
   // The header is used to quickly access the root node, leftmost node,
@@ -155,8 +121,8 @@ protected:
 //----------------------------------------------------------------------
 public:
 
-  typedef _RbTreeIterator<value_type, reference, pointer> iterator;
-  typedef _RbTreeIterator<value_type, const_reference, const_pointer>
+  typedef _RbTreeIterator<_Value, _Value&, _Value*> iterator;
+  typedef _RbTreeIterator<_Value, const _Value&, const _Value*>
           const_iterator;
 
 //----------------------------------------------------------------------
@@ -164,13 +130,15 @@ public:
 //----------------------------------------------------------------------
 protected:
 
-  _NodePtr m_create_node( const value_type& x ) {
-    _NodePtr tmp = new _Node( x );
-    assert( tmp != 0 );
-    return tmp;
+  _NodePtr m_create_node( const _Value& x ) {
+    Address mem = (Address)malloc( 5*PTR_SIZE );
+    assert( mem != 0 );
+    return _NodePtr( mem );
   }
   void m_destroy_node( _NodePtr p ) {
-    delete p;
+    #ifdef CPP_COMPILE
+    free( p.get_addr() );
+    #endif
   }
   _NodePtr m_clone_node ( _NodePtr x );
 
@@ -200,10 +168,12 @@ protected:
     { return (_ColorType&)(x->m_color); }
 
   static _NodePtr s_minimum( _NodePtr x ) {
-    return _RbTreeNode<_Value>::s_minimum( x );
+    while( x->m_left != 0 ) x = x->m_left;
+    return x;
   }
   static _NodePtr s_maximum( _NodePtr x ) {
-    return _RbTreeNode<_Value>::s_maximum( x );
+    while( x->m_right != 0 ) x = x->m_right;
+    return x;
   }
 
 //----------------------------------------------------------------------
@@ -227,7 +197,7 @@ public:
 //----------------------------------------------------------------------
 private:
 
-  iterator m_insert(_NodePtr x, _NodePtr y, const value_type& v);
+  iterator m_insert(_NodePtr x, _NodePtr y, const _Value& v);
   _NodePtr m_copy(_NodePtr x, _NodePtr p);
   void m_erase(_NodePtr x);
 
@@ -261,14 +231,14 @@ public:
                                 // insert/erase
   // RZ:  insert_equal not supported as it is not used by
   //      map or set
-  std::pair<iterator,bool> insert_unique(const value_type& x);
-  //iterator insert_equal(const value_type& x);
-  iterator insert_unique(iterator position, const value_type& x);
-  //iterator insert_equal(iterator position, const value_type& x);
+  std::pair<iterator,bool> insert_unique(const _Value& x);
+  //iterator insert_equal(const _Value& x);
+  iterator insert_unique(iterator position, const _Value& x);
+  //iterator insert_equal(iterator position, const _Value& x);
   void insert_unique(const_iterator first, const_iterator last);
-  void insert_unique(const value_type* first, const value_type* last);
+  void insert_unique(const _Value* first, const _Value* last);
   //void insert_equal(const_iterator first, const_iterator last);
-  //void insert_equal(const value_type* first, const value_type* last);
+  //void insert_equal(const _Value* first, const _Value* last);
 
   void erase(iterator position);
   size_type erase(const key_type& x);

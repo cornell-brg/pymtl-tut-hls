@@ -13,7 +13,6 @@
 
 // forward declarations
 template<typename T> class NodePtrProxy;
-template<typename T> struct NodeProxy;
 
 //------------------------------------------------------------------------
 // List NodeProxy
@@ -37,7 +36,8 @@ struct NodeProxy {
       m_prev( p.m_prev ),
       m_next( p.m_next )
   {}
-  
+
+  //XXX: This should be outside the class, but we get an error
   Address get_addr() const {
     return m_value.get_addr();
   }
@@ -58,23 +58,23 @@ class NodePtrProxy {
     typedef PointerProxy< NodeProxy<T> > NodePointer;
 
     // base ptr of the NodeProxy pointed to by this Ptr
-    AddressPtr m_addr;
+    AddressPtr    m_addr;
+    //NodeProxy<T>  m_obj_temp;
 
   public:
     //----------------------------------------------------------------
     // Constructors
     //----------------------------------------------------------------
     NodePtrProxy( Address base_ptr )
-      : m_addr( (AddressPtr)base_ptr )
+      : m_addr( (AddressPtr)base_ptr )//, m_obj_temp( 0 )
     {}
-    NodePtrProxy( const NodePtrProxy& p ) 
-      : m_addr( p.m_addr )
+    NodePtrProxy( const NodePtrProxy& p )
+      : m_addr( p.m_addr )//, m_obj_temp( p.m_obj_temp )
     {}
 
     //----------------------------------------------------------------
     // * and -> operators
     //----------------------------------------------------------------
-    // dereference operator constructs the NodeProxy pointed to by this Ptr
     NodeProxy<T> operator* () const {
       #ifdef CPP_COMPILE
         return NodeProxy<T>( (Address)*m_addr );
@@ -85,9 +85,17 @@ class NodePtrProxy {
         return NodeProxy<T>( (Address) mem_resp.data );
       #endif
     }
-    // arrow operator returns a pointer to the constructed NodeProxy
-    /*NodePtrProxy<T> operator-> () const {
-      return NodePtrProxy( *this );
+    /*NodeProxy<T>* operator-> () {
+      #ifdef CPP_COMPILE
+        Address node_base = (Address)*m_addr;
+      #else
+        memreq.write( MemReqMsg( 0, PTR_SIZE, m_addr, 0, MSG_READ ) );
+        ap_wait();
+        MemRespMsg mem_resp = memresp.read();
+        Address node_base = mem_resp.data;
+      #endif
+      set_ptr( m_obj_temp, node_base );
+      return &m_obj_temp;
     }*/
 
     //----------------------------------------------------------------
@@ -114,7 +122,7 @@ class NodePtrProxy {
       return *this;
     }
     NodePtrProxy& operator=( const NodePtrProxy& x ) {
-      return operator=( static_cast<NodePointer >( x ) );
+      return operator=( static_cast<NodePointer>( x ) );
     }
 
     //----------------------------------------------------------------
@@ -123,5 +131,7 @@ class NodePtrProxy {
     AddressPtr get_addr() const { return m_addr; }
     void set_addr( const Address addr ) { m_addr = (AddressPtr)addr; }
 };
+
+#undef DB_PRINT
 
 #endif

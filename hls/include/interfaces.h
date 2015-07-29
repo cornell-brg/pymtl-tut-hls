@@ -143,6 +143,117 @@ DstuRespMsg dstu_write (
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //
+// PtrItu Iface
+//
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+#define OPC_READ  0
+#define OPC_WRITE 1
+#define OPC_INCR  2
+#define OPC_DECR  3
+
+typedef ap_uint<8>  PtrItuOpqType;
+typedef ap_uint<11> PtrItuIdType;
+typedef ap_uint<4>  PtrItuOpType;
+typedef ap_uint<22> PtrItuIterType;
+typedef ap_uint<32> PtrItuAddrType;
+typedef ap_uint<32> PtrItuDataType;
+
+//------------------------------------------------------------------------
+
+struct PtrItuReqMsg {
+  PtrItuOpqType   opq;
+  PtrItuIdType    id;
+  PtrItuOpType    opcode;
+  PtrItuIterType  iter;
+  PtrItuAddrType  addr;
+  PtrItuDataType  data;
+
+  PtrItuReqMsg()
+  : opq( 0 ), id( 0 ), opcode( 0 ), iter( 0 ), addr( 0 ), data( 0 ) {}
+
+  PtrItuReqMsg( PtrItuOpqType opq_, PtrItuIdType id_, PtrItuOpType opcode_,
+    PtrItuIterType iter_, PtrItuAddrType addr_, PtrItuDataType data_ )
+  : opq( opq_ ), id( id_ ), opcode( opcode_ ), iter( iter_ ), 
+    addr( addr_ ), data( data_ ) {}
+};
+
+//------------------------------------------------------------------------
+
+struct PtrItuRespMsg {
+  PtrItuOpqType  opq;
+  PtrItuIdType   id;
+  PtrItuOpType   opcode;
+  PtrItuAddrType addr;
+  PtrItuDataType data;
+
+  PtrItuRespMsg()
+  : opq( 0 ), id( 0 ), opcode( 0 ), addr( 0 ), data( 0 ) {}
+
+  PtrItuRespMsg( PtrItuOpqType opq_, PtrItuIdType id_, PtrItuOpType opcode_,
+      PtrItuAddrType addr_, PtrItuDataType data_ )
+  : opq( opq_ ), id( id_ ), opcode( opcode_ ), addr( addr_ ), data( data_ ) {}
+};
+
+//------------------------------------------------------------------------
+
+typedef struct _PtrItuIfaceType {
+  hls::stream<PtrItuReqMsg>  req;
+  hls::stream<PtrItuRespMsg> resp;
+} PtrItuIfaceType;
+
+//------------------------------------------------------------------------
+
+PtrItuRespMsg ptr_itu_read (
+    PtrItuIfaceType &iface,
+    PtrItuIdType id, PtrItuIterType iter,
+    PtrItuAddrType addr)
+{
+  #pragma HLS INLINE
+  iface.req.write( PtrItuReqMsg( 0, id, OPC_READ, iter, addr, 0 ) );
+  ap_wait();
+  PtrItuRespMsg resp = iface.resp.read();
+  return resp;
+}
+
+PtrItuRespMsg ptr_itu_write (
+    PtrItuIfaceType &iface,
+    PtrItuIdType id, PtrItuIterType iter, 
+    PtrItuAddrType addr, PtrItuDataType data)
+{
+  #pragma HLS INLINE
+  iface.req.write( PtrItuReqMsg( 0, id, OPC_WRITE, iter, addr, data ) );
+  ap_wait();
+  PtrItuRespMsg resp = iface.resp.read();
+  return resp;
+}
+
+PtrItuRespMsg ptr_itu_incr (
+    PtrItuIfaceType &iface,
+    PtrItuIdType id, PtrItuIterType iter, 
+    PtrItuAddrType addr)
+{
+  #pragma HLS INLINE
+  iface.req.write( PtrItuReqMsg( 0, id, OPC_INCR, iter, addr, 0 ) );
+  ap_wait();
+  PtrItuRespMsg resp = iface.resp.read();
+  return resp;
+}
+
+PtrItuRespMsg ptr_itu_decr (
+    PtrItuIfaceType &iface,
+    PtrItuIdType id, PtrItuIterType iter, 
+    PtrItuAddrType addr)
+{
+  #pragma HLS INLINE
+  iface.req.write( PtrItuReqMsg( 0, id, OPC_DECR, iter, addr, 0 ) );
+  ap_wait();
+  PtrItuRespMsg resp = iface.resp.read();
+  return resp;
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//
 // Mem Iface
 //
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

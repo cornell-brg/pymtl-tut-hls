@@ -14,8 +14,9 @@
 #include <memory>
 #include <assert.h>
 
-// For sake of more readable code
+// Macros for the sake of more readable code
 #define _RB_TREE _RbTree<_Key, _Value, _KeyOfValue>
+#define _NODE_PTR PointerProxy< _NodeProxy< _Value > >
 
 //----------------------------------------------------------------------
 // Memory Allocation/Deallocation
@@ -94,7 +95,7 @@ _RB_TREE& _RB_TREE::operator=( const _RB_TREE& x ) {
 //--------------------------------------------------------------------
 template<class _Key, class _Value, class _KeyOfValue>
 typename _RB_TREE::iterator 
-_RB_TREE::m_insert( _NodePtr x_, _NodePtr y_, const value_type& v ) {
+_RB_TREE::m_insert( _NodePtr x_, _NodePtr y_, const _Value& v ) {
   _NodePtr x = (_NodePtr) x_;
   _NodePtr y = (_NodePtr) y_;
   _NodePtr z;
@@ -195,7 +196,7 @@ void _RB_TREE::clear() {
 //--------------------------------------------------------------------
 template<class _Key, class _Value, class _KeyOfValue>
 std::pair<typename _RB_TREE::iterator, bool>
-_RB_TREE::insert_unique( const value_type& _v ) {
+_RB_TREE::insert_unique( const _Value& _v ) {
   _NodePtr y = m_header;
   _NodePtr x = m_root();
   bool comp = true;
@@ -218,7 +219,7 @@ _RB_TREE::insert_unique( const value_type& _v ) {
 
 template<class _Key, class _Value, class _KeyOfValue>
 typename _RB_TREE::iterator
-_RB_TREE::insert_unique( iterator position, const value_type& _v )
+_RB_TREE::insert_unique( iterator position, const _Value& _v )
 {
   if (position.m_node == m_header->m_left) { // begin()
     if (size() > 0 && _KeyOfValue()(_v) < s_key(position.m_node))
@@ -254,7 +255,7 @@ void _RB_TREE::insert_unique( const_iterator first, const_iterator last )
 }
 
 template<class _Key, class _Value, class _KeyOfValue>
-void _RB_TREE::insert_unique( const value_type* first, const value_type* last )
+void _RB_TREE::insert_unique( const _Value* first, const _Value* last )
 {
   for ( ; first != last; ++first)
     insert_unique(*first);
@@ -267,9 +268,9 @@ template<class _Key, class _Value, class _KeyOfValue>
 void _RB_TREE::erase( iterator position ) {
   _NodePtr y = 
     (_NodePtr) _RbTreeRebalanceForErase(position.m_node,
-                                              m_header->m_parent,
-                                              m_header->m_left,
-                                              m_header->m_right);
+                                        m_header->m_parent,
+                                        m_header->m_left,
+                                        m_header->m_right);
   m_destroy_node(y);
   --m_node_count;
 }
@@ -495,7 +496,7 @@ void _RbTreeIterator<_Value,_Ref,_Ptr>::_increment() {
 //----------------------------------------------------------------------
 template<class _Value, class _Ref, class _Ptr>
 void _RbTreeIterator<_Value,_Ref,_Ptr>::_decrement() {
-  if( m_node->m_color == s_RbTreeRed && m_node->m_parent->m_parent == m_node) {
+  if( m_node->m_color == s_RbTreeRed && (*(m_node->m_parent)).m_parent == m_node) {
     m_node = m_node->m_right;
   }
   else if( m_node-> m_left != 0 ) {
@@ -521,8 +522,8 @@ void _RbTreeIterator<_Value,_Ref,_Ptr>::_decrement() {
 // Rotate Left
 //----------------------------------------------------------------------
 template<typename _Value>
-void _RbTreeRotateLeft( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root ) {
-  _RbTreeNode<_Value>* y = x->m_right;
+void _RbTreeRotateLeft( _NODE_PTR x, _NODE_PTR& root ) {
+  _NODE_PTR y = x->m_right;
   x->m_right = y->m_left;
   if( y->m_left != 0 )
     y->m_left->m_parent = x;
@@ -542,8 +543,8 @@ void _RbTreeRotateLeft( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root ) {
 // Rotate Right
 //----------------------------------------------------------------------
 template<typename _Value>
-void _RbTreeRotateRight( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root ) {
-  _RbTreeNode<_Value>* y = x->m_left;
+void _RbTreeRotateRight( _NODE_PTR x, _NODE_PTR& root ) {
+  _NODE_PTR y = x->m_left;
   x->m_left = y->m_right;
   if (y->m_right != 0)
     y->m_right->m_parent = x;
@@ -563,12 +564,12 @@ void _RbTreeRotateRight( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root ) {
 // Rebalance
 //----------------------------------------------------------------------
 template<typename _Value>
-void _RbTreeRebalance( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root )
+void _RbTreeRebalance( _NODE_PTR x, _NODE_PTR& root )
 {
   x->m_color = s_RbTreeRed;
   while (x != root && x->m_parent->m_color == s_RbTreeRed) {
     if (x->m_parent == x->m_parent->m_parent->m_left) {
-      _RbTreeNode<_Value>* y = x->m_parent->m_parent->m_right;
+      _NODE_PTR y = x->m_parent->m_parent->m_right;
       if (y && y->m_color == s_RbTreeRed) {
         x->m_parent->m_color = s_RbTreeBlack;
         y->m_color = s_RbTreeBlack;
@@ -586,7 +587,7 @@ void _RbTreeRebalance( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root )
       }
     }
     else {
-      _RbTreeNode<_Value>* y = x->m_parent->m_parent->m_left;
+      _NODE_PTR y = x->m_parent->m_parent->m_left;
       if (y && y->m_color == s_RbTreeRed) {
         x->m_parent->m_color = s_RbTreeBlack;
         y->m_color = s_RbTreeBlack;
@@ -611,15 +612,15 @@ void _RbTreeRebalance( _RbTreeNode<_Value>* x, _RbTreeNode<_Value>*& root )
 // Rebalance for Erase
 //----------------------------------------------------------------------
 template<typename _Value>
-_RbTreeNode<_Value>*
-_RbTreeRebalanceForErase( _RbTreeNode<_Value>* _z,
-                          _RbTreeNode<_Value>*& root,
-                          _RbTreeNode<_Value>*& leftmost,
-                          _RbTreeNode<_Value>*& rightmost)
+_NODE_PTR
+_RbTreeRebalanceForErase( _NODE_PTR _z,
+                          _NODE_PTR& root,
+                          _NODE_PTR& leftmost,
+                          _NODE_PTR& rightmost)
 {
-  _RbTreeNode<_Value>* y = _z;
-  _RbTreeNode<_Value>* x = 0;
-  _RbTreeNode<_Value>* x_parent = 0;
+  _NODE_PTR y = _z;
+  _NODE_PTR x = 0;
+  _NODE_PTR x_parent = 0;
   if (y->m_left == 0)     // _z has at most one non-null child. y == z.
     x = y->m_right;     // x might be null.
   else
@@ -669,20 +670,20 @@ _RbTreeRebalanceForErase( _RbTreeNode<_Value>* _z,
         leftmost = _z->m_parent;
     // makes leftmost == m_header if _z == root
       else
-        leftmost = _RbTreeNode<_Value>::s_minimum(x);
+        leftmost = s_minimum(x);
     }
     if (rightmost == _z) {
       if (_z->m_left == 0)         // _z->m_right must be null also
         rightmost = _z->m_parent;  
     // makes rightmost == m_header if _z == root
       else                      // x == _z->m_left
-        rightmost = _RbTreeNode<_Value>::s_maximum(x);
+        rightmost = s_maximum(x);
     }
   }
   if (y->m_color != s_RbTreeRed) { 
     while (x != root && (x == 0 || x->m_color == s_RbTreeBlack))
       if (x == x_parent->m_left) {
-        _RbTreeNode<_Value>* w = x_parent->m_right;
+        _NODE_PTR w = x_parent->m_right;
         if (w->m_color == s_RbTreeRed) {
           w->m_color = s_RbTreeBlack;
           x_parent->m_color = s_RbTreeRed;
@@ -711,7 +712,7 @@ _RbTreeRebalanceForErase( _RbTreeNode<_Value>* _z,
           break;
         }
       } else {                  // same as above, with m_right <-> m_left.
-        _RbTreeNode<_Value>* w = x_parent->m_left;
+        _NODE_PTR w = x_parent->m_left;
         if (w->m_color == s_RbTreeRed) {
           w->m_color = s_RbTreeBlack;
           x_parent->m_color = s_RbTreeRed;
@@ -746,5 +747,6 @@ _RbTreeRebalanceForErase( _RbTreeNode<_Value>* _z,
 } // end RbTreeRebalanceForErase
 
 #undef _RB_TREE
+#undef _NODE_PTR
 
 #endif // POLYHSRBTREE_INL

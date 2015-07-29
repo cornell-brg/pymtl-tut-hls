@@ -9,23 +9,77 @@
 #include "Types.h"
 #include "PolyHSValue.h"
 
-extern PeIfaceType g_pe_iface;
+bool eqzero( const PolyHSValue& P ) {
+  switch ( P.type() ) {
+    case TYPE_CHAR:
+    case TYPE_SHORT:
+    case TYPE_INT:
+      return ap_int<32>(P.data[0]) == 0;
+    case TYPE_UCHAR:
+    case TYPE_USHORT:
+    case TYPE_UINT:
+      return ap_uint<32>(P.data[0]) == 0;
+    default:
+      break;
+  }
+  return false;
+}
+
+bool gtzero( const PolyHSValue& P ) {
+  switch ( P.type() ) {
+    case TYPE_CHAR:
+    case TYPE_SHORT:
+    case TYPE_INT:
+      return ap_int<32>(P.data[0]) > 0;
+    case TYPE_UCHAR:
+    case TYPE_USHORT:
+    case TYPE_UINT:
+      return ap_uint<32>(P.data[0]) > 0;
+    default:
+      break;
+  }
+  return false;
+}
+
+bool ltzero( const PolyHSValue& P ) {
+  switch ( P.type() ) {
+    case TYPE_CHAR:
+    case TYPE_SHORT:
+    case TYPE_INT:
+      return ap_int<32>(P.data[0]) < 0;
+    case TYPE_UCHAR:
+    case TYPE_USHORT:
+    case TYPE_UINT:
+      return ap_uint<32>(P.data[0]) < 0;
+    default:
+      break;
+  }
+  return false;
+}
+
 
 //---------------------------------------------------------
 // UnaryPredicate
 //---------------------------------------------------------
 class PolyHSUnaryPredicate {
   ap_uint<8> m_pred;
+  PeIfaceType& m_iface;
 
   public:
-    // Constructors
-    PolyHSUnaryPredicate( const ap_uint<8> pred ) : 
-      m_pred( pred )
+    // Constructor
+    PolyHSUnaryPredicate( PeIfaceType& iface, const ap_uint<8> pred ) : 
+      m_iface( iface ), m_pred( pred )
     { }
     PolyHSUnaryPredicate( const PolyHSUnaryPredicate& p ) :
       m_pred( p.m_pred )
     { }
 
+    // Copy Constructor
+    PolyHSUnaryPredicate( const PolyHSUnaryPredicate& P ) :
+      m_iface( P.m_iface ), m_pred( P.m_pred )
+    {}
+
+    // Evalulation Operator
     bool operator() ( const PolyHSValue& P ) const {
       PeRespMsg resp;
       switch ( P.type() ) {
@@ -62,10 +116,9 @@ class PolyHSUnaryPredicate {
           }
           break;
         case TYPE_POINT:
-          pe_write( g_pe_iface, 2);           // number of args
-          pe_write( g_pe_iface, P.data[1] );  // point.x
-          pe_write( g_pe_iface, P.data[2] );  // point.y
-          resp = pe_read( g_pe_iface );
+          pe_write( m_iface, P.data[1] );  // point.x
+          pe_write( m_iface, P.data[2] );  // point.y
+          resp = pe_read( m_iface );
           return (resp.data != 0);
           break;
         default:

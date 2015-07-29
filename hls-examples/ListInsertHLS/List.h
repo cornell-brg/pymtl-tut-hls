@@ -56,7 +56,7 @@ class list {
       typedef std::bidirectional_iterator_tag   iterator_category;
       typedef ptrdiff_t                         difference_type;
       typedef ValueProxy<T2>                    value_type;
-      typedef node_ptr                           pointer;
+      typedef node_ptr                          pointer;
       typedef typename choose<isconst, const value_type, value_type>::type
                                                 reference;
     protected:
@@ -69,9 +69,9 @@ class list {
       _iterator (pointer ptr) : p(ptr) {}
 
       _iterator& operator= (const _iterator& rhs) {p=rhs.p; return *this;}
-      _iterator& operator++() {p=(*p).m_next; return *this;}
+      _iterator& operator++() {p=p->m_next; return *this;}
       _iterator  operator++(int) {_iterator tmp(*this); operator++(); return tmp;}
-      _iterator& operator--() {p=(*p).m_prev; return *this;}
+      _iterator& operator--() {p=p->m_prev; return *this;}
       _iterator  operator--(int) {_iterator tmp(*this); operator--(); return tmp;}
 
       bool operator==(const _iterator& rhs) const {return p==rhs.p;}
@@ -81,7 +81,7 @@ class list {
       //bool operator> (const _iterator& rhs) const {return !(*this<=rhs);}
       //bool operator>=(const _iterator& rhs) const {return !(*this<rhs);}
 
-      reference operator*() const {return ((*p).m_value);}
+      reference operator*() const {return (*p).m_value;}
 
       pointer get_ptr() { return p; }
     };
