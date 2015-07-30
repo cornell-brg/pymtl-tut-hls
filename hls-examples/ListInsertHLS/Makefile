@@ -3,7 +3,7 @@ CC=g++
 VHLS_PATH := $(dir $(shell which vivado_hls))/..
 VHLS_INC ?= ${VHLS_PATH}/include
 HFLAGS=-DBIT_ACCURATE -I${VHLS_INC}
-CFLAGS=-DCPP_COMPILE -g
+CFLAGS=-DCPP_COMPILE -g -Wall -Werror
 
 HEADERS=ListProxy.h List.h List.inl
 LIST=List

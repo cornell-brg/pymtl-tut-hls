@@ -13,12 +13,12 @@
 //------------------------------------------------------------------------
 void test_assign()
 {
-  const int N1 = 100;
+  const unsigned N1 = 100;
   list<double> src;
   list<double>::iterator it;
   int i;
 
-  for (int i = 0; i < N1; ++i) {
+  for (unsigned i = 0; i < N1; ++i) {
     src.push_back(i);
   }
 

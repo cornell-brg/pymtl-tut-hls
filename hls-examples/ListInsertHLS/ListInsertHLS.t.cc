@@ -23,7 +23,6 @@ List::iterator ListInsertHLS
   new_node->m_next = p;
   new_node->m_prev = p->m_prev;
   
-  //(*(p->m_prev)).m_next = new_node;
   p->m_prev->m_next = new_node;
   p->m_prev = new_node;
   return List::iterator(new_node);
