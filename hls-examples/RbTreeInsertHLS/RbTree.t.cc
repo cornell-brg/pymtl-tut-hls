@@ -19,20 +19,30 @@ typedef unsigned Key;
 typedef std::pair<Key,unsigned> Value;
 typedef _RbTree<Key, Value,  select1st> RbTree;
 
+RbTree::key_type get_key( RbTree::iterator it ) { return Value(*it).first; }
+RbTree::key_type get_val( RbTree::iterator it ) { return Value(*it).second; }
 
 //------------------------------------------------------------------------
 // Test Cons
 //------------------------------------------------------------------------
 void test_cons()
 {
+  printf ("constructing tree\n");
   RbTree tree;
   UTST_CHECK_EQ( tree._rb_verify(), true );
   UTST_CHECK_EQ( tree.empty(), true );
 
+  printf ("inserting 2\n");
   tree.insert_unique( std::make_pair(2,2) );
+  UTST_CHECK_EQ( tree._rb_verify(), true );
+  printf ("inserting 1\n");
   tree.insert_unique( std::make_pair(1,1) );
+  UTST_CHECK_EQ( tree._rb_verify(), true );
+  printf ("inserting 3\n");
   tree.insert_unique( std::make_pair(3,3) );
+  UTST_CHECK_EQ( tree._rb_verify(), true );
 
+  printf ("constructing tree2\n");
   RbTree tree2( tree );
   UTST_CHECK_EQ( tree2._rb_verify(), true );
   UTST_CHECK_EQ( tree.size(), tree2.size() );
@@ -40,8 +50,8 @@ void test_cons()
   RbTree::iterator it  = tree.begin();
   RbTree::iterator it2 = tree2.begin();
   while ( it != tree.end() && it2 != tree2.end() ) {
-    UTST_CHECK_EQ( (*it).first,  (*it2).first );
-    UTST_CHECK_EQ( (*it).second, (*it2).second );
+    UTST_CHECK_EQ( get_key(it),  get_key(it2) );
+    UTST_CHECK_EQ( get_val(it), get_val(it2) );
     ++it;
     ++it2;
   }
@@ -54,7 +64,7 @@ void test_insert()
 {
   RbTree tree;
   RbTree::iterator it;
-  int i;
+  unsigned i;
 
   // test insert_unique( const Value )
   tree.insert_unique( std::make_pair(2,2) );
@@ -65,8 +75,8 @@ void test_insert()
 
   i = 0;
   for (it = tree.begin(); it != tree.end(); ++it) {
-    UTST_CHECK_EQ( (*it).first,  i+1 );
-    UTST_CHECK_EQ( (*it).second, i+1 );
+    UTST_CHECK_EQ( get_key(it), i+1 );
+    UTST_CHECK_EQ( get_val(it), i+1 );
     ++i;
   }
   
@@ -81,8 +91,8 @@ void test_insert()
   
   i = 0;
   for (it = tree.begin(); it != tree.end(); ++it) {
-    UTST_CHECK_EQ( (*it).first,  i+1 );
-    UTST_CHECK_EQ( (*it).second, i+1 );
+    UTST_CHECK_EQ( get_key(it), i+1 );
+    UTST_CHECK_EQ( get_val(it), i+1 );
     ++i;
   }
 
@@ -104,8 +114,8 @@ void test_insert()
   
   i = 0;
   for (it = tree2.begin(); it != tree2.end(); ++it) {
-    UTST_CHECK_EQ( (*it).first,  i+1 );
-    UTST_CHECK_EQ( (*it).second, i+1 );
+    UTST_CHECK_EQ( get_key(it), i+1 );
+    UTST_CHECK_EQ( get_val(it), i+1 );
     ++i;
   }
 }
@@ -117,7 +127,7 @@ void test_erase()
 {
   RbTree tree;
   RbTree::iterator it;
-  int i;
+  unsigned i;
 
   tree.insert_unique( std::make_pair(2,2) );
   tree.insert_unique( std::make_pair(1,1) );
@@ -132,8 +142,8 @@ void test_erase()
   
   i = 0;
   for (it = tree.begin(); it != tree.end(); ++it) {
-    UTST_CHECK_EQ( (*it).first,  i+1 );
-    UTST_CHECK_EQ( (*it).second, i+1 );
+    UTST_CHECK_EQ( get_key(it), i+1 );
+    UTST_CHECK_EQ( get_val(it), i+1 );
     ++i;
   }
   
@@ -146,8 +156,8 @@ void test_erase()
   UTST_CHECK_EQ( tree.size(), 1 );
 
   it = tree.begin();
-  UTST_CHECK_EQ( (*it).first,  2 );
-  UTST_CHECK_EQ( (*it).second, 2 );
+  UTST_CHECK_EQ( get_key(it), 2 );
+  UTST_CHECK_EQ( get_val(it), 2 );
   
   tree.erase( tree.begin(), tree.end() );
   UTST_CHECK_EQ( tree._rb_verify(), true );

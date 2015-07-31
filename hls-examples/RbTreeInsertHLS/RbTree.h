@@ -17,16 +17,19 @@
 // tree rotation and recoloring
 //----------------------------------------------------------------------
 #define _NODE_PTR PointerProxy< _NodeProxy< _Value > >
+#define _NODE_PTR_PROXY _NodePtrProxy< _NodeProxy< _Value > >
 template<typename _Value>
-void  _RbTreeRotateLeft ( _NODE_PTR x, _NODE_PTR& root );
+void  _RbTreeRotateLeft ( _NODE_PTR x, _NODE_PTR_PROXY& root );
 template<typename _Value>
-void  _RbTreeRotateRight( _NODE_PTR x, _NODE_PTR& root );
+void  _RbTreeRotateRight( _NODE_PTR x, _NODE_PTR_PROXY& root );
 template<typename _Value>
-void  _RbTreeRebalance  ( _NODE_PTR x, _NODE_PTR& root );
+void  _RbTreeRebalance  ( _NODE_PTR x, _NODE_PTR_PROXY& root );
 template<typename _Value>
 _NODE_PTR
-_RbTreeRebalanceForErase( _NODE_PTR _z,         _NODE_PTR& root,
-                          _NODE_PTR& leftmost,  _NODE_PTR& rightmost );
+_RbTreeRebalanceForErase( _NODE_PTR _z,              _NODE_PTR_PROXY& root,
+                          _NODE_PTR_PROXY& leftmost, _NODE_PTR_PROXY& rightmost );
+#undef _NODE_PTR
+#undef _NODE_PTR_PROXY
 
 //----------------------------------------------------------------------
 // template _RbTreeIterator
@@ -38,9 +41,9 @@ struct _RbTreeIterator {
   typedef std::bidirectional_iterator_tag iterator_category;
   typedef ptrdiff_t                       difference_type;
   
-  typedef _Value value_type;
-  typedef _Ref   reference;
-  typedef _Ptr   pointer;
+  typedef _Value              value_type;
+  typedef ValueProxy<_Value>  reference;
+  typedef _Ptr                pointer;
   typedef _RbTreeIterator<_Value,_Value&,_Value*>             iterator;
   typedef _RbTreeIterator<_Value,const _Value&,const _Value*> const_iterator;
   typedef _RbTreeIterator<_Value,_Ref,_Ptr>                   _Self;
@@ -55,9 +58,9 @@ struct _RbTreeIterator {
   void _increment();
   void _decrement();
   
-  reference operator*() const { return (reference)m_node->m_value; }
+  reference operator*() const { return m_node->m_value; }
   //TODO: this should return a PointerProxy
-  pointer  operator->() const { return &(operator*()); }
+  //pointer  operator->() const { return &(operator*()); }
 
   _Self& operator++() { _increment(); return *this; }
   _Self  operator++(int) {
@@ -99,8 +102,8 @@ inline bool operator!=( const _RbTreeIterator<_Value,_Ref,_Ptr> x,
 template<class _Key, class _Value, class _KeyOfValue>
 class _RbTree {
 protected:
-  typedef _NodeProxy<_Value>  _Node;
-  typedef _RbTreeColorType    _ColorType;
+  typedef _NodeProxy<_Value>    _Node;
+  typedef _RbTreeColorType      _ColorType;
 public:
   typedef _Key                                key_type;
   typedef _Value&                             reference;
@@ -133,7 +136,9 @@ protected:
   _NodePtr m_create_node( const _Value& x ) {
     Address mem = (Address)malloc( 5*PTR_SIZE );
     assert( mem != 0 );
-    return _NodePtr( mem );
+    _NodePtr node( mem );
+    node->m_value = x;
+    return node;
   }
   void m_destroy_node( _NodePtr p ) {
     #ifdef CPP_COMPILE
@@ -147,33 +152,31 @@ protected:
 //----------------------------------------------------------------------
 protected:
 
-  _NodePtr& m_root() const 
-    { return (_NodePtr&) m_header->m_parent; }
-  _NodePtr& m_leftmost() const 
-    { return (_NodePtr&) m_header->m_left; }
-  _NodePtr& m_rightmost() const 
-    { return (_NodePtr&) m_header->m_right; }
+  _NodePtrProxy<_Node> m_root() const 
+    { return m_header->m_parent; }
+  _NodePtrProxy<_Node> m_leftmost() const 
+    { return m_header->m_left; }
+  _NodePtrProxy<_Node> m_rightmost() const 
+    { return m_header->m_right; }
 
-  static _NodePtr& s_left( _NodePtr x )
-    { return (_NodePtr&)(x->m_left); }
-  static _NodePtr& s_right( _NodePtr x )
-    { return (_NodePtr&)(x->m_right); }
-  static _NodePtr& s_parent( _NodePtr x )
-    { return (_NodePtr&)(x->m_parent); }
-  static reference s_value( _NodePtr x )
-    { return x->m_value; }
+  static _NodePtrProxy<_Node> s_left( _NodePtr x )
+    { return (x->m_left); }
+  static _NodePtrProxy<_Node> s_right( _NodePtr x )
+    { return (x->m_right); }
+  static _NodePtrProxy<_Node> s_parent( _NodePtr x )
+    { return (x->m_parent); }
+  static ValueProxy<_Value>& s_value( _NodePtr x )
+    { return (x->m_value); }
   static const _Key& s_key( _NodePtr x )
-    { return _KeyOfValue()(s_value(x)); }
-  static _ColorType& s_color( _NodePtr x )
-    { return (_ColorType&)(x->m_color); }
+    { return _KeyOfValue()((_Value)s_value(x)); }
+  static ValueProxy<_ColorType>& s_color( _NodePtr x )
+    { return (x->m_color); }
 
   static _NodePtr s_minimum( _NodePtr x ) {
-    while( x->m_left != 0 ) x = x->m_left;
-    return x;
+    return _Node::s_minimum( x );
   }
   static _NodePtr s_maximum( _NodePtr x ) {
-    while( x->m_right != 0 ) x = x->m_right;
-    return x;
+    return _Node::s_maximum( x );
   }
 
 //----------------------------------------------------------------------
@@ -206,8 +209,8 @@ private:
 //----------------------------------------------------------------------
 public:    
                                 // accessors:
-  iterator begin() { return m_leftmost(); }
-  const_iterator begin() const { return m_leftmost(); }
+  iterator begin() { return (_NodePtr)m_leftmost(); }
+  const_iterator begin() const { return (_NodePtr)m_leftmost(); }
   iterator end() { return m_header; }
   const_iterator end() const { return m_header; }
   /*reverse_iterator rbegin() { return reverse_iterator(end()); }

@@ -3,9 +3,9 @@ CC=g++
 VHLS_PATH := $(dir $(shell which vivado_hls))/..
 VHLS_INC ?= ${VHLS_PATH}/include
 HFLAGS=-DBIT_ACCURATE -I${VHLS_INC}
-CFLAGS=-DCPP_COMPILE
+CFLAGS=-DCPP_COMPILE -g -Wall -Werror -DDEBUG
 
-HEADERS=RbTree.h
+HEADERS=RbTree.h RbTree.inl RbTreeProxy.h
 LIST=RbTree
 #INSERT=RbTreeInsertHLS
 PROGS=$(LIST) $(INSERT)

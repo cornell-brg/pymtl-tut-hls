@@ -10,13 +10,15 @@
 #ifndef POLYHS_RBTREE_INL
 #define POLYHS_RBTREE_INL
 
-#include "RbTree.h"
 #include <memory>
 #include <assert.h>
+#include "RbTree.h"
+#include "Common.h"
 
 // Macros for the sake of more readable code
 #define _RB_TREE _RbTree<_Key, _Value, _KeyOfValue>
 #define _NODE_PTR PointerProxy< _NodeProxy< _Value > >
+#define _NODE_PTR_PROXY _NodePtrProxy< _NodeProxy< _Value > >
 
 //----------------------------------------------------------------------
 // Memory Allocation/Deallocation
@@ -136,7 +138,7 @@ _RB_TREE::m_copy( _NodePtr x, _NodePtr p ) {
   _NodePtr top = m_clone_node(x);
   top->m_parent = p;
  
-  if (x->m_right)
+  if (x->m_right != 0)
     top->m_right = m_copy(s_right(x), top);
   p = top;
   x = s_left(x);
@@ -145,7 +147,7 @@ _RB_TREE::m_copy( _NodePtr x, _NodePtr p ) {
     _NodePtr y = m_clone_node(x);
     p->m_left = y;
     y->m_parent = p;
-    if (x->m_right)
+    if (x->m_right != 0)
       y->m_right = m_copy(s_right(x), y);
     p = y;
     x = s_left(x);
@@ -178,6 +180,9 @@ void _RB_TREE::empty_initialize() {
   m_root() = 0;
   m_leftmost() = m_header;
   m_rightmost() = m_header;
+
+  //m_header->m_left = m_header;
+  //m_header->m_right = m_header;
 }
 
 template<class _Key, class _Value, class _KeyOfValue>
@@ -267,10 +272,11 @@ void _RB_TREE::insert_unique( const _Value* first, const _Value* last )
 template<class _Key, class _Value, class _KeyOfValue>
 void _RB_TREE::erase( iterator position ) {
   _NodePtr y = 
-    (_NodePtr) _RbTreeRebalanceForErase(position.m_node,
-                                        m_header->m_parent,
-                                        m_header->m_left,
-                                        m_header->m_right);
+    (_NodePtr) _RbTreeRebalanceForErase(
+                  position.m_node,
+                  m_header->m_parent,
+                  m_header->m_left,
+                  m_header->m_right);
   m_destroy_node(y);
   --m_node_count;
 }
@@ -437,6 +443,15 @@ int _RB_TREE::black_count(_NodePtr node, _NodePtr root) const
 
 template<class _Key, class _Value, class _KeyOfValue>
 bool _RB_TREE::_rb_verify() const {
+  /*DB_PRINT(("In _rb_verify\n"));
+  DB_PRINT(("  header: %p\n", (Address)m_header));
+  DB_PRINT(("  header paren: %p\n", m_header->m_parent.get_addr()));
+  DB_PRINT(("  header left: %p\n", m_header->m_left.get_addr()));
+  DB_PRINT(("  header right: %p\n", m_header->m_right.get_addr()));
+  DB_PRINT(("  header->paren: %p\n", (m_header->m_parent.to_address())));
+  DB_PRINT(("  header->left: %p\n", (m_header->m_left.to_address())));
+  DB_PRINT(("  header->right: %p\n", (m_header->m_right.to_address())));
+*/
   if (m_node_count == 0 || begin() == end())
     return m_node_count == 0 && begin() == end() &&
       m_header->m_left == m_header && m_header->m_right == m_header;
@@ -522,7 +537,7 @@ void _RbTreeIterator<_Value,_Ref,_Ptr>::_decrement() {
 // Rotate Left
 //----------------------------------------------------------------------
 template<typename _Value>
-void _RbTreeRotateLeft( _NODE_PTR x, _NODE_PTR& root ) {
+void _RbTreeRotateLeft( _NODE_PTR x, _NODE_PTR_PROXY& root ) {
   _NODE_PTR y = x->m_right;
   x->m_right = y->m_left;
   if( y->m_left != 0 )
@@ -543,7 +558,7 @@ void _RbTreeRotateLeft( _NODE_PTR x, _NODE_PTR& root ) {
 // Rotate Right
 //----------------------------------------------------------------------
 template<typename _Value>
-void _RbTreeRotateRight( _NODE_PTR x, _NODE_PTR& root ) {
+void _RbTreeRotateRight( _NODE_PTR x, _NODE_PTR_PROXY& root ) {
   _NODE_PTR y = x->m_left;
   x->m_left = y->m_right;
   if (y->m_right != 0)
@@ -564,8 +579,10 @@ void _RbTreeRotateRight( _NODE_PTR x, _NODE_PTR& root ) {
 // Rebalance
 //----------------------------------------------------------------------
 template<typename _Value>
-void _RbTreeRebalance( _NODE_PTR x, _NODE_PTR& root )
+void _RbTreeRebalance( _NODE_PTR x, _NODE_PTR_PROXY& root )
 {
+  DB_ASSERT(( x != 0 ));
+  DB_ASSERT(( root != 0 ));
   x->m_color = s_RbTreeRed;
   while (x != root && x->m_parent->m_color == s_RbTreeRed) {
     if (x->m_parent == x->m_parent->m_parent->m_left) {
@@ -583,7 +600,7 @@ void _RbTreeRebalance( _NODE_PTR x, _NODE_PTR& root )
         }
         x->m_parent->m_color = s_RbTreeBlack;
         x->m_parent->m_parent->m_color = s_RbTreeRed;
-        _RbTreeRotateRight(x->m_parent->m_parent, root);
+        _RbTreeRotateRight((_NODE_PTR)x->m_parent->m_parent, root);
       }
     }
     else {
@@ -601,7 +618,7 @@ void _RbTreeRebalance( _NODE_PTR x, _NODE_PTR& root )
         }
         x->m_parent->m_color = s_RbTreeBlack;
         x->m_parent->m_parent->m_color = s_RbTreeRed;
-        _RbTreeRotateLeft(x->m_parent->m_parent, root);
+        _RbTreeRotateLeft((_NODE_PTR)x->m_parent->m_parent, root);
       }
     }
   }
@@ -614,9 +631,9 @@ void _RbTreeRebalance( _NODE_PTR x, _NODE_PTR& root )
 template<typename _Value>
 _NODE_PTR
 _RbTreeRebalanceForErase( _NODE_PTR _z,
-                          _NODE_PTR& root,
-                          _NODE_PTR& leftmost,
-                          _NODE_PTR& rightmost)
+                          _NODE_PTR_PROXY& root,
+                          _NODE_PTR_PROXY& leftmost,
+                          _NODE_PTR_PROXY& rightmost)
 {
   _NODE_PTR y = _z;
   _NODE_PTR x = 0;
@@ -670,14 +687,14 @@ _RbTreeRebalanceForErase( _NODE_PTR _z,
         leftmost = _z->m_parent;
     // makes leftmost == m_header if _z == root
       else
-        leftmost = s_minimum(x);
+        leftmost = _NodeProxy<_Value>::s_minimum(x);
     }
     if (rightmost == _z) {
       if (_z->m_left == 0)         // _z->m_right must be null also
         rightmost = _z->m_parent;  
     // makes rightmost == m_header if _z == root
       else                      // x == _z->m_left
-        rightmost = s_maximum(x);
+        rightmost = _NodeProxy<_Value>::s_maximum(x);
     }
   }
   if (y->m_color != s_RbTreeRed) { 
@@ -700,14 +717,14 @@ _RbTreeRebalanceForErase( _NODE_PTR _z,
         } else {
           if (w->m_right == 0 || 
               w->m_right->m_color == s_RbTreeBlack) {
-            if (w->m_left) w->m_left->m_color = s_RbTreeBlack;
+            if (w->m_left != 0) w->m_left->m_color = s_RbTreeBlack;
             w->m_color = s_RbTreeRed;
             _RbTreeRotateRight(w, root);
             w = x_parent->m_right;
           }
           w->m_color = x_parent->m_color;
           x_parent->m_color = s_RbTreeBlack;
-          if (w->m_right) w->m_right->m_color = s_RbTreeBlack;
+          if (w->m_right != 0) w->m_right->m_color = s_RbTreeBlack;
           _RbTreeRotateLeft(x_parent, root);
           break;
         }
@@ -729,14 +746,14 @@ _RbTreeRebalanceForErase( _NODE_PTR _z,
         } else {
           if (w->m_left == 0 || 
               w->m_left->m_color == s_RbTreeBlack) {
-            if (w->m_right) w->m_right->m_color = s_RbTreeBlack;
+            if (w->m_right != 0) w->m_right->m_color = s_RbTreeBlack;
             w->m_color = s_RbTreeRed;
             _RbTreeRotateLeft(w, root);
             w = x_parent->m_left;
           }
           w->m_color = x_parent->m_color;
           x_parent->m_color = s_RbTreeBlack;
-          if (w->m_left) w->m_left->m_color = s_RbTreeBlack;
+          if (w->m_left != 0) w->m_left->m_color = s_RbTreeBlack;
           _RbTreeRotateRight(x_parent, root);
           break;
         }
@@ -748,5 +765,6 @@ _RbTreeRebalanceForErase( _NODE_PTR _z,
 
 #undef _RB_TREE
 #undef _NODE_PTR
+#undef _NODE_PTR_PROXY
 
 #endif // POLYHSRBTREE_INL
