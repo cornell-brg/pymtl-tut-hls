@@ -7,7 +7,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
+#ifndef CPP_COMPILE
+  #include <ap_utils.h>
+#endif
 template<typename T> class ValueProxy;
 template<typename T> class PointerProxy;
 
@@ -62,7 +64,8 @@ class ValueProxy {
         memreq.write( MemReqMsg( 0, sizeof(T), m_addr, 0, MSG_READ ) );
         ap_wait();
         MemRespMsg mem_resp = memresp.read();
-        return ((T)mem_resp.data);
+        //XXX: NOOOOOOOO
+        return ((T)(std::make_pair(mem_resp.data,mem_resp.data)));
       #endif
     }
     ValueProxy& operator= ( T data ) {
@@ -104,6 +107,11 @@ class PointerProxy {
     PointerProxy()
       : m_addr( 0 ), m_obj_temp( 0 )
     {}
+#ifndef CPP_COMPILE
+    PointerProxy( unsigned base_ptr )
+      : m_addr( base_ptr ), m_obj_temp( base_ptr )
+    {}
+#endif
     PointerProxy( Address base_ptr )
       : m_addr( base_ptr ), m_obj_temp( base_ptr )
     {}
@@ -135,10 +143,12 @@ class PointerProxy {
     //-----------------------------------------------------------
     PointerProxy& operator=( const Address addr ) {
       m_addr = addr;
+      set_addr( m_obj_temp, addr );
       return *this;
     }
     PointerProxy& operator=( const PointerProxy& x ) {
       m_addr = x.m_addr;
+      set_addr( m_obj_temp, x.m_addr );
       return *this;
     }
     
@@ -163,6 +173,19 @@ inline bool operator!=( const PointerProxy<T>& lhs,
                         const PointerProxy<T>& rhs ) {
   return lhs.get_addr() != rhs.get_addr();
 }
+
+#ifndef CPP_COMPILE
+template<typename T>
+inline bool operator==( const PointerProxy<T>& lhs,
+                        const unsigned rhs ) {
+  return lhs.get_addr() == rhs;
+}
+template<typename T>
+inline bool operator!=( const PointerProxy<T>& lhs,
+                        const unsigned rhs ) {
+  return lhs.get_addr() != rhs;
+}
+#endif
 
 //#undef DB_PRINT
 //#undef DB_ASSERT

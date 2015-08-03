@@ -43,7 +43,8 @@ struct _RbTreeIterator {
   
   typedef _Value              value_type;
   typedef ValueProxy<_Value>  reference;
-  typedef _Ptr                pointer;
+  //typedef _Ref                reference;
+  typedef PointerProxy< _NodeProxy<_Value> >                  pointer;
   typedef _RbTreeIterator<_Value,_Value&,_Value*>             iterator;
   typedef _RbTreeIterator<_Value,const _Value&,const _Value*> const_iterator;
   typedef _RbTreeIterator<_Value,_Ref,_Ptr>                   _Self;
@@ -59,8 +60,7 @@ struct _RbTreeIterator {
   void _decrement();
   
   reference operator*() const { return m_node->m_value; }
-  //TODO: this should return a PointerProxy
-  //pointer  operator->() const { return &(operator*()); }
+  pointer  operator->() const { return m_node; }
 
   _Self& operator++() { _increment(); return *this; }
   _Self  operator++(int) {
@@ -101,19 +101,19 @@ inline bool operator!=( const _RbTreeIterator<_Value,_Ref,_Ptr> x,
 //----------------------------------------------------------------------
 template<class _Key, class _Value, class _KeyOfValue>
 class _RbTree {
-protected:
+public:
   typedef _NodeProxy<_Value>    _Node;
   typedef _RbTreeColorType      _ColorType;
 public:
   typedef _Key                                key_type;
-  typedef _Value&                             reference;
-  typedef _Value*                             pointer;
+  //typedef _Value&                             reference;
+  //typedef _Value*                             pointer;
   typedef PointerProxy< _NodeProxy<_Value> >  _NodePtr;
   typedef size_t                              size_type;
   typedef ptrdiff_t                           difference_type;
   typedef _RbTree<_Key, _Value, _KeyOfValue>  _Self;
 
-protected:
+public:
   // The header is used to quickly access the root node, leftmost node,
   // and rightmost node
   _NodePtr m_header;
@@ -150,7 +150,7 @@ protected:
 //----------------------------------------------------------------------
 // Basic Operations
 //----------------------------------------------------------------------
-protected:
+public:
 
   _NodePtrProxy<_Node> m_root() const 
     { return m_header->m_parent; }
@@ -159,11 +159,11 @@ protected:
   _NodePtrProxy<_Node> m_rightmost() const 
     { return m_header->m_right; }
 
-  static _NodePtrProxy<_Node> s_left( _NodePtr x )
+  static _NodePtrProxy<_Node>& s_left( _NodePtr x )
     { return (x->m_left); }
-  static _NodePtrProxy<_Node> s_right( _NodePtr x )
+  static _NodePtrProxy<_Node>& s_right( _NodePtr x )
     { return (x->m_right); }
-  static _NodePtrProxy<_Node> s_parent( _NodePtr x )
+  static _NodePtrProxy<_Node>& s_parent( _NodePtr x )
     { return (x->m_parent); }
   static ValueProxy<_Value>& s_value( _NodePtr x )
     { return (x->m_value); }
@@ -276,8 +276,11 @@ public:
 
 public:
                                 // Debugging.
-  int black_count(_NodePtr node, _NodePtr root) const;
+  int black_count( _NodePtr node, _NodePtr root ) const;
   bool _rb_verify() const;
+  void _dump_node( const _NodePtr node, const std::string prefix="", const char lr='x' ) const;
+  void _dump_subtree( const _NodePtr node, const std::string prefix="", const char lr='x' ) const;
+  void _dump_tree() const;
 
 }; // end class _RbTree
 

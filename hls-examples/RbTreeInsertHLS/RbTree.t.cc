@@ -19,30 +19,58 @@ typedef unsigned Key;
 typedef std::pair<Key,unsigned> Value;
 typedef _RbTree<Key, Value,  select1st> RbTree;
 
-RbTree::key_type get_key( RbTree::iterator it ) { return Value(*it).first; }
-RbTree::key_type get_val( RbTree::iterator it ) { return Value(*it).second; }
+RbTree::key_type get_key( RbTree::iterator it ) { return ((Value)*it).first; }
+RbTree::key_type get_val( RbTree::iterator it ) { return ((Value)*it).second; }
+
+//------------------------------------------------------------------------
+// Test Cons Simple
+//------------------------------------------------------------------------
+void test_cons_simple()
+{
+  RbTree tree;
+  unsigned i;
+  const unsigned N = 16;
+  UTST_CHECK_EQ( tree._rb_verify(), true );
+  UTST_CHECK_EQ( tree.empty(), true );
+
+  for (i = 0; i < N; ++i) 
+    tree.insert_unique( std::make_pair(i+1,i+1) );
+  UTST_CHECK_EQ( tree._rb_verify(), true );
+  tree._dump_tree();
+
+  i = 0;
+  for ( RbTree::iterator it = tree.begin(); it != tree.end(); ++it ) {
+    UTST_CHECK_EQ( get_key(it), i+1 );
+    UTST_CHECK_EQ( get_val(it), i+1 );
+    ++i;
+  }
+  UTST_CHECK_EQ( i, N );
+}
 
 //------------------------------------------------------------------------
 // Test Cons
 //------------------------------------------------------------------------
 void test_cons()
 {
-  printf ("constructing tree\n");
   RbTree tree;
+  unsigned i;
   UTST_CHECK_EQ( tree._rb_verify(), true );
   UTST_CHECK_EQ( tree.empty(), true );
 
-  printf ("inserting 2\n");
   tree.insert_unique( std::make_pair(2,2) );
   UTST_CHECK_EQ( tree._rb_verify(), true );
-  printf ("inserting 1\n");
   tree.insert_unique( std::make_pair(1,1) );
   UTST_CHECK_EQ( tree._rb_verify(), true );
-  printf ("inserting 3\n");
   tree.insert_unique( std::make_pair(3,3) );
   UTST_CHECK_EQ( tree._rb_verify(), true );
 
-  printf ("constructing tree2\n");
+  i = 0;
+  for ( RbTree::iterator it = tree.begin(); it != tree.end(); ++it ) {
+    UTST_CHECK_EQ( get_key(it), i+1 );
+    UTST_CHECK_EQ( get_val(it), i+1 );
+    ++i;
+  }
+
   RbTree tree2( tree );
   UTST_CHECK_EQ( tree2._rb_verify(), true );
   UTST_CHECK_EQ( tree.size(), tree2.size() );
@@ -171,6 +199,7 @@ void test_erase()
 //------------------------------------------------------------------------
 int main( int argc, char* argv[] )
 {
+  test_cons_simple();
   test_cons();
   test_insert();
   test_erase();

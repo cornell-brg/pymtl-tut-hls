@@ -443,15 +443,6 @@ int _RB_TREE::black_count(_NodePtr node, _NodePtr root) const
 
 template<class _Key, class _Value, class _KeyOfValue>
 bool _RB_TREE::_rb_verify() const {
-  /*DB_PRINT(("In _rb_verify\n"));
-  DB_PRINT(("  header: %p\n", (Address)m_header));
-  DB_PRINT(("  header paren: %p\n", m_header->m_parent.get_addr()));
-  DB_PRINT(("  header left: %p\n", m_header->m_left.get_addr()));
-  DB_PRINT(("  header right: %p\n", m_header->m_right.get_addr()));
-  DB_PRINT(("  header->paren: %p\n", (m_header->m_parent.to_address())));
-  DB_PRINT(("  header->left: %p\n", (m_header->m_left.to_address())));
-  DB_PRINT(("  header->right: %p\n", (m_header->m_right.to_address())));
-*/
   if (m_node_count == 0 || begin() == end())
     return m_node_count == 0 && begin() == end() &&
       m_header->m_left == m_header && m_header->m_right == m_header;
@@ -482,6 +473,46 @@ bool _RB_TREE::_rb_verify() const {
     return false;
 
   return true;
+}
+
+//----------------------------------------------------------------------
+// _dump_node and _dump_tree
+//----------------------------------------------------------------------
+template<class _Key, class _Value, class _KeyOfValue>
+void _RB_TREE::_dump_node( const _NodePtr node, const std::string prefix, const char lr ) const {
+  if (node == 0) {
+    printf ("%s%c\n", prefix.c_str(), lr);
+    return;
+  }
+  printf ("%s%c:(%3d,%3d):%s\n", prefix.c_str(), lr,
+      ((_Value)node->m_value).first, ((_Value)node->m_value).second,
+      ((_ColorType)node->m_color ? "blk" : "red")
+    );
+}
+
+template<class _Key, class _Value, class _KeyOfValue>
+void _RB_TREE::_dump_subtree( const _NodePtr node, const std::string prefix, const char lr ) const {
+  _dump_node( node, prefix, lr );
+  if (node->m_left != 0)
+    _dump_subtree( node->m_left,  prefix+"  ", 'L' );
+  if (node->m_right != 0)
+    _dump_subtree( node->m_right, prefix+"  ", 'R' );
+}
+
+template<class _Key, class _Value, class _KeyOfValue>
+void _RB_TREE::_dump_tree() const {
+
+  if( m_root() != 0) {
+    _dump_node( m_root(), "Rt: " );
+  }
+  if( m_leftmost () != 0) {
+    _dump_node( m_leftmost (), "Min:" );
+  }
+  if( m_rightmost() != 0) {
+    _dump_node( m_rightmost(), "Max:" );
+  }
+
+  _dump_subtree( m_root() );
 }
 
 //----------------------------------------------------------------------
