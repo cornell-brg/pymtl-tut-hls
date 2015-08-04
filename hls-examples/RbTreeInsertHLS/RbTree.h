@@ -16,15 +16,15 @@
 //----------------------------------------------------------------------
 // tree rotation and recoloring
 //----------------------------------------------------------------------
-#define _NODE_PTR PointerProxy< _NodeProxy< _Value > >
-#define _NODE_PTR_PROXY _NodePtrProxy< _NodeProxy< _Value > >
-template<typename _Value>
+#define _NODE_PTR PointerProxy< _NodeProxy< _Key, _Value > >
+#define _NODE_PTR_PROXY _NodePtrProxy< _NodeProxy< _Key, _Value > >
+template<typename _Key, typename _Value>
 void  _RbTreeRotateLeft ( _NODE_PTR x, _NODE_PTR_PROXY& root );
-template<typename _Value>
+template<typename _Key, typename _Value>
 void  _RbTreeRotateRight( _NODE_PTR x, _NODE_PTR_PROXY& root );
-template<typename _Value>
+template<typename _Key, typename _Value>
 void  _RbTreeRebalance  ( _NODE_PTR x, _NODE_PTR_PROXY& root );
-template<typename _Value>
+template<typename _Key, typename _Value>
 _NODE_PTR
 _RbTreeRebalanceForErase( _NODE_PTR _z,              _NODE_PTR_PROXY& root,
                           _NODE_PTR_PROXY& leftmost, _NODE_PTR_PROXY& rightmost );
@@ -36,19 +36,18 @@ _RbTreeRebalanceForErase( _NODE_PTR _z,              _NODE_PTR_PROXY& root,
 //   Adds the dereference, ++, -- operators to the BaseIterator
 //   Inherits the ==, != operators
 //----------------------------------------------------------------------
-template<class _Value, class _Ref, class _Ptr>
+template<class _Key, class _Value, class _KProxy, class _VProxy, class _NodePtr>
 struct _RbTreeIterator {
   typedef std::bidirectional_iterator_tag iterator_category;
   typedef ptrdiff_t                       difference_type;
   
   typedef _Value              value_type;
-  typedef ValueProxy<_Value>  reference;
-  //typedef _Ref                reference;
-  typedef PointerProxy< _NodeProxy<_Value> >                  pointer;
-  typedef _RbTreeIterator<_Value,_Value&,_Value*>             iterator;
-  typedef _RbTreeIterator<_Value,const _Value&,const _Value*> const_iterator;
-  typedef _RbTreeIterator<_Value,_Ref,_Ptr>                   _Self;
-  typedef PointerProxy< _NodeProxy<_Value> >                  _NodePtr;
+  typedef _VProxy             reference;
+  typedef _KProxy             key_reference;
+  typedef _VProxy             val_reference;
+  typedef _NodePtr            pointer;
+  typedef _RbTreeIterator<_Key, _Value, _KProxy, _VProxy, _NodePtr>
+                              iterator;
 
   _NodePtr m_node;
 
@@ -59,18 +58,20 @@ struct _RbTreeIterator {
   void _increment();
   void _decrement();
   
-  reference operator*() const { return m_node->m_value; }
+  val_reference operator*() const { return m_node->m_value; }
   pointer  operator->() const { return m_node; }
+  val_reference value() const { return m_node->m_value; }
+  key_reference key() const { return m_node->m_key; }
 
-  _Self& operator++() { _increment(); return *this; }
-  _Self  operator++(int) {
-    _Self temp = *this;
+  iterator& operator++() { _increment(); return *this; }
+  iterator  operator++(int) {
+    iterator temp = *this;
     _increment();
     return temp;
   }
-  _Self& operator--() { _decrement(); return *this; }
-  _Self  operator--(int) {
-    _Self temp = *this;
+  iterator& operator--() { _decrement(); return *this; }
+  iterator  operator--(int) {
+    iterator temp = *this;
     _decrement();
     return temp;
   }
@@ -79,16 +80,16 @@ struct _RbTreeIterator {
 //----------------------------------------------------------------------
 // _RbTreeIterator equality operators
 //----------------------------------------------------------------------
-template<class _Value, class _Ref, class _Ptr>
-inline bool operator==( const _RbTreeIterator<_Value,_Ref,_Ptr> x, 
-                        const _RbTreeIterator<_Value,_Ref,_Ptr> y ) {
+#define _RBTREE_ITER _RbTreeIterator<_Key,_Value,_KProxy,_VProxy,_NodePtr>
+template<class _Key, class _Value, class _KProxy, class _VProxy, class _NodePtr>
+inline bool operator==( const _RBTREE_ITER x, const _RBTREE_ITER y ) {
   return x.m_node == y.m_node;
 }
-template<class _Value, class _Ref, class _Ptr>
-inline bool operator!=( const _RbTreeIterator<_Value,_Ref,_Ptr> x, 
-                        const _RbTreeIterator<_Value,_Ref,_Ptr> y ) {
+template<class _Key, class _Value, class _KProxy, class _VProxy, class _NodePtr>
+inline bool operator!=( const _RBTREE_ITER x, const _RBTREE_ITER y ) {
   return x.m_node != y.m_node;
 }
+#undef _RBTREE_ITER
 
 //----------------------------------------------------------------------
 // _RbTree template
@@ -96,22 +97,22 @@ inline bool operator!=( const _RbTreeIterator<_Value,_Ref,_Ptr> x,
 //   KeyComp is replaced by just key::operator==, and the Allocator
 //   is just new and delete for now.
 //
-//   For the map, _Value is a pair holding map::key and map::value
-//   and _KeyOfValue is a function which returns first from this pair
+//   Both _Key and _Value are stored at a node, and an insert operation
+//   must be done with both _Key and _Value.
 //----------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 class _RbTree {
 public:
-  typedef _NodeProxy<_Value>    _Node;
-  typedef _RbTreeColorType      _ColorType;
-public:
+  typedef _NodeProxy<_Key, _Value>            _Node;
+  typedef _RbTreeColorType                    _ColorType;
+protected:
   typedef _Key                                key_type;
-  //typedef _Value&                             reference;
-  //typedef _Value*                             pointer;
-  typedef PointerProxy< _NodeProxy<_Value> >  _NodePtr;
+  typedef _Value                              value_type;
+  typedef PointerProxy< _NodeProxy<_Key,_Value> >
+                                              _NodePtr;
   typedef size_t                              size_type;
   typedef ptrdiff_t                           difference_type;
-  typedef _RbTree<_Key, _Value, _KeyOfValue>  _Self;
+  typedef _RbTree<_Key, _Value>               _Self;
 
 public:
   // The header is used to quickly access the root node, leftmost node,
@@ -124,19 +125,23 @@ public:
 //----------------------------------------------------------------------
 public:
 
-  typedef _RbTreeIterator<_Value, _Value&, _Value*> iterator;
-  typedef _RbTreeIterator<_Value, const _Value&, const _Value*>
-          const_iterator;
+  typedef _RbTreeIterator< _Key, _Value,
+          ValueProxy<_Key>, ValueProxy<_Value>,
+          _NodePtr > iterator;
+  typedef _RbTreeIterator< _Key, _Value,
+          const ValueProxy<_Key>, const ValueProxy<_Value>,
+          _NodePtr > const_iterator;
 
 //----------------------------------------------------------------------
 // Allocation/Deallocation
 //----------------------------------------------------------------------
 protected:
 
-  _NodePtr m_create_node( const _Value& x ) {
-    Address mem = (Address)malloc( 5*PTR_SIZE );
+  _NodePtr m_create_node( const key_type& k, const value_type& x ) {
+    Address mem = (Address)malloc( _Node::size() );
     assert( mem != 0 );
     _NodePtr node( mem );
+    node->m_key = k;
     node->m_value = x;
     return node;
   }
@@ -167,8 +172,8 @@ public:
     { return (x->m_parent); }
   static ValueProxy<_Value>& s_value( _NodePtr x )
     { return (x->m_value); }
-  static const _Key& s_key( _NodePtr x )
-    { return _KeyOfValue()((_Value)s_value(x)); }
+  static const ValueProxy<_Key>& s_key( _NodePtr x )
+    { return (x->m_key); }
   static ValueProxy<_ColorType>& s_color( _NodePtr x )
     { return (x->m_color); }
 
@@ -200,7 +205,7 @@ public:
 //----------------------------------------------------------------------
 private:
 
-  iterator m_insert(_NodePtr x, _NodePtr y, const _Value& v);
+  iterator m_insert(_NodePtr x, _NodePtr y, const _Key& k, const _Value& v);
   _NodePtr m_copy(_NodePtr x, _NodePtr p);
   void m_erase(_NodePtr x);
 
@@ -234,12 +239,15 @@ public:
                                 // insert/erase
   // RZ:  insert_equal not supported as it is not used by
   //      map or set
-  std::pair<iterator,bool> insert_unique(const _Value& x);
-  //iterator insert_equal(const _Value& x);
-  iterator insert_unique(iterator position, const _Value& x);
-  //iterator insert_equal(iterator position, const _Value& x);
+  std::pair<iterator,bool> insert_unique(
+      const key_type& k, const value_type& x);
+  iterator insert_unique(
+      iterator position, const key_type& k, const value_type& x);
   void insert_unique(const_iterator first, const_iterator last);
-  void insert_unique(const _Value* first, const _Value* last);
+  void insert_unique(iterator first, iterator last);
+  //void insert_unique(const _Value* first, const _Value* last);
+  //iterator insert_equal(const _Value& x);
+  //iterator insert_equal(iterator position, const _Value& x);
   //void insert_equal(const_iterator first, const_iterator last);
   //void insert_equal(const _Value* first, const _Value* last);
 

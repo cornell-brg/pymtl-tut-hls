@@ -26,7 +26,8 @@ template<typename T>
 class list {
   public:
     typedef size_t                          size_type;
-    typedef PointerProxy< NodeProxy<T> >    node_ptr;
+    typedef NodeProxy<T>                    node_type;
+    typedef PointerProxy< node_type >       node_ptr;
   
   public:
     // These template structs let us use a single class for iterator
@@ -90,7 +91,7 @@ class list {
     node_ptr m_node;
   
     Address get_node_mem() {
-      return (Address)malloc(sizeof(T)+2*sizeof(Address));
+      return (Address)malloc( node_type::size() );
     }
 
     node_ptr get_node( const T& val = T() ) {

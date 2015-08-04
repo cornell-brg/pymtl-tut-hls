@@ -19,9 +19,10 @@ template<typename T> class _NodePtrProxy;
 //--------------------------------------------------------------
 // template _NodeProxy
 //--------------------------------------------------------------
-template<typename T>
+template<typename T1, typename T2>
 struct _NodeProxy {
-  typedef ValueProxy<T>                 ValueType;
+  typedef ValueProxy<T1>                ValueType;
+  typedef ValueProxy<T2>                KeyType;
   typedef ValueProxy<_RbTreeColorType>  ColorType;
   typedef _NodePtrProxy<_NodeProxy>     NodePtrProxy;
   typedef PointerProxy<_NodeProxy>      NodePointer;
@@ -30,6 +31,7 @@ struct _NodeProxy {
   NodePtrProxy   m_left;
   NodePtrProxy   m_right;
   ColorType      m_color;
+  KeyType        m_key;
   ValueType      m_value;
 
   //------------------------------------------------------------
@@ -40,18 +42,20 @@ struct _NodeProxy {
       m_left  ( base_ptr+PTR_SIZE ),
       m_right ( base_ptr+2*PTR_SIZE ),
       m_color ( base_ptr+3*PTR_SIZE ),
-      m_value ( base_ptr+3*PTR_SIZE+m_color.size() )
+      m_key   ( base_ptr+3*PTR_SIZE+ColorType::size() ),
+      m_value ( base_ptr+3*PTR_SIZE+ColorType::size()+KeyType::size() )
   {}
   _NodeProxy( const _NodeProxy& p )
     : m_parent( p.m_parent ),
       m_left (  p.m_left ),
       m_right(  p.m_right ),
       m_color(  p.m_color ),
+      m_key  (  p.m_key ),
       m_value(  p.m_value )
   {}
 
-  size_t total_size() {
-    return 3*PTR_SIZE + m_value.size() + m_color.size();
+  static size_t size() {
+    return 3*PTR_SIZE+ColorType::size()+KeyType::size()+ValueType::size();
   }
 
   //------------------------------------------------------------
@@ -72,13 +76,17 @@ struct _NodeProxy {
   }
 };
 
-template<typename T>
-void set_addr( _NodeProxy<T>& p, Address addr ) {
+template<typename T1, typename T2>
+void set_addr( _NodeProxy<T1,T2>& p, Address addr ) {
   p.m_parent.set_addr( addr );
   p.m_left.set_addr  ( addr+PTR_SIZE );
   p.m_right.set_addr ( addr+2*PTR_SIZE );
   p.m_color.set_addr ( addr+3*PTR_SIZE );
-  p.m_value.set_addr(  addr+3*PTR_SIZE+p.m_color.size() );
+  p.m_key.set_addr   ( addr+3*PTR_SIZE +
+                       _NodeProxy<T1,T2>::ColorType::size() );
+  p.m_value.set_addr ( addr+3*PTR_SIZE +
+                       _NodeProxy<T1,T2>::ColorType::size() +
+                       _NodeProxy<T1,T2>::KeyType::size() );
 }
 
 //--------------------------------------------------------------

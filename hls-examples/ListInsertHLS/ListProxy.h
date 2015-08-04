@@ -36,6 +36,9 @@ struct NodeProxy {
       m_next( p.m_next ),
       m_value( p.m_value )
   {}
+  static size_t size() {
+    return 2*PTR_SIZE + ValueProxy<T>::size();
+  }
 
 
   //XXX: This should be outside the class, but we get an error
@@ -115,8 +118,8 @@ class NodePtrProxy {
     //----------------------------------------------------------------
     // other
     //----------------------------------------------------------------
-    void set_addr( const Address addr ) { m_addr = (AddressPtr)addr; }
     Address get_addr() const { return (Address)m_addr; }
+    void set_addr( const Address addr ) { m_addr = (AddressPtr)addr; }
 };
 
 #endif

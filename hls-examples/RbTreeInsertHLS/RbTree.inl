@@ -16,17 +16,18 @@
 #include "Common.h"
 
 // Macros for the sake of more readable code
-#define _RB_TREE _RbTree<_Key, _Value, _KeyOfValue>
-#define _NODE_PTR PointerProxy< _NodeProxy< _Value > >
-#define _NODE_PTR_PROXY _NodePtrProxy< _NodeProxy< _Value > >
+#define _RB_TREE _RbTree<_Key, _Value>
+#define _NODE_PTR PointerProxy< _NodeProxy< _Key, _Value > >
+#define _NODE_PTR_PROXY _NodePtrProxy< _NodeProxy< _Key, _Value > >
+#define _RBTREE_ITER _RbTreeIterator<_Key,_Value,_KProxy,_VProxy,_NodePtr>
 
 //----------------------------------------------------------------------
 // Memory Allocation/Deallocation
 //----------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 typename _RB_TREE::_NodePtr
 _RB_TREE::m_clone_node( _NodePtr x ) {
-  _NodePtr tmp = m_create_node(x->m_value);
+  _NodePtr tmp = m_create_node(x->m_key, x->m_value);
   tmp->m_color = x->m_color;
   tmp->m_left = 0;
   tmp->m_right = 0;
@@ -36,16 +37,16 @@ _RB_TREE::m_clone_node( _NodePtr x ) {
 //--------------------------------------------------------------------
 // Constructors
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 _RB_TREE::_RbTree()
-  : m_header( m_create_node( _Value() ) ), m_node_count(0)
+  : m_header( m_create_node( _Key(), _Value() ) ), m_node_count(0)
 {
   empty_initialize();
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
-_RB_TREE::_RbTree(const _RbTree<_Key,_Value,_KeyOfValue>& x) 
-  : m_header( m_create_node( _Value() ) ), m_node_count(0)
+template<class _Key, class _Value>
+_RB_TREE::_RbTree(const _RB_TREE& x) 
+  : m_header( m_create_node( _Key(), _Value() ) ), m_node_count(0)
 {
   if (x.m_root() == 0)
     empty_initialize();
@@ -61,7 +62,7 @@ _RB_TREE::_RbTree(const _RbTree<_Key,_Value,_KeyOfValue>& x)
 //--------------------------------------------------------------------
 // Destructors
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 _RB_TREE::~_RbTree() {
   clear();
   m_destroy_node( m_header );
@@ -70,7 +71,7 @@ _RB_TREE::~_RbTree() {
 //--------------------------------------------------------------------
 // Operators
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 _RB_TREE& _RB_TREE::operator=( const _RB_TREE& x ) {
   if( this != &x ) {
     clear();
@@ -95,16 +96,16 @@ _RB_TREE& _RB_TREE::operator=( const _RB_TREE& x ) {
 //--------------------------------------------------------------------
 // m_insert
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 typename _RB_TREE::iterator 
-_RB_TREE::m_insert( _NodePtr x_, _NodePtr y_, const _Value& v ) {
+_RB_TREE::m_insert( _NodePtr x_, _NodePtr y_, const _Key& k, const _Value& v ) {
   _NodePtr x = (_NodePtr) x_;
   _NodePtr y = (_NodePtr) y_;
   _NodePtr z;
 
   if (y == m_header || x != 0 || 
-      (_KeyOfValue()(v) < s_key(y))) {
-    z = m_create_node(v);
+      (k < s_key(y))) {
+    z = m_create_node(k,v);
     s_left(y) = z;               // also makes m_leftmost() = z 
                                       //    when y == m_header
     if (y == m_header) {
@@ -115,7 +116,7 @@ _RB_TREE::m_insert( _NodePtr x_, _NodePtr y_, const _Value& v ) {
       m_leftmost() = z;   // maintain m_leftmost() pointing to min node
   }
   else {
-    z = m_create_node(v);
+    z = m_create_node(k,v);
     s_right(y) = z;
     if (y == m_rightmost())
       m_rightmost() = z;  // maintain m_rightmost() pointing to max node
@@ -131,7 +132,7 @@ _RB_TREE::m_insert( _NodePtr x_, _NodePtr y_, const _Value& v ) {
 //--------------------------------------------------------------------
 // m_copy
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 typename _RB_TREE::_NodePtr
 _RB_TREE::m_copy( _NodePtr x, _NodePtr p ) {
   // structural copy.  x and p must be non-null.
@@ -159,7 +160,7 @@ _RB_TREE::m_copy( _NodePtr x, _NodePtr p ) {
 //--------------------------------------------------------------------
 // m_erase
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 void _RB_TREE::m_erase( _NodePtr x ) {
   // erase without rebalancing
   while (x != 0) {
@@ -173,7 +174,7 @@ void _RB_TREE::m_erase( _NodePtr x ) {
 //--------------------------------------------------------------------
 // empty_initialize and clear
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 void _RB_TREE::empty_initialize() {
   s_color(m_header) = s_RbTreeRed; // used to distinguish header from 
                                  // root, in iterator.operator++
@@ -185,7 +186,7 @@ void _RB_TREE::empty_initialize() {
   //m_header->m_right = m_header;
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 void _RB_TREE::clear() {
   if (m_node_count != 0) {
     m_erase(m_root());
@@ -199,77 +200,84 @@ void _RB_TREE::clear() {
 //--------------------------------------------------------------------
 // insert_unique
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 std::pair<typename _RB_TREE::iterator, bool>
-_RB_TREE::insert_unique( const _Value& _v ) {
+_RB_TREE::insert_unique( const _Key& _k, const _Value& _v ) {
   _NodePtr y = m_header;
   _NodePtr x = m_root();
   bool comp = true;
   while (x != 0) {
     y = x;
-    comp = (_KeyOfValue()(_v) < s_key(x));
+    comp = (_k < s_key(x));
     x = comp ? s_left(x) : s_right(x);
   }
   iterator j = iterator(y);   
   if (comp) {
     if (j == begin())     
-      return std::pair<iterator,bool>(m_insert(x, y, _v), true);
+      return std::pair<iterator,bool>(m_insert(x, y, _k, _v), true);
     else
       --j;
   }
-  if (s_key(j.m_node) < _KeyOfValue()(_v))
-    return std::pair<iterator,bool>(m_insert(x, y, _v), true);
+  if (s_key(j.m_node) < _k)
+    return std::pair<iterator,bool>(m_insert(x, y, _k, _v), true);
   return std::pair<iterator,bool>(j, false);
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 typename _RB_TREE::iterator
-_RB_TREE::insert_unique( iterator position, const _Value& _v )
+_RB_TREE::insert_unique( iterator position, const _Key& _k, const _Value& _v )
 {
   if (position.m_node == m_header->m_left) { // begin()
-    if (size() > 0 && _KeyOfValue()(_v) < s_key(position.m_node))
-      return m_insert(position.m_node, position.m_node, _v);
+    if (size() > 0 && _k < s_key(position.m_node))
+      return m_insert(position.m_node, position.m_node, _k, _v);
     // first argument just needs to be non-null 
     else
-      return insert_unique(_v).first;
+      return insert_unique(_k,_v).first;
   } else if (position.m_node == m_header) { // end()
-    if (s_key(m_rightmost()) < _KeyOfValue()(_v))
-      return m_insert(0, m_rightmost(), _v);
+    if (s_key(m_rightmost()) < _k)
+      return m_insert(0, m_rightmost(), _k, _v);
     else
-      return insert_unique(_v).first;
+      return insert_unique(_k,_v).first;
   } else {
     iterator before = position;
     --before;
-    if (s_key(before.m_node) < _KeyOfValue()(_v) 
-        && _KeyOfValue()(_v) < s_key(position.m_node)) {
+    if (s_key(before.m_node) < _k 
+        && _k < s_key(position.m_node)) {
       if (s_right(before.m_node) == 0)
-        return m_insert(0, before.m_node, _v); 
+        return m_insert(0, before.m_node, _k, _v); 
       else
-        return m_insert(position.m_node, position.m_node, _v);
+        return m_insert(position.m_node, position.m_node, _k, _v);
     // first argument just needs to be non-null 
     } else
-      return insert_unique(_v).first;
+      return insert_unique(_k,_v).first;
   }
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 void _RB_TREE::insert_unique( const_iterator first, const_iterator last )
 {
   for ( ; first != last; ++first)
-    insert_unique(*first);
+    insert_unique(first.key(), *first);
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
+  template<class _Key, class _Value>
+void _RB_TREE::insert_unique( iterator first, iterator last )
+{
+  for ( ; first != last; ++first)
+    insert_unique(first.key(), *first);
+}
+
+/*template<class _Key, class _Value>
 void _RB_TREE::insert_unique( const _Value* first, const _Value* last )
 {
   for ( ; first != last; ++first)
     insert_unique(*first);
-}
+}*/
 
 //--------------------------------------------------------------------
 // erase
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 void _RB_TREE::erase( iterator position ) {
   _NodePtr y = 
     (_NodePtr) _RbTreeRebalanceForErase(
@@ -281,7 +289,7 @@ void _RB_TREE::erase( iterator position ) {
   --m_node_count;
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 typename _RB_TREE::size_type _RB_TREE::erase( const key_type& x ) {
   std::pair<iterator,iterator> _p = equal_range(x);
   size_type _n = std::distance(_p.first, _p.second);
@@ -289,7 +297,7 @@ typename _RB_TREE::size_type _RB_TREE::erase( const key_type& x ) {
   return _n;
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 void _RB_TREE::erase( iterator first, iterator last ) {
   if (first == begin() && last == end())
     clear();
@@ -297,7 +305,7 @@ void _RB_TREE::erase( iterator first, iterator last ) {
     while (first != last) erase(first++);
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 void _RB_TREE::erase( const key_type* first, const key_type* last ) {
   while (first != last) erase(*first++);
 }
@@ -305,7 +313,7 @@ void _RB_TREE::erase( const key_type* first, const key_type* last ) {
 //--------------------------------------------------------------------
 // find
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 typename _RB_TREE::iterator
 _RB_TREE::find(const key_type& _k)
 {
@@ -323,7 +331,7 @@ _RB_TREE::find(const key_type& _k)
      end() : j;
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 typename _RB_TREE::const_iterator
 _RB_TREE::find(const key_type& _k) const
 {
@@ -344,7 +352,7 @@ _RB_TREE::find(const key_type& _k) const
 //--------------------------------------------------------------------
 // count
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 typename _RB_TREE::size_type
 _RB_TREE::count(const key_type& _k) const
 {
@@ -357,7 +365,7 @@ _RB_TREE::count(const key_type& _k) const
 //--------------------------------------------------------------------
 // lower_bound
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 typename _RB_TREE::iterator
 _RB_TREE::lower_bound(const key_type& _k)
 {
@@ -373,7 +381,7 @@ _RB_TREE::lower_bound(const key_type& _k)
   return iterator(y);
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 typename _RB_TREE::const_iterator
 _RB_TREE::lower_bound(const key_type& _k) const
 {
@@ -392,7 +400,7 @@ _RB_TREE::lower_bound(const key_type& _k) const
 //--------------------------------------------------------------------
 // upper_bound
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 typename _RB_TREE::iterator
 _RB_TREE::upper_bound(const key_type& _k)
 {
@@ -408,7 +416,7 @@ _RB_TREE::upper_bound(const key_type& _k)
    return iterator(y);
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 typename _RB_TREE::const_iterator
 _RB_TREE::upper_bound(const key_type& _k) const
 {
@@ -427,7 +435,7 @@ _RB_TREE::upper_bound(const key_type& _k) const
 //--------------------------------------------------------------------
 // Debugging
 //--------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 int _RB_TREE::black_count(_NodePtr node, _NodePtr root) const
 {
   if (node == 0)
@@ -441,7 +449,7 @@ int _RB_TREE::black_count(_NodePtr node, _NodePtr root) const
   }
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 bool _RB_TREE::_rb_verify() const {
   if (m_node_count == 0 || begin() == end())
     return m_node_count == 0 && begin() == end() &&
@@ -478,20 +486,24 @@ bool _RB_TREE::_rb_verify() const {
 //----------------------------------------------------------------------
 // _dump_node and _dump_tree
 //----------------------------------------------------------------------
-template<class _Key, class _Value, class _KeyOfValue>
-void _RB_TREE::_dump_node( const _NodePtr node, const std::string prefix, const char lr ) const {
+template<class _Key, class _Value>
+void _RB_TREE::_dump_node( const _NodePtr node,
+                           const std::string prefix,
+                           const char lr ) const {
   if (node == 0) {
     printf ("%s%c\n", prefix.c_str(), lr);
     return;
   }
   printf ("%s%c:(%3d,%3d):%s\n", prefix.c_str(), lr,
-      ((_Value)node->m_value).first, ((_Value)node->m_value).second,
+      (_Value)node->m_key, (_Value)node->m_value,
       ((_ColorType)node->m_color ? "blk" : "red")
     );
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
-void _RB_TREE::_dump_subtree( const _NodePtr node, const std::string prefix, const char lr ) const {
+template<class _Key, class _Value>
+void _RB_TREE::_dump_subtree( const _NodePtr node,
+                              const std::string prefix,
+                              const char lr ) const {
   _dump_node( node, prefix, lr );
   if (node->m_left != 0)
     _dump_subtree( node->m_left,  prefix+"  ", 'L' );
@@ -499,7 +511,7 @@ void _RB_TREE::_dump_subtree( const _NodePtr node, const std::string prefix, con
     _dump_subtree( node->m_right, prefix+"  ", 'R' );
 }
 
-template<class _Key, class _Value, class _KeyOfValue>
+template<class _Key, class _Value>
 void _RB_TREE::_dump_tree() const {
 
   if( m_root() != 0) {
@@ -518,8 +530,9 @@ void _RB_TREE::_dump_tree() const {
 //----------------------------------------------------------------------
 // _RbTreeIterator increment
 //----------------------------------------------------------------------
-template<class _Value, class _Ref, class _Ptr>
-void _RbTreeIterator<_Value,_Ref,_Ptr>::_increment() {
+template<class _Key, class _Value,
+         class _KProxy, class _VProxy, class _NodePtr>
+void _RBTREE_ITER::_increment() {
   if( m_node->m_right != 0 ) {
     m_node = m_node->m_right;
     while( m_node->m_left != 0 ) {
@@ -540,8 +553,9 @@ void _RbTreeIterator<_Value,_Ref,_Ptr>::_increment() {
 //----------------------------------------------------------------------
 // _RbTreeIterator decrement
 //----------------------------------------------------------------------
-template<class _Value, class _Ref, class _Ptr>
-void _RbTreeIterator<_Value,_Ref,_Ptr>::_decrement() {
+template<class _Key, class _Value,
+         class _KProxy, class _VProxy, class _NodePtr>
+void _RBTREE_ITER::_decrement() {
   if( m_node->m_color == s_RbTreeRed && (*(m_node->m_parent)).m_parent == m_node) {
     m_node = m_node->m_right;
   }
@@ -567,7 +581,7 @@ void _RbTreeIterator<_Value,_Ref,_Ptr>::_decrement() {
 //----------------------------------------------------------------------
 // Rotate Left
 //----------------------------------------------------------------------
-template<typename _Value>
+template<typename _Key, typename _Value>
 void _RbTreeRotateLeft( _NODE_PTR x, _NODE_PTR_PROXY& root ) {
   _NODE_PTR y = x->m_right;
   x->m_right = y->m_left;
@@ -588,7 +602,7 @@ void _RbTreeRotateLeft( _NODE_PTR x, _NODE_PTR_PROXY& root ) {
 //----------------------------------------------------------------------
 // Rotate Right
 //----------------------------------------------------------------------
-template<typename _Value>
+template<typename _Key, typename _Value>
 void _RbTreeRotateRight( _NODE_PTR x, _NODE_PTR_PROXY& root ) {
   _NODE_PTR y = x->m_left;
   x->m_left = y->m_right;
@@ -609,7 +623,7 @@ void _RbTreeRotateRight( _NODE_PTR x, _NODE_PTR_PROXY& root ) {
 //----------------------------------------------------------------------
 // Rebalance
 //----------------------------------------------------------------------
-template<typename _Value>
+template<typename _Key, typename _Value>
 void _RbTreeRebalance( _NODE_PTR x, _NODE_PTR_PROXY& root )
 {
   DB_ASSERT(( x != 0 ));
@@ -659,7 +673,7 @@ void _RbTreeRebalance( _NODE_PTR x, _NODE_PTR_PROXY& root )
 //----------------------------------------------------------------------
 // Rebalance for Erase
 //----------------------------------------------------------------------
-template<typename _Value>
+template<typename _Key, typename _Value>
 _NODE_PTR
 _RbTreeRebalanceForErase( _NODE_PTR _z,
                           _NODE_PTR_PROXY& root,
@@ -681,7 +695,7 @@ _RbTreeRebalanceForErase( _NODE_PTR _z,
       x = y->m_right;
     }
   if (y != _z) {          // relink y in place of z.  y is z's successor
-    _z->m_left->m_parent = y; 
+    _z->m_left->m_parent = y;
     y->m_left = _z->m_left;
     if (y != _z->m_right) {
       x_parent = y->m_parent;
@@ -718,14 +732,14 @@ _RbTreeRebalanceForErase( _NODE_PTR _z,
         leftmost = _z->m_parent;
     // makes leftmost == m_header if _z == root
       else
-        leftmost = _NodeProxy<_Value>::s_minimum(x);
+        leftmost = _NodeProxy<_Key,_Value>::s_minimum(x);
     }
     if (rightmost == _z) {
       if (_z->m_left == 0)         // _z->m_right must be null also
         rightmost = _z->m_parent;  
     // makes rightmost == m_header if _z == root
       else                      // x == _z->m_left
-        rightmost = _NodeProxy<_Value>::s_maximum(x);
+        rightmost = _NodeProxy<_Key,_Value>::s_maximum(x);
     }
   }
   if (y->m_color != s_RbTreeRed) { 
@@ -797,5 +811,6 @@ _RbTreeRebalanceForErase( _NODE_PTR _z,
 #undef _RB_TREE
 #undef _NODE_PTR
 #undef _NODE_PTR_PROXY
+#undef _RBTREE_ITER
 
 #endif // POLYHSRBTREE_INL

@@ -10,8 +10,6 @@
 #ifndef CPP_COMPILE
   #include <ap_utils.h>
 #endif
-template<typename T> class ValueProxy;
-template<typename T> class PointerProxy;
 
 #ifdef DEBUG
   #define DB_PRINT(x) printf x
@@ -20,6 +18,9 @@ template<typename T> class PointerProxy;
   #define DB_PRINT(x)
   #define DB_ASSERT(x)
 #endif
+
+template<typename T> class ValueProxy;
+template<typename T> class PointerProxy;
 
 //---------------------------------------------------------------
 // ValueProxy
@@ -65,7 +66,7 @@ class ValueProxy {
         ap_wait();
         MemRespMsg mem_resp = memresp.read();
         //XXX: NOOOOOOOO
-        return ((T)(std::make_pair(mem_resp.data,mem_resp.data)));
+        return (T)mem_resp.data;
       #endif
     }
     ValueProxy& operator= ( T data ) {
@@ -89,6 +90,22 @@ class ValueProxy {
     Address get_addr() const { return m_addr; }
     void set_addr( const Address addr ) { m_addr = addr; }
 };
+
+template<typename T>
+inline bool operator==( const ValueProxy<T>& lhs,
+                       const T& rhs ) {
+  return (T)lhs == rhs;
+}
+template<typename T>
+inline bool operator!=( const ValueProxy<T>& lhs,
+                       const T& rhs ) {
+  return (T)lhs != rhs;
+}
+template<typename T>
+inline bool operator<( const ValueProxy<T>& lhs,
+                       const T& rhs ) {
+  return (T)lhs < rhs;
+}
 
 //---------------------------------------------------------------
 // PointerProxy
@@ -151,7 +168,7 @@ class PointerProxy {
       set_addr( m_obj_temp, x.m_addr );
       return *this;
     }
-    
+
     //-----------------------------------------------------------
     // Pointer conversion (for pointer comp)
     //-----------------------------------------------------------
@@ -174,6 +191,17 @@ inline bool operator!=( const PointerProxy<T>& lhs,
   return lhs.get_addr() != rhs.get_addr();
 }
 
+template<typename T>
+inline bool operator&&( const PointerProxy<T>& lhs,
+                        const bool rhs ) {
+  return (Address)lhs && rhs;
+}
+template<typename T>
+inline bool operator||( const PointerProxy<T>& lhs,
+                        const bool rhs ) {
+  return (Address)lhs || rhs;
+}
+
 #ifndef CPP_COMPILE
 template<typename T>
 inline bool operator==( const PointerProxy<T>& lhs,
@@ -187,7 +215,5 @@ inline bool operator!=( const PointerProxy<T>& lhs,
 }
 #endif
 
-//#undef DB_PRINT
-//#undef DB_ASSERT
 
 #endif
