@@ -19,36 +19,36 @@ template<typename T> class NodePtrProxy;
 //------------------------------------------------------------------------
 template<typename T>
 struct NodeProxy {
-  ValueProxy<T> m_value;
   NodePtrProxy<T> m_prev;
   NodePtrProxy<T> m_next;
+  ValueProxy<T> m_value;
 
   //----------------------------------------------------------------
   // Constructors
   //----------------------------------------------------------------
   NodeProxy( Address base_ptr )
-    : m_value( base_ptr ),
-      m_prev( base_ptr+m_value.size() ),
-      m_next( base_ptr+m_value.size()+PTR_SIZE )
+    : m_prev ( base_ptr ),
+      m_next ( base_ptr+PTR_SIZE ),
+      m_value( base_ptr+PTR_SIZE+PTR_SIZE )
   {}
   NodeProxy( const NodeProxy& p ) 
-    : m_value( p.m_value ),
-      m_prev( p.m_prev ),
-      m_next( p.m_next )
+    : m_prev( p.m_prev ),
+      m_next( p.m_next ),
+      m_value( p.m_value )
   {}
 
 
   //XXX: This should be outside the class, but we get an error
   Address get_addr() const {
-    return m_value.get_addr();
+    return m_prev.get_addr();
   }
 };
 
 template<typename T>
 void set_addr( NodeProxy<T>& p, Address addr ) {
-  p.m_value.set_addr( addr );
-  p.m_prev.set_addr( addr+p.m_value.size() );
-  p.m_next.set_addr( addr+p.m_value.size()+PTR_SIZE );
+  p.m_prev.set_addr ( addr );
+  p.m_next.set_addr ( addr+PTR_SIZE );
+  p.m_value.set_addr( addr+PTR_SIZE+PTR_SIZE );
 }
 
 //------------------------------------------------------------------------
@@ -116,6 +116,7 @@ class NodePtrProxy {
     // other
     //----------------------------------------------------------------
     void set_addr( const Address addr ) { m_addr = (AddressPtr)addr; }
+    Address get_addr() const { return (Address)m_addr; }
 };
 
 #endif

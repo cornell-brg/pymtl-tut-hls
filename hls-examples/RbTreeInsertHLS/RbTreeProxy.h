@@ -26,32 +26,32 @@ struct _NodeProxy {
   typedef _NodePtrProxy<_NodeProxy>     NodePtrProxy;
   typedef PointerProxy<_NodeProxy>      NodePointer;
 
-  ValueType      m_value;
-  ColorType      m_color;
   NodePtrProxy   m_parent;
   NodePtrProxy   m_left;
   NodePtrProxy   m_right;
+  ColorType      m_color;
+  ValueType      m_value;
 
   //------------------------------------------------------------
   // Constructors
   //------------------------------------------------------------
   _NodeProxy( Address base_ptr )
-    : m_value( base_ptr ),
-      m_color(  base_ptr+m_value.size()),
-      m_parent( base_ptr+m_value.size()+m_color.size()),
-      m_left (  base_ptr+m_value.size()+m_color.size()+PTR_SIZE ),
-      m_right(  base_ptr+m_value.size()+m_color.size()+2*PTR_SIZE )
+    : m_parent( base_ptr ),
+      m_left  ( base_ptr+PTR_SIZE ),
+      m_right ( base_ptr+2*PTR_SIZE ),
+      m_color ( base_ptr+3*PTR_SIZE ),
+      m_value ( base_ptr+3*PTR_SIZE+m_color.size() )
   {}
   _NodeProxy( const _NodeProxy& p )
-    : m_value(  p.m_value ),
-      m_color(  p.m_color ),
-      m_parent( p.m_parent ),
+    : m_parent( p.m_parent ),
       m_left (  p.m_left ),
-      m_right(  p.m_right )
+      m_right(  p.m_right ),
+      m_color(  p.m_color ),
+      m_value(  p.m_value )
   {}
 
   size_t total_size() {
-    return m_value.size()+m_color.size()+3*PTR_SIZE;
+    return 3*PTR_SIZE + m_value.size() + m_color.size();
   }
 
   //------------------------------------------------------------
@@ -66,19 +66,19 @@ struct _NodeProxy {
     return x;
   }
 
-  //XXX: This should be outside the class, but we get an error...
+  //XXX: should this be outside the class?
   Address get_addr() const {
-    return m_value.get_addr();
+    return m_parent.get_addr();
   }
 };
 
 template<typename T>
 void set_addr( _NodeProxy<T>& p, Address addr ) {
-  p.m_value.set_addr(  addr );
-  p.m_color.set_addr(  addr+p.m_value.size() );
-  p.m_parent.set_addr( addr+p.m_value.size()+p.m_color.size());
-  p.m_left.set_addr(   addr+p.m_value.size()+p.m_color.size()+PTR_SIZE );
-  p.m_right.set_addr(  addr+p.m_value.size()+p.m_color.size()+2*PTR_SIZE );
+  p.m_parent.set_addr( addr );
+  p.m_left.set_addr  ( addr+PTR_SIZE );
+  p.m_right.set_addr ( addr+2*PTR_SIZE );
+  p.m_color.set_addr ( addr+3*PTR_SIZE );
+  p.m_value.set_addr(  addr+3*PTR_SIZE+p.m_color.size() );
 }
 
 //--------------------------------------------------------------

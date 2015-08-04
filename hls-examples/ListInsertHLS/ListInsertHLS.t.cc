@@ -1,9 +1,5 @@
-#include <ap_utils.h>
-#include "List.h"
-
-#include "../common/interfaces.h"
-
 #include <assert.h>
+#include "List.h"
 
 #define UTST_CHECK_EQ(x,y) assert((x)==(y))
 
