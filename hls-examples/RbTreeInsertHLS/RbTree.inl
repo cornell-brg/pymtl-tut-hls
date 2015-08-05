@@ -632,7 +632,9 @@ void _RbTreeRebalance( _NODE_PTR x, _NODE_PTR_PROXY& root )
   while (x != root && x->m_parent->m_color == s_RbTreeRed) {
     if (x->m_parent == x->m_parent->m_parent->m_left) {
       _NODE_PTR y = x->m_parent->m_parent->m_right;
-      if (y && y->m_color == s_RbTreeRed) {
+      //XXX
+      //if (y && y->m_color == s_RbTreeRed) {
+      if (y != 0 && y->m_color == s_RbTreeRed) {
         x->m_parent->m_color = s_RbTreeBlack;
         y->m_color = s_RbTreeBlack;
         x->m_parent->m_parent->m_color = s_RbTreeRed;
@@ -650,7 +652,9 @@ void _RbTreeRebalance( _NODE_PTR x, _NODE_PTR_PROXY& root )
     }
     else {
       _NODE_PTR y = x->m_parent->m_parent->m_left;
-      if (y && y->m_color == s_RbTreeRed) {
+      //XXX
+      //if (y 0 && y->m_color == s_RbTreeRed) {
+      if (y != 0 && y->m_color == s_RbTreeRed) {
         x->m_parent->m_color = s_RbTreeBlack;
         y->m_color = s_RbTreeBlack;
         x->m_parent->m_parent->m_color = s_RbTreeRed;

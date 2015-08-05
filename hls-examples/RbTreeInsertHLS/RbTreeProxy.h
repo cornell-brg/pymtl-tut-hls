@@ -114,7 +114,7 @@ class _NodePtrProxy {
     // * and -> operators
     //----------------------------------------------------------
     NodeType operator* () const {
-      return NodeType( *m_addr );
+      return NodeType( (Address)(operator NodePointer()) );
     }
     NodePointer operator-> () {
       return operator NodePointer();

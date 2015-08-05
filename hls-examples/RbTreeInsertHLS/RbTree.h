@@ -104,12 +104,12 @@ template<class _Key, class _Value>
 class _RbTree {
 public:
   typedef _NodeProxy<_Key, _Value>            _Node;
+  typedef PointerProxy< _NodeProxy<_Key,_Value> >
+                                              _NodePtr;
   typedef _RbTreeColorType                    _ColorType;
 protected:
   typedef _Key                                key_type;
   typedef _Value                              value_type;
-  typedef PointerProxy< _NodeProxy<_Key,_Value> >
-                                              _NodePtr;
   typedef size_t                              size_type;
   typedef ptrdiff_t                           difference_type;
   typedef _RbTree<_Key, _Value>               _Self;

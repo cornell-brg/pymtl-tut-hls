@@ -65,7 +65,6 @@ class ValueProxy {
         memreq.write( MemReqMsg( 0, sizeof(T), m_addr, 0, MSG_READ ) );
         ap_wait();
         MemRespMsg mem_resp = memresp.read();
-        //XXX: NOOOOOOOO
         return (T)mem_resp.data;
       #endif
     }
@@ -146,11 +145,13 @@ class PointerProxy {
       return T( m_addr );
     }
     T* operator-> () {
+      DB_PRINT(("PointerProxy ->: m_addr=%llu\n", (long long unsigned)m_addr));
       DB_ASSERT(( m_addr != 0 ));
       set_addr( m_obj_temp, m_addr );
       return &m_obj_temp;
     }
     const T* operator-> () const {
+      DB_PRINT(("PointerProxy ->: m_addr=%llu\n", (long long unsigned)m_addr));
       DB_ASSERT(( m_addr != 0 ));
       return &m_obj_temp;
     }
@@ -190,18 +191,18 @@ inline bool operator!=( const PointerProxy<T>& lhs,
                         const PointerProxy<T>& rhs ) {
   return lhs.get_addr() != rhs.get_addr();
 }
-
+/*
 template<typename T>
 inline bool operator&&( const PointerProxy<T>& lhs,
                         const bool rhs ) {
-  return (Address)lhs && rhs;
+  return (lhs.get_addr() != 0) && rhs;
 }
 template<typename T>
 inline bool operator||( const PointerProxy<T>& lhs,
                         const bool rhs ) {
-  return (Address)lhs || rhs;
+  return (lhs.get_addr() != 0) || rhs;
 }
-
+*/
 #ifndef CPP_COMPILE
 template<typename T>
 inline bool operator==( const PointerProxy<T>& lhs,
@@ -214,6 +215,5 @@ inline bool operator!=( const PointerProxy<T>& lhs,
   return lhs.get_addr() != rhs;
 }
 #endif
-
 
 #endif
