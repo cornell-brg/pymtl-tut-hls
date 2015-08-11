@@ -14,6 +14,12 @@
 // forward declarations
 template<typename T> class NodePtrProxy;
 
+#ifdef DEBUG
+  #define DB_PRINT(x) printf(x)
+#else
+  #define DB_PRINT(x)
+#endif
+
 //------------------------------------------------------------------------
 // List NodeProxy
 //------------------------------------------------------------------------
@@ -95,16 +101,18 @@ class NodePtrProxy {
       #ifdef CPP_COMPILE
         return NodePointer( *m_addr );
       #else
+        DB_PRINT (("NodePtrProxy: reading from 0x%u\n", m_addr.to_uint()));
         memreq.write( MemReqMsg( 0, PTR_SIZE, m_addr, 0, MSG_READ ) );
         ap_wait();
         MemRespMsg mem_resp = memresp.read();
-        return NodePointer( mem_resp.data );
+        return NodePointer( (Address)mem_resp.data );
       #endif
     }
     NodePtrProxy& operator=( const NodePointer& p ) {
       #ifdef CPP_COMPILE
         *(m_addr) = (Address)p;
       #else
+        DB_PRINT (("NodePtrProxy: writing %u to 0x%u\n", p.get_addr().to_uint(), m_addr.to_uint()));
         memreq.write( MemReqMsg( (Address)p, PTR_SIZE, m_addr, 0, MSG_WRITE ) );
         ap_wait();
         MemRespMsg mem_resp = memresp.read();
