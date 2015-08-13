@@ -1,0 +1,22 @@
+#=========================================================================
+# Modular C++ Build System Subproject Makefile Fragment
+#=========================================================================
+# Please read the documenation in 'mcppbs-uguide.txt' for more details
+# on how the Modular C++ Build System works.
+
+mem_intdeps  = @mem_intdeps@
+mem_cppflags = @mem_cppflags@
+mem_ldflags  = @mem_ldflags@
+mem_libs     = @mem_libs@
+
+mem_hdrs = \
+  TestMem.h \
+
+mem_inls = \
+
+mem_srcs = \
+  TestMem.cc \
+
+mem_test_srcs = \
+  TestMem.t.cc \
+
