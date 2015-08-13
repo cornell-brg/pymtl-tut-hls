@@ -1,0 +1,18 @@
+#=========================================================================
+# Modular C++ Build System Subproject Autoconf Fragment
+#=========================================================================
+# Please read the documenation in 'mcppbs-uguide.txt' for more details
+# on how the Modular C++ Build System works.
+
+MCPPBS_SUBPROJECT([ex_sort],[mem],[xcel])
+
+# Verify that XILINX_VIVADO_HLS_INCLUDE_DIR is set
+
+AS_IF([ test -n "${XILINX_VIVADO_HLS_INCLUDE_DIR}" ],
+[
+  AS_VAR_APPEND([ex_sort_cppflags],
+    "-I ${XILINX_VIVADO_HLS_INCLUDE_DIR} -DXILINX_VIVADO_HLS_TESTING ")
+],[
+  AC_MSG_ERROR([XILINX_VIVADO_HLS_INCLUDE_DIR not set!])
+])
+
