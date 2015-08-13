@@ -6,6 +6,9 @@
 /* Define if we should include subproject utst */
 #undef HAVE_UTST
 
+/* Define if we should include subproject xcel */
+#undef HAVE_XCEL
+
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 

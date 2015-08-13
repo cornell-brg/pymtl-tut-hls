@@ -11,12 +11,24 @@ mem_libs     = @mem_libs@
 
 mem_hdrs = \
   TestMem.h \
+  MemStream.h \
+  MemStreamHLS.h \
+  MemProxy.h \
+  MemProxyHLS.h \
 
 mem_inls = \
+  MemStream.inl \
+  MemProxy.inl \
 
 mem_srcs = \
   TestMem.cc \
+  MemStreamHLS.cc \
+  MemProxyHLS.cc \
 
 mem_test_srcs = \
   TestMem.t.cc \
+  MemStream.t.cc \
+  MemStreamHLS.t.cc \
+  MemProxy.t.cc \
+  MemProxyHLS.t.cc \
 

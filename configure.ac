@@ -15,7 +15,7 @@
 
 m4_define( proj_name,         [Miscellaneous])
 m4_define( proj_maintainer,   [Christopher Batten])
-m4_define( proj_abbreviation, [maven-app-misc])
+m4_define( proj_abbreviation, [pymtl-polyhs])
 
 #-------------------------------------------------------------------------
 # Project version information
@@ -108,6 +108,7 @@ MCPPBS_PROG_RUN
 #
 
 MCPPBS_INCLUDE_INTERNAL([utst])
+MCPPBS_INCLUDE_INTERNAL([xcel])
 MCPPBS_INCLUDE_INTERNAL([mem])
 
 #-------------------------------------------------------------------------

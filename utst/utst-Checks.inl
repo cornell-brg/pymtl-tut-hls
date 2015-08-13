@@ -20,10 +20,10 @@ namespace details {
   // ComparisonFunctor
   //----------------------------------------------------------------------
 
-  template < typename T >
+  template < typename T, typename U = T>
   struct ComparisonFunctor
   {
-    bool operator()( const T& value0, const T& value1 ) {
+    bool operator()( const T& value0, const U& value1 ) {
       return ( value0 == value1 );
     }
   };
@@ -60,7 +60,7 @@ namespace details {
   {
     utst::TestLog& log = utst::TestLog::instance();
 
-    ComparisonFunctor<Expr1> comp_func;
+    ComparisonFunctor<Expr1, Expr2> comp_func;
     bool result = comp_func( expression0, expression1 );
 
     std::ostringstream descr;
@@ -84,7 +84,7 @@ namespace details {
   {
     utst::TestLog& log = utst::TestLog::instance();
 
-    ComparisonFunctor<Expr1> comp_func;
+    ComparisonFunctor<Expr1, Expr2> comp_func;
     bool result = !comp_func( expression0, expression1 );
 
     std::ostringstream descr;

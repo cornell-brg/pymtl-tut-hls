@@ -1,0 +1,18 @@
+#=========================================================================
+# Modular C++ Build System Subproject Makefile Fragment
+#=========================================================================
+# Please read the documenation in 'mcppbs-uguide.txt' for more details
+# on how the Modular C++ Build System works.
+
+xcel_intdeps  = @xcel_intdeps@
+xcel_cppflags = @xcel_cppflags@
+xcel_ldflags  = @xcel_ldflags@
+xcel_libs     = @xcel_libs@
+
+xcel_hdrs = \
+
+xcel_inls = \
+
+xcel_srcs = \
+
+xcel_test_srcs = \
