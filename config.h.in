@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define if we should include subproject ex_sort */
+#undef HAVE_EX_SORT
+
 /* Define if we should include subproject mem */
 #undef HAVE_MEM
 
