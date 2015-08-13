@@ -11,9 +11,9 @@ from pclib.test   import run_sim
 
 from pclib.test   import TestSource, TestSink
 
-from mem.TestMemoryOpaque import TestMemory
+from TestMemoryOpaque import TestMemory
+from MemMsgFuture     import MemMsg
 
-from mem.MemMsgFuture import MemMsg
 from xcel.XcelMsg     import XcelReqMsg, XcelRespMsg
 
 from MemProxyHLS import MemProxyHLS

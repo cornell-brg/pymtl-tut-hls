@@ -13,7 +13,7 @@
 
 #include "MemStream.h"
 #include "MemProxy.h"
-#include "XcelMsg.h"
+#include "../xcel/XcelMsg.h"
 
 #include <ap_int.h>
 #include <ap_utils.h>
@@ -25,8 +25,8 @@
   TestMem& memreq  = MemProxyHLS_mem;
   TestMem& memresp = MemProxyHLS_mem;
 #else
-  hls::stream<MemReqMsg>  memreq;
-  hls::stream<MemRespMsg> memresp;
+  hls::stream<mem::MemReqMsg>  memreq;
+  hls::stream<mem::MemRespMsg> memresp;
 #endif
 
 //------------------------------------------------------------------------

@@ -11,7 +11,8 @@ from pclib.rtl    import SingleElementBypassQueue
 from pclib.rtl    import SingleElementPipelinedQueue
 
 from xcel.XcelMsg     import XcelReqMsg, XcelRespMsg
-from mem.MemMsgFuture import MemReqMsg, MemRespMsg
+
+from MemMsgFuture import MemReqMsg, MemRespMsg
 
 #-------------------------------------------------------------------------
 # MemProxyHLS

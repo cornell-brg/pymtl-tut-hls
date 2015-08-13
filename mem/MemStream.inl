@@ -4,14 +4,15 @@
 
 #include "MemMsg.h"
 #include <ap_utils.h>
+#include <hls_stream.h>
 
 #ifdef XILINX_VIVADO_HLS_TESTING
   #include "TestMem.h"
   extern TestMem& memreq;
   extern TestMem& memresp;
 #else
-  extern hls::stream<MemReqMsg>  memreq;
-  extern hls::stream<MemRespMsg> memresp;
+  extern hls::stream<mem::MemReqMsg>  memreq;
+  extern hls::stream<mem::MemRespMsg> memresp;
 #endif
 
 namespace mem {

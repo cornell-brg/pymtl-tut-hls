@@ -11,7 +11,7 @@
 // returns the response message when the test is finished.
 
 #include "MemStream.h"
-#include "XcelMsg.h"
+#include "../xcel/XcelMsg.h"
 
 #include <ap_int.h>
 #include <ap_utils.h>
@@ -23,8 +23,8 @@
   TestMem& memreq  = MemStreamHLS_mem;
   TestMem& memresp = MemStreamHLS_mem;
 #else
-  hls::stream<MemReqMsg>  memreq;
-  hls::stream<MemRespMsg> memresp;
+  hls::stream<mem::MemReqMsg>  memreq;
+  hls::stream<mem::MemRespMsg> memresp;
 #endif
 
 //------------------------------------------------------------------------

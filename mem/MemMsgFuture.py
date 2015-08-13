@@ -77,7 +77,7 @@ class MemReqMsg( BitStructDefinition ):
     s.type_  = BitField( s.type_nbits   )
     s.opaque = BitField( s.opaque_nbits )
     s.addr   = BitField( s.addr_nbits   )
-    s.len_   = BitField( s.len_nbits    )
+    s.len    = BitField( s.len_nbits    )
     s.data   = BitField( s.data_nbits   )
 
   def mk_msg( s, type_, opaque, addr, len_, data ):
@@ -86,7 +86,7 @@ class MemReqMsg( BitStructDefinition ):
     msg.type_  = type_
     msg.opaque = opaque
     msg.addr   = addr
-    msg.len_   = len_
+    msg.len    = len_
     msg.data   = data
 
     return msg
@@ -97,7 +97,7 @@ class MemReqMsg( BitStructDefinition ):
     msg.opaque = opaque
     msg.type_  = MemReqMsg.TYPE_READ
     msg.addr   = addr
-    msg.len_   = len_
+    msg.len    = len_
     msg.data   = 0
 
     return msg
@@ -108,7 +108,7 @@ class MemReqMsg( BitStructDefinition ):
     msg.opaque = opaque
     msg.type_  = MemReqMsg.TYPE_WRITE
     msg.addr   = addr
-    msg.len_   = len_
+    msg.len    = len_
     msg.data   = data
 
     return msg
@@ -184,7 +184,7 @@ class MemRespMsg( BitStructDefinition ):
 
     s.type_  = BitField( s.type_nbits   )
     s.opaque = BitField( s.opaque_nbits )
-    s.len_   = BitField( s.len_nbits    )
+    s.len    = BitField( s.len_nbits    )
     s.data   = BitField( s.data_nbits   )
 
   def mk_msg( s, type_, opaque, len_, data ):
@@ -192,7 +192,7 @@ class MemRespMsg( BitStructDefinition ):
     msg        = s()
     msg.type_  = type_
     msg.opaque = opaque
-    msg.len_   = len_
+    msg.len    = len_
     msg.data   = data
 
     return msg
