@@ -21,9 +21,9 @@
 
 #ifdef XILINX_VIVADO_HLS_TESTING
   #include "TestMem.h"
-  TestMem MemProxyHLS_mem;
-  TestMem& memreq  = MemProxyHLS_mem;
-  TestMem& memresp = MemProxyHLS_mem;
+  mem::TestMem MemProxyHLS_mem;
+  mem::TestMem& memreq  = MemProxyHLS_mem;
+  mem::TestMem& memresp = MemProxyHLS_mem;
 #else
   hls::stream<mem::MemReqMsg>  memreq;
   hls::stream<mem::MemRespMsg> memresp;

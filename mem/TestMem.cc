@@ -5,172 +5,176 @@
 #include "TestMem.h"
 #include "utst.h"
 
-//------------------------------------------------------------------------
-// TestMem::TestMem
-//------------------------------------------------------------------------
+namespace mem {
 
-TestMem::TestMem()
- : m_num_requests(0)
-{}
+  //----------------------------------------------------------------------
+  // TestMem::TestMem
+  //----------------------------------------------------------------------
 
-//------------------------------------------------------------------------
-// TestMem::write
-//------------------------------------------------------------------------
-// We use an internal write method so that we can only display the utst
-// debug information when we are actualy writing the test memory from
-// inside an accelerator (as opposed to using the mem_write method).
+  TestMem::TestMem()
+   : m_num_requests(0)
+  {}
 
-void TestMem::_write( const MemReqMsg& memreq )
-{
-  // Handle read requests
+  //----------------------------------------------------------------------
+  // TestMem::write
+  //----------------------------------------------------------------------
+  // We use an internal write method so that we can only display the utst
+  // debug information when we are actualy writing the test memory from
+  // inside an accelerator (as opposed to using the mem_write method).
 
-  if ( memreq.type == MemReqMsg::TYPE_READ ) {
+  void TestMem::_write( const MemReqMsg& memreq )
+  {
+    // Handle read requests
 
-    // Increment our message request counter
+    if ( memreq.type == MemReqMsg::TYPE_READ ) {
 
-    m_num_requests++;
+      // Increment our message request counter
 
-    // Set length to four bytes if len field is zero
+      m_num_requests++;
 
-    int len = ( memreq.len == 0 ) ? 4 : static_cast<int>(memreq.len);
+      // Set length to four bytes if len field is zero
 
-    // Iterate over bytes to create data for response
+      int len = ( memreq.len == 0 ) ? 4 : static_cast<int>(memreq.len);
 
-    ap_uint<32> data = 0;
-    if ( len == 4 ) {
-      data = ( static_cast< ap_uint<32> >(m_mem[memreq.addr+3]) << 24 )
-           | ( static_cast< ap_uint<32> >(m_mem[memreq.addr+2]) << 16 )
-           | ( static_cast< ap_uint<32> >(m_mem[memreq.addr+1]) << 8  )
-           | ( static_cast< ap_uint<32> >(m_mem[memreq.addr+0])       );
-    }
-    else if ( len == 2 ) {
-      data = ( static_cast< ap_uint<32> >(m_mem[memreq.addr+1]) << 8  )
-           | ( static_cast< ap_uint<32> >(m_mem[memreq.addr+0])       );
-    }
-    else if ( len == 1 ) {
-      data = m_mem[memreq.addr];
-    }
+      // Iterate over bytes to create data for response
 
-    // Create the response message and enqueue
+      ap_uint<32> data = 0;
+      if ( len == 4 ) {
+        data = ( static_cast< ap_uint<32> >(m_mem[memreq.addr+3]) << 24 )
+             | ( static_cast< ap_uint<32> >(m_mem[memreq.addr+2]) << 16 )
+             | ( static_cast< ap_uint<32> >(m_mem[memreq.addr+1]) << 8  )
+             | ( static_cast< ap_uint<32> >(m_mem[memreq.addr+0])       );
+      }
+      else if ( len == 2 ) {
+        data = ( static_cast< ap_uint<32> >(m_mem[memreq.addr+1]) << 8  )
+             | ( static_cast< ap_uint<32> >(m_mem[memreq.addr+0])       );
+      }
+      else if ( len == 1 ) {
+        data = m_mem[memreq.addr];
+      }
 
-    MemRespMsg resp( data, memreq.len, memreq.opq, 0 );
-    m_memresp_q.push_back( resp );
-  }
+      // Create the response message and enqueue
 
-  // Handle write requests
-
-  else if ( memreq.type == MemReqMsg::TYPE_WRITE ) {
-
-    // Increment our message request counter
-
-    m_num_requests++;
-
-    // Set length to four bytes if len field is zero
-
-    int len = ( memreq.len == 0 ) ? 4 : static_cast<int>(memreq.len);
-
-    // Iterate over bytes to write data
-
-    ap_uint<32> data = memreq.data;
-    for ( int i = 0; i < len; i++ ) {
-      m_mem[memreq.addr+i] = static_cast< ap_uint<8> >(data);
-      data = data >> 8;
+      MemRespMsg resp( data, memreq.len, memreq.opq, 0 );
+      m_memresp_q.push_back( resp );
     }
 
-    // Create the response message and enqueue
+    // Handle write requests
 
-    MemRespMsg resp( 0, memreq.len, memreq.opq, 1 );
-    m_memresp_q.push_back( resp );
-  }
+    else if ( memreq.type == MemReqMsg::TYPE_WRITE ) {
 
-}
+      // Increment our message request counter
 
-//------------------------------------------------------------------------
-// TestMem::write
-//------------------------------------------------------------------------
+      m_num_requests++;
 
-void TestMem::write( const MemReqMsg& memreq )
-{
-  using namespace std;
+      // Set length to four bytes if len field is zero
 
-  if ( memreq.type == MemReqMsg::TYPE_READ ) {
+      int len = ( memreq.len == 0 ) ? 4 : static_cast<int>(memreq.len);
 
-    UTST_LOG_MSG( "TestMem: rd:"
-      << setfill('0') << setw(2) << hex << static_cast<unsigned int>(memreq.opq)  << ":"
-      << setfill('0') << setw(8) << hex << static_cast<unsigned int>(memreq.addr) << ":"
-    );
+      // Iterate over bytes to write data
 
-  } else if ( memreq.type == MemReqMsg::TYPE_WRITE ) {
+      ap_uint<32> data = memreq.data;
+      for ( int i = 0; i < len; i++ ) {
+        m_mem[memreq.addr+i] = static_cast< ap_uint<8> >(data);
+        data = data >> 8;
+      }
 
-    UTST_LOG_MSG( "TestMem: wr:"
-      << setfill('0') << setw(2) << hex << static_cast<unsigned int>(memreq.opq)  << ":"
-      << setfill('0') << setw(8) << hex << static_cast<unsigned int>(memreq.addr) << ":"
-      << setfill('0') << setw(8) << hex << static_cast<unsigned int>(memreq.data)
-    );
+      // Create the response message and enqueue
+
+      MemRespMsg resp( 0, memreq.len, memreq.opq, 1 );
+      m_memresp_q.push_back( resp );
+    }
 
   }
 
-  _write( memreq );
-}
+  //----------------------------------------------------------------------
+  // TestMem::write
+  //----------------------------------------------------------------------
 
-//------------------------------------------------------------------------
-// TestMem::read
-//------------------------------------------------------------------------
+  void TestMem::write( const MemReqMsg& memreq )
+  {
+    using namespace std;
 
-MemRespMsg TestMem::read()
-{
-  MemRespMsg resp = m_memresp_q.front();
-  m_memresp_q.pop_front();
-  return resp;
-}
+    if ( memreq.type == MemReqMsg::TYPE_READ ) {
 
-//------------------------------------------------------------------------
-// TestMem::mem_write
-//------------------------------------------------------------------------
+      UTST_LOG_MSG( "TestMem: rd:"
+        << setfill('0') << setw(2) << hex << static_cast<unsigned int>(memreq.opq)  << ":"
+        << setfill('0') << setw(8) << hex << static_cast<unsigned int>(memreq.addr) << ":"
+      );
 
-void TestMem::mem_write( int addr, unsigned int data )
-{
-  _write( MemReqMsg( data, 0, addr, 0, 1 ) );
+    } else if ( memreq.type == MemReqMsg::TYPE_WRITE ) {
 
-  // We don't want to count this as a memory request since it is part of
-  // the test harness.
+      UTST_LOG_MSG( "TestMem: wr:"
+        << setfill('0') << setw(2) << hex << static_cast<unsigned int>(memreq.opq)  << ":"
+        << setfill('0') << setw(8) << hex << static_cast<unsigned int>(memreq.addr) << ":"
+        << setfill('0') << setw(8) << hex << static_cast<unsigned int>(memreq.data)
+      );
 
-  m_num_requests--;
+    }
 
-  MemRespMsg resp = read();
-}
+    _write( memreq );
+  }
 
-//------------------------------------------------------------------------
-// TestMem::mem_read
-//------------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // TestMem::read
+  //----------------------------------------------------------------------
 
-unsigned int TestMem::mem_read( int addr )
-{
-  _write( MemReqMsg( 0, 0, addr, 0, 0 ) );
+  MemRespMsg TestMem::read()
+  {
+    MemRespMsg resp = m_memresp_q.front();
+    m_memresp_q.pop_front();
+    return resp;
+  }
 
-  // We don't want to count this as a memory request since it is part of
-  // the test harness.
+  //----------------------------------------------------------------------
+  // TestMem::mem_write
+  //----------------------------------------------------------------------
 
-  m_num_requests--;
+  void TestMem::mem_write( int addr, unsigned int data )
+  {
+    _write( MemReqMsg( data, 0, addr, 0, 1 ) );
 
-  MemRespMsg resp = read();
-  return resp.data;
-}
+    // We don't want to count this as a memory request since it is part of
+    // the test harness.
 
-//------------------------------------------------------------------------
-// TestMem::clear_num_requests
-//------------------------------------------------------------------------
+    m_num_requests--;
 
-void TestMem::clear_num_requests()
-{
-  m_num_requests = 0;
-}
+    MemRespMsg resp = read();
+  }
 
-//------------------------------------------------------------------------
-// TestMem::get_num_requests
-//------------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // TestMem::mem_read
+  //----------------------------------------------------------------------
 
-int TestMem::get_num_requests()
-{
-  return m_num_requests;
+  unsigned int TestMem::mem_read( int addr )
+  {
+    _write( MemReqMsg( 0, 0, addr, 0, 0 ) );
+
+    // We don't want to count this as a memory request since it is part of
+    // the test harness.
+
+    m_num_requests--;
+
+    MemRespMsg resp = read();
+    return resp.data;
+  }
+
+  //----------------------------------------------------------------------
+  // TestMem::clear_num_requests
+  //----------------------------------------------------------------------
+
+  void TestMem::clear_num_requests()
+  {
+    m_num_requests = 0;
+  }
+
+  //----------------------------------------------------------------------
+  // TestMem::get_num_requests
+  //----------------------------------------------------------------------
+
+  int TestMem::get_num_requests()
+  {
+    return m_num_requests;
+  }
+
 }

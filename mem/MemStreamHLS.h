@@ -13,7 +13,7 @@
 
 #ifdef XILINX_VIVADO_HLS_TESTING
   #include "TestMem.h"
-  extern TestMem MemStreamHLS_mem;
+  extern mem::TestMem MemStreamHLS_mem;
 #endif
 
 void MemStreamHLS(

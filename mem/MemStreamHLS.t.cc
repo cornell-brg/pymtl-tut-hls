@@ -11,6 +11,7 @@
 #include <cstdlib>
 
 using namespace xcel;
+using namespace mem;
 
 //------------------------------------------------------------------------
 // Helper function

@@ -19,9 +19,9 @@
 
 #ifdef XILINX_VIVADO_HLS_TESTING
   #include "TestMem.h"
-  TestMem MemStreamHLS_mem;
-  TestMem& memreq  = MemStreamHLS_mem;
-  TestMem& memresp = MemStreamHLS_mem;
+  mem::TestMem MemStreamHLS_mem;
+  mem::TestMem& memreq  = MemStreamHLS_mem;
+  mem::TestMem& memresp = MemStreamHLS_mem;
 #else
   hls::stream<mem::MemReqMsg>  memreq;
   hls::stream<mem::MemRespMsg> memresp;

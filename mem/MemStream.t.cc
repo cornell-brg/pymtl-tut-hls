@@ -6,6 +6,8 @@
 #include "MemStream.h"
 #include "TestMem.h"
 
+using namespace mem;
+
 TestMem g_test_mem;
 TestMem& memreq  = g_test_mem;
 TestMem& memresp = g_test_mem;

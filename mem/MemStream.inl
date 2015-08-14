@@ -8,8 +8,8 @@
 
 #ifdef XILINX_VIVADO_HLS_TESTING
   #include "TestMem.h"
-  extern TestMem& memreq;
-  extern TestMem& memresp;
+  extern mem::TestMem& memreq;
+  extern mem::TestMem& memresp;
 #else
   extern hls::stream<mem::MemReqMsg>  memreq;
   extern hls::stream<mem::MemRespMsg> memresp;

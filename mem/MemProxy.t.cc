@@ -7,11 +7,11 @@
 #include "MemStream.h"
 #include "MemProxy.h"
 
+using namespace mem;
+
 TestMem g_test_mem;
 TestMem& memreq  = g_test_mem;
 TestMem& memresp = g_test_mem;
-
-using namespace mem;
 
 //------------------------------------------------------------------------
 // Test Basic Write

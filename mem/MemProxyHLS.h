@@ -13,7 +13,7 @@
 
 #ifdef XILINX_VIVADO_HLS_TESTING
   #include "TestMem.h"
-  extern TestMem MemProxyHLS_mem;
+  extern mem::TestMem MemProxyHLS_mem;
 #endif
 
 void MemProxyHLS(

@@ -12,14 +12,11 @@
 
 #ifdef XILINX_VIVADO_HLS_TESTING
   #include "TestMem.h"
-  extern TestMem SortXcelHLS_mem;
+  extern mem::TestMem SortXcelHLS_mem;
 #endif
 
-using namespace xcel;
-using namespace mem;
-
 void SortXcelHLS(
-  hls::stream<XcelReqMsg>&  xcelreq,
-  hls::stream<XcelRespMsg>& xcelresp
+  hls::stream<xcel::XcelReqMsg>&  xcelreq,
+  hls::stream<xcel::XcelRespMsg>& xcelresp
 );
 

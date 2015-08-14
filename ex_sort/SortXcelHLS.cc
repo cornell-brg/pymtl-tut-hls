@@ -21,18 +21,18 @@
 #include <ap_int.h>
 #include <ap_utils.h>
 
-#define READ  0
-#define WRITE 1
-
 #ifdef XILINX_VIVADO_HLS_TESTING
   #include "TestMem.h"
-  TestMem SortXcelHLS_mem;
-  TestMem& memreq  = SortXcelHLS_mem;
-  TestMem& memresp = SortXcelHLS_mem;
+  mem::TestMem SortXcelHLS_mem;
+  mem::TestMem& memreq  = SortXcelHLS_mem;
+  mem::TestMem& memresp = SortXcelHLS_mem;
 #else
-  hls::stream<MemReqMsg>  memreq;
-  hls::stream<MemRespMsg> memresp;
+  hls::stream<mem::MemReqMsg>  memreq;
+  hls::stream<mem::MemRespMsg> memresp;
 #endif
+
+using namespace xcel;
+using namespace mem;
 
 //------------------------------------------------------------------------
 // ArrayMemPortAdapter
@@ -61,7 +61,7 @@ class ArrayMemPortAdapter {
     {
       // memory read request
 
-      memreq.write( MemReqMsg( 0, 0, m_addr, 0, READ ) );
+      memreq.write( MemReqMsg( 0, 0, m_addr, 0, MemReqMsg::TYPE_READ ) );
       ap_wait();
 
       // memory read response
@@ -79,7 +79,7 @@ class ArrayMemPortAdapter {
     {
       // memory write request
 
-      memreq.write( MemReqMsg( value, 0, m_addr, 0, WRITE ) );
+      memreq.write( MemReqMsg( value, 0, m_addr, 0, MemReqMsg::TYPE_WRITE ) );
       ap_wait();
 
       // memory write response

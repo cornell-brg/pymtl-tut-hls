@@ -9,6 +9,7 @@
 #include <vector>
 
 using namespace xcel;
+using namespace mem;
 
 //------------------------------------------------------------------------
 // Helper function
