@@ -12,17 +12,15 @@
 using namespace xcel;
 using namespace mem;
 
+extern hls::stream<XcelReqMsg>  xcelreq;
+extern hls::stream<XcelRespMsg> xcelresp;
+
 //------------------------------------------------------------------------
 // Helper function
 //------------------------------------------------------------------------
 
 void run_test( const std::vector<int>& data )
 {
-  // Create configuration req/resp streams
-
-  hls::stream<XcelReqMsg>  xcelreq;
-  hls::stream<XcelRespMsg> xcelresp;
-
   // Initialize array
 
   int size = static_cast<int>(data.size());
@@ -39,7 +37,7 @@ void run_test( const std::vector<int>& data )
 
   // Do the sort
 
-  SortXcelHLS( xcelreq, xcelresp );
+  SortXcelHLS();
 
   // Drain the responses for configuration requests
 

@@ -31,6 +31,9 @@
   hls::stream<mem::MemRespMsg> memresp;
 #endif
 
+hls::stream<xcel::XcelReqMsg>  xcelreq;
+hls::stream<xcel::XcelRespMsg> xcelresp;
+
 using namespace xcel;
 using namespace mem;
 
@@ -158,11 +161,12 @@ class ArrayMemPortAdapter {
 template < typename Array >
 void sort( Array array )
 {
+#pragma HLS INLINE
   int n = array.size();
   for ( int i = 0; i < n; ++i ) {
     int prev = array[0];
     for ( int j = 1; j < n; ++j ) {
-      #pragma HLS pipeline
+      #pragma HLS PIPELINE
       int curr = array[j];
       array[j-1] = std::min( prev, curr );
       prev       = std::max( prev, curr );
@@ -200,38 +204,18 @@ void sort( Array array )
 // SortXcelHLS
 //------------------------------------------------------------------------
 
-void SortXcelHLS
-(
-  hls::stream<XcelReqMsg>&  xcelreq,
-  hls::stream<XcelRespMsg>& xcelresp
-){
-#pragma HLS INLINE
+void SortXcelHLS(){
 
-  // Local variables
-  XcelReqMsg  req;
+  XcelWrapper<3> xcelWrapper;
 
-  // 1. Write the base address of the array to xr1
-  req = xcelreq.read();
-  ap_uint<32> base = req.data;
-  xcelresp.write( XcelRespMsg( req.id, 0, req.type, req.opq ) );
+  // configure
+  xcelWrapper.configure();
 
-  // 2. Write the number of elements in the array to xr2
-  req = xcelreq.read();
-  ap_uint<32> size = req.data;
-  xcelresp.write( XcelRespMsg( req.id, 0, req.type, req.opq ) );
+  // compute
+  sort( ArrayMemPortAdapter( xcelWrapper.get_xreg(1), xcelWrapper.get_xreg(2) ) );
 
-  // Wait till the "go" request is received
-  while ( xcelreq.empty() ) {}
+  // signal done
+  xcelWrapper.done( 1 );
 
-  // 3. Tell accelerator to go by writing xr0
-  req = xcelreq.read();
-  xcelresp.write( XcelRespMsg( req.id, 0, req.type, req.opq ) );
-
-  // Compute
-  sort( ArrayMemPortAdapter( base, size ) );
-
-  // 4. Wait for accelerator to finish by reading xr0, result will be 1
-  req = xcelreq.read();
-  xcelresp.write( XcelRespMsg( req.id, 1, req.type, req.opq ) );
 }
 

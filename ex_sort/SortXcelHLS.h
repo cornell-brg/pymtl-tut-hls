@@ -8,6 +8,8 @@
 
 #include "../mem/MemMsg.h"
 #include "../xcel/XcelMsg.h"
+#include "../xcel/XcelWrapper.h"
+
 #include <hls_stream.h>
 
 #ifdef XILINX_VIVADO_HLS_TESTING
@@ -15,8 +17,5 @@
   extern mem::TestMem SortXcelHLS_mem;
 #endif
 
-void SortXcelHLS(
-  hls::stream<xcel::XcelReqMsg>&  xcelreq,
-  hls::stream<xcel::XcelRespMsg>& xcelresp
-);
+void SortXcelHLS();
 
