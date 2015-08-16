@@ -21,6 +21,10 @@ extern hls::stream<XcelRespMsg> xcelresp;
 
 void run_test( const std::vector<int>& data )
 {
+
+  // Test memory
+  TestMem SortXcelHLS_mem;
+
   // Initialize array
 
   int size = static_cast<int>(data.size());
@@ -37,7 +41,10 @@ void run_test( const std::vector<int>& data )
 
   // Do the sort
 
-  SortXcelHLS();
+  SortXcelHLS(
+              SortXcelHLS_mem,  // memreq
+              SortXcelHLS_mem   // memresp
+             );
 
   // Drain the responses for configuration requests
 

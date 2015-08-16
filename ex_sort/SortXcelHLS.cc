@@ -1,9 +1,6 @@
 //========================================================================
 // SortXcelHLS.cpp
 //========================================================================
-// Author  : Christopher Batten
-// Date    : July 2, 2015
-//
 // C++ implementation for the SortXcel. Uses bubble sort. Accelerator
 // register interface:
 //
@@ -18,141 +15,12 @@
 //  4. Wait for accelerator to finish by reading xr0, result will be 1
 
 #include "SortXcelHLS.h"
-#include <ap_int.h>
-#include <ap_utils.h>
-
-#ifdef XILINX_VIVADO_HLS_TESTING
-  #include "TestMem.h"
-  mem::TestMem SortXcelHLS_mem;
-  mem::TestMem& memreq  = SortXcelHLS_mem;
-  mem::TestMem& memresp = SortXcelHLS_mem;
-#else
-  hls::stream<mem::MemReqMsg>  memreq;
-  hls::stream<mem::MemRespMsg> memresp;
-#endif
 
 hls::stream<xcel::XcelReqMsg>  xcelreq;
 hls::stream<xcel::XcelRespMsg> xcelresp;
 
 using namespace xcel;
 using namespace mem;
-
-//------------------------------------------------------------------------
-// ArrayMemPortAdapter
-//------------------------------------------------------------------------
-// This class provides a standard array interface, but the implementation
-// essentially turns reads/writes into memory requests sent over an HLS
-// stream interface. This is analogous to the pclib.fl.ListMemPortAdapter
-// in PyMTL ... except this one is synthesizable into RTL!
-
-class ArrayMemPortAdapter {
-
- public:
-
-  class ArrayMemPortAdapterProxy {
-
-   public:
-
-    ArrayMemPortAdapterProxy( int addr )
-     : m_addr(addr)
-    {
-    }
-
-    // Read
-
-    int read() const
-    {
-      // memory read request
-
-      memreq.write( MemReqMsg( 0, 0, m_addr, 0, MemReqMsg::TYPE_READ ) );
-      ap_wait();
-
-      // memory read response
-
-      MemRespMsg resp = memresp.read();
-
-      // Return the data
-
-      return static_cast<int>(resp.data);
-    }
-
-    // Write
-
-    void write( int value )
-    {
-      // memory write request
-
-      memreq.write( MemReqMsg( value, 0, m_addr, 0, MemReqMsg::TYPE_WRITE ) );
-      ap_wait();
-
-      // memory write response
-
-      MemRespMsg resp = memresp.read();
-    }
-
-    // cast
-
-    operator int() const
-    {
-      return read();
-    }
-
-    // lvalue use of the proxy object
-
-    ArrayMemPortAdapterProxy& operator=( int value )
-    {
-      write( value );
-      return *this;
-    }
-
-    // lvalue use of the proxy object with proxy on RHS
-
-    ArrayMemPortAdapterProxy& operator=( const ArrayMemPortAdapterProxy& rhs )
-    {
-      int value = rhs.read();
-      write( value );
-      return *this;
-    }
-
-   private:
-
-    int m_addr;
-
-  };
-
-  ArrayMemPortAdapter( int base, int size )
-   : m_base(base), m_size(size)
-  {
-  }
-
-  // Size
-
-  int size() const
-  {
-    return m_size;
-  }
-
-  // Write
-
-  ArrayMemPortAdapterProxy operator[]( int i )
-  {
-    return ArrayMemPortAdapterProxy( m_base + i*4 );
-  }
-
-  // Read
-
-  int operator[]( int i ) const
-  {
-    ArrayMemPortAdapterProxy proxy( m_base + i*4 );
-    return proxy.read();
-  }
-
- private:
-
-  int m_base;
-  int m_size;
-
-};
 
 //------------------------------------------------------------------------
 // sort
@@ -204,15 +72,41 @@ void sort( Array array )
 // SortXcelHLS
 //------------------------------------------------------------------------
 
-void SortXcelHLS(){
+#ifdef XILINX_VIVADO_HLS_TESTING
+void SortXcelHLS
+(
+  mem::TestMem&             memreq,
+  mem::TestMem&             memresp
+){
+#else
+void SortXcelHLS
+(
+  hls::stream<MemReqMsg>&   memreq,
+  hls::stream<MemRespMsg>&  memresp
+){
+#endif
 
   XcelWrapper<3> xcelWrapper;
 
   // configure
   xcelWrapper.configure();
 
+  #ifdef XILINX_VIVADO_HLS_TESTING
+  sort( ArrayMemPortAdapter<TestMem,TestMem> (
+          memreq,
+          memresp,
+          xcelWrapper.get_xreg(1),
+          xcelWrapper.get_xreg(2)
+        ) );
+  #else
   // compute
-  sort( ArrayMemPortAdapter( xcelWrapper.get_xreg(1), xcelWrapper.get_xreg(2) ) );
+  sort( ArrayMemPortAdapter<hls::stream<MemReqMsg>, hls::stream<MemRespMsg> > (
+          memreq,
+          memresp,
+          xcelWrapper.get_xreg(1),
+          xcelWrapper.get_xreg(2)
+        ) );
+  #endif
 
   // signal done
   xcelWrapper.done( 1 );
