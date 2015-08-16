@@ -36,7 +36,6 @@ void run_test( const std::vector<int>& data )
   //                         id data    addr type opq
   xcelreq.write( XcelReqMsg( 0, 0x1000, 1,   1,   0   ) );
   xcelreq.write( XcelReqMsg( 0, size,   2,   1,   0   ) );
-  xcelreq.write( XcelReqMsg( 0, 0,      0,   1,   0   ) );
   xcelreq.write( XcelReqMsg( 0, 0,      0,   0,   0   ) );
 
   // Do the sort

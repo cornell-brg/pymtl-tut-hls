@@ -11,8 +11,8 @@
 // Accelerator protocol involves the following steps:
 //  1. Write the base address of array via xr1
 //  2. Write the number of elements in array via xr2
-//  3. Tell accelerator to go by writing xr0
-//  4. Wait for accelerator to finish by reading xr0, result will be 1
+//  3. Tell accelerator to go by reading xr0 and wait till a result of 1 is
+//  returned
 
 #include "SortXcelHLS.h"
 
