@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define if we should include subproject ex_gcd */
+#undef HAVE_EX_GCD
+
 /* Define if we should include subproject ex_sort */
 #undef HAVE_EX_SORT
 

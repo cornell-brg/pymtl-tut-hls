@@ -1,0 +1,22 @@
+#=========================================================================
+# Modular C++ Build System Subproject Makefile Fragment
+#=========================================================================
+# Please read the documenation in 'mcppbs-uguide.txt' for more details
+# on how the Modular C++ Build System works.
+
+ex_gcd_intdeps  = @ex_gcd_intdeps@
+ex_gcd_cppflags = @ex_gcd_cppflags@
+ex_gcd_ldflags  = @ex_gcd_ldflags@
+ex_gcd_libs     = @ex_gcd_libs@
+
+ex_gcd_hdrs = \
+  GcdXcelHLS.h \
+
+ex_gcd_inls = \
+
+ex_gcd_srcs = \
+  GcdXcelHLS.cc \
+
+ex_gcd_test_srcs = \
+  GcdXcelHLS.t.cc \
+
