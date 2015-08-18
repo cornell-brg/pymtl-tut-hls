@@ -85,8 +85,8 @@ void SortXcelHLS
 (
   hls::stream<xcel::XcelReqMsg>&  xcelreq,
   hls::stream<xcel::XcelRespMsg>& xcelresp,
-  hls::stream<MemReqMsg>&         memreq,
-  hls::stream<MemRespMsg>&        memresp
+  hls::stream<MemReqMsg<> >&      memreq,
+  hls::stream<MemRespMsg<> >&     memresp
 ){
 #endif
 
@@ -104,7 +104,7 @@ void SortXcelHLS
         ) );
   #else
   // compute
-  sort( ArrayMemPortAdapter<hls::stream<MemReqMsg>, hls::stream<MemRespMsg> > (
+  sort( ArrayMemPortAdapter<hls::stream<MemReqMsg<> >, hls::stream<MemRespMsg<> > > (
           memreq,
           memresp,
           xcelWrapper.get_xreg(1),

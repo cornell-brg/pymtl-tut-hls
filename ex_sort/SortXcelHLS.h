@@ -28,9 +28,9 @@ void SortXcelHLS
 #else
 void SortXcelHLS
 (
-  hls::stream<xcel::XcelReqMsg>&  xcelreq,
-  hls::stream<xcel::XcelRespMsg>& xcelresp,
-  hls::stream<mem::MemReqMsg>&    memreq,
-  hls::stream<mem::MemRespMsg>&   memresp
+  hls::stream<xcel::XcelReqMsg>&   xcelreq,
+  hls::stream<xcel::XcelRespMsg>&  xcelresp,
+  hls::stream<mem::MemReqMsg<> >&  memreq,
+  hls::stream<mem::MemRespMsg<> >& memresp
 );
 #endif

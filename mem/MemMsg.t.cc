@@ -14,8 +14,8 @@ using namespace mem;
 UTST_AUTO_TEST_CASE( TestWrite )
 {
 
-  //                              type   opq    addr len    data
-  MemReqMsg req( MemReqMsg::TYPE_WRITE, 0x84, 0x1000,  2, 0xdeadbeef );
+  //                                  type   opq    addr len        data
+  MemReqMsg<> req( MemReqMsg<>::TYPE_WRITE, 0x84, 0x1000,  2, 0xdeadbeef );
 
   UTST_CHECK_EQ( req.type(),          1 );
   UTST_CHECK_EQ( req.opq(),        0x84 );
@@ -23,8 +23,8 @@ UTST_AUTO_TEST_CASE( TestWrite )
   UTST_CHECK_EQ( req.len(),           2 );
   UTST_CHECK_EQ( req.data(), 0xdeadbeef );
 
-  //                                type   opq len data
-  MemRespMsg resp( MemReqMsg::TYPE_WRITE, 0x84,  2,   0 );
+  //                                     type   opq len data
+  MemRespMsg<> resp( MemRespMsg<>::TYPE_WRITE, 0x84,  2,   0 );
 
   UTST_CHECK_EQ( resp.type(),    1 );
   UTST_CHECK_EQ( resp.opq(),  0x84 );
@@ -40,8 +40,8 @@ UTST_AUTO_TEST_CASE( TestWrite )
 UTST_AUTO_TEST_CASE( TestRead )
 {
 
-  //                             type   opq    addr len  data
-  MemReqMsg req( MemReqMsg::TYPE_READ, 0x84, 0x1000,  4,    0 );
+  //                                 type   opq    addr len  data
+  MemReqMsg<> req( MemReqMsg<>::TYPE_READ, 0x84, 0x1000,  4,    0 );
 
   UTST_CHECK_EQ( req.type(),      0 );
   UTST_CHECK_EQ( req.opq(),    0x84 );
@@ -49,8 +49,8 @@ UTST_AUTO_TEST_CASE( TestRead )
   UTST_CHECK_EQ( req.len(),       0 );
   UTST_CHECK_EQ( req.data(),      0 );
 
-  //                               type   opq len        data
-  MemRespMsg resp( MemReqMsg::TYPE_READ, 0x84,  0, 0xdeadbeef );
+  //                                    type   opq len        data
+  MemRespMsg<> resp( MemRespMsg<>::TYPE_READ, 0x84,  0, 0xdeadbeef );
 
   UTST_CHECK_EQ( resp.type(),          0 );
   UTST_CHECK_EQ( resp.opq(),        0x84 );

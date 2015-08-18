@@ -36,12 +36,12 @@ namespace mem {
           {
             // memory read request
 
-            m_memreq.write( MemReqMsg( MemReqMsg::TYPE_READ, 0, m_addr, 4, 0 ) );
+            m_memreq.write( MemReqMsg<>( MemReqMsg<>::TYPE_READ, 0, m_addr, 4, 0 ) );
             ap_wait();
 
             // memory read response
 
-            MemRespMsg resp = m_memresp.read();
+            MemRespMsg<> resp = m_memresp.read();
 
             // Return the data
 
@@ -53,12 +53,12 @@ namespace mem {
           {
             // memory write request
 
-            m_memreq.write( MemReqMsg( MemReqMsg::TYPE_WRITE, 0, m_addr, 4, value ) );
+            m_memreq.write( MemReqMsg<>( MemReqMsg<>::TYPE_WRITE, 0, m_addr, 4, value ) );
             ap_wait();
 
             // memory write response
 
-            MemRespMsg resp = m_memresp.read();
+            MemRespMsg<> resp = m_memresp.read();
 
             // allows for "chaining" i.e. a = b = c = d;
 
@@ -96,12 +96,12 @@ namespace mem {
       {
         // memory read request
 
-        m_memreq.write( MemReqMsg( MemReqMsg::TYPE_READ, 0, (m_base + i*4), 4, 0 ) );
+        m_memreq.write( MemReqMsg<>( MemReqMsg<>::TYPE_READ, 0, (m_base + i*4), 4, 0 ) );
         ap_wait();
 
         // memory read response
 
-        MemRespMsg resp = m_memresp.read();
+        MemRespMsg<> resp = m_memresp.read();
 
         // Return the data
 

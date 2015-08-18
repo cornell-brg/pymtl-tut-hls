@@ -54,13 +54,13 @@ namespace mem {
       operator T() const;
       MemValue<T>& operator=( T data );
       MemValue<T>& operator=( const MemValue<T>& x );
-      
+
       //-----------------------------------------------------------
       // & operator
       //-----------------------------------------------------------
       MemPointer<T> operator&() { return MemPointer<T>( m_addr ); }
       const MemPointer<T> operator&() const { return MemPointer<T>( m_addr ); }
-      
+
       //-----------------------------------------------------------
       // Comparison Operators
       //-----------------------------------------------------------
@@ -96,20 +96,20 @@ namespace mem {
       MemPointer();
       explicit MemPointer( Address base_ptr );
       MemPointer( const MemPointer& p );
-      
+
       //-----------------------------------------------------------
       // * and -> operators
       //-----------------------------------------------------------
       MemValue<T> operator*() const;
       MemValue<T>* operator->();
       const MemValue<T>* operator-> () const;
-      
+
       //-----------------------------------------------------------
       // = operator
       //-----------------------------------------------------------
       MemPointer<T>& operator=( const Address addr );
       MemPointer<T>& operator=( const MemPointer<T>& x );
-      
+
       //-----------------------------------------------------------
       // Comparison Operators
       //-----------------------------------------------------------
@@ -125,14 +125,14 @@ namespace mem {
       bool operator!=( const Address rhs ) const {
         return m_addr != rhs;
       }
-      
+
       //-----------------------------------------------------------
       // Streams
       //-----------------------------------------------------------
       template<typename U>
       friend OutMemStream&
       operator<<( OutMemStream& os, const MemPointer<U>& rhs );
-      
+
       template<typename U>
       friend InMemStream&
       operator>>( InMemStream& is, MemPointer<U>& rhs );
@@ -172,7 +172,7 @@ namespace mem {
       MemValue& operator=( const MemPointer<T>& p );
       MemValue& operator=( const MemValue& x );
       MemValue& operator=( const Address x );
-      
+
       //----------------------------------------------------------------
       // * and -> operators
       //----------------------------------------------------------------

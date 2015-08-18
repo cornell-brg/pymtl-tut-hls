@@ -23,8 +23,8 @@
   mem::TestMem& memreq  = MemStreamHLS_mem;
   mem::TestMem& memresp = MemStreamHLS_mem;
 #else
-  hls::stream<mem::MemReqMsg>  memreq;
-  hls::stream<mem::MemRespMsg> memresp;
+  hls::stream<mem::MemReqMsg<> >  memreq;
+  hls::stream<mem::MemRespMsg<> > memresp;
 #endif
 
 //------------------------------------------------------------------------

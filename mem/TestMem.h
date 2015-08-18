@@ -33,8 +33,8 @@ namespace mem {
     // messages to the test memory, and then read the corresponding memory
     // responses.
 
-    MemRespMsg read();
-    void write( const MemReqMsg& memreq );
+    MemRespMsg<> read();
+    void write( const MemReqMsg<>& memreq );
 
     //--------------------------------------------------------------------
     // mem_read/mem_write
@@ -58,9 +58,9 @@ namespace mem {
 
    private:
 
-    void _write( const MemReqMsg& memreq );
+    void _write( const MemReqMsg<>& memreq );
 
-    std::deque<MemRespMsg> m_memresp_q;
+    std::deque<MemRespMsg<> > m_memresp_q;
     ap_uint<8> m_mem[1<<20];
     int m_num_requests;
 

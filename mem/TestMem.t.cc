@@ -14,8 +14,8 @@ using namespace mem;
 void read( TestMem* mem, unsigned addr, unsigned data, unsigned nbytes, unsigned opaque )
 {
   unsigned len = ( nbytes == 4 ) ? 0 : nbytes;
-  mem->write( MemReqMsg( 0, opaque, addr, len, 0 ) );
-  MemRespMsg resp = mem->read();
+  mem->write( MemReqMsg<>( MemReqMsg<>::TYPE_READ, opaque, addr, len, 0 ) );
+  MemRespMsg<> resp = mem->read();
 
   UTST_CHECK_EQ( resp.data(), data   );
   UTST_CHECK_EQ( resp.len(),  len    );
@@ -30,8 +30,8 @@ void read( TestMem* mem, unsigned addr, unsigned data, unsigned nbytes, unsigned
 void write( TestMem* mem, unsigned addr, unsigned data, unsigned nbytes, unsigned opaque )
 {
   unsigned len = ( nbytes == 4 ) ? 0 : nbytes;
-  mem->write( MemReqMsg( 1, opaque, addr, len, data ) );
-  MemRespMsg resp = mem->read();
+  mem->write( MemReqMsg<>( MemReqMsg<>::TYPE_WRITE, opaque, addr, len, data ) );
+  MemRespMsg<> resp = mem->read();
 
   UTST_CHECK_EQ( resp.data(), 0      );
   UTST_CHECK_EQ( resp.len(),  len    );

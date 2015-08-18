@@ -22,11 +22,11 @@ namespace mem {
   // debug information when we are actualy writing the test memory from
   // inside an accelerator (as opposed to using the mem_write method).
 
-  void TestMem::_write( const MemReqMsg& memreq )
+  void TestMem::_write( const MemReqMsg<>& memreq )
   {
     // Handle read requests
 
-    if ( memreq.type() == MemReqMsg::TYPE_READ ) {
+    if ( memreq.type() == MemReqMsg<>::TYPE_READ ) {
 
       // Increment our message request counter
 
@@ -55,14 +55,14 @@ namespace mem {
 
       // Create the response message and enqueue
 
-      MemRespMsg resp( 0, memreq.opq(), memreq.len(), data );
+      MemRespMsg<> resp( 0, memreq.opq(), memreq.len(), data );
 
       m_memresp_q.push_back( resp );
     }
 
     // Handle write requests
 
-    else if ( memreq.type() == MemReqMsg::TYPE_WRITE ) {
+    else if ( memreq.type() == MemReqMsg<>::TYPE_WRITE ) {
 
       // Increment our message request counter
 
@@ -82,7 +82,7 @@ namespace mem {
 
       // Create the response message and enqueue
 
-      MemRespMsg resp( 1, memreq.opq(), memreq.len(), 0 );
+      MemRespMsg<> resp( 1, memreq.opq(), memreq.len(), 0 );
 
       m_memresp_q.push_back( resp );
     }
@@ -93,18 +93,18 @@ namespace mem {
   // TestMem::write
   //----------------------------------------------------------------------
 
-  void TestMem::write( const MemReqMsg& memreq )
+  void TestMem::write( const MemReqMsg<>& memreq )
   {
     using namespace std;
 
-    if ( memreq.type() == MemReqMsg::TYPE_READ ) {
+    if ( memreq.type() == MemReqMsg<>::TYPE_READ ) {
 
       UTST_LOG_MSG( "TestMem: rd:"
         << setfill('0') << setw(2) << hex << static_cast<unsigned int>(memreq.opq())  << ":"
         << setfill('0') << setw(8) << hex << static_cast<unsigned int>(memreq.addr()) << ":"
       );
 
-    } else if ( memreq.type() == MemReqMsg::TYPE_WRITE ) {
+    } else if ( memreq.type() == MemReqMsg<>::TYPE_WRITE ) {
 
       UTST_LOG_MSG( "TestMem: wr:"
         << setfill('0') << setw(2) << hex << static_cast<unsigned int>(memreq.opq())  << ":"
@@ -121,9 +121,9 @@ namespace mem {
   // TestMem::read
   //----------------------------------------------------------------------
 
-  MemRespMsg TestMem::read()
+  MemRespMsg<> TestMem::read()
   {
-    MemRespMsg resp = m_memresp_q.front();
+    MemRespMsg<> resp = m_memresp_q.front();
     m_memresp_q.pop_front();
     return resp;
   }
@@ -134,14 +134,14 @@ namespace mem {
 
   void TestMem::mem_write( int addr, unsigned int data )
   {
-    _write( MemReqMsg( 1, 0, addr, 0, data ) );
+    _write( MemReqMsg<>( 1, 0, addr, 0, data ) );
 
     // We don't want to count this as a memory request since it is part of
     // the test harness.
 
     m_num_requests--;
 
-    MemRespMsg resp = read();
+    MemRespMsg<> resp = read();
   }
 
   //----------------------------------------------------------------------
@@ -150,14 +150,14 @@ namespace mem {
 
   unsigned int TestMem::mem_read( int addr )
   {
-    _write( MemReqMsg( 0, 0, addr, 0, 0 ) );
+    _write( MemReqMsg<>( 0, 0, addr, 0, 0 ) );
 
     // We don't want to count this as a memory request since it is part of
     // the test harness.
 
     m_num_requests--;
 
-    MemRespMsg resp = read();
+    MemRespMsg<> resp = read();
     return resp.data();
   }
 
