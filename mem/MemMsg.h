@@ -4,7 +4,6 @@
 // Header file that defines the structs used for the memory interfaces
 
 #include <ap_int.h>
-#include <math.h>
 
 #ifndef MEM_MEMMSG_H
 #define MEM_MEMMSG_H
