@@ -161,8 +161,6 @@ void MemStreamHLS
   hls::stream<XcelReqMsg>&  xcelreq,
   hls::stream<XcelRespMsg>& xcelresp
 ){
-#pragma HLS INLINE
-
   XcelReqMsg req = xcelreq.read();
   int test_num = req.data();
 

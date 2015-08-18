@@ -1,246 +1,206 @@
-//========================================================================
-// MemProxy
-//========================================================================
+//==============================================================
+// generic proxies inlines
+//==============================================================
 
 namespace mem {
 
-  //----------------------------------------------------------------------
-  // MemProxy<T>: Constructor
-  //----------------------------------------------------------------------
+//=================================================================
+//=================================================================
+// MemProxy
+//=================================================================
+//=================================================================
 
-  template < typename T >
-  MemProxy<T>::MemProxy( unsigned int addr )
-    : m_addr(addr), m_memoized_valid(false)
-  { }
+  //-----------------------------------------------------------
+  // Constructor
+  //-----------------------------------------------------------
+  template<typename T>
+  MemProxy<T>::MemProxy( Address addr )
+    : m_addr( addr ), m_memoized_valid( false )
+  {}
 
-  //----------------------------------------------------------------------
-  // MemProxy<T>: Cast Operator
-  //----------------------------------------------------------------------
-
-  template < typename T >
-  MemProxy<T>::operator T() const
-  {
-    #pragma HLS inline
+  //-----------------------------------------------------------
+  // rvalue use
+  //-----------------------------------------------------------
+  template<typename T>
+  MemProxy<T>::operator T() const {
+    DB_PRINT (("MemProxy: reading from 0x%u\n", m_addr.to_uint()));
     if ( !m_memoized_valid ) {
-      m_memoized_valid = true;
+      //m_memoized_valid = true;
       mem::InMemStream is(m_addr);
       is >> m_memoized_value;
     }
     return m_memoized_value;
   }
 
-  //----------------------------------------------------------------------
-  // MemProxy<T>: Assignment Operators
-  //----------------------------------------------------------------------
-
-  template < typename T >
-  MemProxy<T>& MemProxy<T>::operator=( const T& value )
-  {
-    #pragma HLS inline
+  //-----------------------------------------------------------
+  // lvalue uses
+  //-----------------------------------------------------------
+  template<typename T>
+  MemProxy<T>& MemProxy<T>::operator=( T value ) {
+    DB_PRINT (("MemProxy: writing %u to 0x%u\n", value, m_addr.to_uint()));
     m_memoized_value = value;
-    m_memoized_valid = true;
+    //m_memoized_valid = true;
     mem::OutMemStream os(m_addr);
     os << m_memoized_value;
     return *this;
   }
-
-  template < typename T >
-  MemProxy<T>& MemProxy<T>::operator=( const MemProxy<T>& rhs )
-  {
-    #pragma HLS inline
-    m_memoized_value = static_cast<T>(rhs);
-    m_memoized_valid = true;
-    mem::OutMemStream os(m_addr);
-    os << m_memoized_value;
-    return *this;
+    
+  template<typename T>
+  MemProxy<T>& MemProxy<T>::operator=( const MemProxy<T>& x ) {
+    return operator=( static_cast<T>( x ) );
   }
 
-  //----------------------------------------------------------------------
-  // MemProxy<T>: Address Operators
-  //----------------------------------------------------------------------
+//=================================================================
+//=================================================================
+// MemPointer
+//=================================================================
+//=================================================================
 
-  template < typename T >
-  MemPointer<T> MemProxy<T>::operator&()
-  {
-    return MemPointer<T>(m_addr);
-  }
-
-  template < typename T >
-  const MemPointer<T> MemProxy<T>::operator&() const
-  {
-    return MemPointer<T>(m_addr);
-  }
-
-  //----------------------------------------------------------------------
-  // MemProxy<MemPointer<U>>: Constructor
-  //----------------------------------------------------------------------
-
-  template < typename U >
-  MemProxy< MemPointer<U> >::MemProxy( unsigned int addr )
-    : m_addr(addr)
-  { }
-
-  //----------------------------------------------------------------------
-  // MemProxy<MemPointer<U>>: Cast Operator
-  //----------------------------------------------------------------------
-
-  template < typename U >
-  MemProxy< MemPointer<U> >::operator MemPointer<U>() const
-  {
-    MemPointer<U> ptr;
-    mem::InMemStream is(m_addr);
-    is >> ptr;
-    return ptr;
-  }
-
-  //----------------------------------------------------------------------
-  // MemProxy<MemPointer<U>>: Assignment Operators
-  //----------------------------------------------------------------------
-
-  template < typename U >
-  MemProxy< MemPointer<U> >&
-  MemProxy< MemPointer<U> >::operator=( unsigned int value )
-  {
-    mem::OutMemStream os(m_addr);
-    os << value;
-    return *this;
-  }
-
-  template < typename U >
-  MemProxy< MemPointer<U> >&
-  MemProxy< MemPointer<U> >::operator=( const MemPointer<U>& value )
-  {
-    mem::OutMemStream os(m_addr);
-    os << value;
-    return *this;
-  }
-
-  template < typename U >
-  MemProxy< MemPointer<U> >&
-  MemProxy< MemPointer<U> >::operator=( const MemProxy< MemPointer<U> >& rhs )
-  {
-    mem::OutMemStream os(m_addr);
-    os << static_cast< MemPointer<U> >(rhs);
-    return *this;
-  }
-
-  //----------------------------------------------------------------------
-  // MemProxy<MemPointer<U>>: Dereference Operator
-  //----------------------------------------------------------------------
-
-  template < typename U >
-  MemProxy<U>
-  MemProxy< MemPointer<U> >::operator*()
-  {
-    unsigned int addr;
-    mem::InMemStream is(m_addr);
-    is >> addr;
-    return MemProxy<U>(addr);
-  }
-
-  //----------------------------------------------------------------------
-  // MemPointer<T>: Constructors
-  //----------------------------------------------------------------------
-
-  template < typename T >
+  //-----------------------------------------------------------
+  // Constructors
+  //-----------------------------------------------------------
+  template<typename T>              // default
   MemPointer<T>::MemPointer()
-    : m_addr(0)
-  { }
+    : m_addr( 0 ), m_obj_temp( 0 )
+  {}
 
-  template < typename T >
-  MemPointer<T>::MemPointer( unsigned int addr )
-    : m_addr(addr)
-  { }
+  template<typename T>              // from address
+  MemPointer<T>::MemPointer( Address base_ptr )
+    : m_addr( base_ptr ), m_obj_temp( base_ptr )
+  {}
 
-  //----------------------------------------------------------------------
-  // MemPointer<T>: Assignment Operators
-  //----------------------------------------------------------------------
+  template<typename T>              // copy
+  MemPointer<T>::MemPointer( const MemPointer& p )
+    : m_addr( p.m_addr ), m_obj_temp( p.m_addr )
+  {}
+  
+  //-----------------------------------------------------------
+  // * operator
+  //-----------------------------------------------------------
+  template<typename T>
+  MemProxy<T> MemPointer<T>::operator*() const {
+    return MemProxy<T>( m_addr );
+  }
 
-  template < typename T >
-  MemPointer<T>& MemPointer<T>::operator=( unsigned int value )
-  {
-    m_addr = value;
+  //-----------------------------------------------------------
+  // -> operator
+  //-----------------------------------------------------------
+  template<typename T>
+  MemProxy<T>* MemPointer<T>::operator->() {
+    DB_PRINT(("MemPointer: operator->: m_addr=%u\n", m_addr));
+    m_obj_temp = MemProxy<T>( m_addr );
+    return &m_obj_temp;
+  }
+
+  template<typename T>
+  const MemProxy<T>* MemPointer<T>::operator->() const {
+    DB_PRINT(("MemPointer: operator->: m_addr=%u\n", m_addr));
+    return &m_obj_temp;
+  }
+
+  //-----------------------------------------------------------
+  // = operator
+  //-----------------------------------------------------------
+  template<typename T>
+  MemPointer<T>& MemPointer<T>::operator=( const Address addr ) {
+    m_addr = addr;
+    m_obj_temp = MemProxy<T>( addr );
     return *this;
   }
 
-  template < typename T >
-  MemPointer<T>& MemPointer<T>::operator=( const MemPointer<T>& rhs )
-  {
-    m_addr = rhs.m_addr;
+  template<typename T>
+  MemPointer<T>& MemPointer<T>::operator=( const MemPointer<T>& x ) {
+    m_addr = x.m_addr;
+    m_obj_temp = MemProxy<T>( x.m_addr );
     return *this;
   }
-
-  //----------------------------------------------------------------------
-  // MemPointer<T>: Comparison Operators
-  //----------------------------------------------------------------------
-
-  template < typename T >
-  bool MemPointer<T>::operator==( int addr ) const
-  {
-    return ( m_addr == addr );
-  }
-
-  template < typename T >
-  bool MemPointer<T>::operator==( const MemPointer<T>& rhs ) const
-  {
-    return ( m_addr == rhs.m_addr );
-  }
-
-  template < typename T >
-  bool MemPointer<T>::operator!=( int addr ) const
-  {
-    return ( m_addr != addr );
-  }
-
-  template < typename T >
-  bool MemPointer<T>::operator!=( const MemPointer<T>& rhs ) const
-  {
-    return ( m_addr != rhs.m_addr );
-  }
-
-  //----------------------------------------------------------------------
-  // MemPointer<T>: Dereference Operator
-  //----------------------------------------------------------------------
-
-  template < typename T >
-  MemProxy<T> MemPointer<T>::operator*()
-  {
-    return MemProxy<T>(m_addr);
-  }
-
-  // Will need magic here to make & return a real pointer for a proxy.
-
-  /*
-  T* operator->()
-  {
-    assert( m_addr != 0 );
-    mem::InMemStream is(m_addr);
-    is >> m_temp_value;
-    return &m_temp_value;
-  }
-  */
-
-  //----------------------------------------------------------------------
-  // MemPointer<T>: Insertion operator overloading
-  //----------------------------------------------------------------------
-
-  template < typename T >
-  OutMemStream& operator<<( OutMemStream& os, const MemPointer<T>& rhs )
-  {
+  
+  //-----------------------------------------------------------
+  // Stream Support for reading/writing MemPointer
+  //-----------------------------------------------------------
+  template<typename T>
+  mem::OutMemStream&
+  operator<<( mem::OutMemStream& os, const MemPointer<T>& rhs ) {
     os << rhs.m_addr;
     return os;
   }
 
-  //----------------------------------------------------------------------
-  // MemPointer<T>: Extraction operator overloading
-  //----------------------------------------------------------------------
-
-  template < typename T >
-  InMemStream& operator>>( InMemStream& is, MemPointer<T>& rhs )
-  {
+  template<typename T>
+  mem::InMemStream&
+  operator>>( mem::InMemStream& is, MemPointer<T>& rhs ) {
     is >> rhs.m_addr;
     return is;
   }
 
-}
+//=================================================================
+//=================================================================
+// MemPointer
+//=================================================================
+//=================================================================
 
+  //-----------------------------------------------------------
+  // Constructors
+  //-----------------------------------------------------------
+  template<typename T>
+  MemProxy< MemPointer<T> >::MemProxy( Address base_ptr )
+    : m_addr( base_ptr )
+  {}
+  
+  //-----------------------------------------------------------
+  // rvalue use
+  //-----------------------------------------------------------
+  template<typename T>
+  MemProxy< MemPointer<T> >::operator MemPointer<T>() const {
+    DB_PRINT (("MemProxy: reading from %u\n", m_addr));
+    MemPointer<T> ptr;
+    mem::InMemStream is(m_addr);
+    is >> ptr;
+    return ptr;
+  }
+  
+  //-----------------------------------------------------------
+  // lvalue uses
+  //-----------------------------------------------------------
+  template<typename T>
+  MemProxy< MemPointer<T> >&
+  MemProxy< MemPointer<T> >::operator=( const MemPointer<T>& p ) {
+    DB_PRINT (("MemProxy: writing %u to loc %u\n", p.get_addr(), m_addr));
+    mem::OutMemStream os(m_addr);
+    os << p;
+    return *this;
+  }
+  
+  template<typename T>
+  MemProxy< MemPointer<T> >&
+  MemProxy< MemPointer<T> >::operator=( const MemProxy& x ) {
+    return operator=( static_cast< MemPointer<T> >( x ) );
+  }
+
+  template<typename T>
+  MemProxy< MemPointer<T> >&
+  MemProxy< MemPointer<T> >::operator=( const Address x ) {
+    return operator=( static_cast< MemPointer<T> >( x ) );
+  }
+  
+  //-----------------------------------------------------------
+  // * operator
+  //-----------------------------------------------------------
+  template<typename T>
+  MemProxy< T > MemProxy< MemPointer<T> >::operator*() const {
+    return *(operator MemPointer<T>());
+  }
+      
+  //-----------------------------------------------------------
+  // -> operator
+  //-----------------------------------------------------------
+  template<typename T>
+  MemPointer<T> MemProxy< MemPointer<T> >::operator->() {
+    return operator MemPointer<T>();
+  }
+
+  template<typename T>
+  const MemPointer<T> MemProxy< MemPointer<T> >::operator->() const {
+    return operator MemPointer<T>();
+  }
+      
+}; // end namespace mem

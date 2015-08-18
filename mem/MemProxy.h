@@ -1,217 +1,216 @@
-//========================================================================
-// MemProxy
-//========================================================================
-// Templated class representing a value in a test memory or real hardware
-// memory. Reading this class results in reading the value from memory.
-// Writing this class results in writing the value to memory.
-//
-// The MemProxy and MemPointer go hand-in-hand. If you take the address
-// of a MemProxy then you get a MemPointer. If you dereference a
-// MemPointer then you get back a MemProxy. This class is not done yet --
-// it still needs work, but it is a good start.
-//
+//==============================================================
+// generic proxies header
+//==============================================================
 
-#ifndef MEM_PROXY_H
-#define MEM_PROXY_H
+#ifndef PROXY_H
+#define PROXY_H
 
+#include <stdio.h>
+#include <ap_utils.h>
 #include "MemStream.h"
+
+#ifdef DEBUG
+  #define DB_PRINT(x) printf x
+  #define DB_ASSERT(x) assert x
+#else
+  #define DB_PRINT(x)
+  #define DB_ASSERT(x)
+#endif
 
 namespace mem {
 
-  // Forward Declarations
+  //XXX:This is only true for HLS or HLS_TESTING.
+  //    For C++ compilation, PTR_SIZE should be sizeof(void*)
+  //    which is 8 on brg
+  static unsigned PTR_SIZE = 4;
 
-  template < typename T >
-  class MemPointer;
+  typedef unsigned        Address;
 
-  //======================================================================
-  // MemProxy<T>
-  //======================================================================
-  // Represents an object stored in the explicit hardware memory.
+  template<typename T> class MemProxy;
+  template<typename T> class MemPointer;
 
-  template < typename T >
+  //========================================================================
+  //========================================================================
+  // MemProxy
+  // This proxy can wrap any non-pointer object.
+  // For non-primitive objects you can't access fields directly
+  // from the MemProxy, you have to get the object out first.
+  //========================================================================
+  //========================================================================
+  template<typename T>
   class MemProxy {
-
-   public:
-
-    //--------------------------------------------------------------------
-    // Constructor
-    //--------------------------------------------------------------------
-    // Takes the address of where the object is stored in the explicit
-    // hardware memory.
-
-    explicit MemProxy( unsigned int addr );
-
-    //--------------------------------------------------------------------
-    // Cast Operator
-    //--------------------------------------------------------------------
-    // Enables automatically converting the MemProxy<T> into an object of
-    // type T.
-
-    operator T() const;
-
-    //--------------------------------------------------------------------
-    // Assignment Operators
-    //--------------------------------------------------------------------
-    // Enables assigning to a proxy with either an object of type T or
-    // another MemProxy object.
-
-    MemProxy<T>& operator=( const T& value );
-    MemProxy<T>& operator=( const MemProxy<T>& rhs );
-
-    //--------------------------------------------------------------------
-    // Address Operators
-    //--------------------------------------------------------------------
-    // Taking the address of a proxy should return a MemPointer.
-
-    MemPointer<T> operator&();
-    const MemPointer<T> operator&() const;
-
-   protected:
-
-    int m_addr;
-
-    // Memoized data members must be marked mutable since they will be
-    // modified in const methods.
+    Address m_addr;
 
     mutable bool m_memoized_valid;
     mutable T    m_memoized_value;
 
+    public:
+      //-----------------------------------------------------------
+      // Constructor
+      //-----------------------------------------------------------
+      explicit MemProxy( Address addr );
+
+      //-----------------------------------------------------------
+      // rvalue and lvalue uses
+      //-----------------------------------------------------------
+      operator T() const;
+      MemProxy<T>& operator=( T data );
+      MemProxy<T>& operator=( const MemProxy<T>& x );
+      
+      //-----------------------------------------------------------
+      // & operator
+      //-----------------------------------------------------------
+      MemPointer<T> operator&() { return MemPointer<T>( m_addr ); }
+      const MemPointer<T> operator&() const { return MemPointer<T>( m_addr ); }
+      
+      //-----------------------------------------------------------
+      // Comparison Operators
+      //-----------------------------------------------------------
+      bool operator==( const T& rhs ) const { return operator T() == rhs; }
+      bool operator!=( const T& rhs ) const { return operator T() != rhs; }
+      bool operator< ( const T& rhs ) const { return operator T() <  rhs; }
+
+      //-----------------------------------------------------------
+      // other
+      //-----------------------------------------------------------
+      Address get_addr() const { return m_addr; }
+      void set_addr( const Address addr ) { m_addr = addr; }
+      static size_t size() {
+        return sizeof(T) > PTR_SIZE ? sizeof(T) : PTR_SIZE;
+      }
   };
 
-  //======================================================================
-  // MemProxy< MemPointer<U> >
-  //======================================================================
-  // Specialization of MemProxy for MemPointers. So we essentially use
-  // this when we want to represent a MemPointer stored in the explicit
-  // hardware memory. Additionally provides the dereference operator. We
-  // probably need to also eventually add the arrow operator.
-
-  template < typename U >
-  class MemProxy< MemPointer<U> > {
-
-   public:
-
-    //--------------------------------------------------------------------
-    // Constructor
-    //--------------------------------------------------------------------
-    // Takes the address of where the pointer is stored in the explicit
-    // hardware memory.
-
-    explicit MemProxy( unsigned int addr );
-
-    //--------------------------------------------------------------------
-    // Cast Operator
-    //--------------------------------------------------------------------
-    // Enables automatically converting the MemProxy<T> into a MemPointer.
-
-    operator MemPointer<U>() const;
-
-    //--------------------------------------------------------------------
-    // Assignment Operators
-    //--------------------------------------------------------------------
-    // Enables assigning to a proxy with either an int another MemProxy
-    // object. NOTE: The assignment from an int is really only to support
-    // assinging zero to a MemPointer. If you want to change what a
-    // pointer points to then you should simply assign it the address of
-    // a MemProxy.
-
-    MemProxy< MemPointer<U> >& operator=( unsigned int value );
-    MemProxy< MemPointer<U> >& operator=( const MemPointer<U>& value );
-    MemProxy< MemPointer<U> >& operator=( const MemProxy< MemPointer<U> >& rhs );
-
-    //--------------------------------------------------------------------
-    // Dereference Operator
-    //--------------------------------------------------------------------
-    // Dereferencing a MemProxy<MemPointer<U>> returns a MemProxy just
-    // like dereferencing a MemPointer<T> directly. A
-    // MemProxy<MemPointer<U>> should behave like a MemPointer<T> as much
-    // as possible.
-
-    MemProxy<U> operator*();
-
-   private:
-
-    int m_addr;
-
-  };
-
-  //======================================================================
-  // MemPointer<T>
-  //======================================================================
-  // Represents a pointer to an object in the explicit hardware memory.
-  // We probably need to also eventually add the arrow operator.
-
-  template < typename T >
+  //========================================================================
+  //========================================================================
+  // MemPointer
+  // This proxy wraps pointer objects, it supports the * and ->
+  // operators as pointer-like objects do.
+  //========================================================================
+  //========================================================================
+  template<typename T>
   class MemPointer {
 
-   public:
+    Address m_addr;
+    MemProxy<T> m_obj_temp;
 
-    //--------------------------------------------------------------------
-    // Constructors
-    //--------------------------------------------------------------------
-    // Default constructor creates a null pointer.
+    public:
+      //-----------------------------------------------------------
+      // Constructors
+      //-----------------------------------------------------------
+      MemPointer();
+      explicit MemPointer( Address base_ptr );
+      MemPointer( const MemPointer& p );
+      
+      //-----------------------------------------------------------
+      // * and -> operators
+      //-----------------------------------------------------------
+      MemProxy<T> operator*() const;
+      MemProxy<T>* operator->();
+      const MemProxy<T>* operator-> () const;
+      
+      //-----------------------------------------------------------
+      // = operator
+      //-----------------------------------------------------------
+      MemPointer<T>& operator=( const Address addr );
+      MemPointer<T>& operator=( const MemPointer<T>& x );
+      
+      //-----------------------------------------------------------
+      // Comparison Operators
+      //-----------------------------------------------------------
+      bool operator==( const MemPointer& rhs ) const {
+        return m_addr == rhs.m_addr;
+      }
+      bool operator!=( const MemPointer& rhs ) const {
+        return m_addr != rhs.m_addr;
+      }
+      bool operator==( const Address rhs ) const {
+        return m_addr == rhs;
+      }
+      bool operator!=( const Address rhs ) const {
+        return m_addr != rhs;
+      }
+      
+      //-----------------------------------------------------------
+      // Streams
+      //-----------------------------------------------------------
+      template<typename U>
+      friend OutMemStream&
+      operator<<( OutMemStream& os, const MemPointer<U>& rhs );
+      
+      template<typename U>
+      friend InMemStream&
+      operator>>( InMemStream& is, MemPointer<U>& rhs );
 
-    MemPointer();
-    explicit MemPointer( unsigned int addr );
-
-    //--------------------------------------------------------------------
-    // Assignment Operators
-    //--------------------------------------------------------------------
-    // Enables assigning to a MemPointer with either an int another
-    // MemProxy object. NOTE: The assignment from an int is really only
-    // to support assinging zero to a MemPointer. If you want to change
-    // what a pointer points to then you should simply assign it the
-    // address of a MemProxy.
-
-    MemPointer<T>& operator=( unsigned int value );
-    MemPointer<T>& operator=( const MemPointer<T>& rhs );
-
-    //--------------------------------------------------------------------
-    // Comparison Operators
-    //--------------------------------------------------------------------
-    // Note that the overloads for int are really just for comparing to
-    // zero. Usually we just want to compare one MemPointer to another
-    // MemPointer.
-
-    bool operator==( int addr ) const;
-    bool operator==( const MemPointer<T>& rhs ) const;
-    bool operator!=( int addr ) const;
-    bool operator!=( const MemPointer<T>& rhs ) const;
-
-    //--------------------------------------------------------------------
-    // Derference Operator
-    //--------------------------------------------------------------------
-    // Dereferencing a MemPointer<U> returns a MemProxy<U>.
-
-    MemProxy<T> operator*();
-
-   private:
-
-    template < typename U >
-    friend OutMemStream&
-    operator<<( OutMemStream& os, const MemPointer<U>& rhs );
-
-    template < typename U >
-    friend InMemStream&
-    operator>>( InMemStream& is, MemPointer<U>& rhs );
-
-    unsigned int m_addr;
-    // T m_temp_value;
-
+      //-----------------------------------------------------------
+      // other
+      //-----------------------------------------------------------
+      Address get_addr() const { return m_addr; }
+      static size_t size() { return PTR_SIZE; }
   };
 
-  //----------------------------------------------------------------------
-  // Insertion/extraction operator overloading
-  //----------------------------------------------------------------------
+  template<typename T>
+  OutMemStream&
+  operator<<( OutMemStream& os, const MemPointer<T>& rhs );
 
-  template < typename T >
-  OutMemStream& operator<<( OutMemStream& os, const MemPointer<T>& rhs );
+  template<typename T>
+  InMemStream&
+  operator>>( InMemStream& is, MemPointer<T>& rhs );
 
-  template < typename T >
-  InMemStream& operator>>( InMemStream& is, MemPointer<T>& rhs );
+  //========================================================================
+  //========================================================================
+  // MemProxy of MemPointer specialization
+  //========================================================================
+  //========================================================================
+  template<typename T>
+  class MemProxy< MemPointer<T> > {
+      Address m_addr;
 
-}
+    public:
+      //----------------------------------------------------------------
+      // Constructors
+      //----------------------------------------------------------------
+      explicit MemProxy( Address base_ptr );
+
+      //----------------------------------------------------------------
+      // rvalue and lvalue uses
+      //----------------------------------------------------------------
+      operator MemPointer<T>() const;
+      MemProxy& operator=( const MemPointer<T>& p );
+      MemProxy& operator=( const MemProxy& x );
+      MemProxy& operator=( const Address x );
+      
+      //----------------------------------------------------------------
+      // * and -> operators
+      //----------------------------------------------------------------
+      MemProxy<T> operator*() const;
+      MemPointer<T> operator->();
+      const MemPointer<T> operator->() const;
+
+      //----------------------------------------------------------------
+      // Comparison Operators
+      //----------------------------------------------------------------
+      bool operator==( const MemPointer<T>& rhs ) const {
+        return operator MemPointer<T>() == rhs;
+      }
+      bool operator!=( const MemPointer<T>& rhs ) const {
+        return operator MemPointer<T>() != rhs;
+      }
+      bool operator==( const Address rhs ) const {
+        return operator MemPointer<T>() == rhs;
+      }
+      bool operator!=( const Address rhs ) const {
+        return operator MemPointer<T>() != rhs;
+      }
+
+      //----------------------------------------------------------------
+      // other
+      //----------------------------------------------------------------
+      Address get_addr() const { return m_addr; }
+      void set_addr( const Address addr ) { m_addr = addr; }
+  };
+
+}; // end namespace mem
 
 #include "MemProxy.inl"
-#endif
 
+#endif
