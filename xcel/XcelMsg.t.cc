@@ -5,7 +5,7 @@
 #include "utst.h"
 #include "XcelMsg.h"
 
-using namespace mem;
+using namespace xcel;
 
 //------------------------------------------------------------------------
 // Test Write Messages
@@ -47,7 +47,7 @@ UTST_AUTO_TEST_CASE( TestRead )
   UTST_CHECK_EQ( req.type(),    0 );
   UTST_CHECK_EQ( req.addr(),   31 );
   UTST_CHECK_EQ( req.data(),    0 );
-  UTST_CHECK_EQ( req.len(),     1 );
+  UTST_CHECK_EQ( req.id(),      1 );
 
   //                 opq                   type  data        id
   XcelRespMsg resp( 0x53, XcelReqMsg::TYPE_READ, 0xabcdeeff, 1 );
