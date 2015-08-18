@@ -26,6 +26,7 @@ mem_srcs = \
   MemProxyHLS.cc \
 
 mem_test_srcs = \
+	MemMsg.t.cc \
   TestMem.t.cc \
   MemStream.t.cc \
   MemStreamHLS.t.cc \
