@@ -15,23 +15,55 @@ namespace xcel {
   //----------------------------------------------------------------------
 
   struct XcelReqMsg {
-    ap_uint<11> id;
-    ap_uint<32> data;
-    ap_uint<5>  addr;
-    ap_uint<1>  type;
-    ap_uint<8>  opq;
 
-    static const int TYPE_READ  = 0;
-    static const int TYPE_WRITE = 1;
+    typedef ap_range_ref<57,false> BitSliceProxy;
+    typedef ap_uint<57>            Bits;
 
-    XcelReqMsg()
-    : id( 0 ), data( 0 ), addr( 0 ),
-      type( 0 ), opq( 0 ) {}
+    //--------------------------------------------------------------------
+    // message type
+    //--------------------------------------------------------------------
 
-    XcelReqMsg( ap_uint<11> id_, ap_uint<32> data_,
-      ap_uint<5> addr_, ap_uint<1> type_, ap_uint<8> opq_ )
-    : id( id_ ), data( data_ ), addr( addr_ ),
-      type( type_ ), opq( opq_ ) {}
+    enum {
+      TYPE_READ,
+      TYPE_WRITE
+    };
+
+    //--------------------------------------------------------------------
+    // message bits
+    //--------------------------------------------------------------------
+
+    Bits bits;
+
+    //--------------------------------------------------------------------
+    // field mutators
+    //--------------------------------------------------------------------
+
+    BitSliceProxy opq()  { return bits(56,49); }
+    BitSliceProxy type() { return bits(48,48); }
+    BitSliceProxy addr() { return bits(47,43); }
+    BitSliceProxy data() { return bits(42,11); }
+    BitSliceProxy id()   { return bits(10, 0); }
+
+    //--------------------------------------------------------------------
+    // field inspectors
+    //--------------------------------------------------------------------
+
+    BitSliceProxy opq()  const { return bits(56,49); }
+    BitSliceProxy type() const { return bits(48,48); }
+    BitSliceProxy addr() const { return bits(47,43); }
+    BitSliceProxy data() const { return bits(42,11); }
+    BitSliceProxy id()   const { return bits(10, 0); }
+
+    //--------------------------------------------------------------------
+    // constructors
+    //--------------------------------------------------------------------
+
+    XcelReqMsg() : bits( 0 ) { }
+
+    XcelReqMsg( ap_uint<8> opq, ap_uint<1> type,
+                ap_uint<5> addr, ap_uint<32> data, ap_uint<11> id )
+      : bits( ( opq, type, addr, data, id ) )
+    { }
 
   };
 
@@ -40,22 +72,53 @@ namespace xcel {
   //----------------------------------------------------------------------
 
   struct XcelRespMsg {
-    ap_uint<11> id;
-    ap_uint<32> data;
-    ap_uint<1>  type;
-    ap_uint<8>  opq;
 
-    static const int TYPE_READ  = 0;
-    static const int TYPE_WRITE = 1;
+    typedef ap_range_ref<52,false> BitSliceProxy;
+    typedef ap_uint<52>            Bits;
 
-    XcelRespMsg()
-    : id( 0 ), data( 0 ),
-      type( 0 ), opq( 0 ) {}
+    //--------------------------------------------------------------------
+    // message type
+    //--------------------------------------------------------------------
 
-    XcelRespMsg( ap_uint<11> id_, ap_uint<32> data_,
-      ap_uint<1> type_, ap_uint<8> opq_ )
-    : id( id_ ), data( data_ ),
-      type( type_ ), opq( opq_ ) {}
+    enum {
+      TYPE_READ,
+      TYPE_WRITE
+    };
+
+    //--------------------------------------------------------------------
+    // message bits
+    //--------------------------------------------------------------------
+
+    Bits bits;
+
+    //--------------------------------------------------------------------
+    // field mutators
+    //--------------------------------------------------------------------
+
+    BitSliceProxy opq()  { return bits(51,44); }
+    BitSliceProxy type() { return bits(43,43); }
+    BitSliceProxy data() { return bits(42,11); }
+    BitSliceProxy id()   { return bits(10, 0); }
+
+    //--------------------------------------------------------------------
+    // field inspectors
+    //--------------------------------------------------------------------
+
+    BitSliceProxy opq()  const { return bits(51,44); }
+    BitSliceProxy type() const { return bits(43,43); }
+    BitSliceProxy data() const { return bits(43,12); }
+    BitSliceProxy id()   const { return bits(11, 0); }
+
+    //--------------------------------------------------------------------
+    // constructors
+    //--------------------------------------------------------------------
+
+    XcelRespMsg() : bits( 0 ) { }
+
+    XcelRespMsg( ap_uint<8> opq, ap_uint<1> type,
+                 ap_uint<32> data, ap_uint<11> id )
+      : bits( ( opq, type, data, id ) )
+    { }
 
   };
 

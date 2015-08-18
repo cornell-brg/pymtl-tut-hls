@@ -11,9 +11,6 @@
 
 #include "XcelMsg.h"
 
-extern hls::stream<xcel::XcelReqMsg>  xcelreq;
-extern hls::stream<xcel::XcelRespMsg> xcelresp;
-
 namespace xcel {
 
   template<int NumRegs>
@@ -21,31 +18,33 @@ namespace xcel {
     public:
 
       // constructor
-      INLINE XcelWrapper()
-        : m_go( false )
+
+      XcelWrapper( hls::stream<XcelReqMsg>&  xcelreq,
+                   hls::stream<XcelRespMsg>& xcelresp )
+        : m_go( false ), m_xcelreq( xcelreq ), m_xcelresp( xcelresp )
       { }
 
       // configure
-      INLINE void configure() {
+      void configure() {
         while ( !m_go ) {
-          m_req = xcelreq.read();
-          if ( m_req.type == XcelReqMsg::TYPE_READ ) {
+          m_req = m_xcelreq.read();
+          if ( m_req.type() == XcelReqMsg::TYPE_READ ) {
             m_go  = true;
             break;
           }
-          m_xregs[ m_req.addr ] = m_req.data;
-          xcelresp.write( XcelRespMsg( m_req.id, 0, m_req.type, m_req.opq ) );
+          m_xregs[ m_req.addr() ] = m_req.data();
+          m_xcelresp.write( XcelRespMsg( m_req.opq(), 1, 0, m_req.id() ) );
         }
       }
 
       // done
-      INLINE void done( ap_uint<32> value ) {
-        xcelresp.write( XcelRespMsg( m_req.id, value, m_req.type, m_req.opq ) );
+      void done( ap_uint<32> result ) {
+        m_xcelresp.write( XcelRespMsg( m_req.opq(), m_req.type(), result, m_req.id() ) );
         m_go = false;
       }
 
       // returns the request xcel register
-      INLINE ap_uint<32> get_xreg( int addr ) {
+      ap_uint<32> get_xreg( int addr ) {
         return m_xregs[ addr ];
       }
 
@@ -53,6 +52,9 @@ namespace xcel {
       ap_uint<32>  m_xregs[ NumRegs ];
       bool         m_go;
       XcelReqMsg   m_req;
+
+      hls::stream<XcelReqMsg>&  m_xcelreq;
+      hls::stream<XcelRespMsg>& m_xcelresp;
   };
 
 }

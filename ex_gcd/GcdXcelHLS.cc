@@ -46,10 +46,13 @@ ap_uint<32> gcd( ap_uint<32> opA, ap_uint<32> opB ) {
 // GcdXcelHLS
 //------------------------------------------------------------------------
 
-void GcdXcelHLS()
+void GcdXcelHLS(
+  hls::stream<xcel::XcelReqMsg>&  xcelreq,
+  hls::stream<xcel::XcelRespMsg>& xcelresp
+)
 {
 
-  XcelWrapper<3> xcelWrapper;
+  XcelWrapper<3> xcelWrapper( xcelreq, xcelresp );
 
   // configure
   xcelWrapper.configure();
