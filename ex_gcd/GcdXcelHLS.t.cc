@@ -22,6 +22,10 @@ void run_test( const std::vector<std::pair<int,int> >& data,
                const std::vector<int>&                 ref   )
 {
 
+  // Create configuration req/resp streams
+
+  hls::stream<XcelReqMsg>  xcelreq;
+  hls::stream<XcelRespMsg> xcelresp;
 
   for ( unsigned i = 0; i < data.size(); ++ i )  {
     // Insert configuration requests to do compute gcd
@@ -31,7 +35,7 @@ void run_test( const std::vector<std::pair<int,int> >& data,
     xcelreq.write( XcelReqMsg( 0,     0,   0, 0,              0 ) );
 
     // compute
-    GcdXcelHLS();
+    GcdXcelHLS( xcelreq, xcelresp );
 
     // Drain the response for writes
     xcelresp.read();
@@ -54,13 +58,13 @@ UTST_AUTO_TEST_CASE( TestBasic )
   std::vector<int>                 ref;
 
   data.push_back( std::make_pair( 15,  5 ) ); ref.push_back(  5 );
-  //data.push_back( std::make_pair(  9,  3 ) ); ref.push_back(  3 );
-  //data.push_back( std::make_pair(  0,  0 ) ); ref.push_back(  0 );
-  //data.push_back( std::make_pair( 27, 15 ) ); ref.push_back(  3 );
-  //data.push_back( std::make_pair( 21, 49 ) ); ref.push_back(  7 );
-  //data.push_back( std::make_pair( 25, 30 ) ); ref.push_back(  5 );
-  //data.push_back( std::make_pair( 19, 27 ) ); ref.push_back(  1 );
-  //data.push_back( std::make_pair( 40, 40 ) ); ref.push_back( 40 );
+  data.push_back( std::make_pair(  9,  3 ) ); ref.push_back(  3 );
+  data.push_back( std::make_pair(  0,  0 ) ); ref.push_back(  0 );
+  data.push_back( std::make_pair( 27, 15 ) ); ref.push_back(  3 );
+  data.push_back( std::make_pair( 21, 49 ) ); ref.push_back(  7 );
+  data.push_back( std::make_pair( 25, 30 ) ); ref.push_back(  5 );
+  data.push_back( std::make_pair( 19, 27 ) ); ref.push_back(  1 );
+  data.push_back( std::make_pair( 40, 40 ) ); ref.push_back( 40 );
 
   run_test( data, ref );
 }
