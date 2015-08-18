@@ -21,6 +21,10 @@ extern hls::stream<XcelRespMsg> xcelresp;
 
 void run_test( const std::vector<int>& data )
 {
+  // Create configuration req/resp streams
+
+  hls::stream<XcelReqMsg>  xcelreq;
+  hls::stream<XcelRespMsg> xcelresp;
 
   // Test memory
   TestMem SortXcelHLS_mem;
@@ -33,21 +37,22 @@ void run_test( const std::vector<int>& data )
 
   // Insert configuration requests to do a sort
 
-  //                         id data    addr type opq
-  xcelreq.write( XcelReqMsg( 0, 0x1000, 1,   1,   0   ) );
-  xcelreq.write( XcelReqMsg( 0, size,   2,   1,   0   ) );
-  xcelreq.write( XcelReqMsg( 0, 0,      0,   0,   0   ) );
+  //                         opq type  addr data    id
+  xcelreq.write( XcelReqMsg( 0,     1,   1, 0x1000,  0 ) );
+  xcelreq.write( XcelReqMsg( 0,     1,   2,   size,  0 ) );
+  xcelreq.write( XcelReqMsg( 0,     0,   0,      0,  0 ) );
 
   // Do the sort
 
   SortXcelHLS(
+              xcelreq,
+              xcelresp,
               SortXcelHLS_mem,  // memreq
               SortXcelHLS_mem   // memresp
              );
 
   // Drain the responses for configuration requests
 
-  xcelresp.read();
   xcelresp.read();
   xcelresp.read();
   xcelresp.read();

@@ -20,9 +20,6 @@
 
 #include "GcdXcelHLS.h"
 
-hls::stream<xcel::XcelReqMsg>  xcelreq;
-hls::stream<xcel::XcelRespMsg> xcelresp;
-
 using namespace xcel;
 
 //------------------------------------------------------------------------

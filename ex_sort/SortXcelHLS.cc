@@ -75,18 +75,22 @@ void sort( Array array )
 #ifdef XILINX_VIVADO_HLS_TESTING
 void SortXcelHLS
 (
-  mem::TestMem&             memreq,
-  mem::TestMem&             memresp
+  hls::stream<xcel::XcelReqMsg>&  xcelreq,
+  hls::stream<xcel::XcelRespMsg>& xcelresp,
+  mem::TestMem&                   memreq,
+  mem::TestMem&                   memresp
 ){
 #else
 void SortXcelHLS
 (
-  hls::stream<MemReqMsg>&   memreq,
-  hls::stream<MemRespMsg>&  memresp
+  hls::stream<xcel::XcelReqMsg>&  xcelreq,
+  hls::stream<xcel::XcelRespMsg>& xcelresp,
+  hls::stream<MemReqMsg>&         memreq,
+  hls::stream<MemRespMsg>&        memresp
 ){
 #endif
 
-  XcelWrapper<3> xcelWrapper;
+  XcelWrapper<3> xcelWrapper( xcelreq, xcelresp );
 
   // configure
   xcelWrapper.configure();

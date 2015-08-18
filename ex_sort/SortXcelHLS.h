@@ -20,13 +20,17 @@
 #ifdef XILINX_VIVADO_HLS_TESTING
 void SortXcelHLS
 (
-  mem::TestMem&  memreq,
-  mem::TestMem&  memresp
+  hls::stream<xcel::XcelReqMsg>&  xcelreq,
+  hls::stream<xcel::XcelRespMsg>& xcelresp,
+  mem::TestMem&                   memreq,
+  mem::TestMem&                   memresp
 );
 #else
 void SortXcelHLS
 (
-  hls::stream<mem::MemReqMsg>&   memreq,
-  hls::stream<mem::MemRespMsg>&  memresp
+  hls::stream<xcel::XcelReqMsg>&  xcelreq,
+  hls::stream<xcel::XcelRespMsg>& xcelresp,
+  hls::stream<mem::MemReqMsg>&    memreq,
+  hls::stream<mem::MemRespMsg>&   memresp
 );
 #endif
