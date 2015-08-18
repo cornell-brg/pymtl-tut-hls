@@ -21,7 +21,7 @@ UTST_AUTO_TEST_CASE( TestBasicWrite )
 {
   g_test_mem.clear_num_requests();
 
-  MemProxy<int> a(0x1000);
+  MemValue<int> a(0x1000);
   a = 42; // mem write
 
   UTST_CHECK_EQ( g_test_mem.get_num_requests(), 1 );
@@ -38,7 +38,7 @@ UTST_AUTO_TEST_CASE( TestBasicRead )
 
   g_test_mem.mem_write( 0x2000, 0xdeadbeef );
 
-  MemProxy<int> a(0x2000);
+  MemValue<int> a(0x2000);
   unsigned int value = a; // mem read
 
   UTST_CHECK_EQ( g_test_mem.get_num_requests(), 1 );
@@ -55,8 +55,8 @@ UTST_AUTO_TEST_CASE( TestCopy )
 
   g_test_mem.mem_write( 0x1000, 13u );
 
-  MemProxy<int> a(0x1000);
-  MemProxy<int> b(0x2000);
+  MemValue<int> a(0x1000);
+  MemValue<int> b(0x2000);
 
   b = a;
 
@@ -72,8 +72,8 @@ UTST_AUTO_TEST_CASE( TestOperators )
 {
   g_test_mem.clear_num_requests();
 
-  MemProxy<int> a(0x1000);
-  MemProxy<int> b(0x2000);
+  MemValue<int> a(0x1000);
+  MemValue<int> b(0x2000);
 
   a = 42;
   b = 47;
@@ -99,7 +99,7 @@ UTST_AUTO_TEST_CASE( TestMemoize )
 
   g_test_mem.mem_write( 0x1000, 0x0afecafe );
 
-  MemProxy<int> a(0x1000);
+  MemValue<int> a(0x1000);
   int value0 = a; // mem read
   int value1 = a; // no mem read!
 
@@ -109,7 +109,7 @@ UTST_AUTO_TEST_CASE( TestMemoize )
 
   g_test_mem.clear_num_requests();
 
-  MemProxy<int> b(0x2000);
+  MemValue<int> b(0x2000);
   b = 42;        // mem write
   int value = b; // no mem read!
 
@@ -128,8 +128,8 @@ UTST_AUTO_TEST_CASE( TestPointer )
 {
   g_test_mem.clear_num_requests();
 
-  MemProxy<int> a(0x1000);
-  MemProxy<int> b(0x2000);
+  MemValue<int> a(0x1000);
+  MemValue<int> b(0x2000);
 
   a = 42;
   b = 47;
@@ -155,14 +155,14 @@ UTST_AUTO_TEST_CASE( TestPointerInMem )
 {
   g_test_mem.clear_num_requests();
 
-  MemProxy<int> a(0x1000);
-  MemProxy<int> b(0x1004);
+  MemValue<int> a(0x1000);
+  MemValue<int> b(0x1004);
 
   a = 42;
   b = 47;
 
-  MemProxy< MemPointer<int> > a_ptr(0x1008);
-  MemProxy< MemPointer<int> > b_ptr(0x100c);
+  MemValue< MemPointer<int> > a_ptr(0x1008);
+  MemValue< MemPointer<int> > b_ptr(0x100c);
 
   a_ptr = &a;
   b_ptr = &b;
@@ -204,11 +204,11 @@ namespace mem {
   }
 
   template <>
-  class MemProxy<Node0> {
+  class MemValue<Node0> {
 
    public:
 
-    explicit MemProxy( unsigned int addr )
+    explicit MemValue( unsigned int addr )
       : a(addr), b(addr+4), m_addr(addr)
     { }
 
@@ -224,7 +224,7 @@ namespace mem {
 
     // lvalue use of the proxy object with value on RHS
 
-    MemProxy<Node0>& operator=( const Node0& node )
+    MemValue<Node0>& operator=( const Node0& node )
     {
       mem::OutMemStream os(m_addr);
       os << node;
@@ -233,7 +233,7 @@ namespace mem {
 
     // lvalue use of the proxy object with proxy on RHS
 
-    MemProxy<Node0>& operator=( const MemProxy<Node0>& rhs )
+    MemValue<Node0>& operator=( const MemValue<Node0>& rhs )
     {
       mem::OutMemStream os(m_addr);
       os << static_cast<Node0>(rhs);
@@ -252,8 +252,8 @@ namespace mem {
       return MemPointer<Node0>(m_addr);
     }
 
-    MemProxy<int> a;
-    MemProxy<int> b;
+    MemValue<int> a;
+    MemValue<int> b;
 
    private:
 

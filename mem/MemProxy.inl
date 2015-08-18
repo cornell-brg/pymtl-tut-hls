@@ -6,7 +6,7 @@ namespace mem {
 
 //=================================================================
 //=================================================================
-// MemProxy
+// MemValue
 //=================================================================
 //=================================================================
 
@@ -14,7 +14,7 @@ namespace mem {
   // Constructor
   //-----------------------------------------------------------
   template<typename T>
-  MemProxy<T>::MemProxy( Address addr )
+  MemValue<T>::MemValue( Address addr )
     : m_addr( addr ), m_memoized_valid( false )
   {}
 
@@ -22,8 +22,8 @@ namespace mem {
   // rvalue use
   //-----------------------------------------------------------
   template<typename T>
-  MemProxy<T>::operator T() const {
-    DB_PRINT (("MemProxy: reading from 0x%u\n", m_addr.to_uint()));
+  MemValue<T>::operator T() const {
+    DB_PRINT (("MemValue: reading from 0x%u\n", m_addr.to_uint()));
     if ( !m_memoized_valid ) {
       //m_memoized_valid = true;
       mem::InMemStream is(m_addr);
@@ -36,8 +36,8 @@ namespace mem {
   // lvalue uses
   //-----------------------------------------------------------
   template<typename T>
-  MemProxy<T>& MemProxy<T>::operator=( T value ) {
-    DB_PRINT (("MemProxy: writing %u to 0x%u\n", value, m_addr.to_uint()));
+  MemValue<T>& MemValue<T>::operator=( T value ) {
+    DB_PRINT (("MemValue: writing %u to 0x%u\n", value, m_addr.to_uint()));
     m_memoized_value = value;
     //m_memoized_valid = true;
     mem::OutMemStream os(m_addr);
@@ -46,7 +46,7 @@ namespace mem {
   }
     
   template<typename T>
-  MemProxy<T>& MemProxy<T>::operator=( const MemProxy<T>& x ) {
+  MemValue<T>& MemValue<T>::operator=( const MemValue<T>& x ) {
     return operator=( static_cast<T>( x ) );
   }
 
@@ -78,22 +78,22 @@ namespace mem {
   // * operator
   //-----------------------------------------------------------
   template<typename T>
-  MemProxy<T> MemPointer<T>::operator*() const {
-    return MemProxy<T>( m_addr );
+  MemValue<T> MemPointer<T>::operator*() const {
+    return MemValue<T>( m_addr );
   }
 
   //-----------------------------------------------------------
   // -> operator
   //-----------------------------------------------------------
   template<typename T>
-  MemProxy<T>* MemPointer<T>::operator->() {
+  MemValue<T>* MemPointer<T>::operator->() {
     DB_PRINT(("MemPointer: operator->: m_addr=%u\n", m_addr));
-    m_obj_temp = MemProxy<T>( m_addr );
+    m_obj_temp = MemValue<T>( m_addr );
     return &m_obj_temp;
   }
 
   template<typename T>
-  const MemProxy<T>* MemPointer<T>::operator->() const {
+  const MemValue<T>* MemPointer<T>::operator->() const {
     DB_PRINT(("MemPointer: operator->: m_addr=%u\n", m_addr));
     return &m_obj_temp;
   }
@@ -104,14 +104,14 @@ namespace mem {
   template<typename T>
   MemPointer<T>& MemPointer<T>::operator=( const Address addr ) {
     m_addr = addr;
-    m_obj_temp = MemProxy<T>( addr );
+    m_obj_temp = MemValue<T>( addr );
     return *this;
   }
 
   template<typename T>
   MemPointer<T>& MemPointer<T>::operator=( const MemPointer<T>& x ) {
     m_addr = x.m_addr;
-    m_obj_temp = MemProxy<T>( x.m_addr );
+    m_obj_temp = MemValue<T>( x.m_addr );
     return *this;
   }
   
@@ -142,7 +142,7 @@ namespace mem {
   // Constructors
   //-----------------------------------------------------------
   template<typename T>
-  MemProxy< MemPointer<T> >::MemProxy( Address base_ptr )
+  MemValue< MemPointer<T> >::MemValue( Address base_ptr )
     : m_addr( base_ptr )
   {}
   
@@ -150,8 +150,8 @@ namespace mem {
   // rvalue use
   //-----------------------------------------------------------
   template<typename T>
-  MemProxy< MemPointer<T> >::operator MemPointer<T>() const {
-    DB_PRINT (("MemProxy: reading from %u\n", m_addr));
+  MemValue< MemPointer<T> >::operator MemPointer<T>() const {
+    DB_PRINT (("MemValue: reading from %u\n", m_addr));
     MemPointer<T> ptr;
     mem::InMemStream is(m_addr);
     is >> ptr;
@@ -162,23 +162,23 @@ namespace mem {
   // lvalue uses
   //-----------------------------------------------------------
   template<typename T>
-  MemProxy< MemPointer<T> >&
-  MemProxy< MemPointer<T> >::operator=( const MemPointer<T>& p ) {
-    DB_PRINT (("MemProxy: writing %u to loc %u\n", p.get_addr(), m_addr));
+  MemValue< MemPointer<T> >&
+  MemValue< MemPointer<T> >::operator=( const MemPointer<T>& p ) {
+    DB_PRINT (("MemValue: writing %u to loc %u\n", p.get_addr(), m_addr));
     mem::OutMemStream os(m_addr);
     os << p;
     return *this;
   }
   
   template<typename T>
-  MemProxy< MemPointer<T> >&
-  MemProxy< MemPointer<T> >::operator=( const MemProxy& x ) {
+  MemValue< MemPointer<T> >&
+  MemValue< MemPointer<T> >::operator=( const MemValue& x ) {
     return operator=( static_cast< MemPointer<T> >( x ) );
   }
 
   template<typename T>
-  MemProxy< MemPointer<T> >&
-  MemProxy< MemPointer<T> >::operator=( const Address x ) {
+  MemValue< MemPointer<T> >&
+  MemValue< MemPointer<T> >::operator=( const Address x ) {
     return operator=( static_cast< MemPointer<T> >( x ) );
   }
   
@@ -186,7 +186,7 @@ namespace mem {
   // * operator
   //-----------------------------------------------------------
   template<typename T>
-  MemProxy< T > MemProxy< MemPointer<T> >::operator*() const {
+  MemValue< T > MemValue< MemPointer<T> >::operator*() const {
     return *(operator MemPointer<T>());
   }
       
@@ -194,12 +194,12 @@ namespace mem {
   // -> operator
   //-----------------------------------------------------------
   template<typename T>
-  MemPointer<T> MemProxy< MemPointer<T> >::operator->() {
+  MemPointer<T> MemValue< MemPointer<T> >::operator->() {
     return operator MemPointer<T>();
   }
 
   template<typename T>
-  const MemPointer<T> MemProxy< MemPointer<T> >::operator->() const {
+  const MemPointer<T> MemValue< MemPointer<T> >::operator->() const {
     return operator MemPointer<T>();
   }
       

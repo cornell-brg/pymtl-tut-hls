@@ -35,7 +35,7 @@
 
 void test_basic_write()
 {
-  mem::MemProxy<int> a(0x1000);
+  mem::MemValue<int> a(0x1000);
   a = 42;
 }
 
@@ -45,8 +45,8 @@ void test_basic_write()
 
 void test_copy()
 {
-  mem::MemProxy<int> a(0x1000);
-  mem::MemProxy<int> b(0x2000);
+  mem::MemValue<int> a(0x1000);
+  mem::MemValue<int> b(0x2000);
   b = a;
 }
 
@@ -56,8 +56,8 @@ void test_copy()
 
 void test_operators()
 {
-  mem::MemProxy<int> a(0x2000);
-  mem::MemProxy<int> b(0x2004);
+  mem::MemValue<int> a(0x2000);
+  mem::MemValue<int> b(0x2004);
 
   a = 42;
   b = 47;
@@ -79,7 +79,7 @@ void test_operators()
 
 void test_memoize()
 {
-  mem::MemProxy<int> a(0x1000);
+  mem::MemValue<int> a(0x1000);
   int b = a;
   int c = a;
 

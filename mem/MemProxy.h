@@ -26,19 +26,19 @@ namespace mem {
 
   typedef unsigned        Address;
 
-  template<typename T> class MemProxy;
+  template<typename T> class MemValue;
   template<typename T> class MemPointer;
 
   //========================================================================
   //========================================================================
-  // MemProxy
+  // MemValue
   // This proxy can wrap any non-pointer object.
   // For non-primitive objects you can't access fields directly
-  // from the MemProxy, you have to get the object out first.
+  // from the MemValue, you have to get the object out first.
   //========================================================================
   //========================================================================
   template<typename T>
-  class MemProxy {
+  class MemValue {
     Address m_addr;
 
     mutable bool m_memoized_valid;
@@ -48,14 +48,14 @@ namespace mem {
       //-----------------------------------------------------------
       // Constructor
       //-----------------------------------------------------------
-      explicit MemProxy( Address addr );
+      explicit MemValue( Address addr );
 
       //-----------------------------------------------------------
       // rvalue and lvalue uses
       //-----------------------------------------------------------
       operator T() const;
-      MemProxy<T>& operator=( T data );
-      MemProxy<T>& operator=( const MemProxy<T>& x );
+      MemValue<T>& operator=( T data );
+      MemValue<T>& operator=( const MemValue<T>& x );
       
       //-----------------------------------------------------------
       // & operator
@@ -91,7 +91,7 @@ namespace mem {
   class MemPointer {
 
     Address m_addr;
-    MemProxy<T> m_obj_temp;
+    MemValue<T> m_obj_temp;
 
     public:
       //-----------------------------------------------------------
@@ -104,9 +104,9 @@ namespace mem {
       //-----------------------------------------------------------
       // * and -> operators
       //-----------------------------------------------------------
-      MemProxy<T> operator*() const;
-      MemProxy<T>* operator->();
-      const MemProxy<T>* operator-> () const;
+      MemValue<T> operator*() const;
+      MemValue<T>* operator->();
+      const MemValue<T>* operator-> () const;
       
       //-----------------------------------------------------------
       // = operator
@@ -158,31 +158,31 @@ namespace mem {
 
   //========================================================================
   //========================================================================
-  // MemProxy of MemPointer specialization
+  // MemValue of MemPointer specialization
   //========================================================================
   //========================================================================
   template<typename T>
-  class MemProxy< MemPointer<T> > {
+  class MemValue< MemPointer<T> > {
       Address m_addr;
 
     public:
       //----------------------------------------------------------------
       // Constructors
       //----------------------------------------------------------------
-      explicit MemProxy( Address base_ptr );
+      explicit MemValue( Address base_ptr );
 
       //----------------------------------------------------------------
       // rvalue and lvalue uses
       //----------------------------------------------------------------
       operator MemPointer<T>() const;
-      MemProxy& operator=( const MemPointer<T>& p );
-      MemProxy& operator=( const MemProxy& x );
-      MemProxy& operator=( const Address x );
+      MemValue& operator=( const MemPointer<T>& p );
+      MemValue& operator=( const MemValue& x );
+      MemValue& operator=( const Address x );
       
       //----------------------------------------------------------------
       // * and -> operators
       //----------------------------------------------------------------
-      MemProxy<T> operator*() const;
+      MemValue<T> operator*() const;
       MemPointer<T> operator->();
       const MemPointer<T> operator->() const;
 
