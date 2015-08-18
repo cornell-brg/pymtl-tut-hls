@@ -10,7 +10,7 @@ source /research/brg/install/venv-pkgs/pypy2.5.1-shared/bin/activate
 export PYMTL_VERILATOR_INCLUDE_DIR="${STOW_PKGS_GLOBAL_PREFIX}/share/verilator/include"
 
 # source the setup scripts for xilinx vivado
-source ${BARE_PKGS_GLOBAL_PREFIX}/xilinx-vivado/setup.sh
+source ${BARE_PKGS_GLOBAL_PREFIX}/xilinx-vivado-2015.2/setup.sh
 
 # setup the environment variable for the xilinx vivado hls include directory
 XILINX_VIVADO_HLS_PATH=$(dirname $(which vivado_hls))
