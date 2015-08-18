@@ -22,11 +22,6 @@ set_directive_interface -mode ap_hs $top xcelresp
 set_directive_interface -mode ap_hs $top memreq
 set_directive_interface -mode ap_hs $top memresp
 
-set_directive_data_pack $top xcelreq
-set_directive_data_pack $top xcelresp
-set_directive_data_pack $top memreq
-set_directive_data_pack $top memresp
-
 csynth_design
 
 # concatenate all the verilog files into a single file
