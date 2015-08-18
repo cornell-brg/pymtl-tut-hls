@@ -62,7 +62,7 @@ namespace mem {
 
     MemReqMsg( ap_uint<3> type_, ap_uint<8> opq_, ap_uint<32> addr_,
                ap_uint<2> len_, ap_uint<32> data_ )
-      : bits( ( type_, ( opq_, ( addr_, ( len_, data_ ) ) ) ) )
+      : bits( ( type_, opq_, addr_, len_, data_ ) )
     { }
 
   };
@@ -117,7 +117,7 @@ namespace mem {
 
     MemRespMsg( ap_uint<3> type_, ap_uint<8> opq_,
                 ap_uint<2> len_, ap_uint<32> data_ )
-      : bits( ( type_, ( opq_, ( len_, data_ ) ) ) )
+      : bits( ( type_, opq_, len_, data_ ) )
     { }
 
   };
