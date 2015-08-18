@@ -112,6 +112,8 @@ MCPPBS_INCLUDE_INTERNAL([xcel])
 MCPPBS_INCLUDE_INTERNAL([mem])
 MCPPBS_INCLUDE_INTERNAL([ex_gcd])
 MCPPBS_INCLUDE_INTERNAL([ex_sort])
+MCPPBS_INCLUDE_INTERNAL([polydsu_list])
+MCPPBS_INCLUDE_INTERNAL([polydsu_rbtree])
 
 #-------------------------------------------------------------------------
 # MCPPBS subproject libraries to install
