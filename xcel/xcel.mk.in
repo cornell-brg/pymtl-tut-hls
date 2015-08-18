@@ -16,3 +16,4 @@ xcel_inls = \
 xcel_srcs = \
 
 xcel_test_srcs = \
+	XcelMsg.t.cc \
