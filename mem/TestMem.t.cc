@@ -11,32 +11,32 @@ using namespace mem;
 // read helper function
 //------------------------------------------------------------------------
 
-void read( TestMem* mem, int addr, unsigned int data, int nbytes, int opaque )
+void read( TestMem* mem, unsigned addr, unsigned data, unsigned nbytes, unsigned opaque )
 {
-  int len = ( nbytes == 4 ) ? 0 : nbytes;
-  mem->write( MemReqMsg( 0, len, addr, opaque, 0 ) );
+  unsigned len = ( nbytes == 4 ) ? 0 : nbytes;
+  mem->write( MemReqMsg( 0, opaque, addr, len, 0 ) );
   MemRespMsg resp = mem->read();
 
-  UTST_CHECK_EQ( resp.data, data   );
-  UTST_CHECK_EQ( resp.len,  len    );
-  UTST_CHECK_EQ( resp.opq,  opaque );
-  UTST_CHECK_EQ( resp.type, 0      );
+  UTST_CHECK_EQ( resp.data(), data   );
+  UTST_CHECK_EQ( resp.len(),  len    );
+  UTST_CHECK_EQ( resp.opq(),  opaque );
+  UTST_CHECK_EQ( resp.type(), 0      );
 }
 
 //------------------------------------------------------------------------
 // write helper function
 //------------------------------------------------------------------------
 
-void write( TestMem* mem, int addr, unsigned int data, int nbytes, int opaque )
+void write( TestMem* mem, unsigned addr, unsigned data, unsigned nbytes, unsigned opaque )
 {
-  int len = ( nbytes == 4 ) ? 0 : nbytes;
-  mem->write( MemReqMsg( data, len, addr, opaque, 1 ) );
+  unsigned len = ( nbytes == 4 ) ? 0 : nbytes;
+  mem->write( MemReqMsg( 1, opaque, addr, len, data ) );
   MemRespMsg resp = mem->read();
 
-  UTST_CHECK_EQ( resp.data, 0      );
-  UTST_CHECK_EQ( resp.len,  len    );
-  UTST_CHECK_EQ( resp.opq,  opaque );
-  UTST_CHECK_EQ( resp.type, 1      );
+  UTST_CHECK_EQ( resp.data(), 0      );
+  UTST_CHECK_EQ( resp.len(),  len    );
+  UTST_CHECK_EQ( resp.opq(),  opaque );
+  UTST_CHECK_EQ( resp.type(), 1      );
 }
 
 //------------------------------------------------------------------------

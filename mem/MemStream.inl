@@ -50,7 +50,7 @@ namespace mem {
   inline
   OutMemStream& operator<<( OutMemStream& os, bool value )
   {
-    memreq.write( MemReqMsg( value, 1, os.addr, 0, MemReqMsg::TYPE_WRITE ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_WRITE, 0, os.addr, 1, value ) );
     ap_wait();
     memresp.read();
     os.addr += 1;
@@ -60,10 +60,10 @@ namespace mem {
   inline
   InMemStream& operator>>( InMemStream& is, bool& value )
   {
-    memreq.write( MemReqMsg( 0, 1, is.addr, 0, MemReqMsg::TYPE_READ ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_READ, 0, is.addr, 1, 0 ) );
     ap_wait();
     MemRespMsg resp = memresp.read();
-    value = static_cast<bool>(resp.data);
+    value = static_cast<bool>(resp.data());
     is.addr += 1;
     return is;
   }
@@ -75,7 +75,7 @@ namespace mem {
   inline
   OutMemStream& operator<<( OutMemStream& os, unsigned char value )
   {
-    memreq.write( MemReqMsg( value, 1, os.addr, 0, MemReqMsg::TYPE_WRITE ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_WRITE, 0, os.addr, 1, value ) );
     ap_wait();
     memresp.read();
     os.addr += 1;
@@ -85,10 +85,10 @@ namespace mem {
   inline
   InMemStream& operator>>( InMemStream& is, unsigned char& value )
   {
-    memreq.write( MemReqMsg( 0, 1, is.addr, 0, MemReqMsg::TYPE_READ ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_READ, 0, is.addr, 1, 0 ) );
     ap_wait();
     MemRespMsg resp = memresp.read();
-    value = static_cast<unsigned char>(resp.data);
+    value = static_cast<unsigned char>(resp.data());
     is.addr += 1;
     return is;
   }
@@ -100,7 +100,7 @@ namespace mem {
   inline
   OutMemStream& operator<<( OutMemStream& os, char value )
   {
-    memreq.write( MemReqMsg( value, 1, os.addr, 0, MemReqMsg::TYPE_WRITE ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_WRITE, 0, os.addr, 1, value ) );
     ap_wait();
     memresp.read();
     os.addr += 1;
@@ -110,10 +110,10 @@ namespace mem {
   inline
   InMemStream& operator>>( InMemStream& is, char& value )
   {
-    memreq.write( MemReqMsg( 0, 1, is.addr, 0, MemReqMsg::TYPE_READ ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_READ, 0, is.addr, 1, 0 ) );
     ap_wait();
     MemRespMsg resp = memresp.read();
-    value = static_cast<char>(resp.data);
+    value = static_cast<char>(resp.data());
     is.addr += 1;
     return is;
   }
@@ -125,7 +125,7 @@ namespace mem {
   inline
   OutMemStream& operator<<( OutMemStream& os, unsigned short value )
   {
-    memreq.write( MemReqMsg( value, 2, os.addr, 0, MemReqMsg::TYPE_WRITE ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_WRITE, 0, os.addr, 2, value ) );
     ap_wait();
     memresp.read();
     os.addr += 2;
@@ -135,10 +135,10 @@ namespace mem {
   inline
   InMemStream& operator>>( InMemStream& is, unsigned short& value )
   {
-    memreq.write( MemReqMsg( 0, 2, is.addr, 0, MemReqMsg::TYPE_READ ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_READ, 0, is.addr, 2, 0 ) );
     ap_wait();
     MemRespMsg resp = memresp.read();
-    value = static_cast<unsigned short>(resp.data);
+    value = static_cast<unsigned short>(resp.data());
     is.addr += 2;
     return is;
   }
@@ -150,7 +150,7 @@ namespace mem {
   inline
   OutMemStream& operator<<( OutMemStream& os, short value )
   {
-    memreq.write( MemReqMsg( value, 2, os.addr, 0, MemReqMsg::TYPE_WRITE ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_WRITE, 0, os.addr, 2, value ) );
     ap_wait();
     memresp.read();
     os.addr += 2;
@@ -160,10 +160,10 @@ namespace mem {
   inline
   InMemStream& operator>>( InMemStream& is, short& value )
   {
-    memreq.write( MemReqMsg( 0, 2, is.addr, 0, MemReqMsg::TYPE_READ ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_READ, 0, is.addr, 2, 0 ) );
     ap_wait();
     MemRespMsg resp = memresp.read();
-    value = static_cast<short>(resp.data);
+    value = static_cast<short>(resp.data());
     is.addr += 2;
     return is;
   }
@@ -175,7 +175,7 @@ namespace mem {
   inline
   OutMemStream& operator<<( OutMemStream& os, unsigned int value )
   {
-    memreq.write( MemReqMsg( value, 4, os.addr, 0, MemReqMsg::TYPE_WRITE ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_WRITE, 0, os.addr, 4, value ) );
     ap_wait();
     memresp.read();
     os.addr += 4;
@@ -185,10 +185,10 @@ namespace mem {
   inline
   InMemStream& operator>>( InMemStream& is, unsigned int& value )
   {
-    memreq.write( MemReqMsg( 0, 4, is.addr, 0, MemReqMsg::TYPE_READ ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_READ, 0, is.addr, 4, 0 ) );
     ap_wait();
     MemRespMsg resp = memresp.read();
-    value = static_cast<unsigned int>(resp.data);
+    value = static_cast<unsigned int>(resp.data());
     is.addr += 4;
     return is;
   }
@@ -200,7 +200,7 @@ namespace mem {
   inline
   OutMemStream& operator<<( OutMemStream& os, int value )
   {
-    memreq.write( MemReqMsg( value, 4, os.addr, 0, MemReqMsg::TYPE_WRITE ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_WRITE, 0, os.addr, 4, value ) );
     ap_wait();
     memresp.read();
     os.addr += 4;
@@ -210,10 +210,10 @@ namespace mem {
   inline
   InMemStream& operator>>( InMemStream& is, int& value )
   {
-    memreq.write( MemReqMsg( 0, 4, is.addr, 0, MemReqMsg::TYPE_READ ) );
+    memreq.write( MemReqMsg( MemReqMsg::TYPE_READ, 0, is.addr, 4, 0 ) );
     ap_wait();
     MemRespMsg resp = memresp.read();
-    value = static_cast<int>(resp.data);
+    value = static_cast<int>(resp.data());
     is.addr += 4;
     return is;
   }

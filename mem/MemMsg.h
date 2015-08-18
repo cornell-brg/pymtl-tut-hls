@@ -16,25 +16,54 @@ namespace mem {
 
   struct MemReqMsg {
 
-    // memory message types
-    static const int TYPE_READ  = 0;
-    static const int TYPE_WRITE = 1;
+    typedef ap_range_ref<77,false> BitSliceProxy;
+    typedef ap_uint<77>            Bits;
 
-    // memory request
-    ap_uint<32> data;
-    ap_uint<2>  len;
-    ap_uint<32> addr;
-    ap_uint<8>  opq;
-    ap_uint<3>  type;
+    //--------------------------------------------------------------------
+    // message type
+    //--------------------------------------------------------------------
 
-    MemReqMsg()
-    : data( 0 ), len( 0 ), addr( 0 ),
-      opq( 0 ), type( 0 ) {}
+    enum {
+      TYPE_READ,
+      TYPE_WRITE
+    };
 
-    MemReqMsg( ap_uint<32> data_, ap_uint<2> len_,
-      ap_uint<32> addr_, ap_uint<8> opq_, ap_uint<3> type_ )
-    : data( data_ ), len( len_ ), addr( addr_ ),
-      opq( opq_ ), type( type_ ) {}
+    //--------------------------------------------------------------------
+    // message bits
+    //--------------------------------------------------------------------
+
+    Bits bits;
+
+    //--------------------------------------------------------------------
+    // field mutators
+    //--------------------------------------------------------------------
+
+    BitSliceProxy type() { return bits(76,74); }
+    BitSliceProxy opq()  { return bits(73,66); }
+    BitSliceProxy addr() { return bits(65,34); }
+    BitSliceProxy len()  { return bits(33,32); }
+    BitSliceProxy data() { return bits(31, 0); }
+
+    //--------------------------------------------------------------------
+    // field inspectors
+    //--------------------------------------------------------------------
+
+    BitSliceProxy type() const { return bits(76,74); }
+    BitSliceProxy opq()  const { return bits(73,66); }
+    BitSliceProxy addr() const { return bits(65,34); }
+    BitSliceProxy len()  const { return bits(33,32); }
+    BitSliceProxy data() const { return bits(31, 0); }
+
+    //--------------------------------------------------------------------
+    // constructors
+    //--------------------------------------------------------------------
+
+    MemReqMsg() : bits( 0 ) { }
+
+    MemReqMsg( ap_uint<3> type_, ap_uint<8> opq_, ap_uint<32> addr_,
+               ap_uint<2> len_, ap_uint<32> data_ )
+      : bits( ( type_, ( opq_, ( addr_, ( len_, data_ ) ) ) ) )
+    { }
 
   };
 
@@ -43,22 +72,53 @@ namespace mem {
   //----------------------------------------------------------------------
 
   struct MemRespMsg {
-    ap_uint<32> data;
-    ap_uint<2>  len;
-    ap_uint<8>  opq;
-    ap_uint<3>  type;
 
-    static const int TYPE_READ  = 0;
-    static const int TYPE_WRITE = 1;
+    typedef ap_range_ref<45,false> BitSliceProxy;
+    typedef ap_uint<45>            Bits;
 
-    MemRespMsg()
-    : data( 0 ), len( 0 ),
-      opq( 0 ), type( 0 ) {}
+    //--------------------------------------------------------------------
+    // message type
+    //--------------------------------------------------------------------
 
-    MemRespMsg( ap_uint<32> data_, ap_uint<2> len_,
-      ap_uint<8> opq_, ap_uint<3> type_ )
-    : data( data_ ), len( len_ ),
-      opq( opq_ ), type( type_ ) {}
+    enum {
+      TYPE_READ,
+      TYPE_WRITE
+    };
+
+    //--------------------------------------------------------------------
+    // message bits
+    //--------------------------------------------------------------------
+
+    Bits bits;
+
+    //--------------------------------------------------------------------
+    // field mutators
+    //--------------------------------------------------------------------
+
+    BitSliceProxy type() { return bits(44,42); }
+    BitSliceProxy opq()  { return bits(41,34); }
+    BitSliceProxy len()  { return bits(33,32); }
+    BitSliceProxy data() { return bits(31, 0); }
+
+    //--------------------------------------------------------------------
+    // field inspectors
+    //--------------------------------------------------------------------
+
+    BitSliceProxy type() const { return bits(44,42); }
+    BitSliceProxy opq()  const { return bits(41,34); }
+    BitSliceProxy len()  const { return bits(33,32); }
+    BitSliceProxy data() const { return bits(31, 0); }
+
+    //--------------------------------------------------------------------
+    // constructors
+    //--------------------------------------------------------------------
+
+    MemRespMsg() : bits( 0 ) { }
+
+    MemRespMsg( ap_uint<3> type_, ap_uint<8> opq_,
+                ap_uint<2> len_, ap_uint<32> data_ )
+      : bits( ( type_, ( opq_, ( len_, data_ ) ) ) )
+    { }
 
   };
 

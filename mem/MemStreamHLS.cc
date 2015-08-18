@@ -164,7 +164,7 @@ void MemStreamHLS
 #pragma HLS INLINE
 
   XcelReqMsg req = xcelreq.read();
-  int test_num = req.data;
+  int test_num = req.data();
 
   switch ( test_num ) {
     case 0: test_basic();    break;
@@ -173,6 +173,6 @@ void MemStreamHLS
     case 3: test_mixed();    break;
   }
 
-  xcelresp.write( XcelRespMsg( req.id, 0, req.type, req.opq ) );
+  xcelresp.write( XcelRespMsg( req.opq(), req.type(), 0, req.id() ) );
 }
 

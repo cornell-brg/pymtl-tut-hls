@@ -40,7 +40,7 @@ void run_test( int test_num, int num_mem_reqs,
   for ( int i = 0; i < data_in_size; i++ )
     MemStreamHLS_mem.mem_write( data_in_addr+(4*i), data_in[i] );
 
-  xcelreq.write( XcelReqMsg( 0, test_num, 1, XcelReqMsg::TYPE_WRITE, 0 ) );
+  xcelreq.write( XcelReqMsg( 0, XcelReqMsg::TYPE_WRITE, 1, test_num, 0 ) );
 
   // Do test
 
