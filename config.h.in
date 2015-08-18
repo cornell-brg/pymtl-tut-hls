@@ -9,6 +9,12 @@
 /* Define if we should include subproject mem */
 #undef HAVE_MEM
 
+/* Define if we should include subproject polydsu_list */
+#undef HAVE_POLYDSU_LIST
+
+/* Define if we should include subproject polydsu_rbtree */
+#undef HAVE_POLYDSU_RBTREE
+
 /* Define if we should include subproject utst */
 #undef HAVE_UTST
 
