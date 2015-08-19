@@ -69,7 +69,7 @@ namespace mem {
       bool operator< ( const T& rhs ) const { return operator T() <  rhs; }
 
       //-----------------------------------------------------------
-      // other
+      // Get/Set Address
       //-----------------------------------------------------------
       Address get_addr() const { return m_addr; }
       void set_addr( const Address addr ) { m_addr = addr; }
@@ -102,7 +102,7 @@ namespace mem {
       //-----------------------------------------------------------
       MemValue<T> operator*() const;
       MemValue<T>* operator->();
-      const MemValue<T>* operator-> () const;
+      const MemValue<T>* operator->() const;
 
       //-----------------------------------------------------------
       // = operator
@@ -138,7 +138,7 @@ namespace mem {
       operator>>( InMemStream& is, MemPointer<U>& rhs );
 
       //-----------------------------------------------------------
-      // other
+      // Get/Set Address
       //-----------------------------------------------------------
       Address get_addr() const { return m_addr; }
       static size_t size() { return PTR_SIZE; }
@@ -197,7 +197,7 @@ namespace mem {
       }
 
       //----------------------------------------------------------------
-      // other
+      // Get/Set Address
       //----------------------------------------------------------------
       Address get_addr() const { return m_addr; }
       void set_addr( const Address addr ) { m_addr = addr; }

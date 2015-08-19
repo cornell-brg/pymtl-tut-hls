@@ -84,7 +84,7 @@ namespace mem {
   template<typename T>
   MemValue<T>* MemPointer<T>::operator->() {
     DB_PRINT(("MemPointer: operator->: m_addr=%u\n", m_addr));
-    m_obj_temp = MemValue<T>( m_addr );
+    m_obj_temp.set_addr( m_addr );
     return &m_obj_temp;
   }
 
@@ -100,14 +100,14 @@ namespace mem {
   template<typename T>
   MemPointer<T>& MemPointer<T>::operator=( const Address addr ) {
     m_addr = addr;
-    m_obj_temp = MemValue<T>( addr );
+    m_obj_temp.set_addr( addr );
     return *this;
   }
 
   template<typename T>
   MemPointer<T>& MemPointer<T>::operator=( const MemPointer<T>& x ) {
     m_addr = x.m_addr;
-    m_obj_temp = MemValue<T>( x.m_addr );
+    m_obj_temp.set_addr( x.m_addr );
     return *this;
   }
 
@@ -129,7 +129,7 @@ namespace mem {
   }
 
 //=================================================================
-// MemPointer
+// MemValue of MemPointer specialization
 //=================================================================
 
   //-----------------------------------------------------------
