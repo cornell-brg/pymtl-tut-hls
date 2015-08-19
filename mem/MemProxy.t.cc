@@ -147,6 +147,29 @@ UTST_AUTO_TEST_CASE( TestPointer )
   UTST_CHECK_EQ( b, 14 );
 }
 
+UTST_AUTO_TEST_CASE( TestPointerAssign )
+{
+  g_test_mem.clear_num_requests();
+
+  MemValue<int> a(0x1000);
+  MemValue<int> b(0x2000);
+  a = 20;   // write 1
+  b = 30;   // write 2
+
+  MemPointer<int> ap = &b;
+  MemPointer<int> bp = &a;
+  ap = bp;
+  bp = &b;
+
+  // only 2 writes
+  UTST_CHECK_EQ( g_test_mem.get_num_requests(), 2 );
+
+  UTST_CHECK_EQ( a, 20 );
+  UTST_CHECK_EQ( b, 30 );
+  UTST_CHECK_EQ( *ap, 20 );
+  UTST_CHECK_EQ( *bp, 30 );
+}
+
 //------------------------------------------------------------------------
 // Test Pointer in memory
 //------------------------------------------------------------------------
