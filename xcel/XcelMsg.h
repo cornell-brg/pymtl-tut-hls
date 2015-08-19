@@ -16,8 +16,34 @@ namespace xcel {
 
   struct XcelReqMsg {
 
-    typedef ap_range_ref<57,false> BitSliceProxy;
-    typedef ap_uint<57>            Bits;
+    // field widths
+    static const unsigned opq_nbits   =  8;
+    static const unsigned type_nbits  =  1;
+    static const unsigned addr_nbits  =  5;
+    static const unsigned data_nbits  = 32;
+    static const unsigned id_nbits    = 11;
+
+    // field msb's lsb's
+    static const unsigned id_lsb   = 0;
+    static const unsigned id_msb   = id_nbits - 1;
+
+    static const unsigned data_lsb = id_msb + 1;
+    static const unsigned data_msb = id_msb + data_nbits;
+
+    static const unsigned addr_lsb = data_msb + 1;
+    static const unsigned addr_msb = data_msb + addr_nbits;
+
+    static const unsigned type_lsb = addr_msb + 1;
+    static const unsigned type_msb = addr_msb + type_nbits;
+
+    static const unsigned opq_lsb  = type_msb + 1;
+    static const unsigned opq_msb  = type_msb + opq_nbits;
+
+    static const unsigned msg_nbits = opq_msb + 1;
+
+    // typedef declarations
+    typedef ap_range_ref<msg_nbits,false> BitSliceProxy;
+    typedef ap_uint<msg_nbits>            Bits;
 
     //--------------------------------------------------------------------
     // message type
@@ -38,21 +64,21 @@ namespace xcel {
     // field mutators
     //--------------------------------------------------------------------
 
-    BitSliceProxy opq()  { return bits(56,49); }
-    BitSliceProxy type() { return bits(48,48); }
-    BitSliceProxy addr() { return bits(47,43); }
-    BitSliceProxy data() { return bits(42,11); }
-    BitSliceProxy id()   { return bits(10, 0); }
+    BitSliceProxy opq()   { return bits(   opq_msb,   opq_lsb ); }
+    BitSliceProxy type()  { return bits(  type_msb,  type_lsb ); }
+    BitSliceProxy addr()  { return bits(  addr_msb,  addr_lsb ); }
+    BitSliceProxy data()  { return bits(  data_msb,  data_lsb ); }
+    BitSliceProxy id()    { return bits(    id_msb,    id_lsb ); }
 
     //--------------------------------------------------------------------
     // field inspectors
     //--------------------------------------------------------------------
 
-    BitSliceProxy opq()  const { return bits(56,49); }
-    BitSliceProxy type() const { return bits(48,48); }
-    BitSliceProxy addr() const { return bits(47,43); }
-    BitSliceProxy data() const { return bits(42,11); }
-    BitSliceProxy id()   const { return bits(10, 0); }
+    BitSliceProxy opq()  const { return bits(   opq_msb,   opq_lsb ); }
+    BitSliceProxy type() const { return bits(  type_msb,  type_lsb ); }
+    BitSliceProxy addr() const { return bits(  addr_msb,  addr_lsb ); }
+    BitSliceProxy data() const { return bits(  data_msb,  data_lsb ); }
+    BitSliceProxy id()   const { return bits(    id_msb,    id_lsb ); }
 
     //--------------------------------------------------------------------
     // constructors
@@ -60,8 +86,9 @@ namespace xcel {
 
     XcelReqMsg() : bits( 0 ) { }
 
-    XcelReqMsg( ap_uint<8> opq, ap_uint<1> type,
-                ap_uint<5> addr, ap_uint<32> data, ap_uint<11> id )
+    XcelReqMsg( ap_uint<opq_nbits>   opq, ap_uint<type_nbits> type,
+                ap_uint<addr_nbits> addr, ap_uint<data_nbits> data,
+                ap_uint<id_nbits> id )
       : bits( ( opq, type, addr, data, id ) )
     { }
 
@@ -73,8 +100,31 @@ namespace xcel {
 
   struct XcelRespMsg {
 
-    typedef ap_range_ref<52,false> BitSliceProxy;
-    typedef ap_uint<52>            Bits;
+    // field widths
+    static const unsigned opq_nbits   =  8;
+    static const unsigned type_nbits  =  1;
+    static const unsigned addr_nbits  =  5;
+    static const unsigned data_nbits  = 32;
+    static const unsigned id_nbits    = 11;
+
+    // field msb's lsb's
+    static const unsigned id_lsb   = 0;
+    static const unsigned id_msb   = id_nbits - 1;
+
+    static const unsigned data_lsb = id_msb + 1;
+    static const unsigned data_msb = id_msb + data_nbits;
+
+    static const unsigned type_lsb = data_msb + 1;
+    static const unsigned type_msb = data_msb + type_nbits;
+
+    static const unsigned opq_lsb  = type_msb + 1;
+    static const unsigned opq_msb  = type_msb + opq_nbits;
+
+    static const unsigned msg_nbits = opq_msb + 1;
+
+    // typedef declarations
+    typedef ap_range_ref<msg_nbits,false> BitSliceProxy;
+    typedef ap_uint<msg_nbits>            Bits;
 
     //--------------------------------------------------------------------
     // message type
@@ -95,19 +145,19 @@ namespace xcel {
     // field mutators
     //--------------------------------------------------------------------
 
-    BitSliceProxy opq()  { return bits(51,44); }
-    BitSliceProxy type() { return bits(43,43); }
-    BitSliceProxy data() { return bits(42,11); }
-    BitSliceProxy id()   { return bits(10, 0); }
+    BitSliceProxy opq()   { return bits(   opq_msb,   opq_lsb ); }
+    BitSliceProxy type()  { return bits(  type_msb,  type_lsb ); }
+    BitSliceProxy data()  { return bits(  data_msb,  data_lsb ); }
+    BitSliceProxy id()    { return bits(    id_msb,    id_lsb ); }
 
     //--------------------------------------------------------------------
     // field inspectors
     //--------------------------------------------------------------------
 
-    BitSliceProxy opq()  const { return bits(51,44); }
-    BitSliceProxy type() const { return bits(43,43); }
-    BitSliceProxy data() const { return bits(43,12); }
-    BitSliceProxy id()   const { return bits(11, 0); }
+    BitSliceProxy opq()  const { return bits(   opq_msb,   opq_lsb ); }
+    BitSliceProxy type() const { return bits(  type_msb,  type_lsb ); }
+    BitSliceProxy data() const { return bits(  data_msb,  data_lsb ); }
+    BitSliceProxy id()   const { return bits(    id_msb,    id_lsb ); }
 
     //--------------------------------------------------------------------
     // constructors
@@ -115,8 +165,8 @@ namespace xcel {
 
     XcelRespMsg() : bits( 0 ) { }
 
-    XcelRespMsg( ap_uint<8> opq, ap_uint<1> type,
-                 ap_uint<32> data, ap_uint<11> id )
+    XcelRespMsg( ap_uint<opq_nbits>   opq, ap_uint<type_nbits> type,
+                 ap_uint<data_nbits> data, ap_uint<id_nbits> id )
       : bits( ( opq, type, data, id ) )
     { }
 
