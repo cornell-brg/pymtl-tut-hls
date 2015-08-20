@@ -111,6 +111,13 @@ namespace mem {
       MemPointer<T>& operator=( const MemPointer<T>& x );
 
       //------------------------------------------------------------------
+      // Unary Operators
+      //------------------------------------------------------------------
+      bool operator!() const {
+        return m_addr == 0;
+      }
+
+      //------------------------------------------------------------------
       // Comparison Operators
       //------------------------------------------------------------------
       bool operator==( const MemPointer& rhs ) const {
@@ -179,6 +186,13 @@ namespace mem {
       MemValue<T> operator*() const;
       MemPointer<T> operator->();
       const MemPointer<T> operator->() const;
+
+      //------------------------------------------------------------------
+      // Unary Operators
+      //------------------------------------------------------------------
+      bool operator!() const {
+        return (operator MemPointer<T>() == 0);
+      }
 
       //------------------------------------------------------------------
       // Comparison Operators

@@ -206,84 +206,120 @@ UTST_AUTO_TEST_CASE( TestPointerInMem )
 // Test Struct Proxy
 //------------------------------------------------------------------------
 
-struct Node0
+struct Node
 {
-  int a;
-  int b;
+  Node* m_prev;
+  Node* m_next;
+  int m_data;
 };
 
 namespace mem {
 
-  OutMemStream& operator<<( OutMemStream& os, const Node0& rhs )
-  {
-    os << rhs.a << rhs.b;
-    return os;
-  }
-
-  InMemStream& operator>>( InMemStream& is, Node0& rhs )
-  {
-    is >> rhs.a >> rhs.b;
-    return is;
-  }
-
   template <>
-  class MemValue<Node0> {
+  class MemValue< Node > {
+    public:
+      MemValue< MemPointer< Node > > m_prev;
+      MemValue< MemPointer< Node > > m_next;
+      MemValue< int > m_data;
 
-   public:
+      // Constructor
+      MemValue( Address base_ptr )
+      : m_prev( base_ptr ),
+        m_next( base_ptr + PTR_SIZE),
+        m_data( base_ptr + PTR_SIZE + PTR_SIZE)
+      {}
 
-    explicit MemValue( unsigned int addr )
-      : a(addr), b(addr+4), m_addr(addr)
-    { }
+      // Get Address
+      void set_addr( const Address addr ) {
+        m_prev.set_addr( addr );
+        m_next.set_addr( addr+PTR_SIZE );
+        m_data.set_addr( addr+PTR_SIZE+PTR_SIZE );
+      }
 
-    // cast
+      // Set Address
+      Address get_addr() const {
+        return m_prev.get_addr();
+      }
 
-    operator Node0() const
-    {
-      Node0 node;
-      mem::InMemStream is(m_addr);
-      is >> node;
-      return node;
-    }
-
-    // lvalue use of the proxy object with value on RHS
-
-    MemValue<Node0>& operator=( const Node0& node )
-    {
-      mem::OutMemStream os(m_addr);
-      os << node;
-      return *this;
-    }
-
-    // lvalue use of the proxy object with proxy on RHS
-
-    MemValue<Node0>& operator=( const MemValue<Node0>& rhs )
-    {
-      mem::OutMemStream os(m_addr);
-      os << static_cast<Node0>(rhs);
-      return *this;
-    }
-
-    // Address of operator
-
-    MemPointer<Node0> operator&()
-    {
-      return MemPointer<Node0>(m_addr);
-    }
-
-    const MemPointer<Node0> operator&() const
-    {
-      return MemPointer<Node0>(m_addr);
-    }
-
-    MemValue<int> a;
-    MemValue<int> b;
-
-   private:
-
-    unsigned int  m_addr;
-
+      static size_t size() {
+        return 2*PTR_SIZE + MemValue<int>::size();
+      }
   };
 
+};  // end namespace mem
+
+UTST_AUTO_TEST_CASE( TestArrow )
+{
+  g_test_mem.clear_num_requests();
+
+  MemPointer<Node> p1( 0x1000 );
+  MemPointer<Node> p2( 0x2000 );
+  MemValue<Node> n1 = *p1;
+  MemValue<Node> n2 = *p2;
+
+  p1->m_prev = p1;    // 1 write
+  p1->m_next = p2;    // 1 write
+  p1->m_data = 12;    // 1 write
+
+  p1->m_next->m_prev = p1;  // 2 writes
+  p1->m_next->m_next = p2;  // 1 write
+  p1->m_next->m_data = 23;  // 1 write
+  
+  UTST_CHECK_EQ( g_test_mem.get_num_requests(), 7 );
+  UTST_CHECK_EQ( 12, n1.m_data );
+  UTST_CHECK_EQ( 23, n2.m_data );
+
+  g_test_mem.clear_num_requests();
+
+  n1.m_data = 45;
+  n2.m_data = 67;
+  UTST_CHECK_EQ( g_test_mem.get_num_requests(), 2 );
+  UTST_CHECK_EQ( 45, p1->m_data );
+  UTST_CHECK_EQ( 67, p2->m_data );
+}
+
+// Currently we don't support implicit bool conversion 
+// So you have to compare against a number
+UTST_AUTO_TEST_CASE( TestLogical )
+{
+  MemPointer<int> p0( 0x0000 );
+  MemPointer<int> p1( 0x1000 );
+
+  //if ( p0 )  { UTST_CHECK_EQ( 0, 1 ); }
+  if ( p0 != 0 )  { UTST_CHECK_EQ( 0, 1 ); }
+  if ( !p1 ) { UTST_CHECK_EQ( 0, 1 ); }
+  if ( p1 == 0 ) { UTST_CHECK_EQ( 0, 1 ); }
+
+  //if ( p0 && p1 ) { UTST_CHECK_EQ( 0, 1 ); }
+  //if ( p0 && p1 != 0 ) { UTST_CHECK_EQ( 0, 1 ); }
+  //if ( p0 == 0 && p1 ) { UTST_CHECK_EQ( 0, 1 ); }
+  if ( p0 == 0 && p1 == 0) { UTST_CHECK_EQ( 0, 1 ); }
+  
+  //if ( p0 || !p1 ) { UTST_CHECK_EQ( 0, 1 ); }
+  //if ( p0 || p1 == 0 ) { UTST_CHECK_EQ( 0, 1 ); }
+  //if ( p0 == 0 || p1 ) { UTST_CHECK_EQ( 0, 1 ); }
+  if ( p0 != 0 || p1 == 0 ) { UTST_CHECK_EQ( 0, 1 ); }
+}
+
+UTST_AUTO_TEST_CASE( TestArrowLogical )
+{
+  MemPointer<Node> p( 0x1000 );
+  p->m_prev = 0x0;
+  p->m_next = 0x8;
+
+  if ( p->m_prev != 0 )  { UTST_CHECK_EQ( 0, 1 ); }
+  if ( !p->m_next ) { UTST_CHECK_EQ( 0, 1 ); }
+  if ( p->m_next == 0 ) { UTST_CHECK_EQ( 0, 1 ); }
+
+  if ( p->m_prev != 0 && p->m_next != 0 ) {
+    UTST_CHECK_EQ( 0, 1 );
+  }
+  if ( p != 0 && p->m_next == 0 ) {
+    UTST_CHECK_EQ( 0, 1 );
+  }
+  if ( p->m_prev != 0 && p == 0 ) {
+    UTST_CHECK_EQ( 0, 1 );
+  }
 }
 
 //------------------------------------------------------------------------
