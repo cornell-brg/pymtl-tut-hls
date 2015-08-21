@@ -179,7 +179,7 @@ namespace mem {
   template<typename T>
   MemValue< MemPointer<T> >&
   MemValue< MemPointer<T> >::operator=( const Address x ) {
-    return operator=( static_cast< MemPointer<T> >( x ) );
+    return operator=( MemPointer<T>( x, m_memreq, m_memresp ) );
   }
 
   //----------------------------------------------------------------------

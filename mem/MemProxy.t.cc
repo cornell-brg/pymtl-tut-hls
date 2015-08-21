@@ -349,32 +349,31 @@ UTST_AUTO_TEST_CASE( TestLogical )
   if ( p0 != 0 || p1 == 0 ) { UTST_CHECK_EQ( 0, 1 ); }
 }
 
-// shreesha: not working yet....
-//UTST_AUTO_TEST_CASE( TestArrowLogical )
-//{
-//  TestMem test_mem;
-//
-//  test_mem.clear_num_requests();
-//
-//  MemPointer<Node> p( 0x1000, test_mem, test_mem );
-//
-//  p->m_prev = 0x0;
-//  p->m_next = 0x8;
-//
-//  if ( p->m_prev != 0 )  { UTST_CHECK_EQ( 0, 1 ); }
-//  if ( !p->m_next ) { UTST_CHECK_EQ( 0, 1 ); }
-//  if ( p->m_next == 0 ) { UTST_CHECK_EQ( 0, 1 ); }
-//
-//  if ( p->m_prev != 0 && p->m_next != 0 ) {
-//    UTST_CHECK_EQ( 0, 1 );
-//  }
-//  if ( p != 0 && p->m_next == 0 ) {
-//    UTST_CHECK_EQ( 0, 1 );
-//  }
-//  if ( p->m_prev != 0 && p == 0 ) {
-//    UTST_CHECK_EQ( 0, 1 );
-//  }
-//}
+UTST_AUTO_TEST_CASE( TestArrowLogical )
+{
+  TestMem test_mem;
+
+  test_mem.clear_num_requests();
+
+  MemPointer<Node> p( 0x1000, test_mem, test_mem );
+
+  p->m_prev = 0x0;
+  p->m_next = 0x8;
+
+  if ( p->m_prev != 0 )  { UTST_CHECK_EQ( 0, 1 ); }
+  if ( !p->m_next ) { UTST_CHECK_EQ( 0, 1 ); }
+  if ( p->m_next == 0 ) { UTST_CHECK_EQ( 0, 1 ); }
+
+  if ( p->m_prev != 0 && p->m_next != 0 ) {
+    UTST_CHECK_EQ( 0, 1 );
+  }
+  if ( p != 0 && p->m_next == 0 ) {
+    UTST_CHECK_EQ( 0, 1 );
+  }
+  if ( p->m_prev != 0 && p == 0 ) {
+    UTST_CHECK_EQ( 0, 1 );
+  }
+}
 
 //------------------------------------------------------------------------
 // Main
