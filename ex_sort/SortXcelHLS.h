@@ -14,10 +14,6 @@
 #include "../xcel/XcelMsg.h"
 #include "../xcel/XcelWrapper.h"
 
-#ifdef XILINX_VIVADO_HLS_TESTING
-#include "../mem/TestMem.h"
-#endif
-
 void SortXcelHLS
 (
   hls::stream<xcel::XcelReqMsg>&   xcelreq,

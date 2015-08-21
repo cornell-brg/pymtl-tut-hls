@@ -17,27 +17,17 @@
 #include <ap_utils.h>
 #include <hls_stream.h>
 
-#ifdef XILINX_VIVADO_HLS_TESTING
-  #include "TestMem.h"
-  mem::TestMem MemStreamHLS_mem;
-  mem::TestMem& memreq  = MemStreamHLS_mem;
-  mem::TestMem& memresp = MemStreamHLS_mem;
-#else
-  hls::stream<mem::MemReqMsg<> >  memreq;
-  hls::stream<mem::MemRespMsg<> > memresp;
-#endif
-
 //------------------------------------------------------------------------
 // test_basic
 //------------------------------------------------------------------------
 
-void test_basic()
+void test_basic( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
 {
-  mem::InMemStream is(0x1000);
+  mem::InMemStream is(0x1000,memreq,memresp);
   int b;
   is >> b; // mem read
 
-  mem::OutMemStream os(0x1004);
+  mem::OutMemStream os(0x1004,memreq,memresp);
   os << b; // mem write
 
   int a = 0x0a0a0a0a;
@@ -48,15 +38,15 @@ void test_basic()
 // test_multiple
 //------------------------------------------------------------------------
 
-void test_multiple()
+void test_multiple( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
 {
-  mem::InMemStream is(0x1000);
+  mem::InMemStream is(0x1000,memreq,memresp);
   int a;
   int b;
   int c;
   is >> a >> b >> c; // 3x mem read
 
-  mem::OutMemStream os(0x2000);
+  mem::OutMemStream os(0x2000,memreq,memresp);
   os << c << b << a; // 3x mem write
 
   int d = 0x0b0b0b0b;
@@ -108,13 +98,13 @@ namespace mem {
 // test_struct
 //------------------------------------------------------------------------
 
-void test_struct()
+void test_struct( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
 {
-  mem::InMemStream is(0x1000);
+  mem::InMemStream is(0x1000,memreq,memresp);
   Foo foo1;
   is >> foo1; // 3x mem read
 
-  mem::OutMemStream os(0x2000);
+  mem::OutMemStream os(0x2000,memreq,memresp);
   os << foo1; // 3x mem write
 
   Foo foo2;
@@ -128,9 +118,9 @@ void test_struct()
 // test_mixed
 //------------------------------------------------------------------------
 
-void test_mixed()
+void test_mixed( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
 {
-  mem::InMemStream is(0x1000);
+  mem::InMemStream is(0x1000,memreq,memresp);
   Foo foo1;
   Foo foo2;
   int a;
@@ -146,7 +136,7 @@ void test_mixed()
   foo4.b = foo1.b;
   foo4.c = foo1.c;
 
-  mem::OutMemStream os(0x2000);
+  mem::OutMemStream os(0x2000,memreq,memresp);
   os << a << foo3 << foo4; // 7x mem write
 }
 
@@ -159,16 +149,18 @@ using namespace xcel;
 void MemStreamHLS
 (
   hls::stream<XcelReqMsg>&  xcelreq,
-  hls::stream<XcelRespMsg>& xcelresp
+  hls::stream<XcelRespMsg>& xcelresp,
+  mem::MemReqStream&        memreq,
+  mem::MemRespStream&       memresp
 ){
   XcelReqMsg req = xcelreq.read();
   int test_num = req.data();
 
   switch ( test_num ) {
-    case 0: test_basic();    break;
-    case 1: test_multiple(); break;
-    case 2: test_struct();   break;
-    case 3: test_mixed();    break;
+    case 0: test_basic(memreq,memresp);    break;
+    case 1: test_multiple(memreq,memresp); break;
+    case 2: test_struct(memreq,memresp);   break;
+    case 3: test_mixed(memreq,memresp);    break;
   }
 
   xcelresp.write( XcelRespMsg( req.opq(), req.type(), 0, req.id() ) );

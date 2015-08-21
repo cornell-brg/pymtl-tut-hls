@@ -8,24 +8,23 @@
 
 using namespace mem;
 
-TestMem g_test_mem;
-TestMem& memreq  = g_test_mem;
-TestMem& memresp = g_test_mem;
-
 //------------------------------------------------------------------------
 // Test Basic Write
 //------------------------------------------------------------------------
 
 UTST_AUTO_TEST_CASE( TestBasicWrite )
 {
-  g_test_mem.clear_num_requests();
 
-  mem::OutMemStream os(0x1000);
+  TestMem test_mem;
+
+  test_mem.clear_num_requests();
+
+  mem::OutMemStream os(0x1000,test_mem,test_mem);
   int a = 42;
   os << a; // mem write
 
-  UTST_CHECK_EQ( g_test_mem.get_num_requests(), 1 );
-  UTST_CHECK_EQ( g_test_mem.mem_read(0x1000), 42u );
+  UTST_CHECK_EQ( test_mem.get_num_requests(), 1 );
+  UTST_CHECK_EQ( test_mem.mem_read(0x1000), 42u );
 }
 
 //------------------------------------------------------------------------
@@ -34,15 +33,17 @@ UTST_AUTO_TEST_CASE( TestBasicWrite )
 
 UTST_AUTO_TEST_CASE( TestBasicRead )
 {
-  g_test_mem.clear_num_requests();
+  TestMem test_mem;
 
-  g_test_mem.mem_write( 0x1000, 0xdeadbeef );
+  test_mem.clear_num_requests();
 
-  mem::InMemStream is(0x1000);
+  test_mem.mem_write( 0x1000, 0xdeadbeef );
+
+  mem::InMemStream is(0x1000,test_mem,test_mem);
   unsigned int a;
   is >> a; // mem read
 
-  UTST_CHECK_EQ( g_test_mem.get_num_requests(), 1 );
+  UTST_CHECK_EQ( test_mem.get_num_requests(), 1 );
   UTST_CHECK_EQ( a, 0xdeadbeefu );
 }
 
@@ -52,17 +53,19 @@ UTST_AUTO_TEST_CASE( TestBasicRead )
 
 UTST_AUTO_TEST_CASE( TestBasic )
 {
-  g_test_mem.clear_num_requests();
+  TestMem test_mem;
 
-  mem::OutMemStream os(0x1000);
+  test_mem.clear_num_requests();
+
+  mem::OutMemStream os(0x1000,test_mem,test_mem);
   int a = 42;
   os << a; // mem write
 
-  mem::InMemStream is(0x1000);
+  mem::InMemStream is(0x1000,test_mem,test_mem);
   int b;
   is >> b; // mem read
 
-  UTST_CHECK_EQ( g_test_mem.get_num_requests(), 2 );
+  UTST_CHECK_EQ( test_mem.get_num_requests(), 2 );
   UTST_CHECK_EQ( b, 42 );
 }
 
@@ -72,21 +75,23 @@ UTST_AUTO_TEST_CASE( TestBasic )
 
 UTST_AUTO_TEST_CASE( TestMultiple )
 {
-  g_test_mem.clear_num_requests();
+  TestMem test_mem;
 
-  mem::OutMemStream os(0x1000);
+  test_mem.clear_num_requests();
+
+  mem::OutMemStream os(0x1000,test_mem,test_mem);
   int a = 42;
   int b = 13;
   int c = 1024;
   os << a << b << c; // 3x mem write
 
-  mem::InMemStream is(0x1000);
+  mem::InMemStream is(0x1000,test_mem,test_mem);
   int d;
   int e;
   int f;
   is >> d >> e >> f; // 3x mem read
 
-  UTST_CHECK_EQ( g_test_mem.get_num_requests(), 6 );
+  UTST_CHECK_EQ( test_mem.get_num_requests(), 6 );
   UTST_CHECK_EQ( d, 42 );
   UTST_CHECK_EQ( e, 13 );
   UTST_CHECK_EQ( f, 1024 );
@@ -137,9 +142,11 @@ namespace mem {
 
 UTST_AUTO_TEST_CASE( TestStruct )
 {
-  g_test_mem.clear_num_requests();
+  TestMem test_mem;
 
-  mem::OutMemStream os(0x1000);
+  test_mem.clear_num_requests();
+
+  mem::OutMemStream os(0x1000,test_mem,test_mem);
   Foo foo1;
   foo1.a = 42;
   foo1.b = 1024;
@@ -157,14 +164,14 @@ UTST_AUTO_TEST_CASE( TestStruct )
   // address 0x1000 should be a (i.e., 41) and the 4B at address 0x1004
   // should be b packed with c (i.e., 0x00780400).
 
-  UTST_CHECK_EQ( g_test_mem.mem_read(0x1000), 42u );
-  UTST_CHECK_EQ( g_test_mem.mem_read(0x1004), 0x00780400u );
+  UTST_CHECK_EQ( test_mem.mem_read(0x1000), 42u );
+  UTST_CHECK_EQ( test_mem.mem_read(0x1004), 0x00780400u );
 
-  mem::InMemStream is(0x1000);
+  mem::InMemStream is(0x1000,test_mem,test_mem);
   Foo foo2;
   is >> foo2; // 3x mem read
 
-  UTST_CHECK_EQ( g_test_mem.get_num_requests(), 6 );
+  UTST_CHECK_EQ( test_mem.get_num_requests(), 6 );
   UTST_CHECK_EQ( foo1, foo2 );
 }
 
@@ -174,9 +181,11 @@ UTST_AUTO_TEST_CASE( TestStruct )
 
 UTST_AUTO_TEST_CASE( TestStructMultiple )
 {
-  g_test_mem.clear_num_requests();
+  TestMem test_mem;
 
-  mem::OutMemStream os(0x1000);
+  test_mem.clear_num_requests();
+
+  mem::OutMemStream os(0x1000,test_mem,test_mem);
 
   Foo foo1;
   foo1.a = 42;
@@ -192,16 +201,16 @@ UTST_AUTO_TEST_CASE( TestStructMultiple )
 
   // See comments in previous test case
 
-  UTST_CHECK_EQ( g_test_mem.mem_read(0x1000), 42u );
-  UTST_CHECK_EQ( g_test_mem.mem_read(0x1004), 0x00780400u );
-  UTST_CHECK_EQ( g_test_mem.mem_read(0x1008), 13u );
-  UTST_CHECK_EQ( g_test_mem.mem_read(0x100c), 0x00790800u );
+  UTST_CHECK_EQ( test_mem.mem_read(0x1000), 42u );
+  UTST_CHECK_EQ( test_mem.mem_read(0x1004), 0x00780400u );
+  UTST_CHECK_EQ( test_mem.mem_read(0x1008), 13u );
+  UTST_CHECK_EQ( test_mem.mem_read(0x100c), 0x00790800u );
 
-  mem::InMemStream is(0x1000);
+  mem::InMemStream is(0x1000,test_mem,test_mem);
   Foo foo3, foo4;
   is >> foo3 >> foo4; // 6x mem read
 
-  UTST_CHECK_EQ( g_test_mem.get_num_requests(), 12 );
+  UTST_CHECK_EQ( test_mem.get_num_requests(), 12 );
   UTST_CHECK_EQ( foo1, foo3 );
   UTST_CHECK_EQ( foo2, foo4 );
 }
@@ -212,9 +221,11 @@ UTST_AUTO_TEST_CASE( TestStructMultiple )
 
 UTST_AUTO_TEST_CASE( TestStructMixed )
 {
-  g_test_mem.clear_num_requests();
+  TestMem test_mem;
 
-  mem::OutMemStream os(0x1000);
+  test_mem.clear_num_requests();
+
+  mem::OutMemStream os(0x1000,test_mem,test_mem);
 
   Foo foo1;
   foo1.a = 42;
@@ -232,18 +243,18 @@ UTST_AUTO_TEST_CASE( TestStructMixed )
 
   // See comments in previous test case
 
-  UTST_CHECK_EQ( g_test_mem.mem_read(0x1000), 42u );
-  UTST_CHECK_EQ( g_test_mem.mem_read(0x1004), 0x00780400u );
-  UTST_CHECK_EQ( g_test_mem.mem_read(0x1008), 67u );
-  UTST_CHECK_EQ( g_test_mem.mem_read(0x100c), 13u );
-  UTST_CHECK_EQ( g_test_mem.mem_read(0x1010), 0x00790800u );
+  UTST_CHECK_EQ( test_mem.mem_read(0x1000), 42u );
+  UTST_CHECK_EQ( test_mem.mem_read(0x1004), 0x00780400u );
+  UTST_CHECK_EQ( test_mem.mem_read(0x1008), 67u );
+  UTST_CHECK_EQ( test_mem.mem_read(0x100c), 13u );
+  UTST_CHECK_EQ( test_mem.mem_read(0x1010), 0x00790800u );
 
-  mem::InMemStream is(0x1000);
+  mem::InMemStream is(0x1000,test_mem,test_mem);
   Foo foo3, foo4;
   int  a;
   is >> foo3 >> a >> foo4; // 7x mem read
 
-  UTST_CHECK_EQ( g_test_mem.get_num_requests(), 14 );
+  UTST_CHECK_EQ( test_mem.get_num_requests(), 14 );
   UTST_CHECK_EQ( foo1, foo3 );
   UTST_CHECK_EQ( a,    67   );
   UTST_CHECK_EQ( foo2, foo4 );

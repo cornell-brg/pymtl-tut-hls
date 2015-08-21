@@ -8,6 +8,8 @@
 #ifndef MEM_STREAM_H
 #define MEM_STREAM_H
 
+#include "../mem/MemCommon.h"
+
 namespace mem {
 
   //----------------------------------------------------------------------
@@ -18,9 +20,11 @@ namespace mem {
 
    public:
 
-    OutMemStream( unsigned int addr_ );
+    OutMemStream( unsigned int addr_, MemReqStream& memreq, MemRespStream& memresp );
 
-    unsigned int addr;
+    unsigned int   addr;
+    MemReqStream&  m_memreq;
+    MemRespStream& m_memresp;
 
   };
 
@@ -32,9 +36,11 @@ namespace mem {
 
    public:
 
-    InMemStream( unsigned int addr_ );
+    InMemStream( unsigned int addr_, MemReqStream& memreq, MemRespStream& memresp );
 
-    unsigned int addr;
+    unsigned int   addr;
+    MemReqStream&  m_memreq;
+    MemRespStream& m_memresp;
 
   };
 

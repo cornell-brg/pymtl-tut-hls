@@ -21,6 +21,10 @@ void run_test( int test_num, int num_mem_reqs,
   unsigned int data_in_addr,  unsigned int data_in[],  int data_in_size,
   unsigned int data_out_addr, unsigned int data_out[], int data_out_size )
 {
+  // Test memory
+
+  TestMem MemStreamHLS_mem;
+
   // Reset test memory request counter
 
   MemStreamHLS_mem.clear_num_requests();
@@ -44,7 +48,7 @@ void run_test( int test_num, int num_mem_reqs,
 
   // Do test
 
-  MemStreamHLS( xcelreq, xcelresp );
+  MemStreamHLS( xcelreq, xcelresp, MemStreamHLS_mem, MemStreamHLS_mem  );
 
   // Drain the responses for configuration requests
 
