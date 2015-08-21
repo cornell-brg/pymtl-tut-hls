@@ -18,7 +18,6 @@ namespace mem {
   #else
   typedef hls::stream<MemReqMsg<> >  MemReqStream;
   typedef hls::stream<MemRespMsg<> > MemRespStream;
-
   #endif
 
 }

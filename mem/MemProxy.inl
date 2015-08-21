@@ -12,8 +12,10 @@ namespace mem {
   // Constructor
   //----------------------------------------------------------------------
   template<typename T>
-  MemValue<T>::MemValue( Address addr )
-    : m_addr( addr ), m_memoized_valid( false )
+  MemValue<T>::MemValue( Address addr, MemReqStream& memreq,
+                         MemRespStream& memresp )
+    : m_addr( addr ), m_memreq( memreq ), m_memresp( memresp ),
+      m_memoized_valid( false )
   {}
 
   //----------------------------------------------------------------------
@@ -24,7 +26,7 @@ namespace mem {
     DB_PRINT (("MemValue: reading from 0x%u\n", m_addr.to_uint()));
     if ( !m_memoized_valid ) {
       //m_memoized_valid = true;
-      mem::InMemStream is(m_addr);
+      mem::InMemStream is(m_addr,m_memreq,m_memresp);
       is >> m_memoized_value;
     }
     return m_memoized_value;
@@ -38,7 +40,7 @@ namespace mem {
     DB_PRINT (("MemValue: writing %u to 0x%u\n", value, m_addr.to_uint()));
     // dump the memoized value on a store
     m_memoized_valid = false;
-    mem::OutMemStream os(m_addr);
+    mem::OutMemStream os(m_addr,m_memreq,m_memresp);
     os << value;
     return *this;
   }
@@ -56,18 +58,22 @@ namespace mem {
   // Constructors
   //----------------------------------------------------------------------
   template<typename T>              // default
-  MemPointer<T>::MemPointer()
-    : m_addr( 0 ), m_obj_temp( 0 )
+  MemPointer<T>::MemPointer( MemReqStream& memreq, MemRespStream& memresp )
+    : m_addr( 0 ), m_memreq( memreq ), m_memresp( memresp ),
+      m_obj_temp( 0, memreq, memresp )
   {}
 
   template<typename T>              // from address
-  MemPointer<T>::MemPointer( Address base_ptr )
-    : m_addr( base_ptr ), m_obj_temp( base_ptr )
+  MemPointer<T>::MemPointer( Address base_ptr, MemReqStream& memreq,
+                             MemRespStream& memresp )
+    : m_addr( base_ptr ), m_memreq( memreq ), m_memresp( memresp ),
+      m_obj_temp( base_ptr, memreq, memresp )
   {}
 
   template<typename T>              // copy
   MemPointer<T>::MemPointer( const MemPointer& p )
-    : m_addr( p.m_addr ), m_obj_temp( p.m_addr )
+    : m_addr( p.m_addr ), m_memreq( p.m_memreq ), m_memresp( p.m_memresp ),
+      m_obj_temp( p.m_addr, p.m_memreq, p.m_memresp )
   {}
 
   //----------------------------------------------------------------------
@@ -75,7 +81,7 @@ namespace mem {
   //----------------------------------------------------------------------
   template<typename T>
   MemValue<T> MemPointer<T>::operator*() const {
-    return MemValue<T>( m_addr );
+    return MemValue<T>( m_addr, m_memreq, m_memresp );
   }
 
   //----------------------------------------------------------------------
@@ -135,8 +141,9 @@ namespace mem {
   // Constructors
   //----------------------------------------------------------------------
   template<typename T>
-  MemValue< MemPointer<T> >::MemValue( Address base_ptr )
-    : m_addr( base_ptr )
+  MemValue< MemPointer<T> >::MemValue( Address base_ptr, MemReqStream& memreq,
+                                       MemRespStream& memresp )
+    : m_addr( base_ptr ), m_memreq( memreq ), m_memresp( memresp )
   {}
 
   //----------------------------------------------------------------------
@@ -145,8 +152,8 @@ namespace mem {
   template<typename T>
   MemValue< MemPointer<T> >::operator MemPointer<T>() const {
     DB_PRINT (("MemValue: reading from %u\n", m_addr));
-    MemPointer<T> ptr;
-    mem::InMemStream is(m_addr);
+    MemPointer<T> ptr(0,m_memreq,m_memresp);
+    mem::InMemStream is(m_addr,m_memreq,m_memresp);
     is >> ptr;
     return ptr;
   }
@@ -158,7 +165,7 @@ namespace mem {
   MemValue< MemPointer<T> >&
   MemValue< MemPointer<T> >::operator=( const MemPointer<T>& p ) {
     DB_PRINT (("MemValue: writing %u to loc %u\n", p.get_addr(), m_addr));
-    mem::OutMemStream os(m_addr);
+    mem::OutMemStream os(m_addr,m_memreq,m_memresp);
     os << p;
     return *this;
   }

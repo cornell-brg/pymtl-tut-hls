@@ -39,6 +39,9 @@ namespace mem {
   class MemValue {
     Address m_addr;
 
+    MemReqStream&  m_memreq;
+    MemRespStream& m_memresp;
+
     mutable bool m_memoized_valid;
     mutable T    m_memoized_value;
 
@@ -46,7 +49,7 @@ namespace mem {
       //------------------------------------------------------------------
       // Constructor
       //------------------------------------------------------------------
-      explicit MemValue( Address addr );
+      explicit MemValue( Address addr, MemReqStream& memreq, MemRespStream& memresp );
 
       //------------------------------------------------------------------
       // rvalue and lvalue uses
@@ -58,8 +61,8 @@ namespace mem {
       //------------------------------------------------------------------
       // & operator
       //------------------------------------------------------------------
-      MemPointer<T> operator&() { return MemPointer<T>( m_addr ); }
-      const MemPointer<T> operator&() const { return MemPointer<T>( m_addr ); }
+      MemPointer<T> operator&() { return MemPointer<T>( m_addr, m_memreq, m_memresp ); }
+      const MemPointer<T> operator&() const { return MemPointer<T>( m_addr, m_memreq, m_memresp ); }
 
       //------------------------------------------------------------------
       // Comparison Operators
@@ -87,14 +90,18 @@ namespace mem {
   class MemPointer {
 
     Address m_addr;
+
+    MemReqStream&  m_memreq;
+    MemRespStream& m_memresp;
+
     mutable MemValue<T> m_obj_temp;
 
     public:
       //------------------------------------------------------------------
       // Constructors
       //------------------------------------------------------------------
-      MemPointer();
-      explicit MemPointer( Address base_ptr );
+      MemPointer( MemReqStream& memreq, MemRespStream& memresp );
+      explicit MemPointer( Address base_ptr, MemReqStream& memreq, MemRespStream& memresp );
       MemPointer( const MemPointer& p );
 
       //------------------------------------------------------------------
@@ -167,11 +174,14 @@ namespace mem {
 
       Address m_addr;
 
+      MemReqStream&  m_memreq;
+      MemRespStream& m_memresp;
+
     public:
       //------------------------------------------------------------------
       // Constructors
       //------------------------------------------------------------------
-      explicit MemValue( Address base_ptr );
+      explicit MemValue( Address addr, MemReqStream& memreq, MemRespStream& memresp );
 
       //------------------------------------------------------------------
       // rvalue and lvalue uses
