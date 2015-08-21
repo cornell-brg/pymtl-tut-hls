@@ -164,6 +164,7 @@ namespace mem {
   //======================================================================
   template<typename T>
   class MemValue< MemPointer<T> > {
+
       Address m_addr;
 
     public:

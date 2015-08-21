@@ -36,10 +36,10 @@ namespace mem {
   template<typename T>
   MemValue<T>& MemValue<T>::operator=( T value ) {
     DB_PRINT (("MemValue: writing %u to 0x%u\n", value, m_addr.to_uint()));
-    m_memoized_value = value;
-    //m_memoized_valid = true;
+    // dump the memoized value on a store
+    m_memoized_valid = false;
     mem::OutMemStream os(m_addr);
-    os << m_memoized_value;
+    os << value;
     return *this;
   }
 
