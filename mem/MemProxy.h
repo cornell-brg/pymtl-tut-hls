@@ -37,13 +37,14 @@ namespace mem {
   // from the MemValue, you have to get the object out first.
   template<typename T>
   class MemValue {
-    Address m_addr;
 
-    MemReqStream&  m_memreq;
-    MemRespStream& m_memresp;
+      Address m_addr;
 
-    mutable bool m_memoized_valid;
-    mutable T    m_memoized_value;
+      mutable bool m_memoized_valid;
+      mutable T    m_memoized_value;
+
+      MemReqStream&  m_memreq;
+      MemRespStream& m_memresp;
 
     public:
       //------------------------------------------------------------------
@@ -79,6 +80,9 @@ namespace mem {
       static size_t size() {
         return sizeof(T) > PTR_SIZE ? sizeof(T) : PTR_SIZE;
       }
+      
+      MemReqStream& memreq()  const { return m_memreq; }
+      MemReqStream& memresp() const { return m_memresp; }
   };
 
   //======================================================================
@@ -89,12 +93,9 @@ namespace mem {
   template<typename T>
   class MemPointer {
 
-    Address m_addr;
+      Address m_addr;
 
-    MemReqStream&  m_memreq;
-    MemRespStream& m_memresp;
-
-    mutable MemValue<T> m_obj_temp;
+      mutable MemValue<T> m_obj_temp;
 
     public:
       //------------------------------------------------------------------
@@ -173,7 +174,7 @@ namespace mem {
   class MemValue< MemPointer<T> > {
 
       Address m_addr;
-
+    
       MemReqStream&  m_memreq;
       MemRespStream& m_memresp;
 
@@ -226,6 +227,9 @@ namespace mem {
       //------------------------------------------------------------------
       Address get_addr() const { return m_addr; }
       void set_addr( const Address addr ) { m_addr = addr; }
+
+      MemReqStream& memreq()  const { return m_memreq; }
+      MemReqStream& memresp() const { return m_memresp; }
   };
 
 }; // end namespace mem

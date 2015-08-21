@@ -276,9 +276,9 @@ namespace mem {
       }
 
       // Set Address
-      Address get_addr() const {
-        return m_prev.get_addr();
-      }
+      Address get_addr() const { return m_prev.get_addr(); }
+      MemReqStream& memreq()  const { return m_prev.memreq(); }
+      MemReqStream& memresp() const { return m_prev.memresp(); }
 
       static size_t size() {
         return 2*PTR_SIZE + MemValue<int>::size();

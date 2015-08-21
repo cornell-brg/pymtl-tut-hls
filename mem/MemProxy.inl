@@ -14,8 +14,9 @@ namespace mem {
   template<typename T>
   MemValue<T>::MemValue( Address addr, MemReqStream& memreq,
                          MemRespStream& memresp )
-    : m_addr( addr ), m_memreq( memreq ), m_memresp( memresp ),
-      m_memoized_valid( false )
+    : m_addr( addr ),
+      m_memoized_valid( false ),
+      m_memreq( memreq ), m_memresp( memresp )
   {}
 
   //----------------------------------------------------------------------
@@ -59,21 +60,21 @@ namespace mem {
   //----------------------------------------------------------------------
   template<typename T>              // default
   MemPointer<T>::MemPointer( MemReqStream& memreq, MemRespStream& memresp )
-    : m_addr( 0 ), m_memreq( memreq ), m_memresp( memresp ),
+    : m_addr( 0 ),
       m_obj_temp( 0, memreq, memresp )
   {}
 
   template<typename T>              // from address
   MemPointer<T>::MemPointer( Address base_ptr, MemReqStream& memreq,
                              MemRespStream& memresp )
-    : m_addr( base_ptr ), m_memreq( memreq ), m_memresp( memresp ),
+    : m_addr( base_ptr ),
       m_obj_temp( base_ptr, memreq, memresp )
   {}
 
   template<typename T>              // copy
   MemPointer<T>::MemPointer( const MemPointer& p )
-    : m_addr( p.m_addr ), m_memreq( p.m_memreq ), m_memresp( p.m_memresp ),
-      m_obj_temp( p.m_addr, p.m_memreq, p.m_memresp )
+    : m_addr( p.m_addr ),
+      m_obj_temp( p.m_addr, p.m_obj_temp.memreq(), p.m_obj_temp.memresp() )
   {}
 
   //----------------------------------------------------------------------
@@ -81,7 +82,7 @@ namespace mem {
   //----------------------------------------------------------------------
   template<typename T>
   MemValue<T> MemPointer<T>::operator*() const {
-    return MemValue<T>( m_addr, m_memreq, m_memresp );
+    return MemValue<T>( m_addr, m_obj_temp.memreq(), m_obj_temp.memresp() );
   }
 
   //----------------------------------------------------------------------
