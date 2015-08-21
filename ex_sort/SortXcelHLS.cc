@@ -72,45 +72,25 @@ void sort( Array array )
 // SortXcelHLS
 //------------------------------------------------------------------------
 
-#ifdef XILINX_VIVADO_HLS_TESTING
 void SortXcelHLS
 (
-  hls::stream<xcel::XcelReqMsg>&  xcelreq,
-  hls::stream<xcel::XcelRespMsg>& xcelresp,
-  mem::TestMem&                   memreq,
-  mem::TestMem&                   memresp
+  hls::stream<xcel::XcelReqMsg>&   xcelreq,
+  hls::stream<xcel::XcelRespMsg>&  xcelresp,
+  MemReqStream&                    memreq,
+  MemRespStream&                   memresp
 ){
-#else
-void SortXcelHLS
-(
-  hls::stream<xcel::XcelReqMsg>&  xcelreq,
-  hls::stream<xcel::XcelRespMsg>& xcelresp,
-  hls::stream<MemReqMsg<> >&      memreq,
-  hls::stream<MemRespMsg<> >&     memresp
-){
-#endif
 
   XcelWrapper<3> xcelWrapper( xcelreq, xcelresp );
 
   // configure
   xcelWrapper.configure();
 
-  #ifdef XILINX_VIVADO_HLS_TESTING
-  sort( ArrayMemPortAdapter<TestMem,TestMem> (
+  sort( ArrayMemPortAdapter<MemReqStream,MemRespStream> (
           memreq,
           memresp,
           xcelWrapper.get_xreg(1),
           xcelWrapper.get_xreg(2)
         ) );
-  #else
-  // compute
-  sort( ArrayMemPortAdapter<hls::stream<MemReqMsg<> >, hls::stream<MemRespMsg<> > > (
-          memreq,
-          memresp,
-          xcelWrapper.get_xreg(1),
-          xcelWrapper.get_xreg(2)
-        ) );
-  #endif
 
   // signal done
   xcelWrapper.done( 1 );
