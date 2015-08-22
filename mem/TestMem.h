@@ -5,13 +5,13 @@
 // accelerator that uses hls::streams to explicitly send/receive memory
 // requests/responses.
 
-#include "MemMsg.h"
+#include "mem/MemMsg.h"
 
 #include <deque>
 #include <iostream>
 
-#ifndef TEST_MEM_H
-#define TEST_MEM_H
+#ifndef MEM_TEST_MEM_H
+#define MEM_TEST_MEM_H
 
 namespace mem {
 
@@ -68,5 +68,5 @@ namespace mem {
 
 }
 
-#endif /* TEST_MEM_H */
+#endif /* MEM_TEST_MEM_H */
 

@@ -6,11 +6,19 @@
 //
 // Header for testing the accelerator with a pure C++ flow.
 
-#include "MemMsg.h"
-#include "MemCommon.h"
-#include "XcelMsg.h"
+#ifndef MEM_MEM_STREAM_HLS_H
+#define MEM_MEM_STREAM_HLS_H
+
+#include "mem/MemMsg.h"
+#include "mem/MemCommon.h"
+#include "xcel/XcelMsg.h"
 
 #include <hls_stream.h>
+
+#ifdef XILINX_VIVADO_HLS_TESTING
+  #include "mem/TestMem.h"
+  extern mem::TestMem MemStreamHLS_mem;
+#endif
 
 void MemStreamHLS(
   hls::stream<xcel::XcelReqMsg>&  xcelreq,
@@ -18,4 +26,6 @@ void MemStreamHLS(
   mem::MemReqStream&               memreq,
   mem::MemRespStream&              memresp
 );
+
+#endif /* MEM_MEM_STREAM_HLS_H */
 

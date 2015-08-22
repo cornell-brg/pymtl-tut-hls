@@ -2,10 +2,10 @@
 // Unit Tests for MemProxy
 //========================================================================
 
-#include "utst.h"
-#include "TestMem.h"
-#include "MemStream.h"
-#include "MemProxy.h"
+#include "utst/utst.h"
+#include "mem/TestMem.h"
+#include "mem/MemStream.h"
+#include "mem/MemProxy.h"
 
 using namespace mem;
 
@@ -308,8 +308,7 @@ UTST_AUTO_TEST_CASE( TestArrow )
   p1->m_next->m_next = p2;  // 1 write
   p1->m_next->m_data = 23;  // 1 write
 
-  //UTST_CHECK_EQ( test_mem.get_num_requests(), 7 );
-
+  // UTST_CHECK_EQ( test_mem.get_num_requests(), 7 );
   UTST_CHECK_EQ( 12, n1.m_data );
   UTST_CHECK_EQ( 23, n2.m_data );
 
@@ -333,19 +332,19 @@ UTST_AUTO_TEST_CASE( TestLogical )
   MemPointer<int> p0( 0x0000, test_mem, test_mem );
   MemPointer<int> p1( 0x1000, test_mem, test_mem );
 
-  //if ( p0 )  { UTST_CHECK_EQ( 0, 1 ); }
+  // if ( p0 )  { UTST_CHECK_EQ( 0, 1 ); }
   if ( p0 != 0 )  { UTST_CHECK_EQ( 0, 1 ); }
   if ( !p1 ) { UTST_CHECK_EQ( 0, 1 ); }
   if ( p1 == 0 ) { UTST_CHECK_EQ( 0, 1 ); }
 
-  //if ( p0 && p1 ) { UTST_CHECK_EQ( 0, 1 ); }
-  //if ( p0 && p1 != 0 ) { UTST_CHECK_EQ( 0, 1 ); }
-  //if ( p0 == 0 && p1 ) { UTST_CHECK_EQ( 0, 1 ); }
+  // if ( p0 && p1 ) { UTST_CHECK_EQ( 0, 1 ); }
+  // if ( p0 && p1 != 0 ) { UTST_CHECK_EQ( 0, 1 ); }
+  // if ( p0 == 0 && p1 ) { UTST_CHECK_EQ( 0, 1 ); }
   if ( p0 == 0 && p1 == 0) { UTST_CHECK_EQ( 0, 1 ); }
 
-  //if ( p0 || !p1 ) { UTST_CHECK_EQ( 0, 1 ); }
-  //if ( p0 || p1 == 0 ) { UTST_CHECK_EQ( 0, 1 ); }
-  //if ( p0 == 0 || p1 ) { UTST_CHECK_EQ( 0, 1 ); }
+  // if ( p0 || !p1 ) { UTST_CHECK_EQ( 0, 1 ); }
+  // if ( p0 || p1 == 0 ) { UTST_CHECK_EQ( 0, 1 ); }
+  // if ( p0 == 0 || p1 ) { UTST_CHECK_EQ( 0, 1 ); }
   if ( p0 != 0 || p1 == 0 ) { UTST_CHECK_EQ( 0, 1 ); }
 }
 
@@ -381,6 +380,6 @@ UTST_AUTO_TEST_CASE( TestArrowLogical )
 
 int main( int argc, char* argv[] )
 {
-  utst::auto_command_line_driver( argc, argv );
+  utst::auto_command_line_driver( argc, argv, "mem" );
 }
 

@@ -2,8 +2,8 @@
 // Unit Tests for MemMsg
 //========================================================================
 
-#include "utst.h"
-#include "MemMsg.h"
+#include "utst/utst.h"
+#include "mem/MemMsg.h"
 
 using namespace mem;
 
@@ -99,6 +99,6 @@ UTST_AUTO_TEST_CASE( TestRead )
 
 int main( int argc, char* argv[] )
 {
-  utst::auto_command_line_driver( argc, argv );
+  utst::auto_command_line_driver( argc, argv, "mem" );
 }
 

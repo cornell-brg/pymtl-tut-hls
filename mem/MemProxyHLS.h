@@ -6,9 +6,12 @@
 //
 // Header for testing the accelerator with a pure C++ flow.
 
-#include "MemMsg.h"
-#include "MemCommon.h"
-#include "XcelMsg.h"
+#ifndef MEM_MEM_PROXY_HLS_H
+#define MEM_MEM_PROXY_HLS_H
+
+#include "mem/MemMsg.h"
+#include "mem/MemCommon.h"
+#include "xcel/XcelMsg.h"
 
 #include <hls_stream.h>
 
@@ -18,4 +21,6 @@ void MemProxyHLS(
   mem::MemReqStream&              memreq,
   mem::MemRespStream&             memresp
 );
+
+#endif /* MEM_MEM_PROXY_HLS_H */
 

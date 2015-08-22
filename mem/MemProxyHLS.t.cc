@@ -2,9 +2,9 @@
 // Unit Tests for MemProxyHLS
 //========================================================================
 
-#include "utst.h"
-#include "MemProxyHLS.h"
-#include "XcelMsg.h"
+#include "utst/utst.h"
+#include "mem/MemProxyHLS.h"
+#include "xcel/XcelMsg.h"
 
 #include <vector>
 
@@ -111,6 +111,6 @@ UTST_AUTO_TEST_CASE( TestMemoize )
 
 int main( int argc, char* argv[] )
 {
-  utst::auto_command_line_driver( argc, argv );
+  utst::auto_command_line_driver( argc, argv, "mem" );
 }
 

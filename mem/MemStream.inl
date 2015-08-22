@@ -2,7 +2,7 @@
 // MemStream
 //========================================================================
 
-#include "MemMsg.h"
+#include "mem/MemMsg.h"
 #include <ap_utils.h>
 #include <hls_stream.h>
 

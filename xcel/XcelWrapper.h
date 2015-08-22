@@ -9,11 +9,11 @@
 
 #include <hls_stream.h>
 
-#include "XcelMsg.h"
+#include "xcel/XcelMsg.h"
 
 namespace xcel {
 
-  template<int NumRegs>
+  template < int NumRegs >
   class XcelWrapper{
     public:
 

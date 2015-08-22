@@ -2,9 +2,9 @@
 // Unit Tests for MemStreamHLS
 //========================================================================
 
-#include "utst.h"
-#include "MemStreamHLS.h"
-#include "XcelMsg.h"
+#include "utst/utst.h"
+#include "mem/MemStreamHLS.h"
+#include "xcel/XcelMsg.h"
 
 #include <vector>
 #include <algorithm>
@@ -132,6 +132,6 @@ UTST_AUTO_TEST_CASE( TestMixed )
 
 int main( int argc, char* argv[] )
 {
-  utst::auto_command_line_driver( argc, argv );
+  utst::auto_command_line_driver( argc, argv, "mem" );
 }
 

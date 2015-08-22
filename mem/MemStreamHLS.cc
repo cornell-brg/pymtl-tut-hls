@@ -10,8 +10,8 @@
 // simply writes xr0 with the desired test to run. The accelerator only
 // returns the response message when the test is finished.
 
-#include "MemStream.h"
-#include "../xcel/XcelMsg.h"
+#include "mem/MemStream.h"
+#include "xcel/XcelMsg.h"
 
 #include <ap_int.h>
 #include <ap_utils.h>
