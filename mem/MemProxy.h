@@ -228,8 +228,8 @@ namespace mem {
       Address get_addr() const { return m_addr; }
       void set_addr( const Address addr ) { m_addr = addr; }
 
-      MemReqStream& memreq()  const { return m_memreq; }
-      MemReqStream& memresp() const { return m_memresp; }
+      MemReqStream&  memreq()  const { return m_memreq; }
+      MemRespStream& memresp() const { return m_memresp; }
   };
 
 }; // end namespace mem
