@@ -1,8 +1,8 @@
 //========================================================================
-// utst::TestSuite : Collection of test cases
+// utst/TestSuite.h : Collection of test cases
 //========================================================================
-// Please read the documentation in utst-uguide.txt for more information
-// on how this class fits into the overall unit test framework.
+// Please read the documentation in utst/utst.txt for more information on
+// how this class fits into the overall unit test framework.
 
 #ifndef UTST_TEST_SUITE_H
 #define UTST_TEST_SUITE_H

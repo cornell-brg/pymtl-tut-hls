@@ -1,0 +1,68 @@
+#!/bin/bash
+#=========================================================================
+# check [options] <out-files>
+#=========================================================================
+#
+#  -h  Display this message
+#  -v  Verbose mode
+#
+# This script simply greps through .out files to summarize unit tests.
+# The key reason we encapsulate this in a script is to make sure we can
+# return a proper status code based on whether or not all of the tests
+# pass. This enables 'make check' to play nicely with TravisCI.
+#
+# Author : Christopher Batten
+# Date   : August 21, 2015
+
+#-------------------------------------------------------------------------
+# Command line parsing
+#-------------------------------------------------------------------------
+
+function usage
+{
+  echo ""
+  sed -n '3p' $0 | sed -e 's/#//'
+  sed -n '5,/^$/p' $0 | sed -e 's/#//'
+  exit 1
+}
+
+verbose=no
+while getopts "hv" OPTION; do
+  case $OPTION in
+    v)   verbose=yes ;;
+    h|?) usage ;;
+  esac
+done
+
+#-------------------------------------------------------------------------
+# grep
+#-------------------------------------------------------------------------
+
+failed="no"
+
+echo ""
+for file; do
+
+  # First display lines which match following patterns
+
+  grep -h -e'Unit Tests' -e'FAILED' -e'Segementation' -e'ERROR' "${file}"
+
+  # Now just check for those patterns which mean failure
+
+  grep -q -e'FAILED' -e'Segementation' -e'ERROR' "${file}"
+  if [[ $? == 0 ]]; then
+    failed="yes"
+  fi
+
+done
+echo ""
+
+# Final exit status
+
+exit_status=0
+if [[ "${failed}" == "yes" ]]; then
+  exit_status=1
+fi
+
+exit ${exit_status};
+

@@ -1,22 +1,7 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define if we should include subproject ex_gcd */
-#undef HAVE_EX_GCD
-
-/* Define if we should include subproject ex_sort */
-#undef HAVE_EX_SORT
-
 /* Define if we should include subproject mem */
 #undef HAVE_MEM
-
-/* Define if we should include subproject polydsu */
-#undef HAVE_POLYDSU
-
-/* Define if we should include subproject polydsu_list */
-#undef HAVE_POLYDSU_LIST
-
-/* Define if we should include subproject polydsu_rbtree */
-#undef HAVE_POLYDSU_RBTREE
 
 /* Define if we should include subproject utst */
 #undef HAVE_UTST

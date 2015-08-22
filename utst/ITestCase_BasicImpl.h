@@ -1,8 +1,8 @@
 //========================================================================
-// utst::ITestCase_BasicImpl<T> : Implementation helper for test cases
+// utst/ITestCase_BasicImpl.h : Implementation helper for test cases
 //========================================================================
-// Please read the documentation in utst-uguide.txt for more information
-// on how this class fits into the overall unit test framework.
+// Please read the documentation in utst/utst.txt for more information on
+// how this class fits into the overall unit test framework.
 //
 // This is an implementation helper base class which means it implements
 // some of the virtual functions in the abstract ITestCase base class
@@ -49,7 +49,7 @@
 #ifndef UTST_ITEST_CASE_BASIC_IMPL_H
 #define UTST_ITEST_CASE_BASIC_IMPL_H
 
-#include "utst-ITestCase.h"
+#include "utst/ITestCase.h"
 #include <string>
 
 namespace utst {
@@ -126,6 +126,6 @@ namespace utst {
 #define UTST_TEST_CASE( name_ ) \
   UTST_TEST_CASE_( name_ )
 
-#include "utst-ITestCase_BasicImpl.inl"
+#include "utst/ITestCase_BasicImpl.inl"
 #endif /* UTST_ITEST_CASE_BASIC_IMPL_H */
 

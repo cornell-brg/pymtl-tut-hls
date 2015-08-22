@@ -1,9 +1,9 @@
 //========================================================================
-// utst-Checks.h : Macros for simple checks in unit tests
+// utst/Checks.h : Macros for simple checks in unit tests
 //========================================================================
 // This file includes the UTST_CHECK macros which check for various
 // conditions in a unit test. Details on each check are below. Please
-// read the documentation in utst-uguide.txt for how these macros fit
+// read the documentation in utst/utst.txt for how these macros fit
 // into the overall unit test framework.
 
 #ifndef UTST_CHECKS_H
@@ -126,6 +126,6 @@ namespace utst {
 #define UTST_LOG_VAR( message_ ) \
   UTST_LOG_VAR_( message_ )
 
-#include "utst-Checks.inl"
+#include "utst/Checks.inl"
 #endif /* UTST_CHECKS_H */
 

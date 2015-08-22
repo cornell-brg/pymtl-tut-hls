@@ -37,16 +37,36 @@ src_dir      := @srcdir@
 scripts_dir  := $(src_dir)/scripts
 
 # If the version information is not in the configure script, then we
-# assume that we are in a working directory. We use the vcs-version.sh
+# assume that we are in a working directory. We use the vcs-version
 # script in the scripts directory to generate an appropriate version
 # string. Currently the way things are setup we have to run this script
 # everytime we run make so the script needs to be as fast as possible.
 
 ifeq (@PACKAGE_VERSION@,?)
-  project_ver:=$(shell $(scripts_dir)/vcs-version.sh $(src_dir))
+  project_ver:=$(shell $(scripts_dir)/vcs-version $(src_dir))
 else
   project_ver:=@PACKAGE_VERSION@
 endif
+
+#-------------------------------------------------------------------------
+# vpath
+#-------------------------------------------------------------------------
+# VPATH is used for a list of directories to search for _all_ sources.
+# Since we now prefix everything with the subproject name (i.e., we use
+# utst/TestLog.cc not utst-TestLog.cc in the make variables) we end up
+# with a tricky situation. We want to use an order-only prequisite to
+# ensure that the subproject build directory is always created first:
+#
+#  http://www.gnu.org/savannah-checkouts/gnu/make/manual/html_node/Prerequisite-Types.html#Prerequisite-Types
+#
+# but if we combine this with VPATH then make sees the _source_
+# subproject directory and things it is up to date. So the solution is to
+# use vpath instead of VPATH so we can explicitly say which files should
+# be searched for where.
+
+vpath %.cc  $(src_dir)
+vpath %.h   $(src_dir)
+vpath %.inl $(src_dir)
 
 #-------------------------------------------------------------------------
 # Installation directory setup
@@ -68,7 +88,7 @@ install_pkcs_dir := $(DESTDIR)/share/pkgconfig
 install_exes_dir := $(DESTDIR)/bin
 
 #-------------------------------------------------------------------------
-# Programs and flags 
+# Programs and flags
 #-------------------------------------------------------------------------
 
 # Standard flags
@@ -85,14 +105,14 @@ LDFLAGS     := @LDFLAGS@
 # C compiler and linker
 
 CC          := @CC@
-COMPILE_C   := $(CC) $(CFLAGS) -MMD -MP -I. $(CPPFLAGS)
+COMPILE_C   := $(CC) $(CFLAGS) -MMD -MP -I. -I$(src_dir) $(CPPFLAGS)
 LD_C        := $(CC)
 LINK_C      := $(LD_C) -L. $(LDFLAGS)
 
 # C++ compiler and linker
 
 CXX         := @CXX@
-COMPILE_CXX := $(CXX) $(CXXFLAGS) -MMD -MP -I. $(CPPFLAGS)
+COMPILE_CXX := $(CXX) $(CXXFLAGS) -MMD -MP -I. -I$(src_dir) $(CPPFLAGS)
 LD_CXX      := $(CXX)
 LINK_CXX    := $(LD_CXX) -L. $(LDFLAGS)
 
@@ -108,7 +128,7 @@ RUNFLAGS    := @RUNFLAGS@
 
 # Installation
 
-MKINSTALLDIRS := $(scripts_dir)/mk-install-dirs.sh
+MKINSTALLDIRS := $(scripts_dir)/mk-install-dirs
 INSTALL       := @INSTALL@
 INSTALL_HDR   := $(INSTALL) -m 444
 INSTALL_LIB   := $(INSTALL) -m 644
@@ -123,10 +143,9 @@ sprojs_internal    := @mcppbs_include_internal@
 sprojs_internal_en := @mcppbs_include_internal_en@
 sprojs_install     := @mcppbs_install@
 
-sprojs_mk := $(addsuffix .mk, $(sprojs_internal_en))
+sprojs_mk := $(join $(sprojs_internal_en), $(patsubst %,/%.mk, $(sprojs_internal_en)))
 
 -include $(sprojs_mk)
-VPATH := $(addprefix $(src_dir)/, $(sprojs_internal_en))
 
 # The utst subproject is special since the makefile explicitly uses the
 # utst compiler and linking flags when building unit tests. If we are
@@ -145,7 +164,7 @@ utst_libs     ?= @utst_libs@
 # subprojects defining a certain set of make variables which are all
 # prefixed with the subproject name. Since subproject names can have
 # dashes in them (and the make variables are assumed to only use
-# underscores) the template takes two arguments - one with the regular 
+# underscores) the template takes two arguments - one with the regular
 # subproject name and one with dashes replaced with underscores.
 #
 # Arguments:
@@ -163,11 +182,11 @@ define subproject_template
 # corresponding dummy object file.
 
 ifeq ($$(strip $$($(2)_srcs)),)
-$(2)_srcs += $(1)_.cc
-$(2)_junk += $(1)_.cc
+$(2)_srcs += $(1)/$(1)_.cc
+$(2)_junk += $(1)/$(1)_.cc
 endif
 
-$(1)_.cc :
+$(1)/$(1)_.cc :
 	echo "int $(2)_( int arg ) { return arg; }" > $$@
 
 # Build the object files from assembly sources for this subproject
@@ -177,7 +196,9 @@ $(2)_asm_objs := $$(patsubst %.S, %.o, $$($(2)_asm_srcs))
 $(2)_asm_deps := $$(patsubst %.S, %.d, $$($(2)_asm_srcs))
 
 $$($(2)_asm_objs) : %.o : %.S
-	$(COMPILE_C) $$($(2)_cppflags) -c $$<
+	$(COMPILE_C) $$($(2)_cppflags) -c -o $$@ $$<
+
+$$($(2)_asm_objs) :| $(1)
 
 $(2)_objs += $$($(2)_asm_objs)
 $(2)_deps += $$($(2)_asm_deps)
@@ -190,7 +211,9 @@ $(2)_c_objs := $$(patsubst %.c, %.o, $$($(2)_c_srcs))
 $(2)_c_deps := $$(patsubst %.c, %.d, $$($(2)_c_srcs))
 
 $$($(2)_c_objs) : %.o : %.c
-	$(COMPILE_C) $$($(2)_cppflags) -c $$<
+	$(COMPILE_C) $$($(2)_cppflags) -c -o $$@ $$<
+
+$$($(2)_c_objs) :| $(1)
 
 $(2)_objs += $$($(2)_c_objs)
 $(2)_deps += $$($(2)_c_deps)
@@ -203,7 +226,9 @@ $(2)_cxx_objs := $$(patsubst %.cc, %.o, $$($(2)_cxx_srcs))
 $(2)_cxx_deps := $$(patsubst %.cc, %.d, $$($(2)_cxx_srcs))
 
 $$($(2)_cxx_objs) : %.o : %.cc
-	$(COMPILE_CXX) $$($(2)_cppflags) -c $$<
+	$(COMPILE_CXX) $$($(2)_cppflags) -c -o $$@ $$<
+
+$$($(2)_cxx_objs) :| $(1)
 
 $(2)_objs += $$($(2)_cxx_objs)
 $(2)_deps += $$($(2)_cxx_deps)
@@ -211,7 +236,7 @@ $(2)_junk += $$($(2)_cxx_deps) $$($(2)_cxx_objs)
 
 # Build a library for this subproject
 
-$(2)_libname = lib$(1).a
+$(2)_libname = $(1)/lib$(1).a
 $$($(2)_libname) : $$($(2)_objs)
 	$(AR) rcv $$@ $$^
 	$(RANLIB) $$@
@@ -222,7 +247,7 @@ $(2)_junk += $$($(2)_libname)
 # to create a list of prerequisite libraries (including this
 # subproject's library).
 
-$(2)_intdeps_libnames := $$(patsubst %, lib%.a, $$($(2)_intdeps))
+$(2)_intdeps_libnames := $$(join $$($(2)_intdeps), $$(patsubst %, /lib%.a, $$($(2)_intdeps)))
 $(2)_link_prereqs     := $$($(2)_libname) $$($(2)_intdeps_libnames)
 
 # Build unit tests
@@ -233,16 +258,19 @@ $(2)_test_exes := $$(patsubst %.t.cc, %-utst, $$($(2)_test_srcs))
 $(2)_test_outs := $$(patsubst %,      %.out,  $$($(2)_test_exes))
 
 $$($(2)_test_objs) : %.o : %.cc
-	$(COMPILE_CXX) $$($(2)_cppflags) $(utst_cppflags) -c $$<
+	$(COMPILE_CXX) $$($(2)_cppflags) $(utst_cppflags) -c -o $$@ $$<
 
-$$($(2)_test_exes) : %-utst : %.t.o $$($(2)_link_prereqs) $(utst_libname) 
+$$($(2)_test_objs) :| $(1)
+
+$$($(2)_test_exes) : %-utst : %.t.o $$($(2)_link_prereqs) $(utst_libname)
 	$(LINK_CXX) $$($(2)_ldflags) $(utst_ldflags) -o $$@ $$< \
     $$($(2)_libs) $(utst_libs)
 
+$$($(2)_test_exes) :| $(1)
+
 $(2)_deps += $$($(2)_test_deps)
 $(2)_junk += \
-	$$($(2)_test_deps) $$($(2)_test_objs) \
-  $$($(2)_test_exes) *.junk-dat
+	$$($(2)_test_deps) $$($(2)_test_objs) $$($(2)_test_exes)
 
 # Run unit tests
 
@@ -260,12 +288,16 @@ $(2)_prog_c_deps := $$(patsubst %.c, %.d, $$($(2)_prog_c_srcs))
 $(2)_prog_c_exes := $$(patsubst %.c, %,   $$($(2)_prog_c_srcs))
 
 $$($(2)_prog_c_objs) : %.o : %.c
-	$(COMPILE_C) $$($(2)_cppflags) -c $$<
+	$(COMPILE_C) $$($(2)_cppflags) -c -o $$@ $$<
+
+$$($(2)_prog_c_objs) :| $(1)
 
 $$($(2)_prog_c_exes) : % : %.o $$($(2)_link_prereqs)
-	$(LINK_C) $$($(2)_ldflags) -o $$@ $$< $$($(2)_libs) 
+	$(LINK_C) $$($(2)_ldflags) -o $$@ $$< $$($(2)_libs)
 
-$(2)_exes += $$($(2)_prog_c_exes) 
+$$($(2)_prog_c_exes) :| $(1)
+
+$(2)_exes += $$($(2)_prog_c_exes)
 $(2)_deps += $$($(2)_prog_c_deps)
 $(2)_junk += \
   $$($(2)_prog_c_objs) $$($(2)_prog_c_deps) $$($(2)_prog_c_exes)
@@ -279,12 +311,16 @@ $(2)_prog_cxx_deps := $$(patsubst %.cc, %.d, $$($(2)_prog_cxx_srcs))
 $(2)_prog_cxx_exes := $$(patsubst %.cc, %,   $$($(2)_prog_cxx_srcs))
 
 $$($(2)_prog_cxx_objs) : %.o : %.cc
-	$(COMPILE_CXX) $$($(2)_cppflags) -c $$<
+	$(COMPILE_CXX) $$($(2)_cppflags) -c -o $$@ $$<
+
+$$($(2)_prog_cxx_objs) :| $(1)
 
 $$($(2)_prog_cxx_exes) : % : %.o $$($(2)_link_prereqs)
-	$(LINK_CXX) $$($(2)_ldflags) -o $$@ $$< $$($(2)_libs) 
+	$(LINK_CXX) $$($(2)_ldflags) -o $$@ $$< $$($(2)_libs)
 
-$(2)_exes += $$($(2)_prog_cxx_exes) 
+$$($(2)_prog_cxx_exes) :| $(1)
+
+$(2)_exes += $$($(2)_prog_cxx_exes)
 $(2)_deps += $$($(2)_prog_cxx_deps)
 $(2)_junk += \
   $$($(2)_prog_cxx_objs) $$($(2)_prog_cxx_deps) $$($(2)_prog_cxx_exes)
@@ -296,18 +332,18 @@ $(2)_junk += \
 ifneq ($$(filter $(1),$(sprojs_install)),)
 
 $(2)_install_hdrs_wdir := \
-  $$(addprefix $$(src_dir)/$(1)/, $$($(2)_hdrs)) \
-  $$(addprefix $$(src_dir)/$(1)/, $$($(2)_inls)) \
-  $(2)-config.h \
+  $$(addprefix $$(src_dir)/, $$($(2)_hdrs)) \
+  $$(addprefix $$(src_dir)/, $$($(2)_inls)) \
+  $(1)/config.h \
 
-install-libs-$(1) : $$($(2)_install_hdrs_wdir) $$($(2)_libname) $(1).pc
+install-libs-$(1) : $$($(2)_install_hdrs_wdir) $$($(2)_libname) $(1)/$(1).pc
 	$(MKINSTALLDIRS) $(install_hdrs_dir)/$(1) \
     $(install_libs_dir) $(install_pkcs_dir)
 	for file in $$($(2)_install_hdrs_wdir); do \
-    $(INSTALL_HDR) $$$$file $(install_hdrs_dir)/$(1); \
+    $(INSTALL_HDR) $$$${file} $(install_hdrs_dir)/$(1); \
   done
 	$(INSTALL_LIB) $$($(2)_libname) $(install_libs_dir)
-	$(INSTALL_LIB) $(1).pc $(install_pkcs_dir)/$(1).pc
+	$(INSTALL_LIB) $(1)/$(1).pc $(install_pkcs_dir)/$(1).pc
 
 install-libs : install-libs-$(1)
 .PHONY : install-libs-$(1)
@@ -323,19 +359,24 @@ $(2)_install_prog_exes = $$(basename $$($(2)_install_prog_srcs))
 install-exes-$(1) : $$($(2)_install_prog_exes)
 	$(MKINSTALLDIRS) $(install_exes_dir)
 	for file in $$($(2)_install_prog_exes); do \
-    $(INSTALL_EXE) $$$$file $(install_exes_dir); \
+    _exe_basename=`basename $$$$file`; \
+    $(INSTALL_EXE) $$$${file} $(install_exes_dir)/$(1)-$$$${_exe_basename}; \
   done
 
 install-exes : install-exes-$(1)
 .PHONY : install-exes-$(1)
+
+# Create subproject subdirectory for build
+
+$(1):
+	mkdir $(1)
 
 # Other subproject specific targets
 
 all-$(1) : $$($(2)_libname) $$($(2)_prog_exes) $$($(2)_install_prog_exes)
 
 check-$(1) : $$($(2)_test_outs)
-	echo; grep -h -e'Unit Tests' -e'FAILED' \
-    -e'Segementation' -e'ERROR' $$^; echo
+	$(scripts_dir)/check $$^
 
 install-$(1) : install-libs-$(1) install-exes-$(1)
 
@@ -374,8 +415,7 @@ deps : $(deps)
 #-------------------------------------------------------------------------
 
 check : $(outs)
-	echo; grep -h -e'Unit Tests' -e'FAILED' \
-    -e'Segementation' -e'ERROR' $^; echo
+	$(scripts_dir)/check $^
 
 .PHONY : check
 
@@ -421,21 +461,17 @@ Makefile : $(makefile_prereq)
 	./config.status
 
 dist_junk += \
-  config.status Makefile config.log \
-  $(addsuffix -config.h, $(sprojs_internal_en)) \
-  $(addsuffix .mk, $(sprojs_internal_en)) \
-  $(addsuffix .pc, $(sprojs_install)) \
+  config.status Makefile config.log $(sprojs_internal_en)
 
 #-------------------------------------------------------------------------
 # Distribution
 #-------------------------------------------------------------------------
 # The distribution tarball is named project-ver.tar.gz and it includes
-# both enabled and disabled subprojects. 
+# both enabled and disabled subprojects.
 
 dist_files = \
   $(sprojs_internal) \
   README \
-  style-guide.txt \
   mcppbs-uguide.txt \
   scripts \
   configure.ac \
@@ -459,8 +495,8 @@ dist :
 	sed -i.bak 's/^\(# Version :\).*/\1 $(project_ver)/' $(dist_dir)/README
 	sed -i.bak 's/\( proj_version,\).*/\1 [$(project_ver)])/' $(dist_dir)/configure.ac
 	cd $(dist_dir) && \
-    autoconf && autoheader && \
-    rm -rf autom4te.cache configure.ac.bak README.bak
+  autoconf && autoheader && \
+  rm -rf autom4te.cache configure.ac.bak README.bak
 	tar -czvf $(dist_tgz) $(dist_dir)
 	rm -rf $(dist_dir)
 

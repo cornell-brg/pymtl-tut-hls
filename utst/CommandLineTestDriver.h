@@ -1,8 +1,8 @@
 //========================================================================
-// utst::CommandLineTestDriver : Use command line to manage unit tests
+// utst/CommandLineTestDriver.h : Use command line to manage unit tests
 //========================================================================
-// Please read the documentation in utst-uguide.txt for more information
-// on how this class fits into the overall unit test framework.
+// Please read the documentation in utst/utst.txt for more information on
+// how this class fits into the overall unit test framework.
 //
 // A test driver manages setting up the test log and running the desired
 // tests. Currently the only test driver is allows dvelopers to control
@@ -36,6 +36,7 @@
 #define UTST_COMMAND_LINE_TEST_DRIVER_H
 
 #include <vector>
+#include <string>
 
 namespace utst {
 
@@ -69,8 +70,11 @@ namespace utst {
     // Running test cases
     //--------------------------------------------------------------------
 
-    // Run all the test suites based on the given command line arguments
-    void run( int argc, char* argv[] ) const;
+    // Run all the test suites based on the given command line arguments.
+    // Also takes the name of the subproject.
+
+    void run( int argc, char* argv[],
+              const std::string& sproj_name = "" ) const;
 
    private:
 

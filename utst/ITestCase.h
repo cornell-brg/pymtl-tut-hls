@@ -1,10 +1,10 @@
 //========================================================================
-// utst::ITestCase : Abstract base class for test cases
+// utst/ITestCase.h : Abstract base class for test cases
 //========================================================================
 // A test case is a collection of checks which test a specific
-// functionality of interest. Organizing checks into test cases helps
-// the developer monitor and control the unit test. Please read the
-// documentation in utst-uguide.txt for more information on how this
+// functionality of interest. Organizing checks into test cases helps the
+// developer monitor and control the unit test. Please read the
+// documentation in utst/utst.txt for more information on how this
 // class fits into the overall unit test framework.
 
 #ifndef UTST_ITEST_CASE_H

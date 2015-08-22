@@ -10,26 +10,26 @@ utst_ldflags  = @utst_ldflags@
 utst_libs     = @utst_libs@
 
 utst_hdrs = \
-  utst-TestLog.h \
-  utst-Checks.h \
-  utst-ITestCase.h \
-  utst-ITestCase_BasicImpl.h \
-  utst-TestSuite.h \
-  utst-CommandLineTestDriver.h \
-  utst-AutoUtils.h \
-  utst.h \
+  utst/TestLog.h \
+  utst/Checks.h \
+  utst/ITestCase.h \
+  utst/ITestCase_BasicImpl.h \
+  utst/TestSuite.h \
+  utst/CommandLineTestDriver.h \
+  utst/AutoUtils.h \
+  utst/utst.h \
 
 utst_inls = \
-  utst-Checks.inl \
-  utst-ITestCase_BasicImpl.inl \
-  utst-AutoUtils.inl \
+  utst/Checks.inl \
+  utst/ITestCase_BasicImpl.inl \
+  utst/AutoUtils.inl \
 
 utst_srcs = \
-  utst-TestLog.cc \
-  utst-TestSuite.cc \
-  utst-CommandLineTestDriver.cc \
-  utst-AutoUtils.cc \
+  utst/TestLog.cc \
+  utst/TestSuite.cc \
+  utst/CommandLineTestDriver.cc \
+  utst/AutoUtils.cc \
 
 utst_test_srcs = \
-  utst.t.cc \
+  utst/utst.t.cc \
 

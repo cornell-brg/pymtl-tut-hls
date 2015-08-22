@@ -1,9 +1,9 @@
 //========================================================================
-// utst-ITestCase_BasicImpl.inl
+// utst/ITestCase_BasicImpl.inl
 //========================================================================
 
-#include "utst-TestLog.h"
-#include "utst-Checks.h"
+#include "utst/TestLog.h"
+#include "utst/Checks.h"
 #include <iostream>
 #include <cassert>
 

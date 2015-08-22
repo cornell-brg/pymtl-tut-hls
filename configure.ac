@@ -35,7 +35,7 @@ m4_define( proj_version, [?])
 #-------------------------------------------------------------------------
 
 AC_INIT(proj_name,proj_version,proj_maintainer,proj_abbreviation)
-AC_CONFIG_SRCDIR([utst/utst.h])
+AC_CONFIG_SRCDIR([utst/utst.ac])
 AC_CONFIG_AUX_DIR([scripts])
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
@@ -50,8 +50,7 @@ AC_SUBST([CFLAGS],["-Wall -g -O3"])
 
 # Check for C++ compiler and set default C++ compiler flags
 AC_PROG_CXX
-#AC_SUBST([CXXFLAGS],["-Wall -g -O3"])
-AC_SUBST([CXXFLAGS],["-Wall -g -O3 -D_MIPS_ARCH_LLFU"])
+AC_SUBST([CXXFLAGS],["-Wall -g -O3"])
 
 # Check for tools to build libraries
 AC_CHECK_TOOL([AR],[ar])
@@ -101,20 +100,12 @@ MCPPBS_PROG_RUN
 # included as an external subproject. The second is an additional
 # external subproject and the last is an optional internal subproject.
 #
-#  MCPPBS_INCLUDE_EXTERNAL([utst])
 #  MCPPBS_INCLUDE_EXTERNAL([sproj-a])
 #  MCPPBS_INCLUDE_INTERNAL([sproj-b])
 #  MCPPBS_INCLUDE_INTERNAL([sproj-c*])
 #
 
 MCPPBS_INCLUDE_INTERNAL([utst])
-MCPPBS_INCLUDE_INTERNAL([xcel])
-MCPPBS_INCLUDE_INTERNAL([mem])
-MCPPBS_INCLUDE_INTERNAL([ex_gcd])
-MCPPBS_INCLUDE_INTERNAL([ex_sort])
-MCPPBS_INCLUDE_INTERNAL([polydsu])
-MCPPBS_INCLUDE_INTERNAL([polydsu_list])
-MCPPBS_INCLUDE_INTERNAL([polydsu_rbtree])
 
 #-------------------------------------------------------------------------
 # MCPPBS subproject libraries to install

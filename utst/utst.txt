@@ -61,11 +61,11 @@ creating a temporary directory to work in, setting an environment
 variable to simplify the rest of the tutorial, and downloading the
 'mcppbs' project from the public git repository.
 
- % mkdir utst-tut
- % cd utst-tut
- % PROJROOT=$PWD
- % TGZ=http://gitorious.org/cbatten-sw/mcppbs/archive-tarball/master
+ % TGZ=<location-of-template>
  % wget -O- $TGZ | tar xzf -
+ % mv cbatten-sw-mcppbs mcppbs-tut
+ % cd mcppbs-tut
+ % PROJROOT=$PWD
 
 Now that we have the build system let's go ahead and build the project,
 although the only subproject in the default project is the unit test
@@ -89,9 +89,8 @@ for this tutorial called 'utst-tut'.
 
  % cd $PROJROOT
  % mkdir utst-tut
- % cd utst-tut
- % echo "MCPPBS_SUBPROJECT([utst-tut])" > utst-tut.ac
- % cat > utst-tu.mk.in \
+ % echo "MCPPBS_SUBPROJECT([utst-tut])" > utst-tut/utst-tut.ac
+ % cat > utst-tut/utst-tut.mk.in \
 <<'END'
 
  utst_tut_intdeps   = @utst_tut_intdeps@
@@ -108,21 +107,21 @@ END
  % autoconf && autoheader
 
 Normally, we each physical "component" (i.e. a C++ header and source
-pair) has an associated unit test with a 't.cc' suffix, but for this
+pair) has an associated unit test with a '.t.cc' suffix, but for this
 tutorial we will only write the unit tests.
 
 Usually, every physical component (ie. a header/source file pair) should
 have an additional unit test file with the special '.t.cc' extension.
 For example, let's assume I am working on a new class named 'Bar' in the
-'foo' subproject. The declaration of 'Bar' will be in 'foo-Bar.h' and
-the definition will be in 'foo-Bar.cc'. My unit tests should be placed
-in 'foo-Bar.t.cc'. As set by the general build policies, these three
+'foo' subproject. The declaration of 'Bar' will be in 'foo/Bar.h' and
+the definition will be in 'foo/Bar.cc'. My unit tests should be placed
+in 'foo/Bar.t.cc'. As set by the general build policies, these three
 files will be in the 'foo' subdirectory. To tell the build system about
 these new files, the developer needs to add them to specific make
-variables in 'foo/foo.mk.in': 'foo-Bar.h' is added to 'foo_hdrs',
-'foo-Bar.cc' is added to 'foo_srcs', and 'foo-Bar.t.cc' is added to
+variables in 'foo/foo.mk.in': 'foo/Bar.h' is added to 'foo_hdrs',
+'foo/Bar.cc' is added to 'foo_srcs', and 'foo/Bar.t.cc' is added to
 'foo_test_srcs'. The build system will automatically include rules to
-build a 'foo-Bar-utst' executable from 'foo-Bar.t.cc'. However, for this
+build a 'foo/Bar-utst' executable from 'foo/Bar.t.cc'. However, for this
 tutorial we will simplify things and only write the unit tests (not the
 header/source files for the actual things we might be testing).
 
@@ -138,11 +137,11 @@ the body of the test. The test name should be camel case and often we
 begin the name with 'Test'. The following test case uses this macro to
 perform some basic tests of the STL 'vector' class.
 
- % cd $PROJROOT/utst-tut
- % cat > utst-tut-Test1.t.cc \
+ % cd $PROJROOT
+ % cat > utst-tut/Test1.t.cc \
 <<'END'
 
- #include "utst.h"
+ #include "utst/utst.h"
  #include <vector>
 
  UTST_AUTO_TEST_CASE( TestBasic )
@@ -166,7 +165,7 @@ perform some basic tests of the STL 'vector' class.
 
  int main( int argc, char* argv[] )
  {
-   utst::auto_command_line_driver( argc, argv );
+   utst::auto_command_line_driver( argc, argv, "utst-tut" );
  }
 
 END
@@ -187,19 +186,19 @@ with a test suite, and also about the various global test suites.
 Now that we have a unit test we need to add it to the list of unit tests
 in our subproject's make fragment.
 
- % cd $PROJROOT/utst-tut
- % echo "utst_tut_test_srcs += utst-tut-Test1.t.cc" >> utst-tut.mk.in
+ % cd $PROJROOT
+ % echo "utst_tut_test_srcs += utst-tut/Test1.t.cc" >> utst-tut/utst-tut.mk.in
 
 We are finally ready to build and run our first test case using the
 build system.
 
  % cd $PROJROOT/build
- % make utst-tut-Test1-utst
- % ./utst-tut-Test1-utst
+ % make utst-tut/Test1-utst
+ % ./utst-tut/Test1-utst
 
 The output from running the unit test should be:
 
- Unit Tests : utst-tut-Test1
+ Unit Tests : utst-tut/Test1
  Running test suite : default
   + Running test case : TestBasic
 
@@ -207,16 +206,16 @@ Essentially the build system knows how to compile all the '.t.cc' test
 source files into executables - one binary per unit test. Each binary is
 named the same as the basename of the '.t.cc' source with an additional
 '-utst' suffix. The output from running the unit test shows that we have
-run the default test suite for the 'utst-tut-Test1' unit test. Use
+run the default test suite for the 'utst-tut/Test1' unit test. Use
 '--help' to see the various command line options provided by the unit
 test framework. For example, to see more output use the '--log-level'
 option.
 
- % ./utst-tut-Test1-utst --log-level verbose
+ % ./utst-tut/Test1-utst --log-level verbose
 
 The output from running the unit test will now be more verbose:
 
- Unit Tests : utst-tut-Test1
+ Unit Tests : utst-tut/Test1
  Running test suite : default
 
   + Running test case : TestBasic
@@ -236,7 +235,7 @@ with the '&&' shell operator. The '&&' operator means that we will only
 try and run the unit test if in fact we were able to successfully build
 the unit test.
 
- % make utst-tut-Test1-utst && ./utst-tut-Test1-utst
+ % make utst-tut/Test1-utst && ./utst-tut/Test1-utst
 
 (*) Try purposely changing the 'TestBasic' test cases so that it will
 fail. For example, change the test for the size of the vector from 3 to
@@ -253,11 +252,11 @@ Normally we might just append these to the end the previous unit test,
 for the purposes of this tutorial we will just make a completely new
 unit test source file.
 
- % cd $PROJROOT/utst-tut
- % cat > utst-tut-Test2.t.cc \
+ % cd $PROJROOT
+ % cat > utst-tut/Test2.t.cc \
 <<'END'
 
- #include "utst.h"
+ #include "utst/utst.h"
  #include <vector>
  #include <list>
  #include <stdexcept>
@@ -289,7 +288,7 @@ unit test source file.
 
  int main( int argc, char* argv[] )
  {
-   utst::auto_command_line_driver( argc, argv );
+   utst::auto_command_line_driver( argc, argv, "utst-tut" );
  }
 
 END
@@ -303,13 +302,13 @@ containers have 'begin()', 'end()', and 'size()' methods. Let's add the
 new unit test to the make fragment and compile and built the new unit
 test.
 
- % cd $PROJROOT/utst-tut
- % echo "utst_tut_test_srcs += utst-tut-Test2.t.cc" >> utst-tut.mk.in
+ % cd $PROJROOT
+ % echo "utst_tut_test_srcs += utst-tut/Test2.t.cc" >> utst-tut/utst-tut.mk.in
 
  % cd $PROJROOT/build
- % make utst-tut-Test2-utst && ./utst-tut-Test2-utst
+ % make utst-tut/Test2-utst && ./utst-tut/Test2-utst
 
-(*) Try adding a new test case to the utst-tut-Test2 unit test which
+(*) Try adding a new test case to the utst-tut/Test2 unit test which
 tests the 'insert' and 'erase' methods.
 
 --------------------------------------------------------------------------
@@ -332,11 +331,11 @@ been unit tested. So we randomly pick a number, push it into both the
 vector and the list, and then check at the end that both containers have
 the same values.
 
- % cd $PROJROOT/utst-tut
- % cat > utst-tut-Test3.t.cc \
+ % cd $PROJROOT
+ % cat > utst-tut/Test3.t.cc \
 <<'END'
 
- #include "utst.h"
+ #include "utst/utst.h"
  #include <vector>
  #include <list>
 
@@ -379,7 +378,7 @@ the same values.
 
  int main( int argc, char* argv[] )
  {
-   utst::auto_command_line_driver( argc, argv );
+   utst::auto_command_line_driver( argc, argv, "utst-tut" );
  }
 
 END
@@ -399,11 +398,11 @@ We instantiate three test cases which will test pushing one, two, and
 100 elements. We now add the new unit test to the make fragment, build,
 and run the new test cases.
 
- % cd $PROJROOT/utst-tut
- % echo "utst_tut_test_srcs += utst-tut-Test3.t.cc" >> utst-tut.mk.in
+ % cd $PROJROOT
+ % echo "utst_tut_test_srcs += utst-tut/Test3.t.cc" >> utst-tut/utst-tut.mk.in
 
  % cd $PROJROOT/build
- % make utst-tut-Test3-utst && ./utst-tut-Test3-utst
+ % make utst-tut/Test3-utst && ./utst-tut/Test3-utst
 
 --------------------------------------------------------------------------
 1.4. Using the Extra Test Suites
@@ -427,11 +426,11 @@ example, the following test cases measure how long it takes to
 initialize a thousand element vector using the assign statement versus
 the 'push_back' method.
 
- % cd $PROJROOT/utst-tut
- % cat > utst-tut-Test4.t.cc \
+ % cd $PROJROOT
+ % cat > utst-tut/Test4.t.cc \
 <<'END'
 
- #include "utst.h"
+ #include "utst/utst.h"
  #include <vector>
 
  UTST_AUTO_EXTRA_TEST_CASE( perf, PerfAssign )
@@ -480,7 +479,7 @@ the 'push_back' method.
 
  int main( int argc, char* argv[] )
  {
-   utst::auto_command_line_driver( argc, argv );
+   utst::auto_command_line_driver( argc, argv, "utst-tut" );
  }
 
 END
@@ -494,11 +493,11 @@ displayed regardless of log level. The following test case measures how
 long it takes to initialize a thousand element vector using the
 'push_back' method.
 
- % cd $PROJROOT/utst-tut
- % echo "utst_tut_test_srcs += utst-tut-Test4.t.cc" >> utst-tut.mk.in
+ % cd $PROJROOT
+ % echo "utst_tut_test_srcs += utst-tut/Test4.t.cc" >> utst-tut/utst-tut.mk.in
 
  % cd $PROJROOT/build
- % make utst-tut-Test4-utst && ./utst-tut-Test4-utst
+ % make utst-tut/Test4-utst && ./utst-tut/Test4-utst
 
 The output from these performance tests should look something like:
 
@@ -530,8 +529,8 @@ suite simply specify its name on the command line. To just run the
 'TestRangeException' test case or to just run the 'perf' test suite from
 some of the earlier examples we would use the following:
 
- % ./utst-tut-Test2-utst TestRangeException
- % ./utst-tut-Test4-utst perf
+ % ./utst-tut/Test2-utst TestRangeException
+ % ./utst-tut/Test4-utst perf
 
 We can run all the unit tests for this subproject with the
 'check-utst-tut' make target and as mentioned earlier we can run all the
@@ -560,7 +559,7 @@ Let's assume we want to add some unit tests for some functions or a
 class we have written. The most basic way to do this is to create a
 separate toplevel source file and write some tests for our class in the
 toplevel source file's 'main' function. We can use the 'UTST_CHECK'
-macros located in 'utst-Checks.h' to check for various conditions which
+macros located in 'utst/Checks.h' to check for various conditions which
 we know should be true. The basic 'UTST_CHECK' macros are listed below.
 
  - 'UTST_CHECK( e1 )'              : Does expression e1 eval true?
@@ -874,7 +873,7 @@ for test suites and unique camel case names for the test cases.
 A common error when using test cases and test suites is to define a new
 test case but forget to add it to the appropriate test suite. The auto
 registration features can help avoid these kind of errors. The
-'utst-AutoUtils.h' header declares global test suites as well as helper
+'utst/AutoUtils.h' header declares global test suites as well as helper
 classes and macros for automatically adding test cases to these global
 test suites. The three global test suites are as follows:
 

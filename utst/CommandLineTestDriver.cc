@@ -1,10 +1,10 @@
 //========================================================================
-// utst-CommandLineTestDriver.cc
+// utst/CommandLineTestDriver.cc
 //========================================================================
 
-#include "utst-CommandLineTestDriver.h"
-#include "utst-TestSuite.h"
-#include "utst-TestLog.h"
+#include "utst/CommandLineTestDriver.h"
+#include "utst/TestSuite.h"
+#include "utst/TestLog.h"
 #include <iostream>
 #include <string>
 #include <cstdlib>
@@ -83,7 +83,8 @@ namespace utst {
   // Running test cases
   //----------------------------------------------------------------------
 
-  void CommandLineTestDriver::run( int argc, char* argv[] ) const
+  void CommandLineTestDriver::run( int argc, char* argv[],
+                                   const std::string& sproj_name ) const
   {
     using namespace std;
 
@@ -190,7 +191,7 @@ namespace utst {
 
     // Output a header specifying what unit tests we are running
 
-    cout << "\n Unit Tests : " << utst_name << endl;
+    cout << "\n Unit Tests : " << sproj_name << "/" << utst_name << endl;
 
     // If no tests were selected then run all tests in all suites
 

@@ -2,7 +2,7 @@
 // Unit Tests for the Unit Test Framework
 //========================================================================
 
-#include "utst.h"
+#include "utst/utst.h"
 #include <vector>
 
 //------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 
 UTST_TEST_CASE( TestCheckBasics )
 {
-  UTST_CHECK( 1 + 1 == 2 );
+  UTST_CHECK( 1 + 1 == 3 );
   UTST_CHECK_EQ  ( 1 + 1, 2 );
   UTST_CHECK_NEQ ( 1 + 2, 2 );
 }
@@ -172,6 +172,6 @@ int main( int argc, char* argv[] )
   utst::g_default_suite().add_test( TestParameterizedTestCase(1,1,2) );
   utst::g_default_suite().add_test( TestParameterizedTestCase(2,2,4) );
 
-  utst::auto_command_line_driver( argc, argv );
+  utst::auto_command_line_driver( argc, argv, "utst" );
 }
 
