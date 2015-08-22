@@ -11,7 +11,7 @@
 
 UTST_TEST_CASE( TestCheckBasics )
 {
-  UTST_CHECK( 1 + 1 == 3 );
+  UTST_CHECK( 1 + 1 == 2 );
   UTST_CHECK_EQ  ( 1 + 1, 2 );
   UTST_CHECK_NEQ ( 1 + 2, 2 );
 }
