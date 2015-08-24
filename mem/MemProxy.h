@@ -19,13 +19,6 @@
 
 namespace mem {
 
-  //XXX:This is only true for HLS or HLS_TESTING.
-  //    For C++ compilation, PTR_SIZE should be sizeof(void*)
-  //    which is 8 on brg
-  static unsigned PTR_SIZE = 4;
-
-  typedef unsigned        Address;
-
   template<typename T> class MemValue;
   template<typename T> class MemPointer;
 
