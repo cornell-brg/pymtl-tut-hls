@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 using namespace xcel;
-using namespace mem;
+using namespace xmem;
 
 extern hls::stream<XcelReqMsg>  xcelreq;
 extern hls::stream<XcelRespMsg> xcelresp;

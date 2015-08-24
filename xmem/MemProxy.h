@@ -2,12 +2,12 @@
 // generic proxies header
 //========================================================================
 
-#ifndef MEM_MEM_PROXY_H
-#define MEM_MEM_PROXY_H
+#ifndef XMEM_MEM_PROXY_H
+#define XMEM_MEM_PROXY_H
 
 #include <stdio.h>
 #include <ap_utils.h>
-#include "mem/MemStream.h"
+#include "xmem/MemStream.h"
 
 #ifdef DEBUG
   #define DB_PRINT(x) printf x
@@ -17,7 +17,7 @@
   #define DB_ASSERT(x)
 #endif
 
-namespace mem {
+namespace xmem {
 
   template<typename T> class MemValue;
   template<typename T> class MemPointer;
@@ -73,7 +73,7 @@ namespace mem {
       static size_t size() {
         return sizeof(T) > PTR_SIZE ? sizeof(T) : PTR_SIZE;
       }
-      
+
       MemReqStream& memreq()  const { return m_memreq; }
       MemReqStream& memresp() const { return m_memresp; }
   };
@@ -167,7 +167,7 @@ namespace mem {
   class MemValue< MemPointer<T> > {
 
       Address m_addr;
-    
+
       MemReqStream&  m_memreq;
       MemRespStream& m_memresp;
 
@@ -225,8 +225,8 @@ namespace mem {
       MemRespStream& memresp() const { return m_memresp; }
   };
 
-}; // end namespace mem
+}; // end namespace xmem
 
-#include "mem/MemProxy.inl"
-#endif /* MEM_MEM_PROXY_H */
+#include "xmem/MemProxy.inl"
+#endif /* XMEM_MEM_PROXY_H */
 

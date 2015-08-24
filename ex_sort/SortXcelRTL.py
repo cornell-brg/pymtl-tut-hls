@@ -24,8 +24,8 @@ from pclib.rtl  import SingleElementBypassQueue, SingleElementPipelinedQueue
 from pclib.rtl  import Reg
 from pclib.fl   import Queue
 
-from xcel.XcelMsg     import XcelReqMsg, XcelRespMsg
-from mem.MemMsgFuture import MemMsg, MemReqMsg, MemRespMsg
+from xcel.XcelMsg      import XcelReqMsg, XcelRespMsg
+from xmem.MemMsgFuture import MemMsg, MemReqMsg, MemRespMsg
 
 class SortXcelRTL( Model ):
 

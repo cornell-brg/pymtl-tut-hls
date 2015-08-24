@@ -3,10 +3,10 @@
 //========================================================================
 
 #include "utst/utst.h"
-#include "mem/MemStream.h"
-#include "mem/TestMem.h"
+#include "xmem/MemStream.h"
+#include "xmem/TestMem.h"
 
-using namespace mem;
+using namespace xmem;
 
 //------------------------------------------------------------------------
 // Test Basic Write
@@ -19,7 +19,7 @@ UTST_AUTO_TEST_CASE( TestBasicWrite )
 
   test_mem.clear_num_requests();
 
-  mem::OutMemStream os(0x1000,test_mem,test_mem);
+  xmem::OutMemStream os(0x1000,test_mem,test_mem);
   int a = 42;
   os << a; // mem write
 
@@ -39,7 +39,7 @@ UTST_AUTO_TEST_CASE( TestBasicRead )
 
   test_mem.mem_write( 0x1000, 0xdeadbeef );
 
-  mem::InMemStream is(0x1000,test_mem,test_mem);
+  xmem::InMemStream is(0x1000,test_mem,test_mem);
   unsigned int a;
   is >> a; // mem read
 
@@ -57,11 +57,11 @@ UTST_AUTO_TEST_CASE( TestBasic )
 
   test_mem.clear_num_requests();
 
-  mem::OutMemStream os(0x1000,test_mem,test_mem);
+  xmem::OutMemStream os(0x1000,test_mem,test_mem);
   int a = 42;
   os << a; // mem write
 
-  mem::InMemStream is(0x1000,test_mem,test_mem);
+  xmem::InMemStream is(0x1000,test_mem,test_mem);
   int b;
   is >> b; // mem read
 
@@ -79,13 +79,13 @@ UTST_AUTO_TEST_CASE( TestMultiple )
 
   test_mem.clear_num_requests();
 
-  mem::OutMemStream os(0x1000,test_mem,test_mem);
+  xmem::OutMemStream os(0x1000,test_mem,test_mem);
   int a = 42;
   int b = 13;
   int c = 1024;
   os << a << b << c; // 3x mem write
 
-  mem::InMemStream is(0x1000,test_mem,test_mem);
+  xmem::InMemStream is(0x1000,test_mem,test_mem);
   int d;
   int e;
   int f;
@@ -118,7 +118,7 @@ std::ostream& operator<<( std::ostream& os, const Foo& foo )
   return os;
 }
 
-namespace mem {
+namespace xmem {
 
   OutMemStream& operator<<( OutMemStream& os, const Foo& foo )
   {
@@ -146,7 +146,7 @@ UTST_AUTO_TEST_CASE( TestStruct )
 
   test_mem.clear_num_requests();
 
-  mem::OutMemStream os(0x1000,test_mem,test_mem);
+  xmem::OutMemStream os(0x1000,test_mem,test_mem);
   Foo foo1;
   foo1.a = 42;
   foo1.b = 1024;
@@ -167,7 +167,7 @@ UTST_AUTO_TEST_CASE( TestStruct )
   UTST_CHECK_EQ( test_mem.mem_read(0x1000), 42u );
   UTST_CHECK_EQ( test_mem.mem_read(0x1004), 0x00780400u );
 
-  mem::InMemStream is(0x1000,test_mem,test_mem);
+  xmem::InMemStream is(0x1000,test_mem,test_mem);
   Foo foo2;
   is >> foo2; // 3x mem read
 
@@ -185,7 +185,7 @@ UTST_AUTO_TEST_CASE( TestStructMultiple )
 
   test_mem.clear_num_requests();
 
-  mem::OutMemStream os(0x1000,test_mem,test_mem);
+  xmem::OutMemStream os(0x1000,test_mem,test_mem);
 
   Foo foo1;
   foo1.a = 42;
@@ -206,7 +206,7 @@ UTST_AUTO_TEST_CASE( TestStructMultiple )
   UTST_CHECK_EQ( test_mem.mem_read(0x1008), 13u );
   UTST_CHECK_EQ( test_mem.mem_read(0x100c), 0x00790800u );
 
-  mem::InMemStream is(0x1000,test_mem,test_mem);
+  xmem::InMemStream is(0x1000,test_mem,test_mem);
   Foo foo3, foo4;
   is >> foo3 >> foo4; // 6x mem read
 
@@ -225,7 +225,7 @@ UTST_AUTO_TEST_CASE( TestStructMixed )
 
   test_mem.clear_num_requests();
 
-  mem::OutMemStream os(0x1000,test_mem,test_mem);
+  xmem::OutMemStream os(0x1000,test_mem,test_mem);
 
   Foo foo1;
   foo1.a = 42;
@@ -249,7 +249,7 @@ UTST_AUTO_TEST_CASE( TestStructMixed )
   UTST_CHECK_EQ( test_mem.mem_read(0x100c), 13u );
   UTST_CHECK_EQ( test_mem.mem_read(0x1010), 0x00790800u );
 
-  mem::InMemStream is(0x1000,test_mem,test_mem);
+  xmem::InMemStream is(0x1000,test_mem,test_mem);
   Foo foo3, foo4;
   int  a;
   is >> foo3 >> a >> foo4; // 7x mem read

@@ -3,11 +3,11 @@
 //========================================================================
 
 #include "utst/utst.h"
-#include "mem/TestMem.h"
-#include "mem/MemStream.h"
-#include "mem/MemProxy.h"
+#include "xmem/TestMem.h"
+#include "xmem/MemStream.h"
+#include "xmem/MemProxy.h"
 
-using namespace mem;
+using namespace xmem;
 
 //------------------------------------------------------------------------
 // Test Basic Write
@@ -251,7 +251,7 @@ struct Node
   int m_data;
 };
 
-namespace mem {
+namespace xmem {
 
   template <>
   class MemValue< Node > {
@@ -287,7 +287,7 @@ namespace mem {
       void unmemoize() {}
   };
 
-};  // end namespace mem
+};  // end namespace xmem
 
 UTST_AUTO_TEST_CASE( TestArrow )
 {

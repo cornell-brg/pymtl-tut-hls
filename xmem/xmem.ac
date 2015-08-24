@@ -4,5 +4,5 @@
 # Please read the documenation in 'mcppbs-uguide.txt' for more details
 # on how the Modular C++ Build System works.
 
-MCPPBS_SUBPROJECT([mem],[xcel])
+MCPPBS_SUBPROJECT([xmem],[xcel])
 

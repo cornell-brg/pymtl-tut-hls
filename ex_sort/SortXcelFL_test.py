@@ -12,12 +12,12 @@ from pymtl       import *
 from pclib.test  import mk_test_case_table, run_sim
 from pclib.test  import TestSource, TestSink
 
-from mem.TestMemoryOpaque import TestMemory
+from xmem.TestMemoryOpaque import TestMemory
 
 from SortXcelFL  import SortXcelFL
 
-from mem.MemMsgFuture import MemMsg
-from xcel.XcelMsg     import XcelReqMsg, XcelRespMsg
+from xmem.MemMsgFuture import MemMsg
+from xcel.XcelMsg      import XcelReqMsg, XcelRespMsg
 
 #-------------------------------------------------------------------------
 # TestHarness

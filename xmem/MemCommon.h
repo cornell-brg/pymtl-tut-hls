@@ -2,24 +2,24 @@
 // MemCommon.h
 //========================================================================
 
-#ifndef MEM_MEM_COMMON_H
-#define MEM_MEM_COMMON_H
+#ifndef XMEM_MEM_COMMON_H
+#define XMEM_MEM_COMMON_H
 
 #include <hls_stream.h>
 
-#include "mem/TestMem.h"
-#include "mem/MemMsg.h"
+#include "xmem/TestMem.h"
+#include "xmem/MemMsg.h"
 
-namespace mem {
+namespace xmem {
 
   #ifdef XILINX_VIVADO_HLS_TESTING
-  typedef mem::TestMem  MemReqStream;
-  typedef mem::TestMem  MemRespStream;
+  typedef xmem::TestMem  MemReqStream;
+  typedef xmem::TestMem  MemRespStream;
   #else
   typedef hls::stream<MemReqMsg<> >  MemReqStream;
   typedef hls::stream<MemRespMsg<> > MemRespStream;
   #endif
-  
+
   //XXX:This is only true for HLS or HLS_TESTING.
   //    For C++ compilation, PTR_SIZE should be sizeof(void*)
   //    which is 8 on brg
@@ -29,5 +29,5 @@ namespace mem {
 
 }
 
-#endif /* MEM_MEM_COMMON_H */
+#endif /* XMEM_MEM_COMMON_H */
 

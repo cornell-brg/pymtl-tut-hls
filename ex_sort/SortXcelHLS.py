@@ -10,8 +10,8 @@ from pclib.ifcs   import InValRdyBundle, OutValRdyBundle
 from pclib.rtl    import SingleElementBypassQueue
 from pclib.rtl    import SingleElementPipelinedQueue
 
-from xcel.XcelMsg     import XcelReqMsg, XcelRespMsg
-from mem.MemMsgFuture import MemReqMsg, MemRespMsg
+from xcel.XcelMsg      import XcelReqMsg, XcelRespMsg
+from xmem.MemMsgFuture import MemReqMsg, MemRespMsg
 
 #-------------------------------------------------------------------------
 # SortXcelHLS

@@ -23,8 +23,8 @@ from pclib.ifcs import InValRdyBundle, OutValRdyBundle
 from pclib.cl   import InValRdyQueueAdapter, OutValRdyQueueAdapter
 from pclib.fl   import Queue
 
-from xcel.XcelMsg     import XcelReqMsg, XcelRespMsg
-from mem.MemMsgFuture import MemMsg, MemReqMsg, MemRespMsg
+from xcel.XcelMsg      import XcelReqMsg, XcelRespMsg
+from xmem.MemMsgFuture import MemMsg, MemReqMsg, MemRespMsg
 
 class SortXcelCL( Model ):
 

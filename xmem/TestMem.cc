@@ -2,10 +2,10 @@
 // TestMem
 //========================================================================
 
-#include "mem/TestMem.h"
+#include "xmem/TestMem.h"
 #include "utst/utst.h"
 
-namespace mem {
+namespace xmem {
 
   //----------------------------------------------------------------------
   // TestMem::TestMem

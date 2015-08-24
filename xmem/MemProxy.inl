@@ -2,7 +2,7 @@
 // generic proxies inlines
 //========================================================================
 
-namespace mem {
+namespace xmem {
 
 //========================================================================
 // MemValue
@@ -27,7 +27,7 @@ namespace mem {
     DB_PRINT (("MemValue: reading from 0x%u\n", m_addr.to_uint()));
     if ( !m_memoized_valid ) {
       //m_memoized_valid = true;
-      mem::InMemStream is(m_addr,m_memreq,m_memresp);
+      xmem::InMemStream is(m_addr,m_memreq,m_memresp);
       is >> m_memoized_value;
     }
     return m_memoized_value;
@@ -41,7 +41,7 @@ namespace mem {
     DB_PRINT (("MemValue: writing %u to 0x%u\n", value, m_addr.to_uint()));
     // dump the memoized value on a store
     m_memoized_valid = false;
-    mem::OutMemStream os(m_addr,m_memreq,m_memresp);
+    xmem::OutMemStream os(m_addr,m_memreq,m_memresp);
     os << value;
     return *this;
   }
@@ -121,15 +121,15 @@ namespace mem {
   // Stream Support for reading/writing MemPointer
   //----------------------------------------------------------------------
   template<typename T>
-  mem::OutMemStream&
-  operator<<( mem::OutMemStream& os, const MemPointer<T>& rhs ) {
+  xmem::OutMemStream&
+  operator<<( xmem::OutMemStream& os, const MemPointer<T>& rhs ) {
     os << rhs.m_addr;
     return os;
   }
 
   template<typename T>
-  mem::InMemStream&
-  operator>>( mem::InMemStream& is, MemPointer<T>& rhs ) {
+  xmem::InMemStream&
+  operator>>( xmem::InMemStream& is, MemPointer<T>& rhs ) {
     is >> rhs.m_addr;
     return is;
   }
@@ -154,7 +154,7 @@ namespace mem {
   MemValue< MemPointer<T> >::operator MemPointer<T>() const {
     DB_PRINT (("MemValue: reading from %u\n", m_addr));
     MemPointer<T> ptr(0,m_memreq,m_memresp);
-    mem::InMemStream is(m_addr,m_memreq,m_memresp);
+    xmem::InMemStream is(m_addr,m_memreq,m_memresp);
     is >> ptr;
     return ptr;
   }
@@ -166,7 +166,7 @@ namespace mem {
   MemValue< MemPointer<T> >&
   MemValue< MemPointer<T> >::operator=( const MemPointer<T>& p ) {
     DB_PRINT (("MemValue: writing %u to loc %u\n", p.get_addr(), m_addr));
-    mem::OutMemStream os(m_addr,m_memreq,m_memresp);
+    xmem::OutMemStream os(m_addr,m_memreq,m_memresp);
     os << p;
     return *this;
   }
@@ -204,5 +204,5 @@ namespace mem {
     return operator MemPointer<T>();
   }
 
-}; // end namespace mem
+}; // end namespace xmem
 

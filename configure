@@ -627,14 +627,14 @@ ex_gcd_libs
 ex_gcd_ldflags
 ex_gcd_cppflags
 ex_gcd_intdeps
-mem_extra_libs
-mem_extra_ldflags
-mem_extra_cppflags
-mem_pkcdeps
-mem_libs
-mem_ldflags
-mem_cppflags
-mem_intdeps
+xmem_extra_libs
+xmem_extra_ldflags
+xmem_extra_cppflags
+xmem_pkcdeps
+xmem_libs
+xmem_ldflags
+xmem_cppflags
+xmem_intdeps
 xcel_extra_libs
 xcel_extra_ldflags
 xcel_extra_cppflags
@@ -4218,8 +4218,8 @@ fi
 
   # Set the type of this subproject and add it to a shell and m4 list
 
-  mem_type="internal"
-  as_fn_append mcppbs_include_internal "mem "
+  xmem_type="internal"
+  as_fn_append mcppbs_include_internal "xmem "
 
 
   # Optional subprojects add an --with-subproject command line options,
@@ -4227,7 +4227,7 @@ fi
   # is set to "yes" so we always configure this subproject.
 
 
-    with_mem="yes"
+    with_xmem="yes"
 
 
   # We create a shell function which contains all the code to actually
@@ -4237,17 +4237,17 @@ fi
   # subproject.ac. This will allow us to easily configure optional
   # subproject later by just executing this function.
 
-  mem_cfg ()
+  xmem_cfg ()
   {
-    ac_config_headers="$ac_config_headers mem/config.h:config.h.in"
+    ac_config_headers="$ac_config_headers xmem/config.h:config.h.in"
 
-    ac_config_files="$ac_config_files mem/mem.mk:mem/mem.mk.in"
+    ac_config_files="$ac_config_files xmem/xmem.mk:xmem/xmem.mk.in"
 
 
-$as_echo "#define HAVE_MEM /**/" >>confdefs.h
+$as_echo "#define HAVE_XMEM /**/" >>confdefs.h
 
-    as_fn_append mcppbs_include_internal_en "mem "
-    with_mem="yes"
+    as_fn_append mcppbs_include_internal_en "xmem "
+    with_xmem="yes"
     #=========================================================================
 # Modular C++ Build System Subproject Autoconf Fragment
 #=========================================================================
@@ -4266,14 +4266,14 @@ $as_echo "#define HAVE_MEM /**/" >>confdefs.h
   # Save the list of direct dependencies (ie dirdeps) and a list of
   # dependencies which are comma separated for pkg-config file.
 
-  mem_dirdeps="xcel"
-  mem_pkcdeps="xcel"
+  xmem_dirdeps="xcel"
+  xmem_pkcdeps="xcel"
 
   # Initialize this subproject's compiler and linker flags
 
-  mem_cppflags=""
-  mem_ldflags="-Lmem "
-  mem_libs="-lmem "
+  xmem_cppflags=""
+  xmem_ldflags="-Lxmem "
+  xmem_libs="-lxmem "
 
   # Loop through the list of given subprojects and for each one see if
   # it has already been configured. If no then configure it by calling
@@ -4316,20 +4316,20 @@ fi
       # Add the actual dependency to our libs list and our intdeps list
       # which are both ordered such that libs only depend on later libs
 
-      as_fn_append mem_ldflags "-Lxcel "
-      as_fn_append mem_libs "-lxcel "
+      as_fn_append xmem_ldflags "-Lxcel "
+      as_fn_append xmem_libs "-lxcel "
       if  test "${xcel_type}" = "internal" ; then :
 
-        as_fn_append mem_intdeps "xcel "
+        as_fn_append xmem_intdeps "xcel "
 
 fi
 
       # Add dependency's variables to our own
 
-      as_fn_append mem_intdeps "${xcel_intdeps} "
-      as_fn_append mem_cppflags "${xcel_cppflags} "
-      as_fn_append mem_ldflags "${xcel_ldflags} "
-      as_fn_append mem_libs "${xcel_libs} "
+      as_fn_append xmem_intdeps "${xcel_intdeps} "
+      as_fn_append xmem_cppflags "${xcel_cppflags} "
+      as_fn_append xmem_ldflags "${xcel_ldflags} "
+      as_fn_append xmem_libs "${xcel_libs} "
 
 fi
 
@@ -4339,18 +4339,18 @@ fi
 
 
   # Reverse the order of the input
-  mem_intdeps_rev=""
-  for input_token in ${mem_intdeps}; do
-    mem_intdeps_rev="${input_token} ${mem_intdeps_rev}"
+  xmem_intdeps_rev=""
+  for input_token in ${xmem_intdeps}; do
+    xmem_intdeps_rev="${input_token} ${xmem_intdeps_rev}"
   done
 
   # Step through each input token (now in reverse order)
-  mem_intdeps=""
-  for input_token in ${mem_intdeps_rev}; do
+  xmem_intdeps=""
+  for input_token in ${xmem_intdeps_rev}; do
 
     # See if input token is in output token list
     token_found="no"
-    for output_token in ${mem_intdeps}; do
+    for output_token in ${xmem_intdeps}; do
       if ( test "${input_token}" = "${output_token}" ); then
         token_found="yes"
       fi
@@ -4358,24 +4358,24 @@ fi
 
     # If this is the first time we have seen token push it onto list
     if ( test "${token_found}" = "no" ); then
-      mem_intdeps="${input_token} ${mem_intdeps}"
+      xmem_intdeps="${input_token} ${xmem_intdeps}"
     fi
   done
 
 
   # Reverse the order of the input
-  mem_cppflags_rev=""
-  for input_token in ${mem_cppflags}; do
-    mem_cppflags_rev="${input_token} ${mem_cppflags_rev}"
+  xmem_cppflags_rev=""
+  for input_token in ${xmem_cppflags}; do
+    xmem_cppflags_rev="${input_token} ${xmem_cppflags_rev}"
   done
 
   # Step through each input token (now in reverse order)
-  mem_cppflags=""
-  for input_token in ${mem_cppflags_rev}; do
+  xmem_cppflags=""
+  for input_token in ${xmem_cppflags_rev}; do
 
     # See if input token is in output token list
     token_found="no"
-    for output_token in ${mem_cppflags}; do
+    for output_token in ${xmem_cppflags}; do
       if ( test "${input_token}" = "${output_token}" ); then
         token_found="yes"
       fi
@@ -4383,24 +4383,24 @@ fi
 
     # If this is the first time we have seen token push it onto list
     if ( test "${token_found}" = "no" ); then
-      mem_cppflags="${input_token} ${mem_cppflags}"
+      xmem_cppflags="${input_token} ${xmem_cppflags}"
     fi
   done
 
 
   # Reverse the order of the input
-  mem_ldflags_rev=""
-  for input_token in ${mem_ldflags}; do
-    mem_ldflags_rev="${input_token} ${mem_ldflags_rev}"
+  xmem_ldflags_rev=""
+  for input_token in ${xmem_ldflags}; do
+    xmem_ldflags_rev="${input_token} ${xmem_ldflags_rev}"
   done
 
   # Step through each input token (now in reverse order)
-  mem_ldflags=""
-  for input_token in ${mem_ldflags_rev}; do
+  xmem_ldflags=""
+  for input_token in ${xmem_ldflags_rev}; do
 
     # See if input token is in output token list
     token_found="no"
-    for output_token in ${mem_ldflags}; do
+    for output_token in ${xmem_ldflags}; do
       if ( test "${input_token}" = "${output_token}" ); then
         token_found="yes"
       fi
@@ -4408,24 +4408,24 @@ fi
 
     # If this is the first time we have seen token push it onto list
     if ( test "${token_found}" = "no" ); then
-      mem_ldflags="${input_token} ${mem_ldflags}"
+      xmem_ldflags="${input_token} ${xmem_ldflags}"
     fi
   done
 
 
   # Reverse the order of the input
-  mem_libs_rev=""
-  for input_token in ${mem_libs}; do
-    mem_libs_rev="${input_token} ${mem_libs_rev}"
+  xmem_libs_rev=""
+  for input_token in ${xmem_libs}; do
+    xmem_libs_rev="${input_token} ${xmem_libs_rev}"
   done
 
   # Step through each input token (now in reverse order)
-  mem_libs=""
-  for input_token in ${mem_libs_rev}; do
+  xmem_libs=""
+  for input_token in ${xmem_libs_rev}; do
 
     # See if input token is in output token list
     token_found="no"
-    for output_token in ${mem_libs}; do
+    for output_token in ${xmem_libs}; do
       if ( test "${input_token}" = "${output_token}" ); then
         token_found="yes"
       fi
@@ -4433,7 +4433,7 @@ fi
 
     # If this is the first time we have seen token push it onto list
     if ( test "${token_found}" = "no" ); then
-      mem_libs="${input_token} ${mem_libs}"
+      xmem_libs="${input_token} ${xmem_libs}"
     fi
   done
 
@@ -4443,9 +4443,9 @@ fi
   # include these flags in the pkg-config file. We do of course need to
   # keep the flags that a user might add later in their subproject.ac.
 
-  mem_base_cppflags=${mem_cppflags}
-  mem_base_ldflags=${mem_ldflags}
-  mem_base_libs=${mem_libs}
+  xmem_base_cppflags=${xmem_cppflags}
+  xmem_base_ldflags=${xmem_ldflags}
+  xmem_base_libs=${xmem_libs}
 
   # Substitute variables for makefile
 
@@ -4465,8 +4465,8 @@ fi
   # Display that we are now configuring this subproject (ie running the
   # rest of the macros in the corresponding subproject.ac)
 
-  { $as_echo "$as_me:${as_lineno-$LINENO}: configuring internal subproject mem" >&5
-$as_echo "$as_me: configuring internal subproject mem" >&6;}
+  { $as_echo "$as_me:${as_lineno-$LINENO}: configuring internal subproject xmem" >&5
+$as_echo "$as_me: configuring internal subproject xmem" >&6;}
 
 
 
@@ -4477,9 +4477,9 @@ $as_echo "$as_me: configuring internal subproject mem" >&6;}
   # call the shell function we just created.
 
   if     test "${with_optional_subprojects}" = "yes" \
-          || test "${with_mem}" = "yes"  ; then :
+          || test "${with_xmem}" = "yes"  ; then :
 
-    eval "mem_cfg"
+    eval "xmem_cfg"
 
 fi
 
@@ -4820,8 +4820,8 @@ $as_echo "#define HAVE_EX_SORT /**/" >>confdefs.h
   # Save the list of direct dependencies (ie dirdeps) and a list of
   # dependencies which are comma separated for pkg-config file.
 
-  ex_sort_dirdeps="mem xcel"
-  ex_sort_pkcdeps="mem,xcel"
+  ex_sort_dirdeps="xmem xcel"
+  ex_sort_pkcdeps="xmem,xcel"
 
   # Initialize this subproject's compiler and linker flags
 
@@ -4856,34 +4856,34 @@ $as_echo "#define HAVE_EX_SORT /**/" >>confdefs.h
 
 
 
-      if  test "${with_mem}" = "no" ; then :
+      if  test "${with_xmem}" = "no" ; then :
 
-        eval "mem_cfg"
+        eval "xmem_cfg"
 
 fi
 
 
     # Add information about this dependency to our running lists
 
-    if  test "${with_mem}" = "yes" ; then :
+    if  test "${with_xmem}" = "yes" ; then :
 
       # Add the actual dependency to our libs list and our intdeps list
       # which are both ordered such that libs only depend on later libs
 
-      as_fn_append ex_sort_ldflags "-Lmem "
-      as_fn_append ex_sort_libs "-lmem "
-      if  test "${mem_type}" = "internal" ; then :
+      as_fn_append ex_sort_ldflags "-Lxmem "
+      as_fn_append ex_sort_libs "-lxmem "
+      if  test "${xmem_type}" = "internal" ; then :
 
-        as_fn_append ex_sort_intdeps "mem "
+        as_fn_append ex_sort_intdeps "xmem "
 
 fi
 
       # Add dependency's variables to our own
 
-      as_fn_append ex_sort_intdeps "${mem_intdeps} "
-      as_fn_append ex_sort_cppflags "${mem_cppflags} "
-      as_fn_append ex_sort_ldflags "${mem_ldflags} "
-      as_fn_append ex_sort_libs "${mem_libs} "
+      as_fn_append ex_sort_intdeps "${xmem_intdeps} "
+      as_fn_append ex_sort_cppflags "${xmem_cppflags} "
+      as_fn_append ex_sort_ldflags "${xmem_ldflags} "
+      as_fn_append ex_sort_libs "${xmem_libs} "
 
 fi
 
@@ -5147,8 +5147,8 @@ $as_echo "#define HAVE_POLYDSU /**/" >>confdefs.h
   # Save the list of direct dependencies (ie dirdeps) and a list of
   # dependencies which are comma separated for pkg-config file.
 
-  polydsu_dirdeps="mem xcel"
-  polydsu_pkcdeps="mem,xcel"
+  polydsu_dirdeps="xmem xcel"
+  polydsu_pkcdeps="xmem,xcel"
 
   # Initialize this subproject's compiler and linker flags
 
@@ -5183,34 +5183,34 @@ $as_echo "#define HAVE_POLYDSU /**/" >>confdefs.h
 
 
 
-      if  test "${with_mem}" = "no" ; then :
+      if  test "${with_xmem}" = "no" ; then :
 
-        eval "mem_cfg"
+        eval "xmem_cfg"
 
 fi
 
 
     # Add information about this dependency to our running lists
 
-    if  test "${with_mem}" = "yes" ; then :
+    if  test "${with_xmem}" = "yes" ; then :
 
       # Add the actual dependency to our libs list and our intdeps list
       # which are both ordered such that libs only depend on later libs
 
-      as_fn_append polydsu_ldflags "-Lmem "
-      as_fn_append polydsu_libs "-lmem "
-      if  test "${mem_type}" = "internal" ; then :
+      as_fn_append polydsu_ldflags "-Lxmem "
+      as_fn_append polydsu_libs "-lxmem "
+      if  test "${xmem_type}" = "internal" ; then :
 
-        as_fn_append polydsu_intdeps "mem "
+        as_fn_append polydsu_intdeps "xmem "
 
 fi
 
       # Add dependency's variables to our own
 
-      as_fn_append polydsu_intdeps "${mem_intdeps} "
-      as_fn_append polydsu_cppflags "${mem_cppflags} "
-      as_fn_append polydsu_ldflags "${mem_ldflags} "
-      as_fn_append polydsu_libs "${mem_libs} "
+      as_fn_append polydsu_intdeps "${xmem_intdeps} "
+      as_fn_append polydsu_cppflags "${xmem_cppflags} "
+      as_fn_append polydsu_ldflags "${xmem_ldflags} "
+      as_fn_append polydsu_libs "${xmem_libs} "
 
 fi
 
@@ -5474,8 +5474,8 @@ $as_echo "#define HAVE_POLYDSU_LIST /**/" >>confdefs.h
   # Save the list of direct dependencies (ie dirdeps) and a list of
   # dependencies which are comma separated for pkg-config file.
 
-  polydsu_list_dirdeps="polydsu mem xcel"
-  polydsu_list_pkcdeps="polydsu,mem,xcel"
+  polydsu_list_dirdeps="polydsu xmem xcel"
+  polydsu_list_pkcdeps="polydsu,xmem,xcel"
 
   # Initialize this subproject's compiler and linker flags
 
@@ -5560,34 +5560,34 @@ fi
 
 
 
-      if  test "${with_mem}" = "no" ; then :
+      if  test "${with_xmem}" = "no" ; then :
 
-        eval "mem_cfg"
+        eval "xmem_cfg"
 
 fi
 
 
     # Add information about this dependency to our running lists
 
-    if  test "${with_mem}" = "yes" ; then :
+    if  test "${with_xmem}" = "yes" ; then :
 
       # Add the actual dependency to our libs list and our intdeps list
       # which are both ordered such that libs only depend on later libs
 
-      as_fn_append polydsu_list_ldflags "-Lmem "
-      as_fn_append polydsu_list_libs "-lmem "
-      if  test "${mem_type}" = "internal" ; then :
+      as_fn_append polydsu_list_ldflags "-Lxmem "
+      as_fn_append polydsu_list_libs "-lxmem "
+      if  test "${xmem_type}" = "internal" ; then :
 
-        as_fn_append polydsu_list_intdeps "mem "
+        as_fn_append polydsu_list_intdeps "xmem "
 
 fi
 
       # Add dependency's variables to our own
 
-      as_fn_append polydsu_list_intdeps "${mem_intdeps} "
-      as_fn_append polydsu_list_cppflags "${mem_cppflags} "
-      as_fn_append polydsu_list_ldflags "${mem_ldflags} "
-      as_fn_append polydsu_list_libs "${mem_libs} "
+      as_fn_append polydsu_list_intdeps "${xmem_intdeps} "
+      as_fn_append polydsu_list_cppflags "${xmem_cppflags} "
+      as_fn_append polydsu_list_ldflags "${xmem_ldflags} "
+      as_fn_append polydsu_list_libs "${xmem_libs} "
 
 fi
 
@@ -5779,6 +5779,7 @@ $as_echo "$as_me: configuring internal subproject polydsu_list" >&6;}
 
 
 
+
   };
 
   # See if we should actually configure this subproject and if so then
@@ -5851,8 +5852,8 @@ $as_echo "#define HAVE_POLYDSU_RBTREE /**/" >>confdefs.h
   # Save the list of direct dependencies (ie dirdeps) and a list of
   # dependencies which are comma separated for pkg-config file.
 
-  polydsu_rbtree_dirdeps="mem"
-  polydsu_rbtree_pkcdeps="mem"
+  polydsu_rbtree_dirdeps="xmem"
+  polydsu_rbtree_pkcdeps="xmem"
 
   # Initialize this subproject's compiler and linker flags
 
@@ -5887,34 +5888,34 @@ $as_echo "#define HAVE_POLYDSU_RBTREE /**/" >>confdefs.h
 
 
 
-      if  test "${with_mem}" = "no" ; then :
+      if  test "${with_xmem}" = "no" ; then :
 
-        eval "mem_cfg"
+        eval "xmem_cfg"
 
 fi
 
 
     # Add information about this dependency to our running lists
 
-    if  test "${with_mem}" = "yes" ; then :
+    if  test "${with_xmem}" = "yes" ; then :
 
       # Add the actual dependency to our libs list and our intdeps list
       # which are both ordered such that libs only depend on later libs
 
-      as_fn_append polydsu_rbtree_ldflags "-Lmem "
-      as_fn_append polydsu_rbtree_libs "-lmem "
-      if  test "${mem_type}" = "internal" ; then :
+      as_fn_append polydsu_rbtree_ldflags "-Lxmem "
+      as_fn_append polydsu_rbtree_libs "-lxmem "
+      if  test "${xmem_type}" = "internal" ; then :
 
-        as_fn_append polydsu_rbtree_intdeps "mem "
+        as_fn_append polydsu_rbtree_intdeps "xmem "
 
 fi
 
       # Add dependency's variables to our own
 
-      as_fn_append polydsu_rbtree_intdeps "${mem_intdeps} "
-      as_fn_append polydsu_rbtree_cppflags "${mem_cppflags} "
-      as_fn_append polydsu_rbtree_ldflags "${mem_ldflags} "
-      as_fn_append polydsu_rbtree_libs "${mem_libs} "
+      as_fn_append polydsu_rbtree_intdeps "${xmem_intdeps} "
+      as_fn_append polydsu_rbtree_cppflags "${xmem_cppflags} "
+      as_fn_append polydsu_rbtree_ldflags "${xmem_ldflags} "
+      as_fn_append polydsu_rbtree_libs "${xmem_libs} "
 
 fi
 
@@ -6782,8 +6783,8 @@ do
     "utst/utst.mk") CONFIG_FILES="$CONFIG_FILES utst/utst.mk:utst/utst.mk.in" ;;
     "xcel/config.h") CONFIG_HEADERS="$CONFIG_HEADERS xcel/config.h:config.h.in" ;;
     "xcel/xcel.mk") CONFIG_FILES="$CONFIG_FILES xcel/xcel.mk:xcel/xcel.mk.in" ;;
-    "mem/config.h") CONFIG_HEADERS="$CONFIG_HEADERS mem/config.h:config.h.in" ;;
-    "mem/mem.mk") CONFIG_FILES="$CONFIG_FILES mem/mem.mk:mem/mem.mk.in" ;;
+    "xmem/config.h") CONFIG_HEADERS="$CONFIG_HEADERS xmem/config.h:config.h.in" ;;
+    "xmem/xmem.mk") CONFIG_FILES="$CONFIG_FILES xmem/xmem.mk:xmem/xmem.mk.in" ;;
     "ex_gcd/config.h") CONFIG_HEADERS="$CONFIG_HEADERS ex_gcd/config.h:config.h.in" ;;
     "ex_gcd/ex_gcd.mk") CONFIG_FILES="$CONFIG_FILES ex_gcd/ex_gcd.mk:ex_gcd/ex_gcd.mk.in" ;;
     "ex_sort/config.h") CONFIG_HEADERS="$CONFIG_HEADERS ex_sort/config.h:config.h.in" ;;

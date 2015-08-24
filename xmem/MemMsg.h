@@ -5,10 +5,10 @@
 
 #include <ap_int.h>
 
-#ifndef MEM_MEM_MSG_H
-#define MEM_MEM_MSG_H
+#ifndef XMEM_MEM_MSG_H
+#define XMEM_MEM_MSG_H
 
-namespace mem {
+namespace xmem {
 
   //----------------------------------------------------------------------
   // MemReqMsg
@@ -179,5 +179,5 @@ namespace mem {
 
 }
 
-#endif /* MEM_MEM_MSG_H */
+#endif /* XMEM_MEM_MSG_H */
 

@@ -3,9 +3,9 @@
 //========================================================================
 
 #include "utst/utst.h"
-#include "mem/MemMsg.h"
+#include "xmem/MemMsg.h"
 
-using namespace mem;
+using namespace xmem;
 
 //------------------------------------------------------------------------
 // Test Write Messages

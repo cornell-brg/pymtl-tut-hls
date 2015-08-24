@@ -10,9 +10,9 @@
 #include <ap_utils.h>
 #include <hls_stream.h>
 
-#include "mem/MemCommon.h"
-#include "mem/MemMsg.h"
-#include "mem/ArrayMemPortAdapter.h"
+#include "xmem/MemCommon.h"
+#include "xmem/MemMsg.h"
+#include "xmem/ArrayMemPortAdapter.h"
 
 #include "xcel/XcelMsg.h"
 #include "xcel/XcelWrapper.h"
@@ -21,8 +21,8 @@ void SortXcelHLS
 (
   hls::stream<xcel::XcelReqMsg>&   xcelreq,
   hls::stream<xcel::XcelRespMsg>&  xcelresp,
-  mem::MemReqStream&               memreq,
-  mem::MemRespStream&              memresp
+  xmem::MemReqStream&              memreq,
+  xmem::MemRespStream&             memresp
 );
 
 #endif /* EX_SORT_SORT_XCEL_HLS_H */

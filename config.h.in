@@ -6,9 +6,6 @@
 /* Define if we should include subproject ex_sort */
 #undef HAVE_EX_SORT
 
-/* Define if we should include subproject mem */
-#undef HAVE_MEM
-
 /* Define if we should include subproject polydsu */
 #undef HAVE_POLYDSU
 
@@ -23,6 +20,9 @@
 
 /* Define if we should include subproject xcel */
 #undef HAVE_XCEL
+
+/* Define if we should include subproject xmem */
+#undef HAVE_XMEM
 
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT

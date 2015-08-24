@@ -3,13 +3,13 @@
 //========================================================================
 
 #include "utst/utst.h"
-#include "mem/MemProxyHLS.h"
+#include "xmem/MemProxyHLS.h"
 #include "xcel/XcelMsg.h"
 
 #include <vector>
 
 using namespace xcel;
-using namespace mem;
+using namespace xmem;
 
 //------------------------------------------------------------------------
 // Helper function

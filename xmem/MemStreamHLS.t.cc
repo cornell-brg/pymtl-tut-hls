@@ -3,7 +3,7 @@
 //========================================================================
 
 #include "utst/utst.h"
-#include "mem/MemStreamHLS.h"
+#include "xmem/MemStreamHLS.h"
 #include "xcel/XcelMsg.h"
 
 #include <vector>
@@ -11,7 +11,7 @@
 #include <cstdlib>
 
 using namespace xcel;
-using namespace mem;
+using namespace xmem;
 
 //------------------------------------------------------------------------
 // Helper function

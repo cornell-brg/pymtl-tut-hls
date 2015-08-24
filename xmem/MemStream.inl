@@ -2,11 +2,11 @@
 // MemStream
 //========================================================================
 
-#include "mem/MemMsg.h"
+#include "xmem/MemMsg.h"
 #include <ap_utils.h>
 #include <hls_stream.h>
 
-namespace mem {
+namespace xmem {
 
   //----------------------------------------------------------------------
   // OutMemStream::OutMemStream()

@@ -10,8 +10,8 @@
 // simply writes xr0 with the desired test to run. The accelerator only
 // returns the response message when the test is finished.
 
-#include "mem/MemStream.h"
-#include "mem/MemProxy.h"
+#include "xmem/MemStream.h"
+#include "xmem/MemProxy.h"
 #include "xcel/XcelMsg.h"
 
 #include <ap_int.h>
@@ -22,9 +22,9 @@
 // test_basic_write
 //------------------------------------------------------------------------
 
-void test_basic_write( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
+void test_basic_write( xmem::MemReqStream& memreq, xmem::MemRespStream& memresp )
 {
-  mem::MemValue<int> a(0x1000,memreq,memresp);
+  xmem::MemValue<int> a(0x1000,memreq,memresp);
   a = 42;
 }
 
@@ -32,10 +32,10 @@ void test_basic_write( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
 // test_copy
 //------------------------------------------------------------------------
 
-void test_copy( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
+void test_copy( xmem::MemReqStream& memreq, xmem::MemRespStream& memresp )
 {
-  mem::MemValue<int> a(0x1000,memreq,memresp);
-  mem::MemValue<int> b(0x2000,memreq,memresp);
+  xmem::MemValue<int> a(0x1000,memreq,memresp);
+  xmem::MemValue<int> b(0x2000,memreq,memresp);
   b = a;
 }
 
@@ -43,10 +43,10 @@ void test_copy( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
 // test_operators
 //------------------------------------------------------------------------
 
-void test_operators( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
+void test_operators( xmem::MemReqStream& memreq, xmem::MemRespStream& memresp )
 {
-  mem::MemValue<int> a(0x2000,memreq,memresp);
-  mem::MemValue<int> b(0x2004,memreq,memresp);
+  xmem::MemValue<int> a(0x2000,memreq,memresp);
+  xmem::MemValue<int> b(0x2004,memreq,memresp);
 
   a = 42;
   b = 47;
@@ -58,7 +58,7 @@ void test_operators( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
 
   // Save values so we can check them (requires three writes)
 
-  mem::OutMemStream os(0x2008,memreq,memresp);
+  xmem::OutMemStream os(0x2008,memreq,memresp);
   os << eq << neq << lt << gt;
 }
 
@@ -66,15 +66,15 @@ void test_operators( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
 // test_memoize
 //------------------------------------------------------------------------
 
-void test_memoize( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
+void test_memoize( xmem::MemReqStream& memreq, xmem::MemRespStream& memresp )
 {
-  mem::MemValue<int> a(0x1000,memreq,memresp);
+  xmem::MemValue<int> a(0x1000,memreq,memresp);
   int b = a;
   int c = a;
 
   // Save values so we can check them (requires three writes)
 
-  mem::OutMemStream os(0x2000,memreq,memresp);
+  xmem::OutMemStream os(0x2000,memreq,memresp);
   os << a << b << c;
 }
 
@@ -88,8 +88,8 @@ void MemProxyHLS
 (
   hls::stream<XcelReqMsg>&  xcelreq,
   hls::stream<XcelRespMsg>& xcelresp,
-  mem::MemReqStream&        memreq,
-  mem::MemRespStream&       memresp
+  xmem::MemReqStream&        memreq,
+  xmem::MemRespStream&       memresp
 ){
   XcelReqMsg req = xcelreq.read();
   int test_num = req.data();

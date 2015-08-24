@@ -9,12 +9,12 @@
 // XXX: NOTE: The class currently works only for 32-bit data values. NEED
 // TO ADD SUPPORT FOR OTHER WIDTHS.
 
-#ifndef MEM_ARRAY_MEMPORT_ADAPTER
-#define MEM_ARRAY_MEMPORT_ADAPTER
+#ifndef XMEM_ARRAY_MEMPORT_ADAPTER
+#define XMEM_ARRAY_MEMPORT_ADAPTER
 
-#include "MemMsg.h"
+#include "xmem/MemMsg.h"
 
-namespace mem {
+namespace xmem {
 
   template<typename StreamReq, typename StreamResp>
   class ArrayMemPortAdapter {
@@ -116,6 +116,6 @@ namespace mem {
       int         m_size;
   };
 
-}
+} // end of namespace xmem
 
-#endif
+#endif /*XMEM_ARRAY_MEMPORT_ADAPTER*/

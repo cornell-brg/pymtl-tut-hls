@@ -10,7 +10,7 @@
 // simply writes xr0 with the desired test to run. The accelerator only
 // returns the response message when the test is finished.
 
-#include "mem/MemStream.h"
+#include "xmem/MemStream.h"
 #include "xcel/XcelMsg.h"
 
 #include <ap_int.h>
@@ -21,13 +21,13 @@
 // test_basic
 //------------------------------------------------------------------------
 
-void test_basic( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
+void test_basic( xmem::MemReqStream& memreq, xmem::MemRespStream& memresp )
 {
-  mem::InMemStream is(0x1000,memreq,memresp);
+  xmem::InMemStream is(0x1000,memreq,memresp);
   int b;
   is >> b; // mem read
 
-  mem::OutMemStream os(0x1004,memreq,memresp);
+  xmem::OutMemStream os(0x1004,memreq,memresp);
   os << b; // mem write
 
   int a = 0x0a0a0a0a;
@@ -38,15 +38,15 @@ void test_basic( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
 // test_multiple
 //------------------------------------------------------------------------
 
-void test_multiple( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
+void test_multiple( xmem::MemReqStream& memreq, xmem::MemRespStream& memresp )
 {
-  mem::InMemStream is(0x1000,memreq,memresp);
+  xmem::InMemStream is(0x1000,memreq,memresp);
   int a;
   int b;
   int c;
   is >> a >> b >> c; // 3x mem read
 
-  mem::OutMemStream os(0x2000,memreq,memresp);
+  xmem::OutMemStream os(0x2000,memreq,memresp);
   os << c << b << a; // 3x mem write
 
   int d = 0x0b0b0b0b;
@@ -76,7 +76,7 @@ std::ostream& operator<<( std::ostream& os, const Foo& foo )
   return os;
 }
 
-namespace mem {
+namespace xmem {
 
   OutMemStream& operator<<( OutMemStream& os, const Foo& foo )
   {
@@ -98,13 +98,13 @@ namespace mem {
 // test_struct
 //------------------------------------------------------------------------
 
-void test_struct( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
+void test_struct( xmem::MemReqStream& memreq, xmem::MemRespStream& memresp )
 {
-  mem::InMemStream is(0x1000,memreq,memresp);
+  xmem::InMemStream is(0x1000,memreq,memresp);
   Foo foo1;
   is >> foo1; // 3x mem read
 
-  mem::OutMemStream os(0x2000,memreq,memresp);
+  xmem::OutMemStream os(0x2000,memreq,memresp);
   os << foo1; // 3x mem write
 
   Foo foo2;
@@ -118,9 +118,9 @@ void test_struct( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
 // test_mixed
 //------------------------------------------------------------------------
 
-void test_mixed( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
+void test_mixed( xmem::MemReqStream& memreq, xmem::MemRespStream& memresp )
 {
-  mem::InMemStream is(0x1000,memreq,memresp);
+  xmem::InMemStream is(0x1000,memreq,memresp);
   Foo foo1;
   Foo foo2;
   int a;
@@ -136,7 +136,7 @@ void test_mixed( mem::MemReqStream& memreq, mem::MemRespStream& memresp )
   foo4.b = foo1.b;
   foo4.c = foo1.c;
 
-  mem::OutMemStream os(0x2000,memreq,memresp);
+  xmem::OutMemStream os(0x2000,memreq,memresp);
   os << a << foo3 << foo4; // 7x mem write
 }
 
@@ -150,8 +150,8 @@ void MemStreamHLS
 (
   hls::stream<XcelReqMsg>&  xcelreq,
   hls::stream<XcelRespMsg>& xcelresp,
-  mem::MemReqStream&        memreq,
-  mem::MemRespStream&       memresp
+  xmem::MemReqStream&       memreq,
+  xmem::MemRespStream&      memresp
 ){
   XcelReqMsg req = xcelreq.read();
   int test_num = req.data();

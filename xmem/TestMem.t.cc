@@ -3,9 +3,9 @@
 //========================================================================
 
 #include "utst/utst.h"
-#include "mem/TestMem.h"
+#include "xmem/TestMem.h"
 
-using namespace mem;
+using namespace xmem;
 
 //------------------------------------------------------------------------
 // read helper function

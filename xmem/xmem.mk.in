@@ -1,0 +1,39 @@
+#=========================================================================
+# Modular C++ Build System Subproject Makefile Fragment
+#=========================================================================
+# Please read the documenation in 'mcppbs-uguide.txt' for more details
+# on how the Modular C++ Build System works.
+
+xmem_intdeps  = @xmem_intdeps@
+xmem_cppflags = @xmem_cppflags@
+xmem_ldflags  = @xmem_ldflags@
+xmem_libs     = @xmem_libs@
+
+xmem_hdrs = \
+  xmem/TestMem.h \
+  xmem/MemStream.h \
+  xmem/MemStreamHLS.h \
+  xmem/MemProxy.h \
+  xmem/MemProxyHLS.h \
+
+xmem_inls = \
+  xmem/MemStream.inl \
+  xmem/MemProxy.inl \
+
+xmem_srcs = \
+  xmem/TestMem.cc \
+  xmem/MemStreamHLS.cc \
+  xmem/MemProxyHLS.cc \
+
+xmem_test_srcs = \
+  xmem/MemMsg.t.cc \
+  xmem/TestMem.t.cc \
+  xmem/MemStream.t.cc \
+  xmem/MemStreamHLS.t.cc \
+  xmem/MemProxy.t.cc \
+  xmem/MemProxyHLS.t.cc \
+
+xmem_hls_srcs = \
+  xmem/MemStreamHLS.cc \
+  xmem/MemProxyHLS.cc \
+
