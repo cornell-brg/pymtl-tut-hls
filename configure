@@ -3877,8 +3877,8 @@ $as_echo "#define HAVE_XCEL /**/" >>confdefs.h
   # Save the list of direct dependencies (ie dirdeps) and a list of
   # dependencies which are comma separated for pkg-config file.
 
-  xcel_dirdeps="utst"
-  xcel_pkcdeps="utst"
+  xcel_dirdeps=""
+  xcel_pkcdeps=""
 
   # Initialize this subproject's compiler and linker flags
 
@@ -3893,56 +3893,6 @@ $as_echo "#define HAVE_XCEL /**/" >>confdefs.h
   # Eventually maybe this should happen at configure run time as opposed
   # to autoconf run time.
 
-
-    # Determine if this dependency is required or optional
-
-
-
-    # Create some names which characterize this dependency including a
-    # shell variable indicating if this subproject has been configured,
-    # the function name to call if we need to configure this dependency,
-    # and a shell variable which has this dependency's dependencies.
-
-
-
-
-
-    # If the dependency is required and has not been configured then
-    # configure it. Issue error if subproject does not exist.
-
-
-
-
-      if  test "${with_utst}" = "no" ; then :
-
-        eval "utst_cfg"
-
-fi
-
-
-    # Add information about this dependency to our running lists
-
-    if  test "${with_utst}" = "yes" ; then :
-
-      # Add the actual dependency to our libs list and our intdeps list
-      # which are both ordered such that libs only depend on later libs
-
-      as_fn_append xcel_ldflags "-Lutst "
-      as_fn_append xcel_libs "-lutst "
-      if  test "${utst_type}" = "internal" ; then :
-
-        as_fn_append xcel_intdeps "utst "
-
-fi
-
-      # Add dependency's variables to our own
-
-      as_fn_append xcel_intdeps "${utst_intdeps} "
-      as_fn_append xcel_cppflags "${utst_cppflags} "
-      as_fn_append xcel_ldflags "${utst_ldflags} "
-      as_fn_append xcel_libs "${utst_libs} "
-
-fi
 
 
   # Make the dependency list, cppflags, ldflags, and libs variable unique
