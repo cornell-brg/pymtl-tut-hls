@@ -128,6 +128,10 @@ RANLIB      := @RANLIB@
 RUN         := @RUN@
 RUNFLAGS    := @RUNFLAGS@
 
+# High-level synthesis
+
+HLS         := @HLS@
+
 # Installation
 
 MKINSTALLDIRS := $(scripts_dir)/mk-install-dirs
@@ -338,14 +342,15 @@ $(2)_hls_logs := $$(patsubst %.cc, %.log, $$($(2)_hls_srcs))
 $(2)_hls_vs   := $$(addprefix $(src_dir)/, $$(patsubst %.cc, %.v,   $$($(2)_hls_srcs)))
 
 $$($(2)_hls_vs) : %.v : %.tcl %.cc
-	cd $(1) && vivado_hls $(abs_src_dir)/$(1)/$$(notdir $$*).tcl
-	mv $(1)/vivado_hls.log $(1)/$$(notdir $$*).log
+	cd $(1) && $(HLS) $(abs_src_dir)/$(1)/$$(notdir $$*).tcl \
+   | tee $$(notdir $$*).log
 	mv $(1)/$$(notdir $$*).v $(src_dir)/$(1)/$$(notdir $$*).v
 
 $$($(2)_hls_vs) :| $(1)
 
-$(2)_vs   += $$($(2)_hls_vs)
-$(2)_junk += $$($(2)_hls_prjs) $$($(2)_hls_logs) $$($(2)_hls_vs)
+$(2)_vs       += $$($(2)_hls_vs)
+$(2)_hls_junk += $$($(2)_hls_prjs) $$($(2)_hls_logs) $$($(2)_hls_vs) $(1)/vivado_hls.log
+$(2)_junk     += $$($(2)_hls_junk)
 
 # Install subproject's header (.h), inline (.inl), source (.cc), and
 # package config (.pc) files if this subproject is on the sproj_install
@@ -407,17 +412,22 @@ install-$(1) : install-libs-$(1) install-exes-$(1)
 clean-$(1) :
 	rm -rf $$($(2)_junk)
 
-.PHONY : all-$(1) check-$(1) hls-$(1) install-$(1) clean-$(1)
+hlsclean-$(1) :
+	rm -rf $$($(2)_hls_junk)
+
+.PHONY : all-$(1) check-$(1) hls-$(1) install-$(1) clean-$(1) hlsclean-$(1)
 
 # Update running variables
 
-libs   += $$($(2)_libname)
-objs   += $$($(2)_objs)
-exes   += $$($(2)_exes)
-outs   += $$($(2)_test_outs)
-hls_vs += $$($(2)_hls_vs)
-junk   += $$($(2)_junk)
-deps   += $$($(2)_deps)
+libs += $$($(2)_libname)
+objs += $$($(2)_objs)
+exes += $$($(2)_exes)
+outs += $$($(2)_test_outs)
+junk += $$($(2)_junk)
+deps += $$($(2)_deps)
+
+hls_vs   += $$($(2)_hls_vs)
+hls_junk += $$($(2)_hls_junk)
 
 endef
 
@@ -573,7 +583,11 @@ debug-% :
 clean :
 	rm -rf *~ \#* $(junk)
 
+hlsclean :
+	rm -rf $(hls_junk)
+
 distclean :
 	rm -rf *~ \#* $(junk) $(dist_junk)
 
-.PHONY : clean distclean
+.PHONY : clean hlsclean distclean
+

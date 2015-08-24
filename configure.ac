@@ -57,12 +57,6 @@ AC_CHECK_TOOL([AR],[ar])
 AC_CHECK_TOOL([RANLIB],[ranlib])
 
 #-------------------------------------------------------------------------
-# hack?
-#-------------------------------------------------------------------------
-# Not quite sure how to handle this. We need to only have this once, so
-# we cannot put it in the subproject autoconf fragments.
-
-#-------------------------------------------------------------------------
 # MCPPBS specific setup
 #-------------------------------------------------------------------------
 
@@ -84,6 +78,10 @@ MCPPBS_PROG_INSTALL
 # non-native builds.
 
 MCPPBS_PROG_RUN
+
+# Setup high-level synthesis
+
+MCPPBS_HLS
 
 #-------------------------------------------------------------------------
 # MCPPBS subproject includes
@@ -109,6 +107,8 @@ MCPPBS_INCLUDE_INTERNAL([utst])
 MCPPBS_INCLUDE_INTERNAL([xcel])
 MCPPBS_INCLUDE_INTERNAL([mem])
 MCPPBS_INCLUDE_INTERNAL([ex_gcd])
+MCPPBS_INCLUDE_INTERNAL([ex_sort])
+MCPPBS_INCLUDE_INTERNAL([polydsu])
 
 #-------------------------------------------------------------------------
 # MCPPBS subproject libraries to install

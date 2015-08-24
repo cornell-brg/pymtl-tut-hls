@@ -170,6 +170,34 @@ AC_DEFUN([MCPPBS_PROG_RUN],
 ])
 
 #-------------------------------------------------------------------------
+# MCPPBS_HLS
+#-------------------------------------------------------------------------
+# Check for vivado_hls and the XILINX_VIVADO_HLS_INCLUDE_DIR
+
+AC_DEFUN([MCPPBS_HLS],
+[
+  # Look for vivado_hls
+
+  AC_CHECK_TOOLS([HLS],[vivado_hls],[no])
+  AS_IF([ test ${HLS} = "no" ],
+  [
+    AC_MSG_ERROR([Cannot find vivado_hls])
+  ])
+
+  AC_SUBST([HLS])
+
+  # Verify that XILINX_VIVADO_HLS_INCLUDE_DIR is set
+
+  AS_IF([ test -n "${XILINX_VIVADO_HLS_INCLUDE_DIR}" ],
+  [
+    AS_VAR_APPEND([CXXFLAGS],
+      " -I${XILINX_VIVADO_HLS_INCLUDE_DIR} -DXILINX_VIVADO_HLS_TESTING ")
+  ],[
+    AC_MSG_ERROR([XILINX_VIVADO_HLS_INCLUDE_DIR not set!])
+  ])
+])
+
+#-------------------------------------------------------------------------
 # MCPPBS_INCLUDE_INTERNAL([subproject])
 #-------------------------------------------------------------------------
 # Use this macro to include an internal subproject meaning that the

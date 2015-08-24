@@ -2,8 +2,8 @@
 // Unit Tests for SortXcelHLS
 //========================================================================
 
-#include "utst.h"
-#include "SortXcelHLS.h"
+#include "utst/utst.h"
+#include "ex_sort/SortXcelHLS.h"
 
 #include <vector>
 #include <algorithm>
@@ -102,6 +102,6 @@ UTST_AUTO_TEST_CASE( TestRandom )
 
 int main( int argc, char* argv[] )
 {
-  utst::auto_command_line_driver( argc, argv );
+  utst::auto_command_line_driver( argc, argv, "ex_sort" );
 }
 

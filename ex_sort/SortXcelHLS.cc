@@ -14,7 +14,7 @@
 //  3. Tell accelerator to go by reading xr0 and wait till a result of 1 is
 //  returned
 
-#include "SortXcelHLS.h"
+#include "ex_sort/SortXcelHLS.h"
 
 hls::stream<xcel::XcelReqMsg>  xcelreq;
 hls::stream<xcel::XcelRespMsg> xcelresp;
