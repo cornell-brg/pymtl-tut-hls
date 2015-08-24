@@ -10,26 +10,30 @@ mem_ldflags  = @mem_ldflags@
 mem_libs     = @mem_libs@
 
 mem_hdrs = \
-  TestMem.h \
-  MemStream.h \
-  MemStreamHLS.h \
-  MemProxy.h \
-  MemProxyHLS.h \
+  mem/TestMem.h \
+  mem/MemStream.h \
+  mem/MemStreamHLS.h \
+  mem/MemProxy.h \
+  mem/MemProxyHLS.h \
 
 mem_inls = \
-  MemStream.inl \
-  MemProxy.inl \
+  mem/MemStream.inl \
+  mem/MemProxy.inl \
 
 mem_srcs = \
-  TestMem.cc \
-  MemStreamHLS.cc \
-  MemProxyHLS.cc \
+  mem/TestMem.cc \
+  mem/MemStreamHLS.cc \
+  mem/MemProxyHLS.cc \
 
 mem_test_srcs = \
-	MemMsg.t.cc \
-  TestMem.t.cc \
-  MemStream.t.cc \
-  MemStreamHLS.t.cc \
-  MemProxy.t.cc \
-  MemProxyHLS.t.cc \
+  mem/MemMsg.t.cc \
+  mem/TestMem.t.cc \
+  mem/MemStream.t.cc \
+  mem/MemStreamHLS.t.cc \
+  mem/MemProxy.t.cc \
+  mem/MemProxyHLS.t.cc \
+
+mem_hls_srcs = \
+  mem/MemStreamHLS.cc \
+  mem/MemProxyHLS.cc \
 

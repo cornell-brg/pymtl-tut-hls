@@ -2,12 +2,12 @@
 // generic proxies header
 //========================================================================
 
-#ifndef PROXY_H
-#define PROXY_H
+#ifndef MEM_MEM_PROXY_H
+#define MEM_MEM_PROXY_H
 
 #include <stdio.h>
 #include <ap_utils.h>
-#include "MemStream.h"
+#include "mem/MemStream.h"
 
 #ifdef DEBUG
   #define DB_PRINT(x) printf x
@@ -227,6 +227,6 @@ namespace mem {
 
 }; // end namespace mem
 
-#include "MemProxy.inl"
+#include "mem/MemProxy.inl"
+#endif /* MEM_MEM_PROXY_H */
 
-#endif

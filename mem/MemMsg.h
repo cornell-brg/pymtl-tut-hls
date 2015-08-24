@@ -5,8 +5,8 @@
 
 #include <ap_int.h>
 
-#ifndef MEM_MEMMSG_H
-#define MEM_MEMMSG_H
+#ifndef MEM_MEM_MSG_H
+#define MEM_MEM_MSG_H
 
 namespace mem {
 
@@ -179,4 +179,5 @@ namespace mem {
 
 }
 
-#endif
+#endif /* MEM_MEM_MSG_H */
+

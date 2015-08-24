@@ -2,8 +2,8 @@
 // TestMem
 //========================================================================
 
-#include "TestMem.h"
-#include "utst.h"
+#include "mem/TestMem.h"
+#include "utst/utst.h"
 
 namespace mem {
 

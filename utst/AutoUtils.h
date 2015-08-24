@@ -1,18 +1,18 @@
 //========================================================================
-// utst-AutoUtils.h : Utilities for auto registration features
+// utst/AutoUtils.h : Utilities for auto registration features
 //========================================================================
 // This file contains macros, classes, and functions for automatically
 // registering test cases with a few global test suites. Using these
 // auto registration features avoids some common errors (eg. defining a
 // test case but forgetting to add it to a test suite) and simplifies
 // the required boiler plate for writing unit tests. Please read the
-// documentation in utst-uguide.txt for more information on how this
+// documentation in utst/utst.txt for more information on how this
 // class fits into the overall unit test framework.
 
 #ifndef UTST_AUTO_UTILS_H
 #define UTST_AUTO_UTILS_H
 
-#include "utst-TestSuite.h"
+#include "utst/TestSuite.h"
 
 namespace utst {
 
@@ -54,7 +54,8 @@ namespace utst {
   // the auto registration features then this function is all you need
   // to add to your main function.
 
-  void auto_command_line_driver( int argc, char* argv[] );
+  void auto_command_line_driver( int argc, char* argv[],
+                                 const std::string& sproj_name = "" );
 
 }
 
@@ -87,6 +88,6 @@ namespace utst {
 #define UTST_AUTO_EXTRA_TEST_CASE( suite_, name_ ) \
   UTST_AUTO_EXTRA_TEST_CASE_( suite_, name_ )
 
-#include "utst-AutoUtils.inl"
+#include "utst/AutoUtils.inl"
 #endif /* UTST_AUTO_UTILS_H */
 

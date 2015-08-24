@@ -170,6 +170,34 @@ AC_DEFUN([MCPPBS_PROG_RUN],
 ])
 
 #-------------------------------------------------------------------------
+# MCPPBS_HLS
+#-------------------------------------------------------------------------
+# Check for vivado_hls and the XILINX_VIVADO_HLS_INCLUDE_DIR
+
+AC_DEFUN([MCPPBS_HLS],
+[
+  # Look for vivado_hls
+
+  AC_CHECK_TOOLS([HLS],[vivado_hls],[no])
+  AS_IF([ test ${HLS} = "no" ],
+  [
+    AC_MSG_ERROR([Cannot find vivado_hls])
+  ])
+
+  AC_SUBST([HLS])
+
+  # Verify that XILINX_VIVADO_HLS_INCLUDE_DIR is set
+
+  AS_IF([ test -n "${XILINX_VIVADO_HLS_INCLUDE_DIR}" ],
+  [
+    AS_VAR_APPEND([CXXFLAGS],
+      " -I${XILINX_VIVADO_HLS_INCLUDE_DIR} -DXILINX_VIVADO_HLS_TESTING ")
+  ],[
+    AC_MSG_ERROR([XILINX_VIVADO_HLS_INCLUDE_DIR not set!])
+  ])
+])
+
+#-------------------------------------------------------------------------
 # MCPPBS_INCLUDE_INTERNAL([subproject])
 #-------------------------------------------------------------------------
 # Use this macro to include an internal subproject meaning that the
@@ -245,8 +273,8 @@ m4_define([MCPPBS_INCLUDE_INTERNAL],
 
   MCPPBS_SPROJU[]_cfg ()
   {
-    AC_CONFIG_HEADERS(MCPPBS_SPROJ[]-config.h:config.h.in)
-    AC_CONFIG_FILES(MCPPBS_SPROJ[].mk:MCPPBS_SPROJ[]/MCPPBS_SPROJ[].mk.in)
+    AC_CONFIG_HEADERS(MCPPBS_SPROJ[]/config.h:config.h.in)
+    AC_CONFIG_FILES(MCPPBS_SPROJ[]/MCPPBS_SPROJ[].mk:MCPPBS_SPROJ[]/MCPPBS_SPROJ[].mk.in)
     AC_DEFINE(m4_toupper(HAVE_[]MCPPBS_SPROJU),,
       [Define if we should include subproject] MCPPBS_SPROJ )
     AS_VAR_APPEND([mcppbs_include_internal_en],"MCPPBS_SPROJ ")
@@ -455,7 +483,8 @@ m4_define([MCPPBS_SUBPROJECT],
 
   # Initialize this subproject's compiler and linker flags
 
-  MCPPBS_SPROJU[]_cppflags="-I${srcdir}/MCPPBS_SPROJ "
+  MCPPBS_SPROJU[]_cppflags=""
+  MCPPBS_SPROJU[]_ldflags="-L[]MCPPBS_SPROJ "
   MCPPBS_SPROJU[]_libs="-l[]MCPPBS_SPROJ "
 
   # Loop through the list of given subprojects and for each one see if
@@ -506,6 +535,7 @@ m4_define([MCPPBS_SUBPROJECT],
       # Add the actual dependency to our libs list and our intdeps list
       # which are both ordered such that libs only depend on later libs
 
+      AS_VAR_APPEND(MCPPBS_SPROJU[]_ldflags,"-L[]MCPPBS_DEP ")
       AS_VAR_APPEND(MCPPBS_SPROJU[]_libs,"-l[]MCPPBS_DEP ")
       AS_IF([ test "${MCPPBS_DEPU[]_type}" = "internal" ],
       [
@@ -678,7 +708,7 @@ AC_DEFUN([MCPPBS_INSTALL_LIBS],
 
       # Create subproject.pc from subproject.pc.in
 
-      AC_CONFIG_FILES(${mcppbs_sproj}.pc:${mcppbs_sproj}/${mcppbs_sproj}.pc.in)
+      AC_CONFIG_FILES(${mcppbs_sproj}/${mcppbs_sproj}.pc:${mcppbs_sproj}/${mcppbs_sproj}.pc.in)
     ])
 
   done

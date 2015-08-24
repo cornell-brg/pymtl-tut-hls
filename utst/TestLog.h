@@ -1,14 +1,14 @@
 //========================================================================
-// utst::TestLog : Unit test output log
+// utst/TestLog.h : Unit test output log
 //========================================================================
-// Please read the documenation in utst-uguide.txt for more details on
-// the overall unit test framework.
+// Please read the documenation in utst/utst.txt for more details on the
+// overall unit test framework.
 //
 // Unit tests write their results and other information to the test log.
 // Normally, a user does not access the test log directly, but instead
 // uses a test driver (such as the CommandLineTestDriver) to setup and
 // configure the test log and the UTST_CHECK macros found in
-// utst-Checks.h to write the results to the log.
+// utst/Checks.h to write the results to the log.
 //
 // There are still some cases where a user might want to directly access
 // the test log. For example, when writing a new test driver or when

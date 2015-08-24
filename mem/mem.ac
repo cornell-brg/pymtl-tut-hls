@@ -4,15 +4,5 @@
 # Please read the documenation in 'mcppbs-uguide.txt' for more details
 # on how the Modular C++ Build System works.
 
-MCPPBS_SUBPROJECT([mem],[xcel],[utst])
-
-# Verify that XILINX_VIVADO_HLS_INCLUDE_DIR is set
-
-AS_IF([ test -n "${XILINX_VIVADO_HLS_INCLUDE_DIR}" ],
-[
-  AS_VAR_APPEND([mem_cppflags],
-    "-I ${XILINX_VIVADO_HLS_INCLUDE_DIR} -DXILINX_VIVADO_HLS_TESTING ")
-],[
-  AC_MSG_ERROR([XILINX_VIVADO_HLS_INCLUDE_DIR not set!])
-])
+MCPPBS_SUBPROJECT([mem],[xcel])
 

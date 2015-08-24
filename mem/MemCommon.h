@@ -2,13 +2,13 @@
 // MemCommon.h
 //========================================================================
 
-#ifndef MEM_MEMCOMMON_H
-#define MEM_MEMCOMMON_H
+#ifndef MEM_MEM_COMMON_H
+#define MEM_MEM_COMMON_H
 
 #include <hls_stream.h>
 
-#include "../mem/TestMem.h"
-#include "../mem/MemMsg.h"
+#include "mem/TestMem.h"
+#include "mem/MemMsg.h"
 
 namespace mem {
 
@@ -29,4 +29,5 @@ namespace mem {
 
 }
 
-#endif
+#endif /* MEM_MEM_COMMON_H */
+

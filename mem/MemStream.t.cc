@@ -2,9 +2,9 @@
 // Unit Tests for MemStream
 //========================================================================
 
-#include "utst.h"
-#include "MemStream.h"
-#include "TestMem.h"
+#include "utst/utst.h"
+#include "mem/MemStream.h"
+#include "mem/TestMem.h"
 
 using namespace mem;
 
@@ -266,6 +266,6 @@ UTST_AUTO_TEST_CASE( TestStructMixed )
 
 int main( int argc, char* argv[] )
 {
-  utst::auto_command_line_driver( argc, argv );
+  utst::auto_command_line_driver( argc, argv, "mem" );
 }
 

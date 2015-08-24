@@ -5,8 +5,8 @@
 // deserializing objects to either a test memory or a real hardware
 // memory interface.
 
-#ifndef MEM_STREAM_H
-#define MEM_STREAM_H
+#ifndef MEM_MEM_STREAM_H
+#define MEM_MEM_STREAM_H
 
 #include "../mem/MemCommon.h"
 
@@ -70,6 +70,6 @@ namespace mem {
 
 }
 
-#include "MemStream.inl"
-#endif
+#include "mem/MemStream.inl"
+#endif /* MEM_MEM_STREAM_H */
 

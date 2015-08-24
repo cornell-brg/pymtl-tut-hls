@@ -584,7 +584,7 @@ PACKAGE_STRING='Miscellaneous ?'
 PACKAGE_BUGREPORT='Christopher Batten'
 PACKAGE_URL=''
 
-ac_unique_file="utst/utst.h"
+ac_unique_file="utst/utst.ac"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 polydsu_rbtree_extra_libs
@@ -651,6 +651,8 @@ utst_libs
 utst_ldflags
 utst_cppflags
 utst_intdeps
+ac_ct_HLS
+HLS
 RUNFLAGS
 ac_ct_RUN
 RUN
@@ -3043,8 +3045,7 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-#AC_SUBST([CXXFLAGS],["-Wall -g -O3"])
-CXXFLAGS="-Wall -g -O3 -D_MIPS_ARCH_LLFU"
+CXXFLAGS="-Wall -g -O3"
 
 
 # Check for tools to build libraries
@@ -3232,12 +3233,6 @@ else
   RANLIB="$ac_cv_prog_RANLIB"
 fi
 
-
-#-------------------------------------------------------------------------
-# hack?
-#-------------------------------------------------------------------------
-# Not quite sure how to handle this. We need to only have this once, so
-# we cannot put it in the subproject autoconf fragments.
 
 #-------------------------------------------------------------------------
 # MCPPBS specific setup
@@ -3612,6 +3607,132 @@ fi
 
 
 
+# Setup high-level synthesis
+
+
+  # Look for vivado_hls
+
+  if test -n "$ac_tool_prefix"; then
+  for ac_prog in vivado_hls
+  do
+    # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
+set dummy $ac_tool_prefix$ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_HLS+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$HLS"; then
+  ac_cv_prog_HLS="$HLS" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_HLS="$ac_tool_prefix$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+HLS=$ac_cv_prog_HLS
+if test -n "$HLS"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $HLS" >&5
+$as_echo "$HLS" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+    test -n "$HLS" && break
+  done
+fi
+if test -z "$HLS"; then
+  ac_ct_HLS=$HLS
+  for ac_prog in vivado_hls
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_ac_ct_HLS+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$ac_ct_HLS"; then
+  ac_cv_prog_ac_ct_HLS="$ac_ct_HLS" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_ac_ct_HLS="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+ac_ct_HLS=$ac_cv_prog_ac_ct_HLS
+if test -n "$ac_ct_HLS"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_HLS" >&5
+$as_echo "$ac_ct_HLS" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$ac_ct_HLS" && break
+done
+
+  if test "x$ac_ct_HLS" = x; then
+    HLS="no"
+  else
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
+$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
+ac_tool_warned=yes ;;
+esac
+    HLS=$ac_ct_HLS
+  fi
+fi
+
+  if  test ${HLS} = "no" ; then :
+
+    as_fn_error $? "Cannot find vivado_hls" "$LINENO" 5
+
+fi
+
+
+
+  # Verify that XILINX_VIVADO_HLS_INCLUDE_DIR is set
+
+  if  test -n "${XILINX_VIVADO_HLS_INCLUDE_DIR}" ; then :
+
+    as_fn_append CXXFLAGS " -I${XILINX_VIVADO_HLS_INCLUDE_DIR} -DXILINX_VIVADO_HLS_TESTING "
+
+else
+
+    as_fn_error $? "XILINX_VIVADO_HLS_INCLUDE_DIR not set!" "$LINENO" 5
+
+fi
+
+
 #-------------------------------------------------------------------------
 # MCPPBS subproject includes
 #-------------------------------------------------------------------------
@@ -3627,7 +3748,6 @@ fi
 # included as an external subproject. The second is an additional
 # external subproject and the last is an optional internal subproject.
 #
-#  MCPPBS_INCLUDE_EXTERNAL([utst])
 #  MCPPBS_INCLUDE_EXTERNAL([sproj-a])
 #  MCPPBS_INCLUDE_INTERNAL([sproj-b])
 #  MCPPBS_INCLUDE_INTERNAL([sproj-c*])
@@ -3665,9 +3785,9 @@ fi
 
   utst_cfg ()
   {
-    ac_config_headers="$ac_config_headers utst-config.h:config.h.in"
+    ac_config_headers="$ac_config_headers utst/config.h:config.h.in"
 
-    ac_config_files="$ac_config_files utst.mk:utst/utst.mk.in"
+    ac_config_files="$ac_config_files utst/utst.mk:utst/utst.mk.in"
 
 
 $as_echo "#define HAVE_UTST /**/" >>confdefs.h
@@ -3697,7 +3817,8 @@ $as_echo "#define HAVE_UTST /**/" >>confdefs.h
 
   # Initialize this subproject's compiler and linker flags
 
-  utst_cppflags="-I${srcdir}/utst "
+  utst_cppflags=""
+  utst_ldflags="-Lutst "
   utst_libs="-lutst "
 
   # Loop through the list of given subprojects and for each one see if
@@ -3891,9 +4012,9 @@ fi
 
   xcel_cfg ()
   {
-    ac_config_headers="$ac_config_headers xcel-config.h:config.h.in"
+    ac_config_headers="$ac_config_headers xcel/config.h:config.h.in"
 
-    ac_config_files="$ac_config_files xcel.mk:xcel/xcel.mk.in"
+    ac_config_files="$ac_config_files xcel/xcel.mk:xcel/xcel.mk.in"
 
 
 $as_echo "#define HAVE_XCEL /**/" >>confdefs.h
@@ -3918,12 +4039,13 @@ $as_echo "#define HAVE_XCEL /**/" >>confdefs.h
   # Save the list of direct dependencies (ie dirdeps) and a list of
   # dependencies which are comma separated for pkg-config file.
 
-  xcel_dirdeps="utst"
-  xcel_pkcdeps="utst"
+  xcel_dirdeps=""
+  xcel_pkcdeps=""
 
   # Initialize this subproject's compiler and linker flags
 
-  xcel_cppflags="-I${srcdir}/xcel "
+  xcel_cppflags=""
+  xcel_ldflags="-Lxcel "
   xcel_libs="-lxcel "
 
   # Loop through the list of given subprojects and for each one see if
@@ -3933,55 +4055,6 @@ $as_echo "#define HAVE_XCEL /**/" >>confdefs.h
   # Eventually maybe this should happen at configure run time as opposed
   # to autoconf run time.
 
-
-    # Determine if this dependency is required or optional
-
-
-
-    # Create some names which characterize this dependency including a
-    # shell variable indicating if this subproject has been configured,
-    # the function name to call if we need to configure this dependency,
-    # and a shell variable which has this dependency's dependencies.
-
-
-
-
-
-    # If the dependency is required and has not been configured then
-    # configure it. Issue error if subproject does not exist.
-
-
-
-
-      if  test "${with_utst}" = "no" ; then :
-
-        eval "utst_cfg"
-
-fi
-
-
-    # Add information about this dependency to our running lists
-
-    if  test "${with_utst}" = "yes" ; then :
-
-      # Add the actual dependency to our libs list and our intdeps list
-      # which are both ordered such that libs only depend on later libs
-
-      as_fn_append xcel_libs "-lutst "
-      if  test "${utst_type}" = "internal" ; then :
-
-        as_fn_append xcel_intdeps "utst "
-
-fi
-
-      # Add dependency's variables to our own
-
-      as_fn_append xcel_intdeps "${utst_intdeps} "
-      as_fn_append xcel_cppflags "${utst_cppflags} "
-      as_fn_append xcel_ldflags "${utst_ldflags} "
-      as_fn_append xcel_libs "${utst_libs} "
-
-fi
 
 
   # Make the dependency list, cppflags, ldflags, and libs variable unique
@@ -4120,18 +4193,6 @@ $as_echo "$as_me: configuring internal subproject xcel" >&6;}
 
 
 
-# Verify that XILINX_VIVADO_HLS_INCLUDE_DIR is set
-
-if  test -n "${XILINX_VIVADO_HLS_INCLUDE_DIR}" ; then :
-
-  as_fn_append xcel_cppflags "-I ${XILINX_VIVADO_HLS_INCLUDE_DIR} -DXILINX_VIVADO_HLS_TESTING "
-
-else
-
-  as_fn_error $? "XILINX_VIVADO_HLS_INCLUDE_DIR not set!" "$LINENO" 5
-
-fi
-
 
   };
 
@@ -4178,9 +4239,9 @@ fi
 
   mem_cfg ()
   {
-    ac_config_headers="$ac_config_headers mem-config.h:config.h.in"
+    ac_config_headers="$ac_config_headers mem/config.h:config.h.in"
 
-    ac_config_files="$ac_config_files mem.mk:mem/mem.mk.in"
+    ac_config_files="$ac_config_files mem/mem.mk:mem/mem.mk.in"
 
 
 $as_echo "#define HAVE_MEM /**/" >>confdefs.h
@@ -4210,7 +4271,8 @@ $as_echo "#define HAVE_MEM /**/" >>confdefs.h
 
   # Initialize this subproject's compiler and linker flags
 
-  mem_cppflags="-I${srcdir}/mem "
+  mem_cppflags=""
+  mem_ldflags="-Lmem "
   mem_libs="-lmem "
 
   # Loop through the list of given subprojects and for each one see if
@@ -4254,6 +4316,7 @@ fi
       # Add the actual dependency to our libs list and our intdeps list
       # which are both ordered such that libs only depend on later libs
 
+      as_fn_append mem_ldflags "-Lxcel "
       as_fn_append mem_libs "-lxcel "
       if  test "${xcel_type}" = "internal" ; then :
 
@@ -4407,18 +4470,6 @@ $as_echo "$as_me: configuring internal subproject mem" >&6;}
 
 
 
-# Verify that XILINX_VIVADO_HLS_INCLUDE_DIR is set
-
-if  test -n "${XILINX_VIVADO_HLS_INCLUDE_DIR}" ; then :
-
-  as_fn_append mem_cppflags "-I ${XILINX_VIVADO_HLS_INCLUDE_DIR} -DXILINX_VIVADO_HLS_TESTING "
-
-else
-
-  as_fn_error $? "XILINX_VIVADO_HLS_INCLUDE_DIR not set!" "$LINENO" 5
-
-fi
-
 
   };
 
@@ -4465,9 +4516,9 @@ fi
 
   ex_gcd_cfg ()
   {
-    ac_config_headers="$ac_config_headers ex_gcd-config.h:config.h.in"
+    ac_config_headers="$ac_config_headers ex_gcd/config.h:config.h.in"
 
-    ac_config_files="$ac_config_files ex_gcd.mk:ex_gcd/ex_gcd.mk.in"
+    ac_config_files="$ac_config_files ex_gcd/ex_gcd.mk:ex_gcd/ex_gcd.mk.in"
 
 
 $as_echo "#define HAVE_EX_GCD /**/" >>confdefs.h
@@ -4497,7 +4548,8 @@ $as_echo "#define HAVE_EX_GCD /**/" >>confdefs.h
 
   # Initialize this subproject's compiler and linker flags
 
-  ex_gcd_cppflags="-I${srcdir}/ex_gcd "
+  ex_gcd_cppflags=""
+  ex_gcd_ldflags="-Lex_gcd "
   ex_gcd_libs="-lex_gcd "
 
   # Loop through the list of given subprojects and for each one see if
@@ -4541,6 +4593,7 @@ fi
       # Add the actual dependency to our libs list and our intdeps list
       # which are both ordered such that libs only depend on later libs
 
+      as_fn_append ex_gcd_ldflags "-Lxcel "
       as_fn_append ex_gcd_libs "-lxcel "
       if  test "${xcel_type}" = "internal" ; then :
 
@@ -4694,18 +4747,6 @@ $as_echo "$as_me: configuring internal subproject ex_gcd" >&6;}
 
 
 
-# Verify that XILINX_VIVADO_HLS_INCLUDE_DIR is set
-
-if  test -n "${XILINX_VIVADO_HLS_INCLUDE_DIR}" ; then :
-
-  as_fn_append ex_gcd_cppflags "-I ${XILINX_VIVADO_HLS_INCLUDE_DIR} -DXILINX_VIVADO_HLS_TESTING "
-
-else
-
-  as_fn_error $? "XILINX_VIVADO_HLS_INCLUDE_DIR not set!" "$LINENO" 5
-
-fi
-
 
   };
 
@@ -4752,9 +4793,9 @@ fi
 
   ex_sort_cfg ()
   {
-    ac_config_headers="$ac_config_headers ex_sort-config.h:config.h.in"
+    ac_config_headers="$ac_config_headers ex_sort/config.h:config.h.in"
 
-    ac_config_files="$ac_config_files ex_sort.mk:ex_sort/ex_sort.mk.in"
+    ac_config_files="$ac_config_files ex_sort/ex_sort.mk:ex_sort/ex_sort.mk.in"
 
 
 $as_echo "#define HAVE_EX_SORT /**/" >>confdefs.h
@@ -4779,12 +4820,13 @@ $as_echo "#define HAVE_EX_SORT /**/" >>confdefs.h
   # Save the list of direct dependencies (ie dirdeps) and a list of
   # dependencies which are comma separated for pkg-config file.
 
-  ex_sort_dirdeps="mem"
-  ex_sort_pkcdeps="mem"
+  ex_sort_dirdeps="mem xcel"
+  ex_sort_pkcdeps="mem,xcel"
 
   # Initialize this subproject's compiler and linker flags
 
-  ex_sort_cppflags="-I${srcdir}/ex_sort "
+  ex_sort_cppflags=""
+  ex_sort_ldflags="-Lex_sort "
   ex_sort_libs="-lex_sort "
 
   # Loop through the list of given subprojects and for each one see if
@@ -4828,6 +4870,7 @@ fi
       # Add the actual dependency to our libs list and our intdeps list
       # which are both ordered such that libs only depend on later libs
 
+      as_fn_append ex_sort_ldflags "-Lmem "
       as_fn_append ex_sort_libs "-lmem "
       if  test "${mem_type}" = "internal" ; then :
 
@@ -4841,6 +4884,56 @@ fi
       as_fn_append ex_sort_cppflags "${mem_cppflags} "
       as_fn_append ex_sort_ldflags "${mem_ldflags} "
       as_fn_append ex_sort_libs "${mem_libs} "
+
+fi
+
+    # Determine if this dependency is required or optional
+
+
+
+    # Create some names which characterize this dependency including a
+    # shell variable indicating if this subproject has been configured,
+    # the function name to call if we need to configure this dependency,
+    # and a shell variable which has this dependency's dependencies.
+
+
+
+
+
+    # If the dependency is required and has not been configured then
+    # configure it. Issue error if subproject does not exist.
+
+
+
+
+      if  test "${with_xcel}" = "no" ; then :
+
+        eval "xcel_cfg"
+
+fi
+
+
+    # Add information about this dependency to our running lists
+
+    if  test "${with_xcel}" = "yes" ; then :
+
+      # Add the actual dependency to our libs list and our intdeps list
+      # which are both ordered such that libs only depend on later libs
+
+      as_fn_append ex_sort_ldflags "-Lxcel "
+      as_fn_append ex_sort_libs "-lxcel "
+      if  test "${xcel_type}" = "internal" ; then :
+
+        as_fn_append ex_sort_intdeps "xcel "
+
+fi
+
+      # Add dependency's variables to our own
+
+      as_fn_append ex_sort_intdeps "${xcel_intdeps} "
+      as_fn_append ex_sort_cppflags "${xcel_cppflags} "
+      as_fn_append ex_sort_ldflags "${xcel_ldflags} "
+      as_fn_append ex_sort_libs "${xcel_libs} "
 
 fi
 
@@ -4981,18 +5074,6 @@ $as_echo "$as_me: configuring internal subproject ex_sort" >&6;}
 
 
 
-# Verify that XILINX_VIVADO_HLS_INCLUDE_DIR is set
-
-if  test -n "${XILINX_VIVADO_HLS_INCLUDE_DIR}" ; then :
-
-  as_fn_append ex_sort_cppflags "-I ${XILINX_VIVADO_HLS_INCLUDE_DIR} -DXILINX_VIVADO_HLS_TESTING "
-
-else
-
-  as_fn_error $? "XILINX_VIVADO_HLS_INCLUDE_DIR not set!" "$LINENO" 5
-
-fi
-
 
   };
 
@@ -5039,9 +5120,9 @@ fi
 
   polydsu_cfg ()
   {
-    ac_config_headers="$ac_config_headers polydsu-config.h:config.h.in"
+    ac_config_headers="$ac_config_headers polydsu/config.h:config.h.in"
 
-    ac_config_files="$ac_config_files polydsu.mk:polydsu/polydsu.mk.in"
+    ac_config_files="$ac_config_files polydsu/polydsu.mk:polydsu/polydsu.mk.in"
 
 
 $as_echo "#define HAVE_POLYDSU /**/" >>confdefs.h
@@ -5066,12 +5147,13 @@ $as_echo "#define HAVE_POLYDSU /**/" >>confdefs.h
   # Save the list of direct dependencies (ie dirdeps) and a list of
   # dependencies which are comma separated for pkg-config file.
 
-  polydsu_dirdeps="utst"
-  polydsu_pkcdeps="utst"
+  polydsu_dirdeps="mem xcel"
+  polydsu_pkcdeps="mem,xcel"
 
   # Initialize this subproject's compiler and linker flags
 
-  polydsu_cppflags="-I${srcdir}/polydsu "
+  polydsu_cppflags=""
+  polydsu_ldflags="-Lpolydsu "
   polydsu_libs="-lpolydsu "
 
   # Loop through the list of given subprojects and for each one see if
@@ -5101,33 +5183,84 @@ $as_echo "#define HAVE_POLYDSU /**/" >>confdefs.h
 
 
 
-      if  test "${with_utst}" = "no" ; then :
+      if  test "${with_mem}" = "no" ; then :
 
-        eval "utst_cfg"
+        eval "mem_cfg"
 
 fi
 
 
     # Add information about this dependency to our running lists
 
-    if  test "${with_utst}" = "yes" ; then :
+    if  test "${with_mem}" = "yes" ; then :
 
       # Add the actual dependency to our libs list and our intdeps list
       # which are both ordered such that libs only depend on later libs
 
-      as_fn_append polydsu_libs "-lutst "
-      if  test "${utst_type}" = "internal" ; then :
+      as_fn_append polydsu_ldflags "-Lmem "
+      as_fn_append polydsu_libs "-lmem "
+      if  test "${mem_type}" = "internal" ; then :
 
-        as_fn_append polydsu_intdeps "utst "
+        as_fn_append polydsu_intdeps "mem "
 
 fi
 
       # Add dependency's variables to our own
 
-      as_fn_append polydsu_intdeps "${utst_intdeps} "
-      as_fn_append polydsu_cppflags "${utst_cppflags} "
-      as_fn_append polydsu_ldflags "${utst_ldflags} "
-      as_fn_append polydsu_libs "${utst_libs} "
+      as_fn_append polydsu_intdeps "${mem_intdeps} "
+      as_fn_append polydsu_cppflags "${mem_cppflags} "
+      as_fn_append polydsu_ldflags "${mem_ldflags} "
+      as_fn_append polydsu_libs "${mem_libs} "
+
+fi
+
+    # Determine if this dependency is required or optional
+
+
+
+    # Create some names which characterize this dependency including a
+    # shell variable indicating if this subproject has been configured,
+    # the function name to call if we need to configure this dependency,
+    # and a shell variable which has this dependency's dependencies.
+
+
+
+
+
+    # If the dependency is required and has not been configured then
+    # configure it. Issue error if subproject does not exist.
+
+
+
+
+      if  test "${with_xcel}" = "no" ; then :
+
+        eval "xcel_cfg"
+
+fi
+
+
+    # Add information about this dependency to our running lists
+
+    if  test "${with_xcel}" = "yes" ; then :
+
+      # Add the actual dependency to our libs list and our intdeps list
+      # which are both ordered such that libs only depend on later libs
+
+      as_fn_append polydsu_ldflags "-Lxcel "
+      as_fn_append polydsu_libs "-lxcel "
+      if  test "${xcel_type}" = "internal" ; then :
+
+        as_fn_append polydsu_intdeps "xcel "
+
+fi
+
+      # Add dependency's variables to our own
+
+      as_fn_append polydsu_intdeps "${xcel_intdeps} "
+      as_fn_append polydsu_cppflags "${xcel_cppflags} "
+      as_fn_append polydsu_ldflags "${xcel_ldflags} "
+      as_fn_append polydsu_libs "${xcel_libs} "
 
 fi
 
@@ -5268,18 +5401,6 @@ $as_echo "$as_me: configuring internal subproject polydsu" >&6;}
 
 
 
-# Verify that XILINX_VIVADO_HLS_INCLUDE_DIR is set
-
-if  test -n "${XILINX_VIVADO_HLS_INCLUDE_DIR}" ; then :
-
-  as_fn_append polydsu_cppflags "-I ${XILINX_VIVADO_HLS_INCLUDE_DIR} -DXILINX_VIVADO_HLS_TESTING "
-
-else
-
-  as_fn_error $? "XILINX_VIVADO_HLS_INCLUDE_DIR not set!" "$LINENO" 5
-
-fi
-
 
   };
 
@@ -5326,9 +5447,9 @@ fi
 
   polydsu_list_cfg ()
   {
-    ac_config_headers="$ac_config_headers polydsu_list-config.h:config.h.in"
+    ac_config_headers="$ac_config_headers polydsu_list/config.h:config.h.in"
 
-    ac_config_files="$ac_config_files polydsu_list.mk:polydsu_list/polydsu_list.mk.in"
+    ac_config_files="$ac_config_files polydsu_list/polydsu_list.mk:polydsu_list/polydsu_list.mk.in"
 
 
 $as_echo "#define HAVE_POLYDSU_LIST /**/" >>confdefs.h
@@ -5353,12 +5474,13 @@ $as_echo "#define HAVE_POLYDSU_LIST /**/" >>confdefs.h
   # Save the list of direct dependencies (ie dirdeps) and a list of
   # dependencies which are comma separated for pkg-config file.
 
-  polydsu_list_dirdeps="mem"
-  polydsu_list_pkcdeps="mem"
+  polydsu_list_dirdeps="polydsu mem xcel"
+  polydsu_list_pkcdeps="polydsu,mem,xcel"
 
   # Initialize this subproject's compiler and linker flags
 
-  polydsu_list_cppflags="-I${srcdir}/polydsu_list "
+  polydsu_list_cppflags=""
+  polydsu_list_ldflags="-Lpolydsu_list "
   polydsu_list_libs="-lpolydsu_list "
 
   # Loop through the list of given subprojects and for each one see if
@@ -5368,6 +5490,56 @@ $as_echo "#define HAVE_POLYDSU_LIST /**/" >>confdefs.h
   # Eventually maybe this should happen at configure run time as opposed
   # to autoconf run time.
 
+
+    # Determine if this dependency is required or optional
+
+
+
+    # Create some names which characterize this dependency including a
+    # shell variable indicating if this subproject has been configured,
+    # the function name to call if we need to configure this dependency,
+    # and a shell variable which has this dependency's dependencies.
+
+
+
+
+
+    # If the dependency is required and has not been configured then
+    # configure it. Issue error if subproject does not exist.
+
+
+
+
+      if  test "${with_polydsu}" = "no" ; then :
+
+        eval "polydsu_cfg"
+
+fi
+
+
+    # Add information about this dependency to our running lists
+
+    if  test "${with_polydsu}" = "yes" ; then :
+
+      # Add the actual dependency to our libs list and our intdeps list
+      # which are both ordered such that libs only depend on later libs
+
+      as_fn_append polydsu_list_ldflags "-Lpolydsu "
+      as_fn_append polydsu_list_libs "-lpolydsu "
+      if  test "${polydsu_type}" = "internal" ; then :
+
+        as_fn_append polydsu_list_intdeps "polydsu "
+
+fi
+
+      # Add dependency's variables to our own
+
+      as_fn_append polydsu_list_intdeps "${polydsu_intdeps} "
+      as_fn_append polydsu_list_cppflags "${polydsu_cppflags} "
+      as_fn_append polydsu_list_ldflags "${polydsu_ldflags} "
+      as_fn_append polydsu_list_libs "${polydsu_libs} "
+
+fi
 
     # Determine if this dependency is required or optional
 
@@ -5402,6 +5574,7 @@ fi
       # Add the actual dependency to our libs list and our intdeps list
       # which are both ordered such that libs only depend on later libs
 
+      as_fn_append polydsu_list_ldflags "-Lmem "
       as_fn_append polydsu_list_libs "-lmem "
       if  test "${mem_type}" = "internal" ; then :
 
@@ -5415,6 +5588,56 @@ fi
       as_fn_append polydsu_list_cppflags "${mem_cppflags} "
       as_fn_append polydsu_list_ldflags "${mem_ldflags} "
       as_fn_append polydsu_list_libs "${mem_libs} "
+
+fi
+
+    # Determine if this dependency is required or optional
+
+
+
+    # Create some names which characterize this dependency including a
+    # shell variable indicating if this subproject has been configured,
+    # the function name to call if we need to configure this dependency,
+    # and a shell variable which has this dependency's dependencies.
+
+
+
+
+
+    # If the dependency is required and has not been configured then
+    # configure it. Issue error if subproject does not exist.
+
+
+
+
+      if  test "${with_xcel}" = "no" ; then :
+
+        eval "xcel_cfg"
+
+fi
+
+
+    # Add information about this dependency to our running lists
+
+    if  test "${with_xcel}" = "yes" ; then :
+
+      # Add the actual dependency to our libs list and our intdeps list
+      # which are both ordered such that libs only depend on later libs
+
+      as_fn_append polydsu_list_ldflags "-Lxcel "
+      as_fn_append polydsu_list_libs "-lxcel "
+      if  test "${xcel_type}" = "internal" ; then :
+
+        as_fn_append polydsu_list_intdeps "xcel "
+
+fi
+
+      # Add dependency's variables to our own
+
+      as_fn_append polydsu_list_intdeps "${xcel_intdeps} "
+      as_fn_append polydsu_list_cppflags "${xcel_cppflags} "
+      as_fn_append polydsu_list_ldflags "${xcel_ldflags} "
+      as_fn_append polydsu_list_libs "${xcel_libs} "
 
 fi
 
@@ -5555,18 +5778,6 @@ $as_echo "$as_me: configuring internal subproject polydsu_list" >&6;}
 
 
 
-# Verify that XILINX_VIVADO_HLS_INCLUDE_DIR is set
-
-if  test -n "${XILINX_VIVADO_HLS_INCLUDE_DIR}" ; then :
-
-  as_fn_append polydsu_list_cppflags "-I ${XILINX_VIVADO_HLS_INCLUDE_DIR} -DXILINX_VIVADO_HLS_TESTING "
-
-else
-
-  as_fn_error $? "XILINX_VIVADO_HLS_INCLUDE_DIR not set!" "$LINENO" 5
-
-fi
-
 
   };
 
@@ -5613,9 +5824,9 @@ fi
 
   polydsu_rbtree_cfg ()
   {
-    ac_config_headers="$ac_config_headers polydsu_rbtree-config.h:config.h.in"
+    ac_config_headers="$ac_config_headers polydsu_rbtree/config.h:config.h.in"
 
-    ac_config_files="$ac_config_files polydsu_rbtree.mk:polydsu_rbtree/polydsu_rbtree.mk.in"
+    ac_config_files="$ac_config_files polydsu_rbtree/polydsu_rbtree.mk:polydsu_rbtree/polydsu_rbtree.mk.in"
 
 
 $as_echo "#define HAVE_POLYDSU_RBTREE /**/" >>confdefs.h
@@ -5645,7 +5856,8 @@ $as_echo "#define HAVE_POLYDSU_RBTREE /**/" >>confdefs.h
 
   # Initialize this subproject's compiler and linker flags
 
-  polydsu_rbtree_cppflags="-I${srcdir}/polydsu_rbtree "
+  polydsu_rbtree_cppflags=""
+  polydsu_rbtree_ldflags="-Lpolydsu_rbtree "
   polydsu_rbtree_libs="-lpolydsu_rbtree "
 
   # Loop through the list of given subprojects and for each one see if
@@ -5689,6 +5901,7 @@ fi
       # Add the actual dependency to our libs list and our intdeps list
       # which are both ordered such that libs only depend on later libs
 
+      as_fn_append polydsu_rbtree_ldflags "-Lmem "
       as_fn_append polydsu_rbtree_libs "-lmem "
       if  test "${mem_type}" = "internal" ; then :
 
@@ -5841,18 +6054,6 @@ fi
 $as_echo "$as_me: configuring internal subproject polydsu_rbtree" >&6;}
 
 
-
-# Verify that XILINX_VIVADO_HLS_INCLUDE_DIR is set
-
-if  test -n "${XILINX_VIVADO_HLS_INCLUDE_DIR}" ; then :
-
-  as_fn_append polydsu_rbtree_cppflags "-I ${XILINX_VIVADO_HLS_INCLUDE_DIR} -DXILINX_VIVADO_HLS_TESTING "
-
-else
-
-  as_fn_error $? "XILINX_VIVADO_HLS_INCLUDE_DIR not set!" "$LINENO" 5
-
-fi
 
 
   };
@@ -6577,22 +6778,22 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "utst-config.h") CONFIG_HEADERS="$CONFIG_HEADERS utst-config.h:config.h.in" ;;
-    "utst.mk") CONFIG_FILES="$CONFIG_FILES utst.mk:utst/utst.mk.in" ;;
-    "xcel-config.h") CONFIG_HEADERS="$CONFIG_HEADERS xcel-config.h:config.h.in" ;;
-    "xcel.mk") CONFIG_FILES="$CONFIG_FILES xcel.mk:xcel/xcel.mk.in" ;;
-    "mem-config.h") CONFIG_HEADERS="$CONFIG_HEADERS mem-config.h:config.h.in" ;;
-    "mem.mk") CONFIG_FILES="$CONFIG_FILES mem.mk:mem/mem.mk.in" ;;
-    "ex_gcd-config.h") CONFIG_HEADERS="$CONFIG_HEADERS ex_gcd-config.h:config.h.in" ;;
-    "ex_gcd.mk") CONFIG_FILES="$CONFIG_FILES ex_gcd.mk:ex_gcd/ex_gcd.mk.in" ;;
-    "ex_sort-config.h") CONFIG_HEADERS="$CONFIG_HEADERS ex_sort-config.h:config.h.in" ;;
-    "ex_sort.mk") CONFIG_FILES="$CONFIG_FILES ex_sort.mk:ex_sort/ex_sort.mk.in" ;;
-    "polydsu-config.h") CONFIG_HEADERS="$CONFIG_HEADERS polydsu-config.h:config.h.in" ;;
-    "polydsu.mk") CONFIG_FILES="$CONFIG_FILES polydsu.mk:polydsu/polydsu.mk.in" ;;
-    "polydsu_list-config.h") CONFIG_HEADERS="$CONFIG_HEADERS polydsu_list-config.h:config.h.in" ;;
-    "polydsu_list.mk") CONFIG_FILES="$CONFIG_FILES polydsu_list.mk:polydsu_list/polydsu_list.mk.in" ;;
-    "polydsu_rbtree-config.h") CONFIG_HEADERS="$CONFIG_HEADERS polydsu_rbtree-config.h:config.h.in" ;;
-    "polydsu_rbtree.mk") CONFIG_FILES="$CONFIG_FILES polydsu_rbtree.mk:polydsu_rbtree/polydsu_rbtree.mk.in" ;;
+    "utst/config.h") CONFIG_HEADERS="$CONFIG_HEADERS utst/config.h:config.h.in" ;;
+    "utst/utst.mk") CONFIG_FILES="$CONFIG_FILES utst/utst.mk:utst/utst.mk.in" ;;
+    "xcel/config.h") CONFIG_HEADERS="$CONFIG_HEADERS xcel/config.h:config.h.in" ;;
+    "xcel/xcel.mk") CONFIG_FILES="$CONFIG_FILES xcel/xcel.mk:xcel/xcel.mk.in" ;;
+    "mem/config.h") CONFIG_HEADERS="$CONFIG_HEADERS mem/config.h:config.h.in" ;;
+    "mem/mem.mk") CONFIG_FILES="$CONFIG_FILES mem/mem.mk:mem/mem.mk.in" ;;
+    "ex_gcd/config.h") CONFIG_HEADERS="$CONFIG_HEADERS ex_gcd/config.h:config.h.in" ;;
+    "ex_gcd/ex_gcd.mk") CONFIG_FILES="$CONFIG_FILES ex_gcd/ex_gcd.mk:ex_gcd/ex_gcd.mk.in" ;;
+    "ex_sort/config.h") CONFIG_HEADERS="$CONFIG_HEADERS ex_sort/config.h:config.h.in" ;;
+    "ex_sort/ex_sort.mk") CONFIG_FILES="$CONFIG_FILES ex_sort/ex_sort.mk:ex_sort/ex_sort.mk.in" ;;
+    "polydsu/config.h") CONFIG_HEADERS="$CONFIG_HEADERS polydsu/config.h:config.h.in" ;;
+    "polydsu/polydsu.mk") CONFIG_FILES="$CONFIG_FILES polydsu/polydsu.mk:polydsu/polydsu.mk.in" ;;
+    "polydsu_list/config.h") CONFIG_HEADERS="$CONFIG_HEADERS polydsu_list/config.h:config.h.in" ;;
+    "polydsu_list/polydsu_list.mk") CONFIG_FILES="$CONFIG_FILES polydsu_list/polydsu_list.mk:polydsu_list/polydsu_list.mk.in" ;;
+    "polydsu_rbtree/config.h") CONFIG_HEADERS="$CONFIG_HEADERS polydsu_rbtree/config.h:config.h.in" ;;
+    "polydsu_rbtree/polydsu_rbtree.mk") CONFIG_FILES="$CONFIG_FILES polydsu_rbtree/polydsu_rbtree.mk:polydsu_rbtree/polydsu_rbtree.mk.in" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;

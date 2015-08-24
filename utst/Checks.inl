@@ -1,12 +1,12 @@
 //========================================================================
-// utst-Checks.inl
+// utst/Checks.inl
 //========================================================================
 // Refactoring the check macros into functions as much as possible
 // should improve compile times as opposed to having each macro expand
 // to lots of code. A single test case might use tens of check macros so
 // we need to be careful how much code this expands to.
 
-#include "utst-TestLog.h"
+#include "utst/TestLog.h"
 #include <string>
 #include <sstream>
 #include <iostream>

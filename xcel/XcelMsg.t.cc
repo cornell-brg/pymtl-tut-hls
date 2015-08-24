@@ -2,8 +2,8 @@
 // Unit Tests for XcelMsg
 //========================================================================
 
-#include "utst.h"
-#include "XcelMsg.h"
+#include "utst/utst.h"
+#include "xcel/XcelMsg.h"
 
 using namespace xcel;
 
@@ -65,6 +65,6 @@ UTST_AUTO_TEST_CASE( TestRead )
 
 int main( int argc, char* argv[] )
 {
-  utst::auto_command_line_driver( argc, argv );
+  utst::auto_command_line_driver( argc, argv, "xcel" );
 }
 

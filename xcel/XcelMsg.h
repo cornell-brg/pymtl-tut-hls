@@ -5,8 +5,8 @@
 
 #include <ap_int.h>
 
-#ifndef XCEL_XCELMSG_H
-#define XCEL_XCELMSG_H
+#ifndef XCEL_XCEL_MSG_H
+#define XCEL_XCEL_MSG_H
 
 namespace xcel {
 
@@ -173,4 +173,6 @@ namespace xcel {
   };
 
 }
-#endif
+
+#endif /* XCEL_XCEL_MSG_H */
+

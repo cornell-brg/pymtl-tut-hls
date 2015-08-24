@@ -10,13 +10,16 @@ ex_sort_ldflags  = @ex_sort_ldflags@
 ex_sort_libs     = @ex_sort_libs@
 
 ex_sort_hdrs = \
-  SortXcelHLS.h \
+  ex_sort/SortXcelHLS.h \
 
 ex_sort_inls = \
 
 ex_sort_srcs = \
-  SortXcelHLS.cc \
+  ex_sort/SortXcelHLS.cc \
 
 ex_sort_test_srcs = \
-  SortXcelHLS.t.cc \
+  ex_sort/SortXcelHLS.t.cc \
+
+ex_sort_hls_srcs = \
+  ex_sort/SortXcelHLS.cc \
 

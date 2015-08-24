@@ -1,10 +1,10 @@
 //========================================================================
-// utst-TestSuite.cc
+// utst/TestSuite.cc
 //========================================================================
 
-#include "utst-TestSuite.h"
-#include "utst-TestLog.h"
-#include "utst-ITestCase.h"
+#include "utst/TestSuite.h"
+#include "utst/TestLog.h"
+#include "utst/ITestCase.h"
 #include <cassert>
 
 namespace utst {

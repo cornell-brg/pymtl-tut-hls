@@ -1,10 +1,10 @@
 //========================================================================
-// utst-AutoUtils.cc
+// utst/AutoUtils.cc
 //========================================================================
 
-#include "utst-AutoUtils.h"
-#include "utst-ITestCase.h"
-#include "utst-CommandLineTestDriver.h"
+#include "utst/AutoUtils.h"
+#include "utst/ITestCase.h"
+#include "utst/CommandLineTestDriver.h"
 
 namespace utst {
 
@@ -46,13 +46,14 @@ namespace utst {
   // auto_command_line_driver
   //----------------------------------------------------------------------
 
-  void auto_command_line_driver( int argc, char* argv[] )
+  void auto_command_line_driver( int argc, char* argv[],
+                                 const std::string& sproj_name )
   {
     utst::CommandLineTestDriver driver;
     driver.add_suite( &utst::g_default_suite() );
     driver.add_suite( &utst::g_longrun_suite() );
     driver.add_suite( &utst::g_perf_suite()    );
-    driver.run( argc, argv );
+    driver.run( argc, argv, sproj_name );
   }
 
 }

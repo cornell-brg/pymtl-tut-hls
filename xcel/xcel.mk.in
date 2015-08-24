@@ -10,10 +10,13 @@ xcel_ldflags  = @xcel_ldflags@
 xcel_libs     = @xcel_libs@
 
 xcel_hdrs = \
+  xcel/XcelMsg.h \
+  xcel/XcelWrapper.h \
 
 xcel_inls = \
 
 xcel_srcs = \
 
 xcel_test_srcs = \
-	XcelMsg.t.cc \
+  xcel/XcelMsg.t.cc \
+

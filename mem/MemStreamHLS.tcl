@@ -4,11 +4,19 @@
 
 set top "MemStreamHLS"
 
-open_project MemStreamHLS.prj
+# In case this script is run from a different directory, we use the
+# actual script name to figure out where the corresponding source code
+# is located.
+
+set sproj_dir [file dirname [info script]]
+set src_dir "${sproj_dir}/.."
+puts "Subproject directory path: ${sproj_dir}"
+
+open_project $top.prj
 
 set_top $top
 
-add_files MemStreamHLS.cc
+add_files -cflags "-I$src_dir" $sproj_dir/$top.cc
 
 open_solution "solution1" -reset
 
