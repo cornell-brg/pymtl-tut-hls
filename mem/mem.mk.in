@@ -33,3 +33,7 @@ mem_test_srcs = \
   mem/MemProxy.t.cc \
   mem/MemProxyHLS.t.cc \
 
+mem_hls_srcs = \
+  mem/MemStreamHLS.cc \
+  mem/MemProxyHLS.cc \
+

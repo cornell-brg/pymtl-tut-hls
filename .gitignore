@@ -14,5 +14,7 @@ pymtl.egg-info
 *.pyc
 *.pyo
 
+*HLS.v
+
 *~
 
