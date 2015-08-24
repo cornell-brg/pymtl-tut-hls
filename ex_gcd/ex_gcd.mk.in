@@ -10,13 +10,16 @@ ex_gcd_ldflags  = @ex_gcd_ldflags@
 ex_gcd_libs     = @ex_gcd_libs@
 
 ex_gcd_hdrs = \
-  GcdXcelHLS.h \
+  ex_gcd/GcdXcelHLS.h \
 
 ex_gcd_inls = \
 
 ex_gcd_srcs = \
-  GcdXcelHLS.cc \
+  ex_gcd/GcdXcelHLS.cc \
 
 ex_gcd_test_srcs = \
-  GcdXcelHLS.t.cc \
+  ex_gcd/GcdXcelHLS.t.cc \
+
+ex_gcd_hls_srcs = \
+  ex_gcd/GcdXcelHLS.cc \
 

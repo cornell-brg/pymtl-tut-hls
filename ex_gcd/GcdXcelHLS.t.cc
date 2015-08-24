@@ -2,8 +2,8 @@
 // Unit Tests for GcdXcelHLS
 //========================================================================
 
-#include "utst.h"
-#include "GcdXcelHLS.h"
+#include "utst/utst.h"
+#include "ex_gcd/GcdXcelHLS.h"
 
 #include <vector>
 #include <algorithm>
@@ -104,6 +104,6 @@ UTST_AUTO_TEST_CASE( TestRandom )
 
 int main( int argc, char* argv[] )
 {
-  utst::auto_command_line_driver( argc, argv );
+  utst::auto_command_line_driver( argc, argv, "ex_gcd" );
 }
 

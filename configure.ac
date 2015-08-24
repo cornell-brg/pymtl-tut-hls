@@ -108,6 +108,7 @@ MCPPBS_PROG_RUN
 MCPPBS_INCLUDE_INTERNAL([utst])
 MCPPBS_INCLUDE_INTERNAL([xcel])
 MCPPBS_INCLUDE_INTERNAL([mem])
+MCPPBS_INCLUDE_INTERNAL([ex_gcd])
 
 #-------------------------------------------------------------------------
 # MCPPBS subproject libraries to install

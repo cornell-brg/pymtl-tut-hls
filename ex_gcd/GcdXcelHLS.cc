@@ -18,7 +18,7 @@
 //  3. Tell the accelerator to compute gcd and wait for result by reading
 //     xr0
 
-#include "GcdXcelHLS.h"
+#include "ex_gcd/GcdXcelHLS.h"
 
 using namespace xcel;
 
