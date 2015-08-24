@@ -579,9 +579,10 @@ debug-% :
 #-------------------------------------------------------------------------
 # Clean up junk
 #-------------------------------------------------------------------------
+# We clean up the PyMTL junk as well.
 
 clean :
-	rm -rf *~ \#* $(junk)
+	rm -rf *~ \#* *.v *.cpp *.py *.so obj_dir_* $(junk)
 
 hlsclean :
 	rm -rf $(hls_junk)
