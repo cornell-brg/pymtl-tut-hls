@@ -20,9 +20,11 @@ namespace xmem {
 
    public:
 
-    OutMemStream( unsigned int addr_, MemReqStream& memreq, MemRespStream& memresp );
+    OutMemStream( unsigned int addr_, Opaque opq,
+                  MemReqStream& memreq, MemRespStream& memresp );
 
     unsigned int   addr;
+    Opaque         opq;
     MemReqStream&  m_memreq;
     MemRespStream& m_memresp;
 
@@ -36,9 +38,11 @@ namespace xmem {
 
    public:
 
-    InMemStream( unsigned int addr_, MemReqStream& memreq, MemRespStream& memresp );
+    InMemStream( unsigned int addr_, Opaque opq,
+                 MemReqStream& memreq, MemRespStream& memresp );
 
     unsigned int   addr;
+    Opaque         opq;
     MemReqStream&  m_memreq;
     MemRespStream& m_memresp;
 

@@ -32,6 +32,7 @@ namespace xmem {
   class MemValue {
 
       Address m_addr;
+      Opaque  m_opq;
 
       mutable bool m_memoized_valid;
       mutable T    m_memoized_value;
@@ -43,7 +44,8 @@ namespace xmem {
       //------------------------------------------------------------------
       // Constructor
       //------------------------------------------------------------------
-      explicit MemValue( Address addr, MemReqStream& memreq, MemRespStream& memresp );
+      explicit MemValue( Address addr, Opaque opq,
+                         MemReqStream& memreq, MemRespStream& memresp );
 
       //------------------------------------------------------------------
       // rvalue and lvalue uses
@@ -55,8 +57,8 @@ namespace xmem {
       //------------------------------------------------------------------
       // & operator
       //------------------------------------------------------------------
-      MemPointer<T> operator&() { return MemPointer<T>( m_addr, m_memreq, m_memresp ); }
-      const MemPointer<T> operator&() const { return MemPointer<T>( m_addr, m_memreq, m_memresp ); }
+      MemPointer<T> operator&() { return MemPointer<T>( m_addr, m_opq, m_memreq, m_memresp ); }
+      const MemPointer<T> operator&() const { return MemPointer<T>( m_addr, m_opq,  m_memreq, m_memresp ); }
 
       //------------------------------------------------------------------
       // Comparison Operators
@@ -87,6 +89,7 @@ namespace xmem {
   class MemPointer {
 
       Address m_addr;
+      Opaque  m_opq;
 
       mutable MemValue<T> m_obj_temp;
 
@@ -95,7 +98,7 @@ namespace xmem {
       // Constructors
       //------------------------------------------------------------------
       MemPointer( MemReqStream& memreq, MemRespStream& memresp );
-      explicit MemPointer( Address base_ptr, MemReqStream& memreq, MemRespStream& memresp );
+      explicit MemPointer( Address base_ptr, Opaque opq, MemReqStream& memreq, MemRespStream& memresp );
       MemPointer( const MemPointer& p );
 
       //------------------------------------------------------------------
@@ -170,6 +173,7 @@ namespace xmem {
   class MemValue< MemPointer<T> > {
 
       Address m_addr;
+      Opaque  m_opq;
 
       MemReqStream&  m_memreq;
       MemRespStream& m_memresp;
@@ -178,7 +182,8 @@ namespace xmem {
       //------------------------------------------------------------------
       // Constructors
       //------------------------------------------------------------------
-      explicit MemValue( Address addr, MemReqStream& memreq, MemRespStream& memresp );
+      explicit MemValue( Address addr, Opaque opq,
+                         MemReqStream& memreq, MemRespStream& memresp );
 
       //------------------------------------------------------------------
       // rvalue and lvalue uses

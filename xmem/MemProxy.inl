@@ -12,9 +12,12 @@ namespace xmem {
   // Constructor
   //----------------------------------------------------------------------
   template<typename T>
-  MemValue<T>::MemValue( Address addr, MemReqStream& memreq,
+  MemValue<T>::MemValue( Address addr,
+                         Opaque opq,
+                         MemReqStream& memreq,
                          MemRespStream& memresp )
     : m_addr( addr ),
+      m_opq( opq ),
       m_memoized_valid( false ),
       m_memreq( memreq ), m_memresp( memresp )
   {}
@@ -27,7 +30,7 @@ namespace xmem {
     DB_PRINT (("MemValue: reading from 0x%u\n", m_addr.to_uint()));
     if ( !m_memoized_valid ) {
       //m_memoized_valid = true;
-      xmem::InMemStream is(m_addr,m_memreq,m_memresp);
+      xmem::InMemStream is(m_addr,m_opq,m_memreq,m_memresp);
       is >> m_memoized_value;
     }
     return m_memoized_value;
@@ -41,7 +44,7 @@ namespace xmem {
     DB_PRINT (("MemValue: writing %u to 0x%u\n", value, m_addr.to_uint()));
     // dump the memoized value on a store
     m_memoized_valid = false;
-    xmem::OutMemStream os(m_addr,m_memreq,m_memresp);
+    xmem::OutMemStream os(m_addr,m_opq,m_memreq,m_memresp);
     os << value;
     return *this;
   }
@@ -61,20 +64,25 @@ namespace xmem {
   template<typename T>              // default
   MemPointer<T>::MemPointer( MemReqStream& memreq, MemRespStream& memresp )
     : m_addr( 0 ),
-      m_obj_temp( 0, memreq, memresp )
+      m_opq( 0 ),
+      m_obj_temp( 0, 0, memreq, memresp )
   {}
 
   template<typename T>              // from address
-  MemPointer<T>::MemPointer( Address base_ptr, MemReqStream& memreq,
+  MemPointer<T>::MemPointer( Address base_ptr,
+                             Opaque  opq,
+                             MemReqStream& memreq,
                              MemRespStream& memresp )
     : m_addr( base_ptr ),
-      m_obj_temp( base_ptr, memreq, memresp )
+      m_opq( opq ),
+      m_obj_temp( base_ptr, opq, memreq, memresp )
   {}
 
   template<typename T>              // copy
   MemPointer<T>::MemPointer( const MemPointer& p )
     : m_addr( p.m_addr ),
-      m_obj_temp( p.m_addr, p.m_obj_temp.memreq(), p.m_obj_temp.memresp() )
+      m_opq( p.m_opq ),
+      m_obj_temp( p.m_addr, p.m_opq, p.m_obj_temp.memreq(), p.m_obj_temp.memresp() )
   {}
 
   //----------------------------------------------------------------------
@@ -82,7 +90,7 @@ namespace xmem {
   //----------------------------------------------------------------------
   template<typename T>
   MemValue<T> MemPointer<T>::operator*() const {
-    return MemValue<T>( m_addr, m_obj_temp.memreq(), m_obj_temp.memresp() );
+    return MemValue<T>( m_addr, m_opq, m_obj_temp.memreq(), m_obj_temp.memresp() );
   }
 
   //----------------------------------------------------------------------
@@ -142,9 +150,12 @@ namespace xmem {
   // Constructors
   //----------------------------------------------------------------------
   template<typename T>
-  MemValue< MemPointer<T> >::MemValue( Address base_ptr, MemReqStream& memreq,
+  MemValue< MemPointer<T> >::MemValue( Address base_ptr,
+                                       Opaque opq,
+                                       MemReqStream& memreq,
                                        MemRespStream& memresp )
-    : m_addr( base_ptr ), m_memreq( memreq ), m_memresp( memresp )
+    : m_addr( base_ptr ), m_opq( opq ),
+      m_memreq( memreq ), m_memresp( memresp )
   {}
 
   //----------------------------------------------------------------------
@@ -153,8 +164,8 @@ namespace xmem {
   template<typename T>
   MemValue< MemPointer<T> >::operator MemPointer<T>() const {
     DB_PRINT (("MemValue: reading from %u\n", m_addr));
-    MemPointer<T> ptr(0,m_memreq,m_memresp);
-    xmem::InMemStream is(m_addr,m_memreq,m_memresp);
+    MemPointer<T> ptr(0,m_opq,m_memreq,m_memresp);
+    xmem::InMemStream is(m_addr,m_opq,m_memreq,m_memresp);
     is >> ptr;
     return ptr;
   }
@@ -166,7 +177,7 @@ namespace xmem {
   MemValue< MemPointer<T> >&
   MemValue< MemPointer<T> >::operator=( const MemPointer<T>& p ) {
     DB_PRINT (("MemValue: writing %u to loc %u\n", p.get_addr(), m_addr));
-    xmem::OutMemStream os(m_addr,m_memreq,m_memresp);
+    xmem::OutMemStream os(m_addr,m_opq,m_memreq,m_memresp);
     os << p;
     return *this;
   }
@@ -180,7 +191,7 @@ namespace xmem {
   template<typename T>
   MemValue< MemPointer<T> >&
   MemValue< MemPointer<T> >::operator=( const Address x ) {
-    return operator=( MemPointer<T>( x, m_memreq, m_memresp ) );
+    return operator=( MemPointer<T>( x, m_opq, m_memreq, m_memresp ) );
   }
 
   //----------------------------------------------------------------------

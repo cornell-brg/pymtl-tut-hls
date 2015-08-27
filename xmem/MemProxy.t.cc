@@ -20,7 +20,7 @@ UTST_AUTO_TEST_CASE( TestBasicWrite )
 
   test_mem.clear_num_requests();
 
-  MemValue<int> a(0x1000,test_mem,test_mem);
+  MemValue<int> a(0x1000,0,test_mem,test_mem);
   a = 42; // mem write
 
   UTST_CHECK_EQ( test_mem.get_num_requests(), 1 );
@@ -40,7 +40,7 @@ UTST_AUTO_TEST_CASE( TestBasicRead )
 
   test_mem.mem_write( 0x2000, 0xdeadbeef );
 
-  MemValue<int> a(0x2000,test_mem,test_mem);
+  MemValue<int> a(0x2000,0,test_mem,test_mem);
   unsigned int value = a; // mem read
 
   UTST_CHECK_EQ( test_mem.get_num_requests(), 1 );
@@ -59,8 +59,8 @@ UTST_AUTO_TEST_CASE( TestCopy )
 
   test_mem.mem_write( 0x1000, 13u );
 
-  MemValue<int> a(0x1000,test_mem,test_mem);
-  MemValue<int> b(0x2000,test_mem,test_mem);
+  MemValue<int> a(0x1000,0,test_mem,test_mem);
+  MemValue<int> b(0x2000,0,test_mem,test_mem);
 
   b = a;
 
@@ -78,8 +78,8 @@ UTST_AUTO_TEST_CASE( TestOperators )
 
   test_mem.clear_num_requests();
 
-  MemValue<int> a(0x1000,test_mem,test_mem);
-  MemValue<int> b(0x2000,test_mem,test_mem);
+  MemValue<int> a(0x1000,0,test_mem,test_mem);
+  MemValue<int> b(0x2000,0,test_mem,test_mem);
 
   a = 42;
   b = 47;
@@ -107,7 +107,7 @@ UTST_AUTO_TEST_CASE( TestMemoize )
 
   test_mem.mem_write( 0x1000, 0x0afecafe );
 
-  MemValue<int> a(0x1000,test_mem,test_mem);
+  MemValue<int> a(0x1000,0,test_mem,test_mem);
   int value0 = a; // mem read
   int value1 = a; // no mem read!
 
@@ -117,7 +117,7 @@ UTST_AUTO_TEST_CASE( TestMemoize )
 
   test_mem.clear_num_requests();
 
-  MemValue<int> b(0x2000,test_mem,test_mem);
+  MemValue<int> b(0x2000,0,test_mem,test_mem);
   b = 42;        // mem write
   int valueb0 = b; // mem read
   int valueb1 = b; // mem read
@@ -143,7 +143,7 @@ UTST_AUTO_TEST_CASE( TestPointer )
 
   test_mem.clear_num_requests();
 
-  MemValue<int> a(0x1000,test_mem,test_mem);
+  MemValue<int> a(0x1000,0,test_mem,test_mem);
 
   // Get pointer from referencing a value
   MemPointer<int> ap = &a;
@@ -187,8 +187,8 @@ UTST_AUTO_TEST_CASE( TestPointerAssign )
 
   test_mem.clear_num_requests();
 
-  MemValue<int> a(0x1000,test_mem,test_mem);
-  MemValue<int> b(0x2000,test_mem,test_mem);
+  MemValue<int> a(0x1000,0,test_mem,test_mem);
+  MemValue<int> b(0x2000,0,test_mem,test_mem);
   a = 20;   // write 1
   b = 30;   // write 2
 
@@ -216,14 +216,14 @@ UTST_AUTO_TEST_CASE( TestPointerInMem )
 
   test_mem.clear_num_requests();
 
-  MemValue<int> a(0x1000,test_mem,test_mem);
-  MemValue<int> b(0x1004,test_mem,test_mem);
+  MemValue<int> a(0x1000,0,test_mem,test_mem);
+  MemValue<int> b(0x1004,0,test_mem,test_mem);
 
   a = 42;
   b = 47;
 
-  MemValue< MemPointer<int> > a_ptr(0x1008,test_mem,test_mem);
-  MemValue< MemPointer<int> > b_ptr(0x100c,test_mem,test_mem);
+  MemValue< MemPointer<int> > a_ptr(0x1008,0,test_mem,test_mem);
+  MemValue< MemPointer<int> > b_ptr(0x100c,0,test_mem,test_mem);
 
   a_ptr = &a;
   b_ptr = &b;
@@ -262,10 +262,10 @@ namespace xmem {
       MemValue< int > m_data;
 
       // Constructor
-      MemValue( Address base_ptr, MemReqStream& memreq, MemRespStream& memresp )
-      : m_prev( base_ptr, memreq, memresp ),
-        m_next( base_ptr + PTR_SIZE, memreq, memresp),
-        m_data( base_ptr + PTR_SIZE + PTR_SIZE, memreq, memresp )
+      MemValue( Address base_ptr, Opaque opq, MemReqStream& memreq, MemRespStream& memresp )
+      : m_prev( base_ptr, opq, memreq, memresp ),
+        m_next( base_ptr + PTR_SIZE, opq, memreq, memresp),
+        m_data( base_ptr + PTR_SIZE + PTR_SIZE, opq, memreq, memresp )
       {}
 
       // Get Address
@@ -295,8 +295,8 @@ UTST_AUTO_TEST_CASE( TestArrow )
 
   test_mem.clear_num_requests();
 
-  MemPointer<Node> p1( 0x1000, test_mem, test_mem );
-  MemPointer<Node> p2( 0x2000, test_mem, test_mem );
+  MemPointer<Node> p1( 0x1000, 0, test_mem, test_mem );
+  MemPointer<Node> p2( 0x2000, 0, test_mem, test_mem );
   MemValue<Node> n1 = *p1;
   MemValue<Node> n2 = *p2;
 
@@ -329,8 +329,8 @@ UTST_AUTO_TEST_CASE( TestLogical )
 
   test_mem.clear_num_requests();
 
-  MemPointer<int> p0( 0x0000, test_mem, test_mem );
-  MemPointer<int> p1( 0x1000, test_mem, test_mem );
+  MemPointer<int> p0( 0x0000, 0, test_mem, test_mem );
+  MemPointer<int> p1( 0x1000, 0, test_mem, test_mem );
 
   // if ( p0 )  { UTST_CHECK_EQ( 0, 1 ); }
   if ( p0 != 0 )  { UTST_CHECK_EQ( 0, 1 ); }
@@ -354,7 +354,7 @@ UTST_AUTO_TEST_CASE( TestArrowLogical )
 
   test_mem.clear_num_requests();
 
-  MemPointer<Node> p( 0x1000, test_mem, test_mem );
+  MemPointer<Node> p( 0x1000, 0, test_mem, test_mem );
 
   p->m_prev = 0x0;
   p->m_next = 0x8;

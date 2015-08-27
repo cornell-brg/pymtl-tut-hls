@@ -11,6 +11,9 @@
 
 #include "xmem/MemMsg.h"
 #include "xmem/MemCommon.h"
+#include "xmem/MemStream.h"
+#include "xmem/MemProxy.h"
+
 #include "xcel/XcelMsg.h"
 
 #include <hls_stream.h>
