@@ -150,6 +150,9 @@ namespace xmem {
       //------------------------------------------------------------------
       Address get_addr() const { return m_addr; }
       static size_t size() { return PTR_SIZE; }
+      
+      MemReqStream&  memreq()  const { return m_obj_temp.memreq(); }
+      MemRespStream& memresp() const { return m_obj_temp.memresp(); }
   };
 
   template<typename T>
