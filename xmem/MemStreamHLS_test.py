@@ -73,16 +73,16 @@ def run_test( test_num, data_in_addr, data_in, data_out_addr, data_out ):
   # Protocol messages
 
   msg = XcelReqMsg()
-  msg.type_ = XcelReqMsg.TYPE_WRITE
-  msg.raddr = 0
-  msg.data  = test_num
-  msg.opq   = 0xff
+  msg.type_  = XcelReqMsg.TYPE_WRITE
+  msg.raddr  = 0
+  msg.data   = test_num
+  msg.opaque = 0xff
   xreqs = [ msg ]
 
   msg = XcelRespMsg()
-  msg.type_ = XcelRespMsg.TYPE_WRITE
-  msg.data  = 0
-  msg.opq   = 0xff
+  msg.type_  = XcelRespMsg.TYPE_WRITE
+  msg.data   = 0
+  msg.opaque = 0xff
   xresps = [ msg ]
 
   # Create test harness with protocol messagse
