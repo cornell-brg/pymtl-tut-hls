@@ -277,14 +277,23 @@ namespace xmem {
 
       // Set Address
       Address get_addr() const { return m_prev.get_addr(); }
+
+      // Set Opaque
+      void set_opq( const Opaque opq ) {
+        m_prev.set_opq( opq );
+        m_next.set_opq( opq );
+        m_data.set_opq( opq );
+      }
+
+      // Get Opaque
+      Opaque get_opq() const { return m_prev.get_opq(); }
+
       MemReqStream& memreq()  const { return m_prev.memreq(); }
       MemReqStream& memresp() const { return m_prev.memresp(); }
 
       static size_t size() {
         return 2*PTR_SIZE + MemValue<int>::size();
       }
-
-      void unmemoize() {}
   };
 
 };  // end namespace xmem

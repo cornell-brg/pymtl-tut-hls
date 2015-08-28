@@ -54,6 +54,19 @@ namespace xmem {
     return operator=( static_cast<T>( x ) );
   }
 
+  //----------------------------------------------------------------------
+  // & operator
+  //----------------------------------------------------------------------
+  template<typename T>
+  MemPointer<T> MemValue<T>::operator&() {
+    return MemPointer<T>( m_addr, m_opq, m_memreq, m_memresp );
+  }
+
+  template<typename T>
+  const MemPointer<T> MemValue<T>::operator&() const {
+    return MemPointer<T>( m_addr, m_opq,  m_memreq, m_memresp );
+  }
+
 //========================================================================
 // MemPointer
 //========================================================================
@@ -62,10 +75,10 @@ namespace xmem {
   // Constructors
   //----------------------------------------------------------------------
   template<typename T>              // default
-  MemPointer<T>::MemPointer( MemReqStream& memreq, MemRespStream& memresp )
+  MemPointer<T>::MemPointer( Opaque opq, MemReqStream& memreq, MemRespStream& memresp )
     : m_addr( 0 ),
-      m_opq( 0 ),
-      m_obj_temp( 0, 0, memreq, memresp )
+      m_opq( opq ),
+      m_obj_temp( 0, opq, memreq, memresp )
   {}
 
   template<typename T>              // from address
@@ -74,15 +87,16 @@ namespace xmem {
                              MemReqStream& memreq,
                              MemRespStream& memresp )
     : m_addr( base_ptr ),
-      m_opq( opq ),
+      m_opq ( opq ),
       m_obj_temp( base_ptr, opq, memreq, memresp )
   {}
 
   template<typename T>              // copy
   MemPointer<T>::MemPointer( const MemPointer& p )
     : m_addr( p.m_addr ),
-      m_opq( p.m_opq ),
-      m_obj_temp( p.m_addr, p.m_opq, p.m_obj_temp.memreq(), p.m_obj_temp.memresp() )
+      m_opq( p.m_opq ),  
+      m_obj_temp( p.m_addr, p.get_opq(),
+                  p.memreq(), p.memresp() )
   {}
 
   //----------------------------------------------------------------------
@@ -90,7 +104,7 @@ namespace xmem {
   //----------------------------------------------------------------------
   template<typename T>
   MemValue<T> MemPointer<T>::operator*() const {
-    return MemValue<T>( m_addr, m_opq, m_obj_temp.memreq(), m_obj_temp.memresp() );
+    return MemValue<T>( m_addr, get_opq(), memreq(), memresp() );
   }
 
   //----------------------------------------------------------------------
@@ -100,6 +114,7 @@ namespace xmem {
   MemValue<T>* MemPointer<T>::operator->() {
     DB_PRINT(("MemPointer: operator->: m_addr=%u\n", m_addr));
     m_obj_temp.set_addr( m_addr );
+    m_obj_temp.set_opq ( m_opq );
     return &m_obj_temp;
   }
 
@@ -107,6 +122,7 @@ namespace xmem {
   const MemValue<T>* MemPointer<T>::operator->() const {
     DB_PRINT(("MemPointer: operator->: m_addr=%u\n", m_addr));
     m_obj_temp.set_addr( m_addr );
+    m_obj_temp.set_opq ( m_opq );
     return &m_obj_temp;
   }
 
@@ -122,6 +138,7 @@ namespace xmem {
   template<typename T>
   MemPointer<T>& MemPointer<T>::operator=( const MemPointer<T>& x ) {
     m_addr = x.m_addr;
+    m_opq = x.get_opq();
     return *this;
   }
 

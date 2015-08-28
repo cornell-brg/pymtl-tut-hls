@@ -57,8 +57,8 @@ namespace xmem {
       //------------------------------------------------------------------
       // & operator
       //------------------------------------------------------------------
-      MemPointer<T> operator&() { return MemPointer<T>( m_addr, m_opq, m_memreq, m_memresp ); }
-      const MemPointer<T> operator&() const { return MemPointer<T>( m_addr, m_opq,  m_memreq, m_memresp ); }
+      MemPointer<T> operator&();
+      const MemPointer<T> operator&() const;
 
       //------------------------------------------------------------------
       // Comparison Operators
@@ -72,6 +72,10 @@ namespace xmem {
       //------------------------------------------------------------------
       Address get_addr() const { return m_addr; }
       void set_addr( const Address addr ) { m_addr = addr; }
+      
+      Address get_opq() const { return m_opq; }
+      void set_opq( const Address opq ) { m_opq = opq; }
+      
       static size_t size() {
         return sizeof(T) > PTR_SIZE ? sizeof(T) : PTR_SIZE;
       }
@@ -97,8 +101,9 @@ namespace xmem {
       //------------------------------------------------------------------
       // Constructors
       //------------------------------------------------------------------
-      MemPointer( MemReqStream& memreq, MemRespStream& memresp );
-      explicit MemPointer( Address base_ptr, Opaque opq, MemReqStream& memreq, MemRespStream& memresp );
+      MemPointer( Opaque opq, MemReqStream& memreq, MemRespStream& memresp );
+      MemPointer( Address base_ptr, Opaque opq,
+                  MemReqStream& memreq, MemRespStream& memresp );
       MemPointer( const MemPointer& p );
 
       //------------------------------------------------------------------
@@ -152,6 +157,7 @@ namespace xmem {
       // Get/Set Address
       //------------------------------------------------------------------
       Address get_addr() const { return m_addr; }
+      Opaque  get_opq()  const { return m_opq; }
       static size_t size() { return PTR_SIZE; }
       
       MemReqStream&  memreq()  const { return m_obj_temp.memreq(); }
@@ -229,6 +235,9 @@ namespace xmem {
       Address get_addr() const { return m_addr; }
       void set_addr( const Address addr ) { m_addr = addr; }
 
+      Address get_opq() const { return m_opq; }
+      void set_opq( const Address opq ) { m_opq = opq; }
+      
       MemReqStream&  memreq()  const { return m_memreq; }
       MemRespStream& memresp() const { return m_memresp; }
   };
