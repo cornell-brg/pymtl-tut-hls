@@ -111,6 +111,7 @@ MCPPBS_INCLUDE_INTERNAL([ex_sort])
 MCPPBS_INCLUDE_INTERNAL([polydsu])
 MCPPBS_INCLUDE_INTERNAL([polydsu_list])
 MCPPBS_INCLUDE_INTERNAL([polydsu_rbtree])
+MCPPBS_INCLUDE_INTERNAL([polydsu_bintree])
 
 #-------------------------------------------------------------------------
 # MCPPBS subproject libraries to install
