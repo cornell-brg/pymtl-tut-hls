@@ -55,6 +55,8 @@ namespace xmem {
 
     void clear_num_requests();
     int get_num_requests();
+    int get_num_stores();
+    int get_num_loads();
 
    private:
 
@@ -62,7 +64,8 @@ namespace xmem {
 
     std::deque<MemRespMsg<> > m_memresp_q;
     ap_uint<8> m_mem[1<<20];
-    int m_num_requests;
+    int m_num_stores;
+    int m_num_loads;
 
   };
 

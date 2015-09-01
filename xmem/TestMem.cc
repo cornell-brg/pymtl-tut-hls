@@ -12,7 +12,7 @@ namespace xmem {
   //----------------------------------------------------------------------
 
   TestMem::TestMem()
-   : m_num_requests(0)
+   : m_num_stores(0), m_num_loads(0)
   {}
 
   //----------------------------------------------------------------------
@@ -30,7 +30,7 @@ namespace xmem {
 
       // Increment our message request counter
 
-      m_num_requests++;
+      m_num_loads++;
 
       // Set length to four bytes if len field is zero
 
@@ -66,7 +66,7 @@ namespace xmem {
 
       // Increment our message request counter
 
-      m_num_requests++;
+      m_num_stores++;
 
       // Set length to four bytes if len field is zero
 
@@ -139,7 +139,7 @@ namespace xmem {
     // We don't want to count this as a memory request since it is part of
     // the test harness.
 
-    m_num_requests--;
+    m_num_stores--;
 
     MemRespMsg<> resp = read();
   }
@@ -155,7 +155,7 @@ namespace xmem {
     // We don't want to count this as a memory request since it is part of
     // the test harness.
 
-    m_num_requests--;
+    m_num_loads--;
 
     MemRespMsg<> resp = read();
     return resp.data();
@@ -167,7 +167,7 @@ namespace xmem {
 
   void TestMem::clear_num_requests()
   {
-    m_num_requests = 0;
+    m_num_stores = m_num_loads = 0;
   }
 
   //----------------------------------------------------------------------
@@ -176,7 +176,17 @@ namespace xmem {
 
   int TestMem::get_num_requests()
   {
-    return m_num_requests;
+    return m_num_stores + m_num_loads;
+  }
+
+  int TestMem::get_num_stores()
+  {
+    return m_num_stores;
+  }
+
+  int TestMem::get_num_loads()
+  {
+    return m_num_loads;
   }
 
 }
