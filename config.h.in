@@ -9,6 +9,9 @@
 /* Define if we should include subproject polydsu */
 #undef HAVE_POLYDSU
 
+/* Define if we should include subproject polydsu_bintree */
+#undef HAVE_POLYDSU_BINTREE
+
 /* Define if we should include subproject polydsu_list */
 #undef HAVE_POLYDSU_LIST
 
