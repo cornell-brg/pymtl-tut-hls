@@ -157,7 +157,10 @@ namespace xmem {
       // Get/Set Address
       //------------------------------------------------------------------
       Address get_addr() const { return m_addr; }
+      void set_addr( const Address addr ) { m_addr = addr; }
+
       Opaque  get_opq()  const { return m_opq; }
+      void set_opq( const Address opq ) { m_opq = opq; }
       static size_t size() { return PTR_SIZE; }
       
       MemReqStream&  memreq()  const { return m_obj_temp.memreq(); }

@@ -587,6 +587,14 @@ PACKAGE_URL=''
 ac_unique_file="utst/utst.ac"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+polydsu_graph_extra_libs
+polydsu_graph_extra_ldflags
+polydsu_graph_extra_cppflags
+polydsu_graph_pkcdeps
+polydsu_graph_libs
+polydsu_graph_ldflags
+polydsu_graph_cppflags
+polydsu_graph_intdeps
 polydsu_bintree_extra_libs
 polydsu_bintree_extra_ldflags
 polydsu_bintree_extra_cppflags
@@ -6457,6 +6465,434 @@ fi
 
 
 
+  # Determine if this is a required or an optional subproject and create
+  # a m4 variable for his subproject name with and without dashes.
+
+
+
+
+
+
+  # Set the type of this subproject and add it to a shell and m4 list
+
+  polydsu_graph_type="internal"
+  as_fn_append mcppbs_include_internal "polydsu_graph "
+
+
+  # Optional subprojects add an --with-subproject command line options,
+  # while default subprojects just make sure the shell enabled variable
+  # is set to "yes" so we always configure this subproject.
+
+
+    with_polydsu_graph="yes"
+
+
+  # We create a shell function which contains all the code to actually
+  # configure this project including adding it to the
+  # $mcppbs_include_internal_en running shell variable, setting an
+  # HAVE_SUBPROJECT C define, and actually processing the appropriate
+  # subproject.ac. This will allow us to easily configure optional
+  # subproject later by just executing this function.
+
+  polydsu_graph_cfg ()
+  {
+    ac_config_headers="$ac_config_headers polydsu_graph/config.h:config.h.in"
+
+    ac_config_files="$ac_config_files polydsu_graph/polydsu_graph.mk:polydsu_graph/polydsu_graph.mk.in"
+
+
+$as_echo "#define HAVE_POLYDSU_GRAPH /**/" >>confdefs.h
+
+    as_fn_append mcppbs_include_internal_en "polydsu_graph "
+    with_polydsu_graph="yes"
+    #=========================================================================
+# Modular C++ Build System Subproject Autoconf Fragment
+#=========================================================================
+# Please read the documenation in 'mcppbs-uguide.txt' for more details
+# on how the Modular C++ Build System works.
+
+
+  # Verify that the subproject name give in the configure.ac matches the
+  # name give in the autoconf fragment.
+
+
+
+
+
+
+  # Save the list of direct dependencies (ie dirdeps) and a list of
+  # dependencies which are comma separated for pkg-config file.
+
+  polydsu_graph_dirdeps="polydsu polydsu_list xmem xcel"
+  polydsu_graph_pkcdeps="polydsu,polydsu_list,xmem,xcel"
+
+  # Initialize this subproject's compiler and linker flags
+
+  polydsu_graph_cppflags=""
+  polydsu_graph_ldflags="-Lpolydsu_graph "
+  polydsu_graph_libs="-lpolydsu_graph "
+
+  # Loop through the list of given subprojects and for each one see if
+  # it has already been configured. If no then configure it by calling
+  # the appropriate shell function created in MCPPBS_SUBPROJECT. This
+  # will recursively configure transitively dependent subprojects.
+  # Eventually maybe this should happen at configure run time as opposed
+  # to autoconf run time.
+
+
+    # Determine if this dependency is required or optional
+
+
+
+    # Create some names which characterize this dependency including a
+    # shell variable indicating if this subproject has been configured,
+    # the function name to call if we need to configure this dependency,
+    # and a shell variable which has this dependency's dependencies.
+
+
+
+
+
+    # If the dependency is required and has not been configured then
+    # configure it. Issue error if subproject does not exist.
+
+
+
+
+      if  test "${with_polydsu}" = "no" ; then :
+
+        eval "polydsu_cfg"
+
+fi
+
+
+    # Add information about this dependency to our running lists
+
+    if  test "${with_polydsu}" = "yes" ; then :
+
+      # Add the actual dependency to our libs list and our intdeps list
+      # which are both ordered such that libs only depend on later libs
+
+      as_fn_append polydsu_graph_ldflags "-Lpolydsu "
+      as_fn_append polydsu_graph_libs "-lpolydsu "
+      if  test "${polydsu_type}" = "internal" ; then :
+
+        as_fn_append polydsu_graph_intdeps "polydsu "
+
+fi
+
+      # Add dependency's variables to our own
+
+      as_fn_append polydsu_graph_intdeps "${polydsu_intdeps} "
+      as_fn_append polydsu_graph_cppflags "${polydsu_cppflags} "
+      as_fn_append polydsu_graph_ldflags "${polydsu_ldflags} "
+      as_fn_append polydsu_graph_libs "${polydsu_libs} "
+
+fi
+
+    # Determine if this dependency is required or optional
+
+
+
+    # Create some names which characterize this dependency including a
+    # shell variable indicating if this subproject has been configured,
+    # the function name to call if we need to configure this dependency,
+    # and a shell variable which has this dependency's dependencies.
+
+
+
+
+
+    # If the dependency is required and has not been configured then
+    # configure it. Issue error if subproject does not exist.
+
+
+
+
+      if  test "${with_polydsu_list}" = "no" ; then :
+
+        eval "polydsu_list_cfg"
+
+fi
+
+
+    # Add information about this dependency to our running lists
+
+    if  test "${with_polydsu_list}" = "yes" ; then :
+
+      # Add the actual dependency to our libs list and our intdeps list
+      # which are both ordered such that libs only depend on later libs
+
+      as_fn_append polydsu_graph_ldflags "-Lpolydsu_list "
+      as_fn_append polydsu_graph_libs "-lpolydsu_list "
+      if  test "${polydsu_list_type}" = "internal" ; then :
+
+        as_fn_append polydsu_graph_intdeps "polydsu_list "
+
+fi
+
+      # Add dependency's variables to our own
+
+      as_fn_append polydsu_graph_intdeps "${polydsu_list_intdeps} "
+      as_fn_append polydsu_graph_cppflags "${polydsu_list_cppflags} "
+      as_fn_append polydsu_graph_ldflags "${polydsu_list_ldflags} "
+      as_fn_append polydsu_graph_libs "${polydsu_list_libs} "
+
+fi
+
+    # Determine if this dependency is required or optional
+
+
+
+    # Create some names which characterize this dependency including a
+    # shell variable indicating if this subproject has been configured,
+    # the function name to call if we need to configure this dependency,
+    # and a shell variable which has this dependency's dependencies.
+
+
+
+
+
+    # If the dependency is required and has not been configured then
+    # configure it. Issue error if subproject does not exist.
+
+
+
+
+      if  test "${with_xmem}" = "no" ; then :
+
+        eval "xmem_cfg"
+
+fi
+
+
+    # Add information about this dependency to our running lists
+
+    if  test "${with_xmem}" = "yes" ; then :
+
+      # Add the actual dependency to our libs list and our intdeps list
+      # which are both ordered such that libs only depend on later libs
+
+      as_fn_append polydsu_graph_ldflags "-Lxmem "
+      as_fn_append polydsu_graph_libs "-lxmem "
+      if  test "${xmem_type}" = "internal" ; then :
+
+        as_fn_append polydsu_graph_intdeps "xmem "
+
+fi
+
+      # Add dependency's variables to our own
+
+      as_fn_append polydsu_graph_intdeps "${xmem_intdeps} "
+      as_fn_append polydsu_graph_cppflags "${xmem_cppflags} "
+      as_fn_append polydsu_graph_ldflags "${xmem_ldflags} "
+      as_fn_append polydsu_graph_libs "${xmem_libs} "
+
+fi
+
+    # Determine if this dependency is required or optional
+
+
+
+    # Create some names which characterize this dependency including a
+    # shell variable indicating if this subproject has been configured,
+    # the function name to call if we need to configure this dependency,
+    # and a shell variable which has this dependency's dependencies.
+
+
+
+
+
+    # If the dependency is required and has not been configured then
+    # configure it. Issue error if subproject does not exist.
+
+
+
+
+      if  test "${with_xcel}" = "no" ; then :
+
+        eval "xcel_cfg"
+
+fi
+
+
+    # Add information about this dependency to our running lists
+
+    if  test "${with_xcel}" = "yes" ; then :
+
+      # Add the actual dependency to our libs list and our intdeps list
+      # which are both ordered such that libs only depend on later libs
+
+      as_fn_append polydsu_graph_ldflags "-Lxcel "
+      as_fn_append polydsu_graph_libs "-lxcel "
+      if  test "${xcel_type}" = "internal" ; then :
+
+        as_fn_append polydsu_graph_intdeps "xcel "
+
+fi
+
+      # Add dependency's variables to our own
+
+      as_fn_append polydsu_graph_intdeps "${xcel_intdeps} "
+      as_fn_append polydsu_graph_cppflags "${xcel_cppflags} "
+      as_fn_append polydsu_graph_ldflags "${xcel_ldflags} "
+      as_fn_append polydsu_graph_libs "${xcel_libs} "
+
+fi
+
+
+  # Make the dependency list, cppflags, ldflags, and libs variable unique
+  # by eliminating redundant tokens in the full lists.
+
+
+  # Reverse the order of the input
+  polydsu_graph_intdeps_rev=""
+  for input_token in ${polydsu_graph_intdeps}; do
+    polydsu_graph_intdeps_rev="${input_token} ${polydsu_graph_intdeps_rev}"
+  done
+
+  # Step through each input token (now in reverse order)
+  polydsu_graph_intdeps=""
+  for input_token in ${polydsu_graph_intdeps_rev}; do
+
+    # See if input token is in output token list
+    token_found="no"
+    for output_token in ${polydsu_graph_intdeps}; do
+      if ( test "${input_token}" = "${output_token}" ); then
+        token_found="yes"
+      fi
+    done
+
+    # If this is the first time we have seen token push it onto list
+    if ( test "${token_found}" = "no" ); then
+      polydsu_graph_intdeps="${input_token} ${polydsu_graph_intdeps}"
+    fi
+  done
+
+
+  # Reverse the order of the input
+  polydsu_graph_cppflags_rev=""
+  for input_token in ${polydsu_graph_cppflags}; do
+    polydsu_graph_cppflags_rev="${input_token} ${polydsu_graph_cppflags_rev}"
+  done
+
+  # Step through each input token (now in reverse order)
+  polydsu_graph_cppflags=""
+  for input_token in ${polydsu_graph_cppflags_rev}; do
+
+    # See if input token is in output token list
+    token_found="no"
+    for output_token in ${polydsu_graph_cppflags}; do
+      if ( test "${input_token}" = "${output_token}" ); then
+        token_found="yes"
+      fi
+    done
+
+    # If this is the first time we have seen token push it onto list
+    if ( test "${token_found}" = "no" ); then
+      polydsu_graph_cppflags="${input_token} ${polydsu_graph_cppflags}"
+    fi
+  done
+
+
+  # Reverse the order of the input
+  polydsu_graph_ldflags_rev=""
+  for input_token in ${polydsu_graph_ldflags}; do
+    polydsu_graph_ldflags_rev="${input_token} ${polydsu_graph_ldflags_rev}"
+  done
+
+  # Step through each input token (now in reverse order)
+  polydsu_graph_ldflags=""
+  for input_token in ${polydsu_graph_ldflags_rev}; do
+
+    # See if input token is in output token list
+    token_found="no"
+    for output_token in ${polydsu_graph_ldflags}; do
+      if ( test "${input_token}" = "${output_token}" ); then
+        token_found="yes"
+      fi
+    done
+
+    # If this is the first time we have seen token push it onto list
+    if ( test "${token_found}" = "no" ); then
+      polydsu_graph_ldflags="${input_token} ${polydsu_graph_ldflags}"
+    fi
+  done
+
+
+  # Reverse the order of the input
+  polydsu_graph_libs_rev=""
+  for input_token in ${polydsu_graph_libs}; do
+    polydsu_graph_libs_rev="${input_token} ${polydsu_graph_libs_rev}"
+  done
+
+  # Step through each input token (now in reverse order)
+  polydsu_graph_libs=""
+  for input_token in ${polydsu_graph_libs_rev}; do
+
+    # See if input token is in output token list
+    token_found="no"
+    for output_token in ${polydsu_graph_libs}; do
+      if ( test "${input_token}" = "${output_token}" ); then
+        token_found="yes"
+      fi
+    done
+
+    # If this is the first time we have seen token push it onto list
+    if ( test "${token_found}" = "no" ); then
+      polydsu_graph_libs="${input_token} ${polydsu_graph_libs}"
+    fi
+  done
+
+
+  # Keep a copy of the compiler and linker flags as they are now,
+  # because if we want to install this project we don't really need to
+  # include these flags in the pkg-config file. We do of course need to
+  # keep the flags that a user might add later in their subproject.ac.
+
+  polydsu_graph_base_cppflags=${polydsu_graph_cppflags}
+  polydsu_graph_base_ldflags=${polydsu_graph_ldflags}
+  polydsu_graph_base_libs=${polydsu_graph_libs}
+
+  # Substitute variables for makefile
+
+
+
+
+
+
+  # Substitute variables for pkg-config files (these will be set in the
+  # MCPPBS_INSTALL_LIBS macro)
+
+
+
+
+
+
+  # Display that we are now configuring this subproject (ie running the
+  # rest of the macros in the corresponding subproject.ac)
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: configuring internal subproject polydsu_graph" >&5
+$as_echo "$as_me: configuring internal subproject polydsu_graph" >&6;}
+
+
+
+
+
+  };
+
+  # See if we should actually configure this subproject and if so then
+  # call the shell function we just created.
+
+  if     test "${with_optional_subprojects}" = "yes" \
+          || test "${with_polydsu_graph}" = "yes"  ; then :
+
+    eval "polydsu_graph_cfg"
+
+fi
+
+
+
 #-------------------------------------------------------------------------
 # MCPPBS subproject libraries to install
 #-------------------------------------------------------------------------
@@ -7183,6 +7619,8 @@ do
     "polydsu_rbtree/polydsu_rbtree.mk") CONFIG_FILES="$CONFIG_FILES polydsu_rbtree/polydsu_rbtree.mk:polydsu_rbtree/polydsu_rbtree.mk.in" ;;
     "polydsu_bintree/config.h") CONFIG_HEADERS="$CONFIG_HEADERS polydsu_bintree/config.h:config.h.in" ;;
     "polydsu_bintree/polydsu_bintree.mk") CONFIG_FILES="$CONFIG_FILES polydsu_bintree/polydsu_bintree.mk:polydsu_bintree/polydsu_bintree.mk.in" ;;
+    "polydsu_graph/config.h") CONFIG_HEADERS="$CONFIG_HEADERS polydsu_graph/config.h:config.h.in" ;;
+    "polydsu_graph/polydsu_graph.mk") CONFIG_FILES="$CONFIG_FILES polydsu_graph/polydsu_graph.mk:polydsu_graph/polydsu_graph.mk.in" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
