@@ -12,6 +12,12 @@
 /* Define if we should include subproject polydsu_bintree */
 #undef HAVE_POLYDSU_BINTREE
 
+/* Define if we should include subproject polydsu_graph */
+#undef HAVE_POLYDSU_GRAPH
+
+/* Define if we should include subproject polydsu_hashmap */
+#undef HAVE_POLYDSU_HASHMAP
+
 /* Define if we should include subproject polydsu_list */
 #undef HAVE_POLYDSU_LIST
 

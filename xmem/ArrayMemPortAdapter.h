@@ -12,6 +12,7 @@
 #ifndef XMEM_ARRAY_MEMPORT_ADAPTER
 #define XMEM_ARRAY_MEMPORT_ADAPTER
 
+#include <ap_utils.h>
 #include "xmem/MemMsg.h"
 
 namespace xmem {
