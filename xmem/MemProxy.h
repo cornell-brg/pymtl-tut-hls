@@ -80,8 +80,8 @@ namespace xmem {
         return sizeof(T) > PTR_SIZE ? sizeof(T) : PTR_SIZE;
       }
 
-      MemReqStream& memreq()  const { return m_memreq; }
-      MemReqStream& memresp() const { return m_memresp; }
+      MemReqStream&  memreq()  const { return m_memreq; }
+      MemRespStream& memresp() const { return m_memresp; }
   };
 
   //======================================================================

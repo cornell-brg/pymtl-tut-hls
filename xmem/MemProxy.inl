@@ -27,7 +27,7 @@ namespace xmem {
   //----------------------------------------------------------------------
   template<typename T>
   MemValue<T>::operator T() const {
-    DB_PRINT (("MemValue: reading from 0x%u\n", m_addr.to_uint()));
+    DB_PRINT (("MemValue: reading from %u\n", m_addr));
     if ( !m_memoized_valid ) {
       //m_memoized_valid = true;
       xmem::InMemStream is(m_addr,m_opq,m_memreq,m_memresp);
@@ -41,7 +41,7 @@ namespace xmem {
   //----------------------------------------------------------------------
   template<typename T>
   MemValue<T>& MemValue<T>::operator=( T value ) {
-    DB_PRINT (("MemValue: writing %u to 0x%u\n", value, m_addr.to_uint()));
+    DB_PRINT (("MemValue: writing %u to %u\n", value, m_addr));
     // dump the memoized value on a store
     m_memoized_valid = false;
     xmem::OutMemStream os(m_addr,m_opq,m_memreq,m_memresp);
