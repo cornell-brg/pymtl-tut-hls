@@ -112,7 +112,7 @@ namespace xmem {
   //----------------------------------------------------------------------
   template<typename T>
   MemValue<T>* MemPointer<T>::operator->() {
-    DB_PRINT(("MemPointer: operator->: m_addr=%u\n", m_addr));
+    //DB_PRINT(("MemPointer: operator->: m_addr=%u\n", m_addr));
     m_obj_temp.set_addr( m_addr );
     m_obj_temp.set_opq ( m_opq );
     return &m_obj_temp;
@@ -120,7 +120,7 @@ namespace xmem {
 
   template<typename T>
   const MemValue<T>* MemPointer<T>::operator->() const {
-    DB_PRINT(("MemPointer: operator->: m_addr=%u\n", m_addr));
+    //DB_PRINT(("MemPointer: operator->: m_addr=%u\n", m_addr));
     m_obj_temp.set_addr( m_addr );
     m_obj_temp.set_opq ( m_opq );
     return &m_obj_temp;

@@ -24,7 +24,7 @@ namespace xmem {
   //XXX:This is only true for HLS or HLS_TESTING.
   //    For C++ compilation, PTR_SIZE should be sizeof(void*)
   //    which is 8 on brg
-  static unsigned PTR_SIZE = 4;
+  const static unsigned PTR_SIZE = 4;
 
   typedef unsigned   Address;
   typedef ap_uint<8> Opaque;
