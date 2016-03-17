@@ -297,6 +297,22 @@ Now that we have the synthesized RTL we can push this accelerator through
 the ASIC flow and/or compose the accelerator with a processor and L1 memory
 system.
 
+The GcdHLSInorderPipeline.py model shows an incremental design step where
+the HLS generated GCD xcel is integrated to a mock-up pipeline that mocks a
+send and a receive stage in an inorder pipelined processor. Note, that the
+design uses a single-element pipelined queue connected to the response port
+of the generated xcel as the HLS generated design can aggresively return a
+response within the same cycle for a few computations and the pipelined
+queue helps to integrate the xcel to a pipelined processor implementation.
+As before, you can run the unit tests as shown below. NOTE, in general it
+is highly recommended to try and implement a mock-up pipeline test before
+attempting to integrate the xcel to a processor and L1 memory system.
+
+```
+ % cd $TOPDIR/build
+ % py.test ../ex_gcd/GcdXcelHLSInorderPipeline_test.py -s -k basic0x0 --dump-vcd
+```
+
 Sort Accelerator FL, CL, RTL Model
 --------------------------------------------------------------------------
 
