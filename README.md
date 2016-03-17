@@ -219,6 +219,7 @@ C++ unit testing framework. Let's run this unit test:
 
 ```
  % cd $TOPDIR/build
+ % ../configure
  % make ex_gcd/GcdXcelHLS-utst
  % ./ex_gcd/GcdXcelHLS-utst
 ```
@@ -267,8 +268,8 @@ Here is how to run the FL unit tests on the synthesized RTL:
 
 ```
  % cd $TOPDIR/build
- % py.test ../ex_gcd/GcdXcelFL_test.py
- % py.test ../ex_gcd/GcdXcelFL_test.py -s -k basic0x0
+ % py.test ../ex_gcd/GcdXcelHLS_test.py
+ % py.test ../ex_gcd/GcdXcelHLS_test.py -s -k basic0x0
 
      xcelreq                    xcelresp
   ------------------------------------------------
@@ -289,13 +290,12 @@ still use waveform debugging if necessary:
 
 ```
  % cd $TOPDIR/build
- % py.test ../ex_gcd/GcdXcelFL_test.py -s -k basic0x0 --dump-vcd
+ % py.test ../ex_gcd/GcdXcelHLS_test.py -s -k basic0x0 --dump-vcd
 ```
 
-Actually, this doesn't work yet because the HLS flow might be using an
-older version of PyMTL. Might be something to look into. Now that we have
-the synthesized RTL we can push this accelerator through the ASIC flow
-and/or compose the accelerator with a processor and L1 memory system.
+Now that we have the synthesized RTL we can push this accelerator through
+the ASIC flow and/or compose the accelerator with a processor and L1 memory
+system.
 
 Sort Accelerator FL, CL, RTL Model
 --------------------------------------------------------------------------
@@ -497,7 +497,7 @@ array really is sorted). Let's run this pure-C++ unit test.
 ```
  % cd $TOPDIR/build
  % make ex_sort/SortXcelHLS-utst
- % ./ex_gcd/SortXcelHLS-utst
+ % ./ex_sort/SortXcelHLS-utst
 ```
 
 Now we can run the HLS tools to synthesize RTL for this design:
@@ -538,7 +538,7 @@ PyMTL FL, CL, and RTL models to now test the synthesized RTL:
 ```
  % cd $TOPDIR/build
  % py.test ../ex_sort/SortXcelHLS_test.py
- % py.test ../ex_sort/SortXcelHLS_test.py -s -k basic0x0
+ % py.test ../ex_sort/SortXcelHLS_test.py -s -k [mini]
 
      xcelreq                    xmemreq                  xmemresp          xcelresp
   -----------------------------------------------------------------------------------
