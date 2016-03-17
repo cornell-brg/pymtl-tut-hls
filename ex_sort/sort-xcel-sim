@@ -5,7 +5,7 @@
 #
 #  -h --help           Display this message
 #
-#  --impl              {fl,cl,,rtl}
+#  --impl              {fl,cl,rtl,hls}
 #  --input <dataset>   {random,sorted-fwd,sorted-rev}
 #  --trace             Display line tracing
 #  --stats             Display statistics
