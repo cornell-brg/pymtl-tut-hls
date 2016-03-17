@@ -18,12 +18,12 @@ source a special setup script which will setup the Xilinx HLS tools, and
 create a build directory.a
 
 ```
+ % source ${BARE_PKGS_GLOBAL_PREFIX}/xilinx-vivado-2015.2/setup.sh
  % mkdir -p ${HOME}/vc/git-hub/cornell-brg
  % cd ${HOME}/vc/git-hub/cornell-brg
  % git clone git@github.com:cornell-brg/pymtl-polyhs.git
  % cd pymtl-polyhs
  % TOPDIR=$PWD
- % source setup-polyhs-hls.sh
  % mkdir -p $TOPDIR/build
 ```
 
