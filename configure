@@ -5876,8 +5876,8 @@ $as_echo "#define HAVE_POLYDSU_RBTREE /**/" >>confdefs.h
   # Save the list of direct dependencies (ie dirdeps) and a list of
   # dependencies which are comma separated for pkg-config file.
 
-  polydsu_rbtree_dirdeps="xmem"
-  polydsu_rbtree_pkcdeps="xmem"
+  polydsu_rbtree_dirdeps="polydsu xmem xcel"
+  polydsu_rbtree_pkcdeps="polydsu,xmem,xcel"
 
   # Initialize this subproject's compiler and linker flags
 
@@ -5892,6 +5892,56 @@ $as_echo "#define HAVE_POLYDSU_RBTREE /**/" >>confdefs.h
   # Eventually maybe this should happen at configure run time as opposed
   # to autoconf run time.
 
+
+    # Determine if this dependency is required or optional
+
+
+
+    # Create some names which characterize this dependency including a
+    # shell variable indicating if this subproject has been configured,
+    # the function name to call if we need to configure this dependency,
+    # and a shell variable which has this dependency's dependencies.
+
+
+
+
+
+    # If the dependency is required and has not been configured then
+    # configure it. Issue error if subproject does not exist.
+
+
+
+
+      if  test "${with_polydsu}" = "no" ; then :
+
+        eval "polydsu_cfg"
+
+fi
+
+
+    # Add information about this dependency to our running lists
+
+    if  test "${with_polydsu}" = "yes" ; then :
+
+      # Add the actual dependency to our libs list and our intdeps list
+      # which are both ordered such that libs only depend on later libs
+
+      as_fn_append polydsu_rbtree_ldflags "-Lpolydsu "
+      as_fn_append polydsu_rbtree_libs "-lpolydsu "
+      if  test "${polydsu_type}" = "internal" ; then :
+
+        as_fn_append polydsu_rbtree_intdeps "polydsu "
+
+fi
+
+      # Add dependency's variables to our own
+
+      as_fn_append polydsu_rbtree_intdeps "${polydsu_intdeps} "
+      as_fn_append polydsu_rbtree_cppflags "${polydsu_cppflags} "
+      as_fn_append polydsu_rbtree_ldflags "${polydsu_ldflags} "
+      as_fn_append polydsu_rbtree_libs "${polydsu_libs} "
+
+fi
 
     # Determine if this dependency is required or optional
 
@@ -5940,6 +5990,56 @@ fi
       as_fn_append polydsu_rbtree_cppflags "${xmem_cppflags} "
       as_fn_append polydsu_rbtree_ldflags "${xmem_ldflags} "
       as_fn_append polydsu_rbtree_libs "${xmem_libs} "
+
+fi
+
+    # Determine if this dependency is required or optional
+
+
+
+    # Create some names which characterize this dependency including a
+    # shell variable indicating if this subproject has been configured,
+    # the function name to call if we need to configure this dependency,
+    # and a shell variable which has this dependency's dependencies.
+
+
+
+
+
+    # If the dependency is required and has not been configured then
+    # configure it. Issue error if subproject does not exist.
+
+
+
+
+      if  test "${with_xcel}" = "no" ; then :
+
+        eval "xcel_cfg"
+
+fi
+
+
+    # Add information about this dependency to our running lists
+
+    if  test "${with_xcel}" = "yes" ; then :
+
+      # Add the actual dependency to our libs list and our intdeps list
+      # which are both ordered such that libs only depend on later libs
+
+      as_fn_append polydsu_rbtree_ldflags "-Lxcel "
+      as_fn_append polydsu_rbtree_libs "-lxcel "
+      if  test "${xcel_type}" = "internal" ; then :
+
+        as_fn_append polydsu_rbtree_intdeps "xcel "
+
+fi
+
+      # Add dependency's variables to our own
+
+      as_fn_append polydsu_rbtree_intdeps "${xcel_intdeps} "
+      as_fn_append polydsu_rbtree_cppflags "${xcel_cppflags} "
+      as_fn_append polydsu_rbtree_ldflags "${xcel_ldflags} "
+      as_fn_append polydsu_rbtree_libs "${xcel_libs} "
 
 fi
 
@@ -6077,6 +6177,7 @@ fi
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: configuring internal subproject polydsu_rbtree" >&5
 $as_echo "$as_me: configuring internal subproject polydsu_rbtree" >&6;}
+
 
 
 

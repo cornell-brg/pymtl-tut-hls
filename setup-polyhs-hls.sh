@@ -4,7 +4,8 @@
 # Script that sets up the development environment for the polyhs-hls flow
 
 # activate the pymtl-polyhs virtualenv
-source /research/brg/install/venv-pkgs/pypy2.5.1-shared/bin/activate
+# NOTE: shreesha: this is the only venv with pypy that we currently use
+source /research/brg/install/venv-pkgs/pypy4.0-xpc/bin/activate
 
 # setup the environment variable for the verilator include directory
 export PYMTL_VERILATOR_INCLUDE_DIR="${STOW_PKGS_GLOBAL_PREFIX}/share/verilator/include"
