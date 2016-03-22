@@ -168,6 +168,229 @@ sends two xcelreq messages to write xr1 and xr2 before reading xr0. Since
 this is an FL model, the accelerator immediately returns the
 corresponding result.
 
+After generating the Verilog files for the design, the next step is to use 
+PyMTL to simulate the Verilog RTL design. To simulate a single Verilog design 
+generated from Vivado HLS, the following files need to be prepared:
+
+- The Verilog (`pc.v`) file synthesized by Vivado HLS.
+- A PyMTL wrapper file (`pc.py`) that exposes the Verilog module as a 
+PyMTL module.
+- A PyMTL test bench (`pc_test.v`) that specifies the test harness as well 
+as the test dataset.
+
+The following code shows how to define the Verilog population count module as 
+a  PyMTL module and how to wrap this Verilog-based PyMTL module in an overall 
+design that can be instantiated in the test bench.. 
+
+```
+#-------------------------------------------------------------------------
+# pc
+#-------------------------------------------------------------------------
+
+class pc( VerilogModel ):
+
+  def __init__( s ):
+
+    s.xcelreq  = InValRdyBundle ( Bits(64) )
+    s.xcelresp = OutValRdyBundle( Bits(32) )
+
+    s.set_ports({
+      'ap_clk'            : s.clk,
+      'ap_rst'            : s.reset,
+      'x_V'         : s.xcelreq.msg,
+      'x_V_ap_vld'  : s.xcelreq.val,
+      'x_V_ap_ack'  : s.xcelreq.rdy,
+      'num'        : s.xcelresp.msg,
+      'num_ap_vld' : s.xcelresp.val,
+      'num_ap_ack' : s.xcelresp.rdy,
+    })
+    
+#-------------------------------------------------------------------------
+# pc wrapper
+#-------------------------------------------------------------------------
+
+class pc_wrapper( Model ):
+
+  def __init__( s ):
+
+    s.xcelreq  = InValRdyBundle ( XcelReqMsg()  )
+    s.xcelresp = OutValRdyBundle( XcelRespMsg() )
+
+    s.xcel = pc()
+
+    s.connect( s.xcelreq,   s.xcel.xcelreq )
+    s.connect( s.xcelresp,  s.xcel.xcelresp )
+
+  def line_trace(s):
+    return "{}|{}".format(
+      valrdy_to_str( s.xcelreq.msg, s.xcelreq.val, s.xcelreq.rdy ),
+      valrdy_to_str( s.xcelresp.msg, s.xcelresp.val, s.xcelresp.rdy )
+    )
+```
+
+For PyMTL to correctly link the wrapper with the Verilog module, two 
+conditions have to be met: The corresponding Verilog file (`pc.v`) is in 
+the same directory as the PyMTL wrapper file (`pc.py`), and the module 
+inside the PyMTL wrapper has the same name as the top-level module of the
+Verilog design. The `s.set_ports` in `class pc( VerilogModel )` specifies
+the mapping between the ports in the Verilog module and the ports in the 
+PyMTL module. As a result, the ports that are paired together are directly 
+connected by wires. The `s.xcel = pc()` in `class pc_wrapper( Model )` 
+instantiates the Verilog-based PyMTL module. The wrapper connects the 
+inputs and outputs of this module to the top-level valid-ready ports so it 
+can communicate with the test source and sink.
+
+The following code demonstrates how to define the test harness, how to add 
+test cases, and how to run the tests, respectively. They collectively 
+compose the PyMTL test bench (`pc\_test.py`) for population count.
+
+```
+#-------------------------------------------------------------------------
+# TestHarness
+#-------------------------------------------------------------------------
+
+class TestHarness (Model):
+
+  def __init__( s, xcel, src_msgs, sink_msgs,
+                src_delay, sink_delay,
+                dump_vcd=False, test_verilog=False ):
+
+    # Instantiate models
+
+    s.src  = TestSource ( Bits(64),  src_msgs,  src_delay  )
+    s.xcel = xcel
+    s.sink = TestSink   ( Bits(32), sink_msgs, sink_delay )
+
+    # Dump VCD
+
+    if dump_vcd:
+      s.xcel.vcd_file = dump_vcd
+
+    # Translation
+
+    if test_verilog:
+      s.xcel = TranslationTool( s.xcel )
+
+    # Connect
+
+    s.connect( s.src.out,       s.xcel.xcelreq )
+    s.connect( s.xcel.xcelresp, s.sink.in_     )
+
+  def done( s ):
+    return s.src.done and s.sink.done
+
+  def line_trace( s ):
+    return s.src.line_trace()  + " > " + \
+           s.xcel.line_trace() + " | " + \
+           s.sink.line_trace()
+           
+#-------------------------------------------------------------------------
+# Test Cases
+#-------------------------------------------------------------------------
+
+mini = [ 0x21, 0x14, 0x1133 ]
+mini_results = [ 2, 2, 6 ]
+
+#-------------------------------------------------------------------------
+# Test Case Table
+#-------------------------------------------------------------------------
+
+test_case_table = mk_test_case_table([
+  (                      "data    result            src sink "),
+  [ "mini",               mini,   mini_results,     0,  0,   ],
+  [ "mini_0_2",           mini,   mini_results,     0,  2,   ],
+  [ "mini_2_1",           mini,   mini_results,     2,  1,   ],
+])
+
+#-------------------------------------------------------------------------
+# run_test
+#-------------------------------------------------------------------------
+
+def run_test( xcel, test_params, dump_vcd, test_verilog=False ):
+
+  # Convert test data into byte array
+
+  data = test_params.data
+  result = test_params.result
+
+  # Protocol messages
+
+  xreqs  = data
+  xresps = result
+
+  # Create test harness with protocol messagse
+
+  th = TestHarness( xcel, xreqs, xresps,
+                    test_params.src, test_params.sink,
+                    dump_vcd, test_verilog )
+
+  # Run the test
+
+  run_sim( th, dump_vcd, max_cycles=20000 )
+
+@pytest.mark.parametrize( **test_case_table )
+def test( test_params, dump_vcd ):
+  run_test( pc_wrapper(), test_params, dump_vcd )
+```
+
+The PyMTL testbench instantiates an instance of the PyMTL module, and test 
+the module using PyMTL built-in `TestSource` and `TestSink` modules. The 
+`TestSource` uses latency-insensitive hand-shaking interface to stream in 
+the test dataset into the PyMTL module. In this example, the value of the 
+test dataset is specified by the `mini` array. Similarly, the `TestSink` 
+reads out module output from the PyMTL module assuming hand-shaking 
+interface, and compares the results with the expected values. 
+The expected output values are specified by the `mini\_results` in this 
+example. `run_test( pc_wrapper(), test_params, dump_vcd )` is responsible 
+for running the `pc_wrapper` module defined in RTL model.
+
+We use the command `py.test ./pc_test.py -s` to launch the PyMTL simulation, 
+where the `-s` option prints out the line trace of the simulation.
+Here is the line trace of the population count design.
+
+```
+../pc_test.py ()
+  2: .                > .               |.        | .
+  3: 0000000000000021 > 0000000000000021|         |
+  4: #                > #               |00000002 | 00000002
+  5: 0000000000000014 > 0000000000000014|         |
+  6: #                > #               |00000002 | 00000002
+  7: 0000000000001133 > 0000000000001133|         |
+  8: .                > .               |00000006 | 00000006
+.()
+  2: .                > .               |         |
+  3: 0000000000000021 > 0000000000000021|         |
+  4: #                > #               |00000002 | 00000002
+  5: 0000000000000014 > 0000000000000014|.        | .
+  6: #                > #               |#        | #
+  7: #                > #               |00000002 | 00000002
+  8: 0000000000001133 > 0000000000001133|.        | .
+  9: .                > .               |#        | #
+ 10: .                > .               |00000006 | 00000006
+ 11: .                > .               |.        | .
+.()
+  2: .                > .               |         |
+  3: .                > .               |         |
+  4: .                > .               |         |
+  5: 0000000000000021 > 0000000000000021|         |
+  6: .                > .               |00000002 | 00000002
+  7: .                > .               |.        | .
+  8: 0000000000000014 > 0000000000000014|         |
+  9: .                > .               |00000002 | 00000002
+ 10: 0000000000001133 > 0000000000001133|.        | .
+ 11: .                > .               |00000006 | 00000006
+ 12: .                > .               |.        | .
+```
+
+We observe that the design correctly outputs the desired output (i.e, the 
+number of bits that are set to one in the input) at the output port.
+
+In addition, PyMTL also allows us to simulate a system of multiple PyMTL 
+modules, where each module can be either generated from Vivado HLS or 
+directly written in PyMTL. A top level PyMTL module will instantiate all 
+the submodules and connect submodules together. The simulation flow for a 
+composed design is identical to simulating a single PyMTL module.
+
 GCD Accelerator HLS Model
 --------------------------------------------------------------------------
 
