@@ -57,7 +57,7 @@ modules in the overall system. The following figure shows the basic flow of
 synthesizing a C/C++ design and integrating it into PyMTL simulation 
 framework.
 
-![flow](figures/flow.pdf)
+![flow](figures/flow.png)
 
 To begin, a synthesizeble C/C++ design is passed to Vivado HLS using a tcl 
 file interface. We then wrap the generate Verilog file with a PyMTL wrapper, 
