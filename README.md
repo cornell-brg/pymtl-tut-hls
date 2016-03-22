@@ -69,7 +69,63 @@ the wrapped Verilog design using user-defined testbench file.
 Getting Started: Population Count Example
 --------------------------------------------------------------------------
 
+Let's demonstrate the overall flow using the following simple population 
+count (PC) kernel. 
 
+```
+void pc(ap_uint<N> x, int &num) {
+  num = 0;
+  for (int i = 0; i < N; i++) {
+#pragma HLS UNROLL
+    num += x[i];
+  }
+}
+```
+
+The PC kernel takes as input an N-bit variable, and counts the number of 
+bits that are set to one. `ap_uint<N>` is a Vivado HLS built-in data type 
+representing an N-bit unsigned integer. `x[i]` accesses the `i`th bit of 
+`x`.
+
+Vivado HLS takes as input the C/C++ files describing the design, as well as 
+a tcl script used to drive the synthesis flow. Here is a snippet of the tcl 
+script for synthesizing the population count design.
+
+```
+open_project hls.prj
+set_top pc
+
+add_files pc.cpp
+add_files -tb pc.cpp
+
+open_solution "solution1" -reset
+config_interface -expose_global
+
+set_part {xc7z020clg484-1}
+create_clock -period 5
+
+set_directive_interface -mode ap_ctrl_none pc
+
+set_directive_interface -mode ap_hs pc x
+set_directive_interface -mode ap_hs pc num
+
+csynth_design
+```
+
+One thing to notice in the tcl script is the `set_directive_interface` 
+command. This command specifies the module interface (expressed using the 
+function argument in the C/C++ file) to a specific mode, and in our flow, we 
+set the interface to be `ap_hs`, which is a latency-insensitive hand-shaking 
+interface. The `ap_hs` interface not only makes it easy to compose multiple 
+hardware modules in PyMTL, but also enables us to use PyMTL's built-in test 
+source/sink functionality for testing individual modules.
+
+The `csynth_design` command synthesizes the design into Verilog. The generated 
+Verilog file(s) can be found under folder `<project_dir>/hls.prj/solution1/`
+`syn/verilog`. A detailed synthesis report can be found under `<project_dir>`
+`/hls.prj/solution1/syn/report`. `<project\_dir>/hls.prj/solution1/`
+`solution1.log` tracks the potential warnings and errors during the synthesis 
+flow, which is useful for debugging synthesis-related issues.
 
 GCD Accelerator FL Model
 --------------------------------------------------------------------------
