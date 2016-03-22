@@ -121,11 +121,11 @@ hardware modules in PyMTL, but also enables us to use PyMTL's built-in test
 source/sink functionality for testing individual modules.
 
 The `csynth_design` command synthesizes the design into Verilog. The generated 
-Verilog file(s) can be found under folder `<project_dir>/hls.prj/solution1/`
-`syn/verilog`. A detailed synthesis report can be found under `<project_dir>`
-`/hls.prj/solution1/syn/report`. `<project\_dir>/hls.prj/solution1/`
-`solution1.log` tracks the potential warnings and errors during the synthesis 
-flow, which is useful for debugging synthesis-related issues.
+Verilog file(s) can be found under folder `<project_dir>/hls.prj/solution1/syn/verilog`. 
+A detailed synthesis report can be found under `<project_dir>/hls.prj/solution1/syn/report`. 
+`<project\_dir>/hls.prj/solution1/solution1.log` tracks the potential warnings 
+and errors during the synthesis flow, which is useful for debugging 
+synthesis-related issues.
 
 GCD Accelerator FL Model
 --------------------------------------------------------------------------
