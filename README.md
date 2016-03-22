@@ -127,47 +127,6 @@ A detailed synthesis report can be found under `<project_dir>/hls.prj/solution1/
 and errors during the synthesis flow, which is useful for debugging 
 synthesis-related issues.
 
-GCD Accelerator FL Model
---------------------------------------------------------------------------
-
-We can start with a simple GCD unit FL model written in PyMTL. You can
-run the unit tests for this model like this:
-
-```
- % cd $TOPDIR/build
- % py.test ../ex_gcd/GcdXcelFL_test.py
- % py.test ../ex_gcd/GcdXcelFL_test.py -s -k basic0x0
-
-     xcelreq                xcelresp
-  --------------------------------------------
-  3: 7c:wr:01:0000000f:000()
-  4: #                    ()7c:wr:        :000
-  5: 00:wr:02:00000005:000()
-  6: #                    ()00:wr:        :000
-  7: 18:rd:00:        :000()
-  8: #                    ()18:rd:00000005:000
-```
-
-The line trace has been edited to make it more compact and includes
-annotations. Unlike the GCD unit used in our PyMTL tutorial, this GCD
-unit is designed to be an accelerator and thus supports the
-xcelreq/xcelresp interface with the following accelerator registers:
-
- - xr0 : go/result
- - xr1 : operand A
- - xr2 : operand B
-
-and the following accelerator protocol:
-
- 1. Write the operand A by writing to xr1
- 2. Write the operand B by writing to xr2
- 3. Tell the accelerator to compute gcd and wait for result by reading xr0
-
-We can see this accelerator protocol in the line trace. The test source
-sends two xcelreq messages to write xr1 and xr2 before reading xr0. Since
-this is an FL model, the accelerator immediately returns the
-corresponding result.
-
 After generating the Verilog files for the design, the next step is to use 
 PyMTL to simulate the Verilog RTL design. To simulate a single Verilog design 
 generated from Vivado HLS, the following files need to be prepared:
@@ -390,6 +349,47 @@ modules, where each module can be either generated from Vivado HLS or
 directly written in PyMTL. A top level PyMTL module will instantiate all 
 the submodules and connect submodules together. The simulation flow for a 
 composed design is identical to simulating a single PyMTL module.
+
+GCD Accelerator FL Model
+--------------------------------------------------------------------------
+
+We can start with a simple GCD unit FL model written in PyMTL. You can
+run the unit tests for this model like this:
+
+```
+ % cd $TOPDIR/build
+ % py.test ../ex_gcd/GcdXcelFL_test.py
+ % py.test ../ex_gcd/GcdXcelFL_test.py -s -k basic0x0
+
+     xcelreq                xcelresp
+  --------------------------------------------
+  3: 7c:wr:01:0000000f:000()
+  4: #                    ()7c:wr:        :000
+  5: 00:wr:02:00000005:000()
+  6: #                    ()00:wr:        :000
+  7: 18:rd:00:        :000()
+  8: #                    ()18:rd:00000005:000
+```
+
+The line trace has been edited to make it more compact and includes
+annotations. Unlike the GCD unit used in our PyMTL tutorial, this GCD
+unit is designed to be an accelerator and thus supports the
+xcelreq/xcelresp interface with the following accelerator registers:
+
+ - xr0 : go/result
+ - xr1 : operand A
+ - xr2 : operand B
+
+and the following accelerator protocol:
+
+ 1. Write the operand A by writing to xr1
+ 2. Write the operand B by writing to xr2
+ 3. Tell the accelerator to compute gcd and wait for result by reading xr0
+
+We can see this accelerator protocol in the line trace. The test source
+sends two xcelreq messages to write xr1 and xr2 before reading xr0. Since
+this is an FL model, the accelerator immediately returns the
+corresponding result.
 
 GCD Accelerator HLS Model
 --------------------------------------------------------------------------
