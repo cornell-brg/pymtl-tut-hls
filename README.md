@@ -66,7 +66,7 @@ ready-based handshaking interface. The handshaking interface makes it easy
 to test the design with test source and test sink. Finally, PyMTL simulates 
 the wrapped Verilog design using user-defined testbench file. 
 
-Getting Started with Population Count Example
+Getting Started: Population Count Example
 --------------------------------------------------------------------------
 
 
