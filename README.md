@@ -27,6 +27,50 @@ create a build directory.a
  % mkdir -p $TOPDIR/build
 ```
 
+Introduction
+--------------------------------------------------------------------------
+In this tutorial, we will walk through the essential steps for synthesizing 
+a C/C++ design into RTL with Vivado HLS, integrating the synthesized RTL 
+design with other functional or RTL models using PyMTL, and leveraging the 
+PyMTL framework to perform functional and cycle-level verification. 
+We will first describe the basic steps for implementing the entire synthesis 
+and testing flow, and then describe advanced techniques for modeling and 
+testing more complicated designs.
+
+Vivado HLS compiles software programs into cycle-accurate RTL models in 
+Verilog or VHDL. By targeting FPGA as the underlying hardware fabric, 
+Vivado HLS allows engineers to write software to describe their design and 
+conveniently optimize the design for hardware performance through user-
+defined directives.
+
+PyMTL is a Python-based hardware modeling framework for functional to cycle-
+level modeling and verification. By default, PyMTL allows us to use Python-
+like constructs to model designs at the RTL level. In addition, PyMTL allows 
+wrapping Verilog RTL models within a Python-based RTL model and integrating 
+with other Python-based functional or RTL models so that the entire design 
+can be simulated and tested as a whole. PyMTL's source code and tutorials 
+are available at https://github.com/cornell-brg/pymtl.
+
+The Vivado HLS plus PyMTL framework allows us to synthesize a C/C++ design 
+into Verilog RTL module and simulate the RTL module together with other 
+modules in the overall system. The following figure shows the basic flow of 
+synthesizing a C/C++ design and integrating it into PyMTL simulation 
+framework.
+
+![myimage-alt-tag](url-to-image)
+
+To begin, a synthesizeble C/C++ design is passed to Vivado HLS using a tcl 
+file interface. We then wrap the generate Verilog file with a PyMTL wrapper, 
+which exposes the original design as a PyMTL hardware module using valid-
+ready-based handshaking interface. The handshaking interface makes it easy 
+to test the design with test source and test sink. Finally, PyMTL simulates 
+the wrapped Verilog design using user-defined testbench file. 
+
+Getting Started with Population Count Example
+--------------------------------------------------------------------------
+
+
+
 GCD Accelerator FL Model
 --------------------------------------------------------------------------
 
