@@ -8,13 +8,14 @@ void pc(ap_uint<N> x, int &num) {
 #pragma HLS UNROLL
     num += x[i];
   }
-  //return num;
 }
 
 int main() {
-  int x = 0x49b34a8;
-  int num;
-  pc(x,num);
-  printf("count(%d) = %d\n", x, num);
+  int x[3] = {0x21, 0x14, 0x1133};
+  int num[3];
+  for (int i=0; i<3; i++) {
+    pc(x[i],num[i]);
+    printf("count(0x%x) = %d\n", x[i], num[i]);
+  }
   return 0;
 }
