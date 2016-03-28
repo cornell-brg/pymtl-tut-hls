@@ -3,14 +3,16 @@ PyMTL/HLS Framework
 ==========================================================================
 
 This repository was originally focused on our PolyHS project, but more
-generally it illustrates our current PyMTL/HLS framework. The following
-tutorial explains how to use the framework to experiment with a GCD
+generally it illustrates our current PyMTL/HLS framework. To get started, 
+the following tutorial first goes through a simple example of using the 
+framework to experiment with a Population Count accelerator. Then it 
+explains how to use the framework to experiment with a GCD
 accelerator which does not interact with memory and a sorting accelerator
 which does interact with memory. Both accelerators will use the standard
 xcelreq/xcelresp interfaces for managing the accelerator. This tutorial
-assumes you have already completed the "basic" ECE 5745 tutorials on
-Linux, Git, PyMTL, and Verilog, as well as the new ECE 5745 ASIC tutorial
-and the ECE 5745 PARCv2 accelerator tutorial.
+assumes you have already completed the "basic" ECE 4750 tutorials on
+Linux, Git, PyMTL, and Verilog, as well as the new ECE 4750 ASIC tutorial
+and the ECE 4750 PARCv2 accelerator tutorial.
 
 The first step is to clone this repository from GitHub, define an
 environment variable to keep track of the top directory for the project,
@@ -43,13 +45,12 @@ Vivado HLS allows engineers to write software to describe their design and
 conveniently optimize the design for hardware performance through user-
 defined directives.
 
-PyMTL is a Python-based hardware modeling framework for functional to cycle-
-level modeling and verification. By default, PyMTL allows us to use Python-
+PyMTL is a Python-based hardware modeling framework for functional-level,
+cycle-level, and RTL modeling and verification. PyMTL allows us to use Python-
 like constructs to model designs at the RTL level. In addition, PyMTL allows 
 wrapping Verilog RTL models within a Python-based RTL model and integrating 
-with other Python-based functional or RTL models so that the entire design 
-can be simulated and tested as a whole. PyMTL's source code and tutorials 
-are available at https://github.com/cornell-brg/pymtl.
+with other Python-based functional, cycle-level, or RTL models so that the 
+entire design can be simulated and tested as a whole.
 
 The Vivado HLS plus PyMTL framework allows us to synthesize a C/C++ design 
 into Verilog RTL module and simulate the RTL module together with other 
