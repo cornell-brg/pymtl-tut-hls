@@ -89,6 +89,11 @@ bits that are set to one. `ap_uint<N>` is a Vivado HLS built-in data type
 representing an N-bit unsigned integer. `x[i]` accesses the `i`th bit of 
 `x`.
 
+We first test the kernel with pure C/C++ simulation. Use the command 
+`g++ -I<PATH_TO_VIVADO_HLS_INSTALL_DIR>/include -Wall -g pc.cpp -o pc` to compile
+and `./pc` to execute the kernel. You should observe the correct outputs for
+each test case.
+
 Vivado HLS takes as input the C/C++ files describing the design, as well as 
 a tcl script used to drive the synthesis flow. Here is a snippet of the tcl 
 script for synthesizing the PopCount design.
