@@ -11,8 +11,8 @@ accelerator which does not interact with memory and a sorting accelerator
 which does interact with memory. Both accelerators will use the standard
 xcelreq/xcelresp interfaces for managing the accelerator. This tutorial
 assumes you have already completed the "basic" ECE 4750 tutorials on
-Linux, Git, PyMTL, and Verilog, as well as the new ECE 4750 ASIC tutorial
-and the ECE 4750 PARCv2 accelerator tutorial.
+Linux, Git, PyMTL, and Verilog, as well as the new ECE 5745 ASIC tutorial
+and the ECE 5745 PARCv2 accelerator tutorial.
 
 The first step is to clone this repository from GitHub, define an
 environment variable to keep track of the top directory for the project,
