@@ -17,7 +17,7 @@ and the ECE 4750 PARCv2 accelerator tutorial.
 The first step is to clone this repository from GitHub, define an
 environment variable to keep track of the top directory for the project,
 source a special setup script which will setup the Xilinx HLS tools, and
-create a build directory.a
+create a build directory.
 
 ```
  % source setup-hls.sh
@@ -60,18 +60,19 @@ framework.
 
 ![flow](figures/flow.png)
 
-To begin, a synthesizeble C/C++ design is passed to Vivado HLS using a tcl 
-file interface. We then wrap the generate Verilog file with a PyMTL wrapper, 
-which exposes the original design as a PyMTL hardware module using valid-
-ready-based handshaking interface. The handshaking interface makes it easy 
-to test the design with test source and test sink. Finally, PyMTL simulates 
-the wrapped Verilog design using user-defined testbench file. 
+To begin, a synthesizeble C/C++ design is first tested with C/C++ simulation
+and passed to Vivado HLS using a tcl file interface. We then wrap the 
+generate Verilog file with a PyMTL wrapper, which exposes the original design 
+as a PyMTL hardware module using valid-ready-based handshaking interface. 
+The handshaking interface makes it easy to test the design with test source 
+and test sink. Finally, PyMTL simulates the wrapped Verilog design using 
+user-defined testbench file. 
 
 Getting Started: Population Count Example
 --------------------------------------------------------------------------
 
 Let's demonstrate the overall flow using the following simple population 
-count (PC) kernel. 
+count (PopCount) kernel. 
 
 ```
 void pc(ap_uint<N> x, int &num) {
@@ -83,14 +84,14 @@ void pc(ap_uint<N> x, int &num) {
 }
 ```
 
-The PC kernel takes as input an N-bit variable, and counts the number of 
+The PopCount kernel takes as input an N-bit variable, and counts the number of 
 bits that are set to one. `ap_uint<N>` is a Vivado HLS built-in data type 
 representing an N-bit unsigned integer. `x[i]` accesses the `i`th bit of 
 `x`.
 
 Vivado HLS takes as input the C/C++ files describing the design, as well as 
 a tcl script used to drive the synthesis flow. Here is a snippet of the tcl 
-script for synthesizing the population count design.
+script for synthesizing the PopCount design.
 
 ```
 open_project hls.prj
@@ -124,7 +125,7 @@ source/sink functionality for testing individual modules.
 The `csynth_design` command synthesizes the design into Verilog. The generated 
 Verilog file(s) can be found under folder `<project_dir>/hls.prj/solution1/syn/verilog`. 
 A detailed synthesis report can be found under `<project_dir>/hls.prj/solution1/syn/report`. 
-`<project\_dir>/hls.prj/solution1/solution1.log` tracks the potential warnings 
+`<project_dir>/hls.prj/solution1/solution1.log` tracks the potential warnings 
 and errors during the synthesis flow, which is useful for debugging 
 synthesis-related issues.
 
@@ -135,10 +136,10 @@ generated from Vivado HLS, the following files need to be prepared:
 - The Verilog (`pc.v`) file synthesized by Vivado HLS.
 - A PyMTL wrapper file (`pc.py`) that exposes the Verilog module as a 
 PyMTL module.
-- A PyMTL test bench (`pc_test.v`) that specifies the test harness as well 
+- A PyMTL test bench (`pc_test.py`) that specifies the test harness as well 
 as the test dataset.
 
-The following code shows how to define the Verilog population count module as 
+The following code shows how to define the Verilog PopCount module as 
 a  PyMTL module and how to wrap this Verilog-based PyMTL module in an overall 
 design that can be instantiated in the test bench.. 
 
@@ -202,7 +203,7 @@ can communicate with the test source and sink.
 
 The following code demonstrates how to define the test harness, how to add 
 test cases, and how to run the tests, respectively. They collectively 
-compose the PyMTL test bench (`pc\_test.py`) for population count.
+compose the PyMTL test bench (`pc_test.py`) for PopCount.
 
 ```
 #-------------------------------------------------------------------------
@@ -310,7 +311,6 @@ Here is the line trace of the population count design.
 
 ```
 ../pc_test.py ()
-  2: .                > .               |.        | .
   3: 0000000000000021 > 0000000000000021|         |
   4: #                > #               |00000002 | 00000002
   5: 0000000000000014 > 0000000000000014|         |
@@ -318,7 +318,6 @@ Here is the line trace of the population count design.
   7: 0000000000001133 > 0000000000001133|         |
   8: .                > .               |00000006 | 00000006
 .()
-  2: .                > .               |         |
   3: 0000000000000021 > 0000000000000021|         |
   4: #                > #               |00000002 | 00000002
   5: 0000000000000014 > 0000000000000014|.        | .
@@ -327,9 +326,7 @@ Here is the line trace of the population count design.
   8: 0000000000001133 > 0000000000001133|.        | .
   9: .                > .               |#        | #
  10: .                > .               |00000006 | 00000006
- 11: .                > .               |.        | .
 .()
-  2: .                > .               |         |
   3: .                > .               |         |
   4: .                > .               |         |
   5: 0000000000000021 > 0000000000000021|         |
@@ -339,11 +336,12 @@ Here is the line trace of the population count design.
   9: .                > .               |00000002 | 00000002
  10: 0000000000001133 > 0000000000001133|.        | .
  11: .                > .               |00000006 | 00000006
- 12: .                > .               |.        | .
 ```
 
 We observe that the design correctly outputs the desired output (i.e, the 
-number of bits that are set to one in the input) at the output port.
+number of bits that are set to one in the input) at the output port. Note
+how we define test source/sink delays as part of the `test_case_table` in
+the test harness to vary the timing of the test sources and sinks.
 
 In addition, PyMTL also allows us to simulate a system of multiple PyMTL 
 modules, where each module can be either generated from Vivado HLS or 
