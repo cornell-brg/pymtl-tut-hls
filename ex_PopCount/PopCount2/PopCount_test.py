@@ -1,5 +1,5 @@
 #=========================================================================
-# pc_test
+# PopCount_test
 #=========================================================================
 
 import pytest
@@ -9,7 +9,7 @@ from pymtl       import *
 from pclib.test  import mk_test_case_table, run_sim
 from pclib.test  import TestSource, TestSink
 
-from pc  import pc_wrapper
+from PopCount  import PopCount_wrapper
 
 from pclib.ifcs.XcelMsg       import *
 
@@ -102,5 +102,5 @@ def run_test( xcel, test_params, dump_vcd, test_verilog=False ):
 
 @pytest.mark.parametrize( **test_case_table )
 def test( test_params, dump_vcd ):
-  run_test( pc_wrapper(), test_params, dump_vcd )
+  run_test( PopCount_wrapper(), test_params, dump_vcd )
 
