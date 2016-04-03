@@ -57,7 +57,7 @@ into Verilog RTL module and simulate the RTL module together with other
 modules in the overall system. The following figure shows the basic flow of 
 synthesizing a C/C++ design and integrating it into PyMTL simulation 
 framework. Vivado HLS User Guide is available at 
-http://www.xilinx.com/support/documentation/sw_manuals/xilinx<VIVADO_VERSION>/ug902-vivado-high-level-synthesis.pdf.
+`http://www.xilinx.com/support/documentation/sw_manuals/xilinx<VIVADO_VERSION>/ug902-vivado-high-level-synthesis.pdf`.
 An example of `<VIVADO_VERSION>` is `2015_2`.
 
 ![flow](figures/flow.png)
@@ -73,8 +73,9 @@ user-defined testbench file.
 Getting Started: Population Count Example
 --------------------------------------------------------------------------
 
-Let's demonstrate the overall flow using the following simple population 
-count (PopCount) kernel in `PopCount.cpp`. 
+Let's demonstrate the overall flow using the the simple population count
+(PopCount) example in `$TOPDIR/PopCount/PopCount1`. Let's look at the following 
+kernel in `PopCount.cpp`. 
 
 ```
 void PopCount(ap_uint<N> x, int &num) {
