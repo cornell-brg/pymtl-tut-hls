@@ -160,7 +160,10 @@ PyMTL module.
 - A PyMTL test bench (`PopCount_test.py`) that specifies the test harness as 
 well as the test dataset.
 
-The following code snippet from `PopCount.v` shows how to define the Verilog 
+Note that `/* verilator lint_off WIDTH */` must be added to the synthesized
+Verilog file `PopCount.v` to bypass warning from Verilator regarding bitwidth.
+
+The following code snippet from `PopCount.py` shows how to define the Verilog 
 PopCount module as a PyMTL module that can be instantiated in the testbench. 
 
 ```
