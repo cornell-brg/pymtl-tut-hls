@@ -74,7 +74,7 @@ Getting Started: Population Count Example
 --------------------------------------------------------------------------
 
 Let's demonstrate the overall flow using the the simple population count
-(PopCount) example in `$TOPDIR/PopCount/PopCount1`. Let's look at the following 
+(PopCount) example in `$TOPDIR/ex_PopCount/PopCount1`. Let's look at the following 
 kernel in `PopCount.cpp`. 
 
 ```
@@ -275,7 +275,7 @@ An Alternative for Population Count
 --------------------------------------------------------------------------
 
 We can instead take advantage of PyMTL's built-in test source/sink functionality.
-We provide an example in `$TOPDIR/PopCount/PopCount2` and outline some important
+We provide an example in `$TOPDIR/ex_PopCount/PopCount2` and outline some important
 differences from the previous example.
 
  1. We set the interface to be `ap_hs` in `run.tcl`, which is a 
