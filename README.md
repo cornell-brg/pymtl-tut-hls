@@ -56,7 +56,9 @@ The Vivado HLS plus PyMTL framework allows us to synthesize a C/C++ design
 into Verilog RTL module and simulate the RTL module together with other 
 modules in the overall system. The following figure shows the basic flow of 
 synthesizing a C/C++ design and integrating it into PyMTL simulation 
-framework.
+framework. Vivado HLS User Guide is available at 
+http://www.xilinx.com/support/documentation/sw_manuals/xilinx<VIVADO_VERSION>/ug902-vivado-high-level-synthesis.pdf.
+An example of `<VIVADO_VERSION>` is `2015_2`.
 
 ![flow](figures/flow.png)
 
@@ -72,10 +74,10 @@ Getting Started: Population Count Example
 --------------------------------------------------------------------------
 
 Let's demonstrate the overall flow using the following simple population 
-count (PopCount) kernel. 
+count (PopCount) kernel in `PopCount.cpp`. 
 
 ```
-void pc(ap_uint<N> x, int &num) {
+void PopCount(ap_uint<N> x, int &num) {
   num = 0;
   for (int i = 0; i < N; i++) {
 #pragma HLS UNROLL
@@ -87,12 +89,28 @@ void pc(ap_uint<N> x, int &num) {
 The PopCount kernel takes as input an N-bit variable, and counts the number of 
 bits that are set to one. `ap_uint<N>` is a Vivado HLS built-in data type 
 representing an N-bit unsigned integer. `x[i]` accesses the `i`th bit of 
-`x`.
+`x`. More details about Vivado HLS' built-in data types can be found in the 
+Vivado HLS User Guide.
 
-We first test the kernel with pure C/C++ simulation. Use the command 
-`g++ -I<PATH_TO_VIVADO_HLS_INSTALL_DIR>/include -Wall -g pc.cpp -o pc` to compile
-and `./pc` to execute the kernel. You should observe the correct outputs for
-each test case.
+We first test the kernel with pure C/C++ simulation. The testbench is defined in
+the same source file `PopCount.cpp` as `int main()`. 
+
+```
+int main() {
+  int x[3] = {0x21, 0x14, 0x1133};
+  int num[3];
+  for (int i=0; i<3; i++) {
+    pc(x[i],num[i]);
+    printf("count(0x%x) = %d\n", x[i], num[i]);
+  }
+  return 0;
+}
+```
+
+Use the command 
+`g++ -I<PATH_TO_VIVADO_HLS_INSTALL_DIR>/include PopCount.cpp -o PopCount` to 
+compile and `./PopCount` to execute the kernel. You should observe the correct 
+outputs for each test case.
 
 Vivado HLS takes as input the C/C++ files describing the design, as well as 
 a tcl script used to drive the synthesis flow. Here is a snippet of the tcl 
@@ -100,10 +118,10 @@ script for synthesizing the PopCount design.
 
 ```
 open_project hls.prj
-set_top pc
+set_top PopCount
 
-add_files pc.cpp
-add_files -tb pc.cpp
+add_files PopCount.cpp
+add_files -tb PopCount.cpp
 
 open_solution "solution1" -reset
 config_interface -expose_global
@@ -111,211 +129,168 @@ config_interface -expose_global
 set_part {xc7z020clg484-1}
 create_clock -period 5
 
-set_directive_interface -mode ap_ctrl_none pc
-
-set_directive_interface -mode ap_hs pc x
-set_directive_interface -mode ap_hs pc num
+set_directive_interface -mode ap_ctrl_none PopCount
 
 csynth_design
 ```
 
 One thing to notice in the tcl script is the `set_directive_interface` 
 command. This command specifies the module interface (expressed using the 
-function argument in the C/C++ file) to a specific mode, and in our flow, we 
-set the interface to be `ap_hs`, which is a latency-insensitive hand-shaking 
-interface. The `ap_hs` interface not only makes it easy to compose multiple 
-hardware modules in PyMTL, but also enables us to use PyMTL's built-in test 
-source/sink functionality for testing individual modules.
+function argument in the C/C++ file) to a specific mode. To keep the synthesized
+design simple, we set the interface to be `ap_ctrl_none` to disable any 
+function-level handshake protocol from being synthesized.
 
 The `csynth_design` command synthesizes the design into Verilog. The generated 
-Verilog file(s) can be found under folder `<project_dir>/hls.prj/solution1/syn/verilog`. 
-A detailed synthesis report can be found under `<project_dir>/hls.prj/solution1/syn/report`. 
-`<project_dir>/hls.prj/solution1/solution1.log` tracks the potential warnings 
-and errors during the synthesis flow, which is useful for debugging 
-synthesis-related issues.
+Verilog file(s) can be found under folder 
+`<PROJECT_DIR>/hls.prj/solution1/syn/verilog`. 
+A detailed synthesis report can be found under 
+`<PROJECT_DIR>/hls.prj/solution1/syn/report`. 
+`<PROJECT_DIR>/hls.prj/solution1/solution1.log` 
+tracks the potential warnings and errors during the synthesis flow, which is 
+useful for debugging synthesis-related issues.
 
 After generating the Verilog files for the design, the next step is to use 
 PyMTL to simulate the Verilog RTL design. To simulate a single Verilog design 
 generated from Vivado HLS, the following files need to be prepared:
 
-- The Verilog (`pc.v`) file synthesized by Vivado HLS.
-- A PyMTL wrapper file (`pc.py`) that exposes the Verilog module as a 
+- The Verilog (`PopCount.v`) file synthesized by Vivado HLS.
+- A PyMTL wrapper file (`PopCount.py`) that exposes the Verilog module as a 
 PyMTL module.
-- A PyMTL test bench (`pc_test.py`) that specifies the test harness as well 
-as the test dataset.
+- A PyMTL test bench (`PopCount_test.py`) that specifies the test harness as 
+well as the test dataset.
 
-The following code shows how to define the Verilog PopCount module as 
-a  PyMTL module and how to wrap this Verilog-based PyMTL module in an overall 
-design that can be instantiated in the test bench.. 
+The following code snippet from `PopCount.v` shows how to define the Verilog 
+PopCount module as a PyMTL module that can be instantiated in the testbench. 
 
 ```
-#-------------------------------------------------------------------------
-# pc
-#-------------------------------------------------------------------------
-
-class pc( VerilogModel ):
+class PopCount( VerilogModel ):
 
   def __init__( s ):
 
-    s.xcelreq  = InValRdyBundle ( Bits(64) )
-    s.xcelresp = OutValRdyBundle( Bits(32) )
+    s.x_V = InPort ( 64 )
+    s.num = OutPort( 32 )
+    s.num_ap_vld = OutPort(1)
 
     s.set_ports({
       'ap_clk'            : s.clk,
       'ap_rst'            : s.reset,
-      'x_V'         : s.xcelreq.msg,
-      'x_V_ap_vld'  : s.xcelreq.val,
-      'x_V_ap_ack'  : s.xcelreq.rdy,
-      'num'        : s.xcelresp.msg,
-      'num_ap_vld' : s.xcelresp.val,
-      'num_ap_ack' : s.xcelresp.rdy,
+      'x_V'               : s.x_V,
+      'num'               : s.num,
+      'num_ap_vld'        : s.num_ap_vld
     })
-    
-#-------------------------------------------------------------------------
-# pc wrapper
-#-------------------------------------------------------------------------
-
-class pc_wrapper( Model ):
-
-  def __init__( s ):
-
-    s.xcelreq  = InValRdyBundle ( XcelReqMsg()  )
-    s.xcelresp = OutValRdyBundle( XcelRespMsg() )
-
-    s.xcel = pc()
-
-    s.connect( s.xcelreq,   s.xcel.xcelreq )
-    s.connect( s.xcelresp,  s.xcel.xcelresp )
-
-  def line_trace(s):
-    return "{}|{}".format(
-      valrdy_to_str( s.xcelreq.msg, s.xcelreq.val, s.xcelreq.rdy ),
-      valrdy_to_str( s.xcelresp.msg, s.xcelresp.val, s.xcelresp.rdy )
-    )
 ```
 
-For PyMTL to correctly link the wrapper with the Verilog module, two 
-conditions have to be met: The corresponding Verilog file (`pc.v`) is in 
-the same directory as the PyMTL wrapper file (`pc.py`), and the module 
+For PyMTL to correctly link the PyMTL module with the Verilog module, two 
+conditions have to be met: The corresponding Verilog file (`PopCount.v`) is in 
+the same directory as the PyMTL file (`PopCount.py`), and the module 
 inside the PyMTL wrapper has the same name as the top-level module of the
 Verilog design. The `s.set_ports` in `class pc( VerilogModel )` specifies
 the mapping between the ports in the Verilog module and the ports in the 
 PyMTL module. As a result, the ports that are paired together are directly 
-connected by wires. The `s.xcel = pc()` in `class pc_wrapper( Model )` 
-instantiates the Verilog-based PyMTL module. The wrapper connects the 
-inputs and outputs of this module to the top-level valid-ready ports so it 
-can communicate with the test source and sink.
+connected by wires.
 
-The following code demonstrates how to define the test harness, how to add 
-test cases, and how to run the tests, respectively. They collectively 
+The following code snippet from `PopCount_test.py` demonstrates how to define 
+the test harness, how to add test cases, and how to run the tests, respectively. They collectively 
 compose the PyMTL test bench (`pc_test.py`) for PopCount.
 
 ```
-#-------------------------------------------------------------------------
-# TestHarness
-#-------------------------------------------------------------------------
+def test_PopCount( dump_vcd, test_verilog ):
 
-class TestHarness (Model):
+  test_vectors = [
+    # x_V     num   num_ap_vld
+    [ 0x21,   '?',  0     ],
+    [ 0x41,   2,    1     ],
+    [ 0x1133, 2,    0     ],
+    [ 0x0,    6,    1     ],
+    [ 0x41,   6,    0     ],
+    [ 0x0,    2,    1     ],
+  ]
 
-  def __init__( s, xcel, src_msgs, sink_msgs,
-                src_delay, sink_delay,
-                dump_vcd=False, test_verilog=False ):
+  # Instantiate and elaborate the model
+  model = PopCount()
+  model.vcd_file = dump_vcd
+  if test_verilog:
+    model = TranslationTool( model )
+  model.elaborate()
 
-    # Instantiate models
+  # Define functions mapping the test vector to ports in model
+  def tv_in( model, test_vector ):
+    model.x_V.value = test_vector[0]
 
-    s.src  = TestSource ( Bits(64),  src_msgs,  src_delay  )
-    s.xcel = xcel
-    s.sink = TestSink   ( Bits(32), sink_msgs, sink_delay )
-
-    # Dump VCD
-
-    if dump_vcd:
-      s.xcel.vcd_file = dump_vcd
-
-    # Translation
-
-    if test_verilog:
-      s.xcel = TranslationTool( s.xcel )
-
-    # Connect
-
-    s.connect( s.src.out,       s.xcel.xcelreq )
-    s.connect( s.xcel.xcelresp, s.sink.in_     )
-
-  def done( s ):
-    return s.src.done and s.sink.done
-
-  def line_trace( s ):
-    return s.src.line_trace()  + " > " + \
-           s.xcel.line_trace() + " | " + \
-           s.sink.line_trace()
-           
-#-------------------------------------------------------------------------
-# Test Cases
-#-------------------------------------------------------------------------
-
-mini = [ 0x21, 0x14, 0x1133 ]
-mini_results = [ 2, 2, 6 ]
-
-#-------------------------------------------------------------------------
-# Test Case Table
-#-------------------------------------------------------------------------
-
-test_case_table = mk_test_case_table([
-  (                      "data    result            src sink "),
-  [ "mini",               mini,   mini_results,     0,  0,   ],
-  [ "mini_0_2",           mini,   mini_results,     0,  2,   ],
-  [ "mini_2_1",           mini,   mini_results,     2,  1,   ],
-])
-
-#-------------------------------------------------------------------------
-# run_test
-#-------------------------------------------------------------------------
-
-def run_test( xcel, test_params, dump_vcd, test_verilog=False ):
-
-  # Convert test data into byte array
-
-  data = test_params.data
-  result = test_params.result
-
-  # Protocol messages
-
-  xreqs  = data
-  xresps = result
-
-  # Create test harness with protocol messagse
-
-  th = TestHarness( xcel, xreqs, xresps,
-                    test_params.src, test_params.sink,
-                    dump_vcd, test_verilog )
+  def tv_out( model, test_vector ):
+    if not test_vector[1] == '?':
+      assert model.num.value == test_vector[1]
+    if not test_vector[2] == '?':
+      assert model.num_ap_vld.value == test_vector[2]
 
   # Run the test
-
-  run_sim( th, dump_vcd, max_cycles=20000 )
-
-@pytest.mark.parametrize( **test_case_table )
-def test( test_params, dump_vcd ):
-  run_test( pc_wrapper(), test_params, dump_vcd )
+  sim = TestVectorSimulator( model, test_vectors, tv_in, tv_out )
+  sim.run_test()
 ```
 
-The PyMTL testbench instantiates an instance of the PyMTL module, and test 
-the module using PyMTL built-in `TestSource` and `TestSink` modules. The 
-`TestSource` uses latency-insensitive hand-shaking interface to stream in 
-the test dataset into the PyMTL module. In this example, the value of the 
-test dataset is specified by the `mini` array. Similarly, the `TestSink` 
-reads out module output from the PyMTL module assuming hand-shaking 
-interface, and compares the results with the expected values. 
-The expected output values are specified by the `mini\_results` in this 
-example. `run_test( pc_wrapper(), test_params, dump_vcd )` is responsible 
-for running the `pc_wrapper` module defined in RTL model.
+The PyMTL testbench first defines the test vectors for the design. The six test
+vectors in `test_vectors` indicate the input and expected output values at each 
+of the first six clock cycles. A question mark `?` indicates a don't care output
+value and is not checked for correctness. The testbench then instantiates an
+instance of the PyMTL module `PopCount` and defines the mapping between the test
+vector and ports in the `PopCount` model under test. `def tv_in( model, test_vector )`
+defines the mapping between test vector and input ports of the model, while
+`def tv_out( model, test_vector )` defines the mapping between test vector and
+output ports of the model. Note that outuput values need not be checked against 
+don't care values `?` using assertions in `def tv_out( model, test_vector )`.
+Finally, `sim.run_test()` is responsible for running and testing the `PopCount` 
+module.
 
-We use the command `py.test ./pc_test.py -s` to launch the PyMTL simulation, 
-where the `-s` option prints out the line trace of the simulation.
-Here is the line trace of the population count design.
+We use the command `py.test ./PopCount_test.py -s` to launch the PyMTL 
+simulation, where the `-s` option prints out the line trace of the simulation.
+Here is the line trace of the PopCount design.
 
 ```
-../pc_test.py ()
+  #  x_V             |num     |num_ap_vld
+  2: 0000000000000021|00000000|0
+  3: 0000000000000041|00000002|1
+  4: 0000000000001133|00000002|0
+  5: 0000000000000000|00000006|1
+  6: 0000000000000041|00000006|0
+  7: 0000000000000000|00000002|1
+```
+
+In the line trace, `x_V` is the input, and `num` and `num_ap_vld` are the 
+outputs. We observe that the design correctly outputs the desired values (i.e, the 
+number of bits that are set to one in the input) at the output port `num`
+exactly one cycle after the input is registered, and that `num_ap_vld` correctly 
+indicates whether the output is valid.
+
+In general, PyMTL also allows us to simulate a system of multiple PyMTL 
+modules, where each module can be either generated from Vivado HLS or 
+directly written in PyMTL. A top level PyMTL module will instantiate all 
+the submodules and connect submodules together. The simulation flow for a 
+composed design is identical to simulating a single PyMTL module.
+
+An Alternative for Population Count
+--------------------------------------------------------------------------
+
+We can instead take advantage of PyMTL's built-in test source/sink functionality.
+We provide an example in `$TOPDIR/PopCount/PopCount2` and outline some important
+differences from the previous example.
+
+ 1. We set the interface to be `ap_hs` in `run.tcl`, which is a 
+ latency-insensitive hand-shaking interface. The `ap_hs` enables us to PyMTL's`
+ built-in test source/sink functionality for testing individual modules.
+ 2. We can wrap the Verilog module `class PopCount( VerilogModel )` with a PyMTL
+ module `class PopCount_wrapper( Model ))`. The wrapper connects its inputs and
+ outputs to the top-level validy-ready ports so it can communicate with the test
+ source and sink.
+ 3. The PyMTL testbench (PopCount_test.py)instantiates an instance of the PyMTL 
+ wrapper module, and test the module using PyMTL built-in `TestSource` and 
+ `TestSink` modules. The `TestSource` uses latency-insensitive hand-shaking 
+ interface to stream in the test dataset into the PyMTL module. Similarly, the 
+ `TestSink` reads out module output from the PyMTL module assuming hand-shaking 
+ interface, and compares the results with the expected values.
+ 4. As shown in the line trace below, the new test harness allows us to vary 
+ source and sink delays as part of `test_case_table` in `PopCount_test.py`.
+
+```
   3: 0000000000000021 > 0000000000000021|         |
   4: #                > #               |00000002 | 00000002
   5: 0000000000000014 > 0000000000000014|         |
@@ -342,17 +317,6 @@ Here is the line trace of the population count design.
  10: 0000000000001133 > 0000000000001133|.        | .
  11: .                > .               |00000006 | 00000006
 ```
-
-We observe that the design correctly outputs the desired output (i.e, the 
-number of bits that are set to one in the input) at the output port. Note
-how we define test source/sink delays as part of the `test_case_table` in
-the test harness to vary the timing of the test sources and sinks.
-
-In addition, PyMTL also allows us to simulate a system of multiple PyMTL 
-modules, where each module can be either generated from Vivado HLS or 
-directly written in PyMTL. A top level PyMTL module will instantiate all 
-the submodules and connect submodules together. The simulation flow for a 
-composed design is identical to simulating a single PyMTL module.
 
 GCD Accelerator FL Model
 --------------------------------------------------------------------------
