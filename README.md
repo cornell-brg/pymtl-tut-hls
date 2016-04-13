@@ -2,22 +2,20 @@
 PyMTL/HLS Framework
 ==========================================================================
 
-This repository was originally focused on our PolyHS project, but more
-generally it illustrates our current PyMTL/HLS framework. To get started, 
-the following tutorial first goes through a simple example of using the 
-framework to experiment with a Population Count accelerator. Then it 
-explains how to use the framework to experiment with a GCD
-accelerator which does not interact with memory and a sorting accelerator
-which does interact with memory. Both accelerators will use the standard
-xcelreq/xcelresp interfaces for managing the accelerator. This tutorial
-assumes you have already completed the "basic" ECE 4750 tutorials on
-Linux, Git, PyMTL, and Verilog, as well as the new ECE 5745 ASIC tutorial
-and the ECE 5745 PARCv2 accelerator tutorial.
+This repository illustrates our current PyMTL/HLS framework. To get
+started, the following tutorial first goes through a simple example of
+using the framework to experiment with a basic popcount module. Then it
+explains how to use the framework to experiment with a GCD accelerator
+which does not interact with memory and a sorting accelerator which does
+interact with memory. Both the GCD and sorting accelerators use the
+standard xcelreq/xcelresp interfaces for managing the accelerator. This
+tutorial assumes you have already completed the "basic" ECE 4750
+tutorials on Linux, Git, PyMTL, and Verilog, as well as the new ECE 5745
+ASIC tutorial and the ECE 5745 PARCv2 accelerator tutorial.
 
 The first step is to clone this repository from GitHub, define an
 environment variable to keep track of the top directory for the project,
-source a special setup script which will setup the Xilinx HLS tools, and
-create a build directory.
+and source a special setup script which will setup the Xilinx HLS tools.
 
 ```
  % source setup-hls.sh
@@ -26,304 +24,292 @@ create a build directory.
  % git clone git@github.com:cornell-brg/pymtl-polyhs.git
  % cd pymtl-polyhs
  % TOPDIR=$PWD
- % mkdir -p $TOPDIR/build
 ```
 
-Introduction
+If you are creating your own setup script, then in addition to setting up
+the license server and running the Xilinx provided setup script, you must
+set the `XILINX_VIVADO_HLS_INCLUDE_DIR` environment variable to the C++
+include directory provided within the Vivado HLS installation. This will
+likely look something like `<xilinx_dir>/Vivado_HLS/<ver_num>/include`
+where `<xilinx_dir>` is the directory where Vivado HLS was installed, and
+`<ver_num>` is the Vivado HLS version number.
+
+Overview of PyMTL/HLS Methodology
 --------------------------------------------------------------------------
-In this tutorial, we will walk through the essential steps for synthesizing 
-a C/C++ design into RTL with Vivado HLS, integrating the synthesized RTL 
-design with other functional or RTL models using PyMTL, and leveraging the 
-PyMTL framework to perform functional and cycle-level verification. 
-We will first describe the basic steps for implementing the entire synthesis 
-and testing flow, and then describe advanced techniques for modeling and 
-testing more complicated designs.
 
-Vivado HLS compiles software programs into cycle-accurate RTL models in 
-Verilog or VHDL. By targeting FPGA as the underlying hardware fabric, 
-Vivado HLS allows engineers to write software to describe their design and 
-conveniently optimize the design for hardware performance through user-
-defined directives.
+Our current PyMTL/HLS methodology integrates Vivado HLS for high-level
+synthesis and the PyMTL hardware modeling framework for verification and
+composition. **Vivado HLS** compiles software programs into
+cycle-accurate Verilog RTL models. Vivado HLS allows engineers to
+describe their design in software and then optimize the design for
+hardware performance through user-defined directives. **PyMTL** is a
+Python-based hardware modeling framework for functional-level (FL),
+cycle-level (CL), and register-transfer-level (RTL) modeling and
+verification. PyMTL also allows wrapping Verilog RTL models within a
+PyMTL RTL interface for integration with other PyMTL FL, CL, and/or RTL
+models so that the entire design can be simulated and tested. This
+enables our framework to use Vivado HLS to synthesize a C/C++ design into
+a Verilog RTL module and then simulate the RTL module together with other
+modules in the overall system. More information on Vivado HLS can be
+found in the corresponding user guide:
 
-PyMTL is a Python-based hardware modeling framework for functional-level,
-cycle-level, and RTL modeling and verification. PyMTL allows us to use Python-
-like constructs to model designs at the RTL level. In addition, PyMTL allows 
-wrapping Verilog RTL models within a Python-based RTL model and integrating 
-with other Python-based functional, cycle-level, or RTL models so that the 
-entire design can be simulated and tested as a whole.
+* http://www.xilinx.com/support/documentation/sw_manuals/xilinx/2015_2/ug902-vivado-high-level-synthesis.pdf`.
 
-The Vivado HLS plus PyMTL framework allows us to synthesize a C/C++ design 
-into Verilog RTL module and simulate the RTL module together with other 
-modules in the overall system. The following figure shows the basic flow of 
-synthesizing a C/C++ design and integrating it into PyMTL simulation 
-framework. Vivado HLS User Guide is available at 
-`http://www.xilinx.com/support/documentation/sw_manuals/xilinx<VIVADO_VERSION>/ug902-vivado-high-level-synthesis.pdf`.
-An example of `<VIVADO_VERSION>` is `2015_2`.
+The following figure shows the basic flow of synthesizing a C/C++ design
+and integrating it into PyMTL simulation framework.
 
-![flow](figures/flow.png)
+![](doc/pymtl-hls-flow.png)
 
-To begin, a synthesizeble C/C++ design is first tested with C/C++ simulation
-and passed to Vivado HLS using a tcl file interface. We then wrap the 
-generate Verilog file with a PyMTL wrapper, which exposes the original design 
-as a PyMTL hardware module using valid-ready-based handshaking interface. 
-The handshaking interface makes it easy to test the design with test source 
-and test sink. Finally, PyMTL simulates the wrapped Verilog design using 
-user-defined testbench file. 
+A synthesizeble C/C++ design is first verified using C/C++ unit testing
+before passing the C/C++ code to Vivado HLS using a TCL file interface.
+We then wrap the generate Verilog file with a PyMTL wrapper, which
+exposes the original design as a PyMTL hardware module using a val/rdy
+latency-insensitive interface. Finally, PyMTL is used to simulate the
+wrapped Verilog design with a user-defined test harness.
 
 Getting Started: Population Count Example
 --------------------------------------------------------------------------
 
-Let's demonstrate the overall flow using the the simple population count
-(PopCount) example in `$TOPDIR/ex_PopCount/PopCount1`. Let's look at the following 
-kernel in `PopCount.cpp`. 
+Let's demonstrate the overall flow using a simple popcount example.
+The C++ source code is in `ex_popcount/PopCount.cc`:
 
 ```
-void PopCount(ap_uint<N> x, int &num) {
-  num = 0;
-  for (int i = 0; i < N; i++) {
-#pragma HLS UNROLL
-    num += x[i];
-  }
-}
+ void PopCount( ap_uint<64> in, int& out )
+ {
+   out = 0;
+   for ( int i = 0; i < 64; i++ ) {
+     #pragma HLS UNROLL
+     out += in[i];
+   }
+ }
 ```
 
-The PopCount kernel takes as input an N-bit variable, and counts the number of 
-bits that are set to one. `ap_uint<N>` is a Vivado HLS built-in data type 
-representing an N-bit unsigned integer. `x[i]` accesses the `i`th bit of 
-`x`. More details about Vivado HLS' built-in data types can be found in the 
-Vivado HLS User Guide.
+The PopCount kernel takes as input a 64-bit variable, and counts the
+number of bits that are set to one. `ap_uint<64>` is a Vivado HLS
+built-in data type representing an N-bit unsigned integer. `x[i]`
+accesses the `i`th bit of `x`.
 
-We first test the kernel with pure C/C++ simulation. The testbench is defined in
-the same source file `PopCount.cpp` as `int main()`. 
-
-```
-int main() {
-  int x[3] = {0x21, 0x14, 0x1133};
-  int num[3];
-  for (int i=0; i<3; i++) {
-    pc(x[i],num[i]);
-    printf("count(0x%x) = %d\n", x[i], num[i]);
-  }
-  return 0;
-}
-```
-
-Use the command 
-`g++ -I<PATH_TO_VIVADO_HLS_INSTALL_DIR>/include PopCount.cpp -o PopCount` to 
-compile and `./PopCount` to execute the kernel. You should observe the correct 
-outputs for each test case.
-
-Vivado HLS takes as input the C/C++ files describing the design, as well as 
-a tcl script used to drive the synthesis flow. Here is a snippet of the tcl 
-script for synthesizing the PopCount design.
+We first test the kernel using pure-C/C++. The ad-hoc test is defined in
+the same `PopCount.cc` source file:
 
 ```
-open_project hls.prj
-set_top PopCount
+ int main()
+ {
+   int in[3] = { 0x21, 0x14, 0x1133 };
 
-add_files PopCount.cpp
-add_files -tb PopCount.cpp
+   for ( int i = 0; i < 3; i++ ) {
+     int out;
+     PopCount( in[i], out );
+     printf( "popcount(0x%x) = %d\n", in[i], out );
+   }
 
-open_solution "solution1" -reset
-config_interface -expose_global
-
-set_part {xc7z020clg484-1}
-create_clock -period 5
-
-set_directive_interface -mode ap_ctrl_none PopCount
-
-csynth_design
+   return 0;
+ }
 ```
 
-One thing to notice in the tcl script is the `set_directive_interface` 
-command. This command specifies the module interface (expressed using the 
-function argument in the C/C++ file) to a specific mode. To keep the synthesized
-design simple, we set the interface to be `ap_ctrl_none` to disable any 
-function-level handshake protocol from being synthesized.
+Use the following commands to compile and run this ad-hoc test:
 
-The `csynth_design` command synthesizes the design into Verilog. The generated 
-Verilog file(s) can be found under folder 
-`<PROJECT_DIR>/hls.prj/solution1/syn/verilog`. 
-A detailed synthesis report can be found under 
-`<PROJECT_DIR>/hls.prj/solution1/syn/report`. 
-`<PROJECT_DIR>/hls.prj/solution1/solution1.log` 
-tracks the potential warnings and errors during the synthesis flow, which is 
-useful for debugging synthesis-related issues.
+```
+ % cd $TOPDIR/ex_popcount
+ % g++ -I${XILINX_VIVADO_HLS_INCLUDE_DIR} -o popcount PopCount.cc
+ % ./popcount
+```
 
-After generating the Verilog files for the design, the next step is to use 
-PyMTL to simulate the Verilog RTL design. To simulate a single Verilog design 
-generated from Vivado HLS, the following files need to be prepared:
+Vivado HLS takes as input the C/C++ files describing the design, as well
+as a TCL script used to drive the high-level synthesis flow. Here is a
+snippet of the tcl script for synthesizing the PopCount design.
 
-- The Verilog (`PopCount.v`) file synthesized by Vivado HLS.
-- A PyMTL wrapper file (`PopCount.py`) that exposes the Verilog module as a 
-PyMTL module.
-- A PyMTL test bench (`PopCount_test.py`) that specifies the test harness as 
-well as the test dataset.
+```
+  open_project PopCount.prj
 
-Note that `/* verilator lint_off WIDTH */` must be added to the synthesized
-Verilog file `PopCount.v` to bypass warning from Verilator regarding bitwidth.
+  set_top PopCount
 
-The following code snippet from `PopCount.py` shows how to define the Verilog 
-PopCount module as a PyMTL module that can be instantiated in the testbench. 
+  add_files PopCount.cc
+
+  open_solution "solution1" -reset
+
+  set_part {xc7z020clg484-1}
+  create_clock -period 5
+
+  set_directive_interface -mode ap_ctrl_none PopCount
+
+  csynth_design
+```
+
+One thing to notice in the tcl script is the `set_directive_interface`
+command. This command specifies the module interface (i.e., the arguments
+to the `PopCount` function) to a specific mode. To keep the synthesized
+design simple, we set the interface to be `ap_ctrl_none` to disable any
+higher-level handshake protocol from being synthesized. The following
+command will use Vivado HLS to synthesize the `PopCount` function into an
+RTL module:
+
+```
+ % cd $TOPDIR/ex_popcount
+ % vivado_hls -f PopCount.tcl PopCount.cc
+ % more PopCount.v
+```
+
+The TCL script includes extra code: (1) to concatenate all of the
+generated Verilog files into a single file and copy this file where
+Vivado HLS is run, and (2) to insert Verilator directives to avoid
+linting errors. We will be using Verilator in our PyMTL Verilog import
+flow. The interface for the generated Verilog RTL should look like this:
+
+```
+ module PopCount (
+   ap_clk,
+   ap_rst,
+   in_V,
+   out_r,
+   out_r_ap_vld
+ );
+ ...
+ input         ap_clk;
+ input         ap_rst;
+ input  [63:0] in_V;
+ output [31:0] out_r;
+ output        out_r_ap_vld;
+```
+
+Notice that Vivado HLS has turned the arguments to the `PopCount`
+function into module ports. The input argument is an input port, and the
+output argument is an output port _and_ an output valid signal. The log
+file and a detailed synthesis report can be found in the project
+directory:
+
+```
+ % cd $TOPDIR/ex_popcount
+ % more PopCount.prj/solution1/solution1.log
+ % more PopCount.prj/solution1/syn/report/PopCount_csynth.rpt
+```
+
+The log file will report warnings and errors during high-level synthesis
+which can be useful when debugging synthesis correctness issues. The
+synthesis report includes scheduling information which can be useful when
+debugging synthesis performance issues.
+
+After generating the Verilog RTL for the design, the next step is to wrap
+the Verilog RTL into a PyMTL model. The following code snippet from
+`PopCount.py` shows how to define such a wrapper:
 
 ```
 class PopCount( VerilogModel ):
 
   def __init__( s ):
 
-    s.x_V = InPort ( 64 )
-    s.num = OutPort( 32 )
-    s.num_ap_vld = OutPort(1)
+    s.in_V       = InPort ( 64 )
+    s.out        = OutPort( 32 )
+    s.out_ap_vld = OutPort( 1  )
 
     s.set_ports({
-      'ap_clk'            : s.clk,
-      'ap_rst'            : s.reset,
-      'x_V'               : s.x_V,
-      'num'               : s.num,
-      'num_ap_vld'        : s.num_ap_vld
+      'ap_clk'       : s.clk,
+      'ap_rst'       : s.reset,
+      'in_V'         : s.in_V,
+      'out_r'        : s.out_r,
+      'out_r_ap_vld' : s.out_r_ap_vld,
     })
 ```
 
-For PyMTL to correctly link the PyMTL module with the Verilog module, two 
-conditions have to be met: The corresponding Verilog file (`PopCount.v`) is in 
-the same directory as the PyMTL file (`PopCount.py`), and the module 
-inside the PyMTL wrapper has the same name as the top-level module of the
-Verilog design. The `s.set_ports` in `class pc( VerilogModel )` specifies
-the mapping between the ports in the Verilog module and the ports in the 
-PyMTL module. As a result, the ports that are paired together are directly 
-connected by wires.
-
-The following code snippet from `PopCount_test.py` demonstrates how to define 
-the test harness, how to add test cases, and how to run the tests, respectively. They collectively 
-compose the PyMTL test bench (`pc_test.py`) for PopCount.
+For PyMTL to correctly import a Verilog RTL module into PyMTL, two
+conditions have to be met: (1) the corresponding Verilog file
+(`PopCount.v`) must be in the same directory as the PyMTL wrapper
+(`PopCount.py`); and (2) the PyMTL wrapper module must have the same name
+as the top-level module of the Verilog design. The `s.set_ports` function
+specifies the mapping between the ports in the Verilog RTL module and the
+ports in the PyMTL wrapper. `PopCount.py` also includes an ad-hoc test
+similar in spirit to our C++ ad-hoc test:
 
 ```
-def test_PopCount( dump_vcd, test_verilog ):
+def main():
 
-  test_vectors = [
-    # x_V     num   num_ap_vld
-    [ 0x21,   '?',  0     ],
-    [ 0x41,   2,    1     ],
-    [ 0x1133, 2,    0     ],
-    [ 0x0,    6,    1     ],
-    [ 0x41,   6,    0     ],
-    [ 0x0,    2,    1     ],
-  ]
+  # Input values
 
-  # Instantiate and elaborate the model
+  inputs = [ 0x21, 0x14, 0x1133, 0x00 ]
+  input_idx = 0
+
+  # Elaborate the model
+
   model = PopCount()
-  model.vcd_file = dump_vcd
-  if test_verilog:
-    model = TranslationTool( model )
   model.elaborate()
 
-  # Define functions mapping the test vector to ports in model
-  def tv_in( model, test_vector ):
-    model.x_V.value = test_vector[0]
+  # Create and reset the simulator
 
-  def tv_out( model, test_vector ):
-    if not test_vector[1] == '?':
-      assert model.num.value == test_vector[1]
-    if not test_vector[2] == '?':
-      assert model.num_ap_vld.value == test_vector[2]
+  sim = SimulationTool( model )
+  sim.reset()
 
-  # Run the test
-  sim = TestVectorSimulator( model, test_vectors, tv_in, tv_out )
-  sim.run_test()
+  # Apply input values and display output values
+
+  for i in range(0,10):
+
+    # Write input value to input port
+
+    model.in_V.value = inputs[input_idx]
+
+    # Display input and output ports
+
+    sim.print_line_trace()
+
+    # Tick simulator one cycle
+
+    sim.cycle()
+
+    # If output is valid, then move on to next input value
+
+    if model.out_r_ap_vld:
+      input_idx += 1
+      if input_idx == len(inputs):
+        break
 ```
 
-The PyMTL testbench first defines the test vectors for the design. The six test
-vectors in `test_vectors` indicate the input and expected output values at each 
-of the first six clock cycles. A question mark `?` indicates a don't care output
-value and is not checked for correctness. The testbench then instantiates an
-instance of the PyMTL module `PopCount` and defines the mapping between the test
-vector and ports in the `PopCount` model under test. `def tv_in( model, test_vector )`
-defines the mapping between test vector and input ports of the model, while
-`def tv_out( model, test_vector )` defines the mapping between test vector and
-output ports of the model. Note that outuput values need not be checked against 
-don't care values `?` using assertions in `def tv_out( model, test_vector )`.
-Finally, `sim.run_test()` is responsible for running and testing the `PopCount` 
-module.
-
-We use the command `py.test ./PopCount_test.py -s` to launch the PyMTL 
-simulation, where the `-s` option prints out the line trace of the simulation.
-Here is the line trace of the PopCount design.
+This test will instantiate and elaborate the model, create a simulator,
+and then apply a series of input values. We can run this ad-hoc test as
+follows:
 
 ```
-  #  x_V             |num     |num_ap_vld
+ % cd $TOPDIR/ex_popcount
+ % python PopCount.py
   2: 0000000000000021|00000000|0
-  3: 0000000000000041|00000002|1
-  4: 0000000000001133|00000002|0
-  5: 0000000000000000|00000006|1
-  6: 0000000000000041|00000006|0
-  7: 0000000000000000|00000002|1
+  3: 0000000000000014|00000002|1
+  4: 0000000000000014|00000002|0
+  5: 0000000000001133|00000002|1
+  6: 0000000000001133|00000002|0
+  7: 0000000000000000|00000006|1
+  8: 0000000000000000|00000006|0
 ```
 
-In the line trace, `x_V` is the input, and `num` and `num_ap_vld` are the 
-outputs. We observe that the design correctly outputs the desired values (i.e, the 
-number of bits that are set to one in the input) at the output port `num`
-exactly one cycle after the input is registered, and that `num_ap_vld` correctly 
-indicates whether the output is valid.
+We can see the design correctly producing the desired values at the
+output port exactly one cycle after the input is set. The output valid
+bit indicates if the output is valid.
 
-In general, PyMTL also allows us to simulate a system of multiple PyMTL 
-modules, where each module can be either generated from Vivado HLS or 
-directly written in PyMTL. A top level PyMTL module will instantiate all 
-the submodules and connect submodules together. The simulation flow for a 
-composed design is identical to simulating a single PyMTL module.
+The popcount example is relatively simple. In the remainder of this
+tutorial, we will explore more complex examples that are constructed to
+be stand-alone accelerators which can be composed with processors,
+memories, and other accelerators. These stand-alone accelerators use
+latency insensitive interfaces with standard accelerator configuration
+and memory messages. These accelerators also take-advantage of the
+included C++ build system, C++ unit testing framework, and Python unit
+testing framework.
 
-An Alternative for Population Count
---------------------------------------------------------------------------
-
-We can instead take advantage of PyMTL's built-in test source/sink functionality.
-We provide an example in `$TOPDIR/ex_PopCount/PopCount2` and outline some important
-differences from the previous example.
-
- 1. We set the interface to be `ap_hs` in `run.tcl`, which is a 
- latency-insensitive hand-shaking interface. The `ap_hs` enables us to PyMTL's`
- built-in test source/sink functionality for testing individual modules.
- 2. We can wrap the Verilog module `class PopCount( VerilogModel )` with a PyMTL
- module `class PopCount_wrapper( Model ))`. The wrapper connects its inputs and
- outputs to the top-level validy-ready ports so it can communicate with the test
- source and sink.
- 3. The PyMTL testbench (PopCount_test.py)instantiates an instance of the PyMTL 
- wrapper module, and test the module using PyMTL built-in `TestSource` and 
- `TestSink` modules. The `TestSource` uses latency-insensitive hand-shaking 
- interface to stream in the test dataset into the PyMTL module. Similarly, the 
- `TestSink` reads out module output from the PyMTL module assuming hand-shaking 
- interface, and compares the results with the expected values.
- 4. As shown in the line trace below, the new test harness allows us to vary 
- source and sink delays as part of `test_case_table` in `PopCount_test.py`.
+Before continuing, let's cleanup from this part of the tutorial:
 
 ```
-  3: 0000000000000021 > 0000000000000021|         |
-  4: #                > #               |00000002 | 00000002
-  5: 0000000000000014 > 0000000000000014|         |
-  6: #                > #               |00000002 | 00000002
-  7: 0000000000001133 > 0000000000001133|         |
-  8: .                > .               |00000006 | 00000006
-.()
-  3: 0000000000000021 > 0000000000000021|         |
-  4: #                > #               |00000002 | 00000002
-  5: 0000000000000014 > 0000000000000014|.        | .
-  6: #                > #               |#        | #
-  7: #                > #               |00000002 | 00000002
-  8: 0000000000001133 > 0000000000001133|.        | .
-  9: .                > .               |#        | #
- 10: .                > .               |00000006 | 00000006
-.()
-  3: .                > .               |         |
-  4: .                > .               |         |
-  5: 0000000000000021 > 0000000000000021|         |
-  6: .                > .               |00000002 | 00000002
-  7: .                > .               |.        | .
-  8: 0000000000000014 > 0000000000000014|         |
-  9: .                > .               |00000002 | 00000002
- 10: 0000000000001133 > 0000000000001133|.        | .
- 11: .                > .               |00000006 | 00000006
+ % cd $TOPDIR/ex_popcount
+ % rm -rf libPopCount* obj_dir_PopCount* popcount
+ % rm -rf *.v *_v.* *.prj *.log
 ```
 
 GCD Accelerator FL Model
 --------------------------------------------------------------------------
+
+For the popcount example, we worked in the actual source directory, but
+in general this is bad practice. We will instead do as much as possible
+in a separate build directory to keep source files separate from
+generated content.
+
+```
+ % mkdir -p $TOPDIR/build
+```
 
 We can start with a simple GCD unit FL model written in PyMTL. You can
 run the unit tests for this model like this:
@@ -343,9 +329,12 @@ run the unit tests for this model like this:
   8: #                    ()18:rd:00000005:000
 ```
 
-The line trace has been edited to make it more compact and include
-annotations. Unlike the GCD unit used in our PyMTL tutorial, this GCD
-unit is designed to be an accelerator and thus supports the
+Note that unlike the ad-hoc Python test used in the popcount example, in
+this case we are using a sophisticated unit testing framework called
+`py.test` which helps make unit testing of general Python programs more
+productive. The line trace has been edited to make it more compact and
+include annotations. Unlike the GCD unit used in our PyMTL tutorial, this
+GCD unit is designed to be an accelerator and thus supports the
 xcelreq/xcelresp interface with the following accelerator registers:
 
  - xr0 : go/result
@@ -389,11 +378,11 @@ make variables which need to be set to ensure the build system knows
 about the C++ header files, C++ inline files, C++ implementation files,
 and pure-C++ unit-test files. If you create your own subproject you will
 need to set the make variables accordingly. You will also need to update
-the `ex_gcd.ac` autoconf fragment. See the `mcppbs-uguide.txt` located in
-this repository for more information on the basic C++ build system. The
-only difference is that there is an additional `ex_gcd_hls_srcs` make
-variable where you can list which top-level C++ implementation files are
-meant for HLS.
+the `ex_gcd.ac` autoconf fragment. See the
+[`mcppbs-uguide.md`](mcppbs-uguide.md) located in this repository for
+more information on the basic C++ build system. The only difference is
+that there is an additional `ex_gcd_hls_srcs` make variable where you can
+list which top-level C++ implementation files are meant for HLS.
 
 So we start by writing a high-level C++ implementation. Here is what
 `GcdXcelHLS.cc` looks like:
@@ -453,11 +442,16 @@ while loop if possible. The final call to `xcelWrapper.done()` will
 result in returning an xcelresp message with the result.
 
 We should _always_ start by testing our C++ code using a pure-C++ unit
-test. I the code does not work natively, then there is no chance it is
+test. If the code does not work natively, then there is no chance it is
 going to work after synthesis, and debugging the synthesized RTL can be
-quite tedious. We use the simple `utst` unit testing framework which is
-also included in this repository. Here is an example of a simple test
-case:
+quite tedious. The ad-hoc test used in the popcount example is not really
+testing; tests need to be written in a well-structured way that
+facilitates automated verification. We will use the simple `utst` unit
+testing framework which is also included in this repository. See
+[`utst/utst.md`](utst/utst.md) located in this repository for more
+information about this unit testing framework.
+
+Here is an example of a simple test case:
 
 ```cpp
 void run_test( const std::vector<std::pair<int,int> >& data,
@@ -889,4 +883,3 @@ So our synthesized RTL is almost 2x faster and required a fraction of the
 time to implement. We could of course go back and optimize our manual RTL
 implementation, but the key point here is that HLS can enable much more
 rapid design-space exploration compared to manual RTL design.
-

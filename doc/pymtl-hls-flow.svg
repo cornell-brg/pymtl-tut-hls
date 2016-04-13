@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="365"
+   height="120"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.48.4 r9939"
+   version="1.0"
+   sodipodi:docname="pymtl-hls-flow.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="1"
+     objecttolerance="1"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.1301205"
+     inkscape:cx="207.5"
+     inkscape:cy="155"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:object-paths="false"
+     inkscape:grid-bbox="false"
+     inkscape:grid-points="true"
+     inkscape:guide-bbox="true"
+     width="900px"
+     height="700px"
+     inkscape:showpageshadow="false"
+     inkscape:window-width="1814"
+     inkscape:window-height="1367"
+     inkscape:window-x="-3"
+     inkscape:window-y="2"
+     showguides="true"
+     inkscape:window-maximized="0"
+     inkscape:snap-to-guides="false"
+     inkscape:object-nodes="true">
+    <inkscape:grid
+       enabled="true"
+       visible="true"
+       empspacing="5"
+       empopacity="0.4"
+       opacity="0.2"
+       empcolor="#0000ff"
+       color="#0000ff"
+       spacingy="10px"
+       spacingx="10px"
+       originy="0px"
+       originx="0px"
+       type="xygrid"
+       id="GridFromPre046Settings"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="TriangleInM"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="TriangleInM"
+       style="overflow:visible">
+      <path
+         id="path5314"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="scale(-0.4,-0.4)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="TriangleOutM"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="TriangleOutM"
+       style="overflow:visible">
+      <path
+         id="path4111"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="scale(0.4,0.4)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="TriangleOutL"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="TriangleOutL">
+      <path
+         transform="scale(0.8,0.8)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         id="path3657"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <inkscape:perspective
+       id="perspective7"
+       inkscape:persp3d-origin="450 : 233.33333 : 1"
+       inkscape:vp_z="900 : 350 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 350 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <marker
+       style="overflow:visible"
+       id="TriangleOutLw"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="TriangleOutLw">
+      <path
+         transform="scale(0.8,0.8)"
+         style="fill:#ff0000;fill-rule:evenodd;stroke:#ff0000;stroke-width:1pt;marker-start:none"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         id="path4295"
+         inkscape:connector-curvature="0" />
+    </marker>
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-49,-679)"
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <rect
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="rect4603"
+       width="55"
+       height="30"
+       x="54"
+       y="724" />
+    <text
+       sodipodi:linespacing="110%"
+       id="text4607"
+       y="737.18726"
+       x="81.551025"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:middle;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       xml:space="preserve"><tspan
+         id="tspan4609"
+         y="737.18726"
+         x="81.551025"
+         sodipodi:role="line">C++</tspan><tspan
+         y="747.08728"
+         x="81.551025"
+         sodipodi:role="line"
+         id="tspan4611">FL Model</tspan></text>
+    <rect
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="rect4619"
+       width="55"
+       height="30"
+       x="54"
+       y="764" />
+    <text
+       sodipodi:linespacing="110%"
+       id="text4621"
+       y="777.18726"
+       x="81.551025"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:middle;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       xml:space="preserve"><tspan
+         y="777.18726"
+         x="81.551025"
+         sodipodi:role="line"
+         id="tspan4625">TCL</tspan><tspan
+         y="787.08728"
+         x="81.551025"
+         sodipodi:role="line"
+         id="tspan3541">Script</tspan></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot4639"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;color:#000000;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Palatino;-inkscape-font-specification:Palatino"
+       transform="translate(274,499)"><flowRegion
+         id="flowRegion4641"><rect
+           id="rect4643"
+           width="49.93042"
+           height="14.586414"
+           x="88.640518"
+           y="183.75925" /></flowRegion><flowPara
+         id="flowPara4645" /></flowRoot>    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM)"
+       d="m 109,699 16.87492,0"
+       id="path4797"
+       inkscape:connector-curvature="0" />
+    <rect
+       rx="5"
+       ry="5"
+       style="color:#000000;fill:#fffbd7;fill-opacity:1;stroke:#544300;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="rect4836"
+       width="55"
+       height="30"
+       x="129"
+       y="684" />
+    <text
+       xml:space="preserve"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:middle;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="156.44092"
+       y="696.55005"
+       id="text4838"
+       sodipodi:linespacing="110%"><tspan
+         sodipodi:role="line"
+         x="156.44092"
+         y="696.55005"
+         id="tspan4840">C++</tspan><tspan
+         id="tspan4842"
+         sodipodi:role="line"
+         x="156.44092"
+         y="706.45007">Compiler</tspan></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot3598"
+       style="font-size:28px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;opacity:0.41726619;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica;-inkscape-font-specification:Helvetica Bold"
+       transform="translate(49,639)"><flowRegion
+         id="flowRegion3600"><rect
+           id="rect3602"
+           width="7.6999011"
+           height="62.240868"
+           x="13.795656"
+           y="60.863773" /></flowRegion><flowPara
+         id="flowPara3604" /></flowRoot>    <rect
+       y="684"
+       x="54"
+       height="30"
+       width="55"
+       id="rect3503"
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <text
+       xml:space="preserve"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:middle;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="81.551025"
+       y="697.18726"
+       id="text3505"
+       sodipodi:linespacing="110%"><tspan
+         sodipodi:role="line"
+         x="81.551025"
+         y="697.18726"
+         id="tspan3507">C++</tspan><tspan
+         id="tspan3509"
+         sodipodi:role="line"
+         x="81.551025"
+         y="707.08728">Unit Tests</tspan></text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path3511"
+       d="m 109,739 16.87492,-28.2384"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM)"
+       sodipodi:nodetypes="cc" />
+    <rect
+       y="684"
+       x="204"
+       height="30"
+       width="55"
+       id="rect3513"
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <text
+       xml:space="preserve"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:middle;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="231.55103"
+       y="697.18726"
+       id="text3515"
+       sodipodi:linespacing="110%"><tspan
+         id="tspan3519"
+         sodipodi:role="line"
+         x="231.55103"
+         y="697.18726">Unit Test</tspan><tspan
+         sodipodi:role="line"
+         x="231.55103"
+         y="707.08728"
+         id="tspan3523">Executable</tspan></text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path3525"
+       d="m 184,699 16.87492,0"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM)" />
+    <rect
+       y="724"
+       x="129"
+       height="30"
+       width="55"
+       id="rect3527"
+       style="color:#000000;fill:#fffbd7;fill-opacity:1;stroke:#544300;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       ry="5"
+       rx="5" />
+    <text
+       sodipodi:linespacing="110%"
+       id="text3529"
+       y="736.55005"
+       x="156.44092"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:middle;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       xml:space="preserve"><tspan
+         y="736.55005"
+         x="156.44092"
+         sodipodi:role="line"
+         id="tspan3533">Vivado</tspan><tspan
+         y="746.45007"
+         x="156.44092"
+         sodipodi:role="line"
+         id="tspan3537">HLS</tspan></text>
+    <path
+       sodipodi:nodetypes="cc"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM)"
+       d="m 109,779 16.87492,-28.2384"
+       id="path3543"
+       inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path3545"
+       d="m 109,739 16.87492,0"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM)" />
+    <rect
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="rect3547"
+       width="55"
+       height="30"
+       x="204"
+       y="724" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM)"
+       d="m 184,739 16.87492,0"
+       id="path3549"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:middle;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="231.55103"
+       y="737.18726"
+       id="text3551"
+       sodipodi:linespacing="110%"><tspan
+         id="tspan3555"
+         sodipodi:role="line"
+         x="231.55103"
+         y="737.18726">Verilog</tspan><tspan
+         sodipodi:role="line"
+         x="231.55103"
+         y="747.08728"
+         id="tspan3559">RTL Model</tspan></text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path3579"
+       d="m 259,739 16.87492,0"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM)" />
+    <rect
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="rect3587"
+       width="55"
+       height="30"
+       x="279"
+       y="724" />
+    <text
+       sodipodi:linespacing="110%"
+       id="text3589"
+       y="736.49731"
+       x="306.55103"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:middle;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       xml:space="preserve"><tspan
+         y="736.49731"
+         x="306.55103"
+         sodipodi:role="line"
+         id="tspan3591">PyMTL</tspan><tspan
+         id="tspan3593"
+         y="746.39734"
+         x="306.55103"
+         sodipodi:role="line">Wrapper</tspan></text>
+    <rect
+       y="684"
+       x="279"
+       height="30"
+       width="55"
+       id="rect3597"
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <text
+       xml:space="preserve"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:middle;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="306.55103"
+       y="696.49731"
+       id="text3599"
+       sodipodi:linespacing="110%"><tspan
+         sodipodi:role="line"
+         x="306.55103"
+         y="696.49731"
+         id="tspan3607">PyMTL</tspan><tspan
+         sodipodi:role="line"
+         x="306.55103"
+         y="706.39734"
+         id="tspan3609">Models</tspan></text>
+    <rect
+       y="764"
+       x="279"
+       height="30"
+       width="55"
+       id="rect3613"
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <text
+       xml:space="preserve"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:middle;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="306.55103"
+       y="776.49731"
+       id="text3615"
+       sodipodi:linespacing="110%"><tspan
+         sodipodi:role="line"
+         x="306.55103"
+         y="776.49731"
+         id="tspan3619">Test</tspan><tspan
+         sodipodi:role="line"
+         x="306.55103"
+         y="786.39734"
+         id="tspan3623">Script</tspan></text>
+    <rect
+       rx="5"
+       ry="5"
+       style="color:#000000;fill:#fffbd7;fill-opacity:1;stroke:#544300;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="rect3635"
+       width="55"
+       height="30"
+       x="354"
+       y="724" />
+    <text
+       xml:space="preserve"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:middle;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="381.44092"
+       y="736.55005"
+       id="text3637"
+       sodipodi:linespacing="110%"><tspan
+         id="tspan3641"
+         sodipodi:role="line"
+         x="381.44092"
+         y="736.55005">PyMTL</tspan><tspan
+         sodipodi:role="line"
+         x="381.44092"
+         y="746.45007"
+         id="tspan3651">Simulator</tspan></text>
+    <path
+       sodipodi:nodetypes="cc"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM)"
+       d="m 334,779 16.87492,-28.2384"
+       id="path3643"
+       inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path3645"
+       d="m 334,699 16.87492,30"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM)"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM)"
+       d="m 334,739 16.87492,0"
+       id="path3647"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>

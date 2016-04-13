@@ -1,106 +1,114 @@
-==========================================================================
+
 Modular C++ Build System User Guide
 ==========================================================================
-# Author : Christopher Batten
-# Date   : Sep 2008, Sep 2009, Aug 2015
+* Author : Christopher Batten
+* Date   : Sep 2008, Sep 2009, Aug 2015
 
-The Modular C++ Build System is a set of makefiles, scripts, and
-policies for managing, testing, and building large C++ projects. The
-fundamental idea is that we divide the large project into several
-smaller pieces called subprojects. Subprojects are both a physical
-concept (ie. how the files are named and organized) as well as a logical
-concept (ie. how the classes and functions are named and organized).
-Each subproject should encapsulate a moderate amount of related
-functionality; subprojects usually contain tens of classes and source
-files. The build process is modular since the header files, source
-files, make fragment, and autoconf fragment for a subproject are all
-contained within one subdirectory. We should be able to easily copy
-subprojects between projects (assuming they are using the same modular
-build system) and the only change we need to make is updating the list
-of subprojects in the top-level autoconf script.
+The Modular C++ Build System is a set of makefiles, scripts, and policies
+for managing, testing, and building large C++ projects. The fundamental
+idea is that we divide the large project into several smaller pieces
+called subprojects. Subprojects are both a physical concept (ie. how the
+files are named and organized) as well as a logical concept (ie. how the
+classes and functions are named and organized). Each subproject should
+encapsulate a moderate amount of related functionality; subprojects
+usually contain tens of classes and source files. The build process is
+modular since the header files, source files, make fragment, and autoconf
+fragment for a subproject are all contained within one subdirectory. We
+should be able to easily copy subprojects between projects (assuming they
+are using the same modular build system) and the only change we need to
+make is updating the list of subprojects in the top-level autoconf
+script.
 
 This user guide is divided into two parts: the first part is a tutorial,
 and the second part contains general user reference. The build system
-includes an integrated unit test framework (which is also an example of
-a subproject), so developers should also read the testing documentation
-in 'utst/utst.txt'.
+includes an integrated unit test framework (which is also an example of a
+subproject), so developers should also read the testing documentation in
+`utst/utst.md`.
 
- Table of Contents
-  Part 1: Tutorial
-   1.1. Building a Project
-   1.2. Adding a Basic Subproject
-   1.3. Adding a More Advanced Subproject
-   1.4. Managing Optional Subprojects
-   1.5. Installing Subprojects
-   1.6. Including External Subprojects
-   1.7. Distributing Package Tarballs
-  Part 2: Reference
-   2.1. Overview of Build Process
-   2.1. Basic Autoconf Toolflow
-   2.2. Managing Subprojects in configure.ac
-   2.3. Subproject Autoconf Fragments
-   2.4. Basic Make Toolflow
-   2.5. Subproject Makefile Fragments
+#### Table of Contents
 
---------------------------------------------------------------------------
+ - Part 1: Tutorial
+    + 1.1. Building a Project
+    + 1.2. Adding a Basic Subproject
+    + 1.3. Adding a More Advanced Subproject
+    + 1.4. Managing Optional Subprojects
+    + 1.5. Installing Subprojects
+    + 1.6. Including External Subprojects
+    + 1.7. Distributing Package Tarballs
+
+ - Part 2: Reference
+    + 2.1. Overview of Build Process
+    + 2.1. Basic Autoconf Toolflow
+    + 2.2. Managing Subprojects in configure.ac
+    + 2.3. Subproject Autoconf Fragments
+    + 2.4. Basic Make Toolflow
+    + 2.5. Subproject Makefile Fragments
+
 1. Tutorial
 --------------------------------------------------------------------------
 
 This part walks through using the Modular C++ Build System to create a
 new project, add subprojects, and then build, test, and install the
 project. You can follow along through the tutorial yourself by typing in
-the commands marked with a '%' symbol at the shell prompt. Tasks to try
+the commands marked with a `%` symbol at the shell prompt. Tasks to try
 on your own are denoted with (*). To cut and paste commands from this
-tutorial into your bash shell (and make sure bash ignores the '%'
-character) just use an alias to "undefine" the '%' character like this:
+tutorial into your bash shell (and make sure bash ignores the `%`
+character) just use an alias to "undefine" the `%` character like this:
 
+```
  % alias %=""
+```
 
 Before creating a new project we need to decide what to name the
 project. We should choose both a longer descriptive name (eg. Image
-Processing Tools) as well as a short abbreviated name (eg. 'ipt'). For
-this tutorial we will use the abbreviated name 'mcppbs-tut'. Once we
+Processing Tools) as well as a short abbreviated name (eg. `ipt`). For
+this tutorial we will use the abbreviated name `mcppbs-tut`. Once we
 know the abbreviated name for our project, we then need to download and
-extract the 'mcppbs' template from the public git repository. We unpack
+extract the `mcppbs` template from the public git repository. We unpack
 the template into a directory with the abbreviated project name, and to
 simplify simplify the rest of the tutorial we will also define a
-'$PROJROOT' environment variable which contains the absolute path to the
+`$PROJROOT` environment variable which contains the absolute path to the
 project's top-level root directory.
 
+```
  % TGZ=<location-of-template>
  % wget -O- $TGZ | tar xzf -
  % mv cbatten-sw-mcppbs mcppbs-tut
  % cd mcppbs-tut
  % PROJROOT=$PWD
+```
 
 Take a look at the files in the top-level project directory.
 
- - 'README'             : Project documentation
- - 'mcppbs-uguide.txt'  : Build system documentation
- - 'configure.ac'       : Input for autoconf tools
- - 'aclocal.m4'         : Local macros for autoconf tools
- - 'Makefile.in'        : Template for 'configure' script
- - 'config.h.in'        : Generated by 'autoheader'
- - 'configure'          : Generated by 'autoconf'
- - 'scripts'            : Subdirectory with build system scripts
- - 'utst'               : Subdirectory with unit testing framework
+ - `README`             : Project documentation
+ - `mcppbs-uguide.md`   : Build system documentation
+ - `configure.ac`       : Input for autoconf tools
+ - `aclocal.m4`         : Local macros for autoconf tools
+ - `Makefile.in`        : Template for `configure` script
+ - `config.h.in`        : Generated by `autoheader`
+ - `configure`          : Generated by `autoconf`
+ - `scripts`            : Subdirectory with build system scripts
+ - `utst`               : Subdirectory with unit testing framework
 
 After acquiring the template, we need to update the metadata in
-'configure.ac' with the new project's name, maintainer's name, and a
+`configure.ac` with the new project's name, maintainer's name, and a
 shorter abbreviated form of the project name. The abbreviated form
 should be all lowercase, uses a dash as a separator, and usually is the
 same as the project directory name. We want to change the metadata in
-'configure.ac' so that it looks like this:
+`configure.ac` so that it looks like this:
 
+```
  m4_define( proj_name,         [MCPPBS Tutorial])
  m4_define( proj_maintainer,   [Christopher Batten])
  m4_define( proj_abbreviation, [mcppbs-tut])
  m4_define( proj_version,      [0.0])
+```
 
 For the tutorial we use sed to make the change, but you can also use
-your favorite text editor. Note that after we change 'configure.ac' we
+your favorite text editor. Note that after we change `configure.ac` we
 need to rerun the autoconf tools.
 
+```
  % cd $PROJROOT
  % sed -i.bak \
      -e 's/\( proj_name,\).*/\1         [MCPPBS Tutorial])/'    \
@@ -108,30 +116,30 @@ need to rerun the autoconf tools.
      -e 's/\( proj_abbreviation,\).*/\1 [mcppbs-tut])/'         \
      -e 's/\( proj_version,\).*/\1      [0.0])/' configure.ac
  % autoconf && autoheader
+```
 
-This might also be a good time to update the 'README' with information
+This might also be a good time to update the `README` with information
 specific to the new project. You are encouraged to keep a pointer in the
-'README' to the documentation on the build system ('mcppbs-uguide.txt')
+`README` to the documentation on the build system (`mcppbs-uguide.md`)
 so that your end-users can learn how the build system works.
 
---------------------------------------------------------------------------
 1.1. Building a Project
 --------------------------------------------------------------------------
 
 The first thing we will try is just building the project, although the
 only subproject in the default template is the unit testing framework.
-Take a look at the unit testing subproject in the 'utst' subdirectory.
+Take a look at the unit testing subproject in the `utst` subdirectory.
 You will see the following files:
 
- - 'utst-guide.txt'   : Unit testing framework documentation
- - 'utst.h'           : Top-Level header file
- - 'utst-*.h'         : Header files
- - 'utst-*.inl'       : Inline header/source files (see style guide)
- - 'utst-*.cc'        : Source files
- - 'utst.t.cc'        : Unit test source file
- - 'utst.ac'          : Autoconf fragment
- - 'utst.mk.in'       : Makefile fragment
- - 'utst.pc.in'       : Metadata file for installing subproject library
+ - `utst-guide.md`    : Unit testing framework documentation
+ - `utst.h`           : Top-Level header file
+ - `utst-*.h`         : Header files
+ - `utst-*.inl`       : Inline header/source files (see style guide)
+ - `utst-*.cc`        : Source files
+ - `utst.t.cc`        : Unit test source file
+ - `utst.ac`          : Autoconf fragment
+ - `utst.mk.in`       : Makefile fragment
+ - `utst.pc.in`       : Metadata file for installing subproject library
 
 The build system is structured so that we do not intermingle the
 generated files with the source files. This makes it much easier to
@@ -144,94 +152,100 @@ a project for multiple architectures. The following commands create a
 build directory, configure the project, and then builds/runs all the
 unit tests.
 
+```
  % cd $PROJROOT
  % mkdir build
  % cd build
  % ../configure
  % make
  % make check
+```
 
-Notice that we run the portable 'configure' shell script to customize
-the build system for the current platform. The 'configure' script
+Notice that we run the portable `configure` shell script to customize
+the build system for the current platform. The `configure` script
 displays information about what kind of checks it is performing. Take a
 look at what is in the build directory. You will see the following
 files:
 
- - 'Makefile'           : 'configure' generated makefile
- - 'config.log'         : Log from 'configure' script
- - 'config.status'      : Cached version of the 'configure' script
- - 'utst.mk'            : 'configure' generated makefile fragment
- - 'utst/config.h'      : 'configure' generated header file
- - 'utst/*.d'           : Auto-generated dependency file per '.cc'
- - 'utst/*.o'           : Object file for each '.cc'
- - 'utst/libutst.a'     : Library for 'utst' subproject
- - 'utst/utst.t.d'      : Dependency file for 'utst.t.cc' unit test
- - 'utst/utst.t.o'      : Object file for 'utst.t.cc' unit test
- - 'utst/utst-utst'     : Executable for 'utst.t.cc' unit test
- - 'utst/utst-utst.out' : Output from running 'utst-utst'
+ - `Makefile`           : `configure` generated makefile
+ - `config.log`         : Log from `configure` script
+ - `config.status`      : Cached version of the `configure` script
+ - `utst.mk`            : `configure` generated makefile fragment
+ - `utst/config.h`      : `configure` generated header file
+ - `utst/*.d`           : Auto-generated dependency file per `.cc`
+ - `utst/*.o`           : Object file for each `.cc`
+ - `utst/libutst.a`     : Library for `utst` subproject
+ - `utst/utst.t.d`      : Dependency file for `utst.t.cc` unit test
+ - `utst/utst.t.o`      : Object file for `utst.t.cc` unit test
+ - `utst/utst-utst`     : Executable for `utst.t.cc` unit test
+ - `utst/utst-utst.out` : Output from running `utst-utst`
 
-The 'configure' script takes the 'Makefile.in' file in the project root
+The `configure` script takes the `Makefile.in` file in the project root
 directory and makes some substitutions for special variables denoted with
-the '@variable@' syntax. Look for '@srcdir@' in 'Makefile.in' and compare
-that line to the same line in the generated 'Makefile'. You can see that
-the 'configure' script has substituted the correct path to the top-level
+the `@variable@` syntax. Look for `@srcdir@` in `Makefile.in` and compare
+that line to the same line in the generated `Makefile`. You can see that
+the `configure` script has substituted the correct path to the top-level
 directory for the C++ project. No matter where you put the build
-directory, 'configure' will fill this variable in correctly so that the
-build system can always find the source files. Compare 'Makefile.in' and
-'config.h.in' to the generated 'Makefile' and 'utst/config.h' to see what
-other changes the 'configure' script customized based on your specific
+directory, `configure` will fill this variable in correctly so that the
+build system can always find the source files. Compare `Makefile.in` and
+`config.h.in` to the generated `Makefile` and `utst/config.h` to see what
+other changes the `configure` script customized based on your specific
 platform. Notice that if a subproject is enabled then a C preprocessor
-macro will be defined (eg. 'UTST_ENABLED') so that developers can write
+macro will be defined (eg. `UTST_ENABLED`) so that developers can write
 conditional code based on which subprojects are available. Unlike many
-other projects, we do not use a single global 'config.h' file. Instead
-each subproject has its own 'config.h' file (eg. 'utst/config.h').
+other projects, we do not use a single global `config.h` file. Instead
+each subproject has its own `config.h` file (eg. `utst/config.h`).
 Although all of these header files are identical, separating them by
 subproject enables us to install the subproject's header files (including
-the appropriate 'config.h' file) and avoid filename clashes. Subprojects
-should only '#include' their _own_ 'config.h' file.
+the appropriate `config.h` file) and avoid filename clashes. Subprojects
+should only `#include` their _own_ `config.h` file.
 
-To clean up the build directory we can use the 'clean' make target. Take
-a look at what is in the build directory before and after running 'make
-clean'. Afterwards you should just see the scripts generated by
-'configure'. To remove everything so that the build directory is
-completely empty we can use the 'distclean' make target.
+To clean up the build directory we can use the `clean` make target. Take
+a look at what is in the build directory before and after running `make
+clean`. Afterwards you should just see the scripts generated by
+`configure`. To remove everything so that the build directory is
+completely empty we can use the `distclean` make target.
 
+```
  % cd $PROJROOT/build
  % make clean
+```
 
---------------------------------------------------------------------------
 1.2. Adding a Basic Subproject
 --------------------------------------------------------------------------
 
 Each subproject is contained in a subdirectory beneath the main project
 directory. The name of the subdirectory should be an abbreviated form
 (four to eight characters) of the full name of the subproject. For
-example, the unit testing subproject is contained in the 'utst'
-subdirectory. The subdirectory includes all of that subproject's header
+example, the unit testing subproject is contained in the `utst`
+subdirectory. The subdirectory includes all of that subproject`s header
 and source files. To add a new subproject, we need to take the following
 steps:
 
  - Create a new subdirectory with the abbreviated subproject name
  - Add the subproject's source files
  - Add autoconf and makefile fragments
- - Include the subproject in the top-level 'configure.ac'
+ - Include the subproject in the top-level `configure.ac`
 
 We will now go through these steps for an example subproject named
-Simple Geometric Primitives ('sgp'). This subproject might encapsulate
+Simple Geometric Primitives (`sgp`). This subproject might encapsulate
 various classes and functions to represent and manipulate points, lines,
 and polygons. For this tutorial, we will just add a very simple class
 representing a point in a 2D plane. The first step is to create a new
 subdirectory.
 
+```
  % cd $PROJROOT
  % mkdir sgp
+```
 
 The next step is to write three new C++ files for our point class:
-'sgp/Point.h', 'sgp/Point.cc', and 'sgp/Point.t.cc'. The 'sgp/Point.t.cc'
-file is a unit test for the 'Point' class. For more information on the
-unit testing framework see the general documentation in 'utst/utst.txt'.
-So first we write the 'sgp/Point.h' header file.
+`sgp/Point.h`, `sgp/Point.cc`, and `sgp/Point.t.cc`. The `sgp/Point.t.cc`
+file is a unit test for the `Point` class. For more information on the
+unit testing framework see the general documentation in `utst/utst.md`.
+So first we write the `sgp/Point.h` header file.
 
+```
  % cd $PROJROOT
  % cat > sgp/Point.h \
 <<'END'
@@ -262,11 +276,13 @@ So first we write the 'sgp/Point.h' header file.
  #endif
 
 END
+```
 
-Notice that the 'Point' class is placed in the 'sgp' namespace and that
-we use a 'SGP_' prefix for preprocessor macros. Next we write the source
+Notice that the `Point` class is placed in the `sgp` namespace and that
+we use a `SGP_` prefix for preprocessor macros. Next we write the source
 file.
 
+```
  % cd $PROJROOT
  % cat > sgp/Point.cc \
 <<'END'
@@ -295,15 +311,17 @@ file.
  }
 
 END
+```
 
-Notice how '#include' must always be with respect to the top of the
+Notice how `#include` must always be with respect to the top of the
 project. In other words, you must always include the subproject directory
 in front of the corresponding header. We need to define an insertion
 operator and an equality operator to be able to use some of the basic
-checks in the unit testing framework. Here is the 'sgp/Point.t.cc' file
+checks in the unit testing framework. Here is the `sgp/Point.t.cc` file
 which does a simple unit test to check if the addition of two points is
 working.
 
+```
  % cd $PROJROOT
  % cat > sgp/Point.t.cc \
 <<'END'
@@ -323,11 +341,13 @@ working.
  }
 
 END
+```
 
 We might also want to have a command-line program in our subproject. The
 following little example takes two points specified on the command line
 and outputs their sum.
 
+```
  % cd $PROJROOT
  % cat > sgp/add-points.cc \
 <<'END'
@@ -346,17 +366,19 @@ and outputs their sum.
  }
 
 END
+```
 
 Now that we have added our source code and the unit test to our
-subproject, the next step is to add the autoconf fragment ('sgp.ac') and
-the makefile fragment ('sgp.mk.in'). We should always include a call to
-the 'MCPPBS_SUBPROJECT' macro in our autoconf fragment. This macro will
-expand out to various setup steps in the 'configure' script, and later
+subproject, the next step is to add the autoconf fragment (`sgp.ac`) and
+the makefile fragment (`sgp.mk.in`). We should always include a call to
+the `MCPPBS_SUBPROJECT` macro in our autoconf fragment. This macro will
+expand out to various setup steps in the `configure` script, and later
 in this tutorial we will see how we can use this macro to specify
 dependencies between subprojects. We will also see later how we can use
 additional autoconf macros in this fragments to check installed
 libraries or compiler features.
 
+```
  % cd $PROJROOT
  % cat > sgp/sgp.ac \
 <<'END'
@@ -364,15 +386,17 @@ libraries or compiler features.
  MCPPBS_SUBPROJECT([sgp])
 
 END
+```
 
-The 'MCPPBS_SUBPROJECT' macro will set various variables which will be
-substituted into our makefile fragment when we run 'configure'. For
-example, 'configure' will substitute in the appropriate compiler and
+The `MCPPBS_SUBPROJECT` macro will set various variables which will be
+substituted into our makefile fragment when we run `configure`. For
+example, `configure` will substitute in the appropriate compiler and
 linker flags so that we can properly build this subproject. The makefile
 fragment should ultimately set special make variables to tell the
 top-level makefile about these compiler and linker flags as well as the
-source files which make up the 'sgp' subproject.
+source files which make up the `sgp` subproject.
 
+```
  % cd $PROJROOT
  % cat > sgp/sgp.mk.in \
 <<'END'
@@ -389,40 +413,43 @@ source files which make up the 'sgp' subproject.
  sgp_install_prog_srcs = sgp/add-points.cc
 
 END
+```
 
-We use 'sgp_' as a prefix for all make variables in the makefile
+We use `sgp_` as a prefix for all make variables in the makefile
 fragment. Here is a list of all the recognized make variables for a
-subproject named 'sproj'.
+subproject named `sproj`.
 
- - 'sproj_hdrs;              : Headers (.h)
- - 'sproj_inls'              : Inline header/source files (.inl)
- - 'sproj_srcs'              : Source files (.cc,.c,.S)
- - 'sproj_test_srcs'         : Sources for unit tests (.t.cc)
- - 'sproj_prog_srcs'         : Sources for programs (.cc,.c)
- - 'sproj_install_prog_srcs' : Sources for programs to install (.cc,.c)
+ - `sproj_hdrs`              : Headers (`.h`)
+ - `sproj_inls`              : Inline header/source files (`.inl`)
+ - `sproj_srcs`              : Source files (`.cc`,`.c`,`.S`)
+ - `sproj_test_srcs`         : Sources for unit tests (`.t.cc`)
+ - `sproj_prog_srcs`         : Sources for programs (`.cc`,`.c`)
+ - `sproj_install_prog_srcs` : Sources for programs to install (`.cc`,`.c`)
 
 Notice how we must use the subproject directory as a prefix when
 specifying all source files. Also note that we can include C, C++, and
-assembly source files in our sources list ('sprojs_srcs'), C and C++
-source files in our program sources ('sproj_proj_srcs',
-'sproj_install_prog_srcs'), but only C++ test programs
-('sproj_test_srcs'). Even though we can include these different type of
+assembly source files in our sources list (`sprojs_srcs`), C and C++
+source files in our program sources (`sproj_proj_srcs`,
+`sproj_install_prog_srcs`), but only C++ test programs
+(`sproj_test_srcs`). Even though we can include these different type of
 sources everything is always compiled with the C++ compiler.
 
-Now that our 'sgp' subproject is ready to go, the last step is to
-include the subproject in the top-level 'configure.ac' file. If you look
-through the 'configure.ac' file you will see that there is already a
-call to the 'MCPPBS_INCLUDE_INTERNAL' macro for 'utst'. We simply need
-to add a new line for the new 'sgp' subproject. For the tutorial, we use
-sed to make this change. After modifying 'configure.ac' we need to rerun
-the autoconf tools. Remember that we always run 'autoconf' and
-'autoheader' together.
+Now that our `sgp` subproject is ready to go, the last step is to
+include the subproject in the top-level `configure.ac` file. If you look
+through the `configure.ac` file you will see that there is already a
+call to the `MCPPBS_INCLUDE_INTERNAL` macro for `utst`. We simply need
+to add a new line for the new `sgp` subproject. For the tutorial, we use
+sed to make this change. After modifying `configure.ac` we need to rerun
+the autoconf tools. Remember that we always run `autoconf` and
+`autoheader` together.
 
+```
  % cd $PROJROOT
  % sed -i.bak '/MCPPBS_INCLUDE_INTERNAL(\[utst\])/ a \
      MCPPBS_INCLUDE_INTERNAL([sgp])
    ' configure.ac
  % autoconf && autoheader
+```
 
 There are primarily two types of subprojects: internal and external.
 Internal subprojects are ones where we actually include the source code
@@ -431,71 +458,81 @@ we simply leverage a previously installed library for a subproject.
 External subprojects are not currently supported in this new version of
 the build system which does not use file-name prefixes.
 
-We are now finally ready to build the project with our newly added 'sgp'
-subproject. We simply go into the build directory and use 'make' to build
-a library ('sgp/libsgp.a') which includes all of the object files for the
-subproject as well as any subproject programs. Then we use 'make check'
+We are now finally ready to build the project with our newly added `sgp`
+subproject. We simply go into the build directory and use `make` to build
+a library (`sgp/libsgp.a`) which includes all of the object files for the
+subproject as well as any subproject programs. Then we use `make check`
 to build and run all of the unit tests.
 
+```
  % cd $PROJROOT/build
  % make
  % make check
+```
 
 Let's take a closer look at the output. Notice that the makefile
-automatically reran the 'configure' script since it was modified by
-'autoconf'. The 'configure' script reports which subprojects are being
+automatically reran the `configure` script since it was modified by
+`autoconf`. The `configure` script reports which subprojects are being
 included in the current project. If you look at the output from the
-'configure' script you will see the following two lines:
+`configure` script you will see the following two lines:
 
+```
  configure: configuring internal subproject utst
  configure: configuring internal subproject sgp
+```
 
 The makefile has rules to build the unit test executable
-'sgp/Point-utst' from the 'sgp/Point.t.cc' source file. You should see
-the following output from running 'sgp/Point-utst':
+`sgp/Point-utst` from the `sgp/Point.t.cc` source file. You should see
+the following output from running `sgp/Point-utst`:
 
+```
  Unit Tests : sgp/Point-utst
  Running test suite : default
   + Running test case : TestAddition
+```
 
-The output from each unit test is saved in a '.out' file, and the output
-tells us that the 'TestAddition' test case was run and that there were no
-errors. 'make check' also displays a summary of all the unit test results
-(by grepping the '.out' files) producing this output:
+The output from each unit test is saved in a `.out` file, and the output
+tells us that the `TestAddition` test case was run and that there were no
+errors. `make check` also displays a summary of all the unit test results
+(by grepping the `.out` files) producing this output:
 
+```
  Unit Tests : utst/utst
  Unit Tests : sgp/Point-utst
+```
 
 If there were any errors they would be displayed in this summary as well
-as in the per unit test output. (*) Run the 'sgp/add-points' command line
+as in the per unit test output. (*) Run the `sgp/add-points` command line
 program and verify that it works. (*) Try purposely changing the unit
-test so that it fails and observe how the output from 'make check'
+test so that it fails and observe how the output from `make check`
 changes. (*) Try also adding a new subtraction operator for points and
-the associated unit test. (*) Finally, add a new class to the 'sgp'
-subproject called 'sgp::Rectangle' which uses two points to represent a
+the associated unit test. (*) Finally, add a new class to the `sgp`
+subproject called `sgp::Rectangle` which uses two points to represent a
 rectangle.
 
---------------------------------------------------------------------------
 1.3. Adding a More Advanced Subproject
 --------------------------------------------------------------------------
 
 In this section we will add a second subproject called the Image
-Processing Library ('ipl'). This subproject might include support for
+Processing Library (`ipl`). This subproject might include support for
 various image file formats and image processing routines like color
 conversion or coordinate transformations. For the tutorial, we will
-implement a new class called 'RasterImage'. Ideally this class would
-take a diagram made up of many primitives from the 'sgp' subproject and
+implement a new class called `RasterImage`. Ideally this class would
+take a diagram made up of many primitives from the `sgp` subproject and
 rasterize them into an image. For this tutorial, we will just use a
 single point instead of a full diagram. This section will illustrate
 making one subproject depend on another subproject, and also show how to
-add a subproject autoconf fragment. As with the 'sgp' subproject, we
+add a subproject autoconf fragment. As with the `sgp` subproject, we
 first create a new subdirectory.
 
+```
  % cd $PROJROOT
  % mkdir ipl
+```
 
-We now create the header file 'ipl/RasterImage.h'.
+We now create the header file `ipl/RasterImage.h`.
 
+```
  % cd $PROJROOT
  % cat > ipl/RasterImage.h \
 <<'END'
@@ -525,11 +562,13 @@ We now create the header file 'ipl/RasterImage.h'.
  #endif
 
 END
+```
 
 As before, we use the abbreviated subproject name as a namespace and as a
 prefix for preprocessor macros. Next we create the source file
-'ipl/RasterImage.cc'.
+`ipl/RasterImage.cc`.
 
+```
  % cd $PROJROOT
  % cat > ipl/RasterImage.cc \
 <<'END'
@@ -553,10 +592,12 @@ prefix for preprocessor macros. Next we create the source file
  }
 
 END
+```
 
-As you can see, the 'RasterImage' is just a little wrapper around a
+As you can see, the `RasterImage` is just a little wrapper around a
 single point. We now add a simple unit test.
 
+```
  % cd $PROJROOT
  % cat > ipl/RasterImage.t.cc \
 <<'END'
@@ -578,17 +619,19 @@ single point. We now add a simple unit test.
  }
 
 END
+```
 
-We now need to add the autoconf fragment ('ipl/ipl.ac') and the makefile
-fragment ('ipl/ipl.mk.in'). Our autoconf fragment will use the second
-argument to 'MCPPBS_SUBPROJECT' to tell the build system that the 'ipl'
-subproject depends on the 'sgp' subproject. The build system can then
+We now need to add the autoconf fragment (`ipl/ipl.ac`) and the makefile
+fragment (`ipl/ipl.mk.in`). Our autoconf fragment will use the second
+argument to `MCPPBS_SUBPROJECT` to tell the build system that the `ipl`
+subproject depends on the `sgp` subproject. The build system can then
 take care of making sure that we link the appropriate libraries together
-when building the 'ipl' subproject. The build system can also discover
-indirect dependencies. So if the 'sgp' subproject in turn depended on a
-subproject 'foo' the build system would discover this and make sure that
-'ipl' will build correctly.
+when building the `ipl` subproject. The build system can also discover
+indirect dependencies. So if the `sgp` subproject in turn depended on a
+subproject `foo` the build system would discover this and make sure that
+`ipl` will build correctly.
 
+```
  % cd $PROJROOT
  % cat > ipl/ipl.ac \
 <<'END'
@@ -596,10 +639,12 @@ subproject 'foo' the build system would discover this and make sure that
  MCPPBS_SUBPROJECT([ipl],[sgp])
 
 END
+```
 
-Our makefile fragment looks similar to the 'sgp' subproject except that
-now we use 'ipl_' as a prefix for all make variables.
+Our makefile fragment looks similar to the `sgp` subproject except that
+now we use `ipl_` as a prefix for all make variables.
 
+```
  % cd $PROJROOT
  % cat > ipl/ipl.mk.in \
 <<'END'
@@ -614,72 +659,82 @@ now we use 'ipl_' as a prefix for all make variables.
  ipl_test_srcs = ipl/RasterImage.t.cc
 
 END
+```
 
-Finally, we include the 'ipl' subproject in the top-level
-'configure.ac', build the project, and run the unit tests.
+Finally, we include the `ipl` subproject in the top-level
+`configure.ac`, build the project, and run the unit tests.
 
+```
  % cd $PROJROOT
  % sed -i.bak '/MCPPBS_INCLUDE_INTERNAL(\[sgp\])/ a \
      MCPPBS_INCLUDE_INTERNAL([ipl]) \
    ' configure.ac
  % cd build
  % make check
+```
 
-We add 'ipl' after the other subprojects since the subprojects must be
+We add `ipl` after the other subprojects since the subprojects must be
 ordered such that subprojects only depend on those included earlier.
-Since 'ipl' depends on 'sgp', 'sgp' must be included before 'ipl'.
+Since `ipl` depends on `sgp`, `sgp` must be included before `ipl`.
 Notice that this time we did not explicitly rerun the autoconf tools.
-The makefile detects that 'configure.ac' has changed and reruns the
-autoconf tools. The 'configure' script output now mentions the 'ipl'
+The makefile detects that `configure.ac` has changed and reruns the
+autoconf tools. The `configure` script output now mentions the `ipl`
 subproject.
 
+```
  configure: configuring internal subproject utst
  configure: configuring internal subproject sgp
  configure: configuring internal subproject ipl
+```
 
-Also notice that the makefile only builds the 'ipl' subproject. There is
-no need to rebuild the 'utst' nor the 'sgp' subprojects since they have
+Also notice that the makefile only builds the `ipl` subproject. There is
+no need to rebuild the `utst` nor the `sgp` subprojects since they have
 not changed. The automatic dependency checking helps minimize what needs
 to be recompiled.
 
 Look carefully at the compiler and linker command lines which the build
 system is using to build the new subproject. You should see something
-like this when building 'ipl/RasterImage.o'
+like this when building `ipl/RasterImage.o`
 
+```
  g++ -Wall -g -O3 -MMD -MP -I. -I.. -c -o ipl/RasterImage.o \
    ../ipl/ipl-RasterImage.cc
+```
 
 You should see something like this when linking the
-'ipl/RasterImage-utst' unit test executable.
+`ipl/RasterImage-utst` unit test executable.
 
+```
  g++ -L. -o ipl/RasterImage-utst ipl/RasterImage.t.o \
    -Lipl -lipl -Lsgp -lsgp -Lutst -lutst
+```
 
 Each subproject builds a library which can then be used by that
 subproject's executables and also by other subprojects. The build system
-has correctly used 'libipl.a' and 'libsgp.a' when linking the unit test
+has correctly used `libipl.a` and `libsgp.a` when linking the unit test
 case. The build system will automatically determine the proper order of
 the libraries for the linker command line.
 
 (*) To understand how dependencies between subprojects work, try removing
-'sgp' from the 'MCPPBS_SUBPROJECT' autoconf macro in 'ipl/ipl.ac'. If you
-then just rerun 'make check' it won't actually cause an error, because of
+`sgp` from the `MCPPBS_SUBPROJECT` autoconf macro in `ipl/ipl.ac`. If you
+then just rerun `make check` it won't actually cause an error, because of
 some subtleties in how make manages dependencies (only the compiler and
 linker command lines change and make isn't smart enough to know this
 means we need to recompile the unit tests). So let's do a clean build by
-first using 'make clean' and then using 'make check'. You should get link
+first using `make clean` and then using `make check`. You should get link
 errors indicating that ipl cannot find the appropriate library. If you
-look at the link command line you will see that '-lsgp' is not present.
-Go ahead and add 'sgp' back to the 'MCPPBS_SUBPROJECT' autoconf macro and
+look at the link command line you will see that `-lsgp` is not present.
+Go ahead and add `sgp` back to the `MCPPBS_SUBPROJECT` autoconf macro and
 verify that things work once again.
 
 In the last part of this section, we will illustrate how to use a
-subproject autoconf fragment. Let's say that the 'ipl' subproject wants
-to use the globally installed 'libjpeg.a' library to read and write JPEG
+subproject autoconf fragment. Let's say that the `ipl` subproject wants
+to use the globally installed `libjpeg.a` library to read and write JPEG
 files. If this library is not installed, then we still want to build our
 project; it just won't have JPEG support. The following is some example
-autoconf code which we can add to 'ipl.ac' to do this check.
+autoconf code which we can add to `ipl.ac` to do this check.
 
+```
  % cd $PROJROOT
  % cat >> ipl/ipl.ac \
 <<'END'
@@ -698,42 +753,46 @@ autoconf code which we can add to 'ipl.ac' to do this check.
  ])
 
 END
+```
 
-This code first uses the 'AC_CHECK_HEADERS' macro to see whether or not
-the 'jpeglib.h' header file exists. If so, then we also check if the
-library 'libjpeg.a' exists with the 'AC_SEARCH_LIBS' macro. We need to
-pass a function which is in the library so that the 'configure' script
+This code first uses the `AC_CHECK_HEADERS` macro to see whether or not
+the `jpeglib.h` header file exists. If so, then we also check if the
+library `libjpeg.a` exists with the `AC_SEARCH_LIBS` macro. We need to
+pass a function which is in the library so that the `configure` script
 can try to link this function against the library. Although we could
-just use 'main', using a function which is specific to that library is
+just use `main`, using a function which is specific to that library is
 more robust. If the header and the library exist, then we use the
-'AC_DEFINE' macro to define the C preprocessor macro 'IPL_HAVE_JPEG' and
-we also append the library to 'sgp_libs' which will eventually be
+`AC_DEFINE` macro to define the C preprocessor macro `IPL_HAVE_JPEG` and
+we also append the library to `sgp_libs` which will eventually be
 substituted into our makefile fragment. Notice that as with other
 macros, we use the abbreviated subproject name as a prefix. Most of the
-built-in checks (eg. 'AC_CHECK_HEADERS', 'AC_SEARCH_LIBS') are cached so
+built-in checks (eg. `AC_CHECK_HEADERS`, `AC_SEARCH_LIBS`) are cached so
 that it is perfectly fine to include the same check in different
 subproject autoconf fragments. Note that autoconf macros use the
-compiler set with 'AC_PROG_CXX' to do these checks, so if you are using
+compiler set with `AC_PROG_CXX` to do these checks, so if you are using
 a cross compiler and have installed the desired libraries in that
 cross-compiler's sysroot, then the checks should work.
 
 Now that we have written the check, we also need to update our code so
 that our subproject can work with our without the JPEG library. We do
-this by including 'ipl/config.h' (which is generated by the 'configure'
+this by including `ipl/config.h` (which is generated by the `configure`
 script) and then writing conditional code based on whether or not the
-'IPL_HAVE_JPEG' macro is defined. For illustrative purposes we just
-print out a message in 'ipl/RasterImage.h' based on this macro. We want
-to add this to the top of 'ipl/RasterImage.h':
+`IPL_HAVE_JPEG` macro is defined. For illustrative purposes we just
+print out a message in `ipl/RasterImage.h` based on this macro. We want
+to add this to the top of `ipl/RasterImage.h`:
 
+```
  #include "ipl/config.h"
  #ifdef IPL_HAVE_JPEG
    #warning "Building with the jpeg library"
  #else
    #warning "Building without the jpeg library"
  #endif
+```
 
-For the tutorial, we use sed to update the 'ipl/RasterImage.h' file:
+For the tutorial, we use sed to update the `ipl/RasterImage.h` file:
 
+```
  % cd $PROJROOT
  % sed -i.bak '/#include "sgp\/Point.h"/ a         \
     #include "ipl/config.h"                        \
@@ -743,27 +802,33 @@ For the tutorial, we use sed to update the 'ipl/RasterImage.h' file:
       #warning "Building without the jpeg library" \
     #endif                                         \
    ' ipl/RasterImage.h
+```
 
 So let's test our changes out by rebuilding the project.
 
+```
  % cd $PROJROOT/build
  % make check
+```
 
-Notice that the makefile realizes that 'ipl/ipl.ac' has changed and
+Notice that the makefile realizes that `ipl/ipl.ac` has changed and
 reruns the autoconf tools before rebuilding the project. If the JPEG
-library is available on your system then the 'configure' script should
+library is available on your system then the `configure` script should
 generate this output:
 
+```
  configure: configuring internal subproject ipl
  ...
  checking jpeglib.h usability... yes
  checking jpeglib.h presence... yes
  checking for jpeglib.h... yes
  checking for library containing jpeg_std_error... -ljpeg
+```
 
 If the JPEG library is not available on your system then you will see
 this output:
 
+```
  configure: configuring default subproject : ipl
  ...
  checking jpeglib.h usability... no
@@ -771,10 +836,11 @@ this output:
  checking for jpeglib.h... no
  configure: WARNING: Could not find jpeg library
  configure: WARNING: Build will not include jpeg support
+```
 
 Make sure you see the correct output from preprocessing
-'ipl/RasterImage.h' indicating whether or not the library is available.
-Take a look in 'ipl/config.h' and find the 'IPL_HAVE_JPEG' preprocessor
+`ipl/RasterImage.h` indicating whether or not the library is available.
+Take a look in `ipl/config.h` and find the `IPL_HAVE_JPEG` preprocessor
 macro and see if it is defined or not.
 
 In addition to checking for external libraries, a subproject's autoconf
@@ -782,9 +848,10 @@ fragment can be useful for checking if the compiler supports a certain
 standard library or language feature. For example, the following
 fragment checks to see if the STL vector class is available and if so it
 defines the IPL_HAVE_STL_VECTOR preprocessor macro. We could potentially
-add code to our subproject to use the STL 'vector' if it is available or
+add code to our subproject to use the STL `vector` if it is available or
 use some other data structure if it is not available.
 
+```
  % cd $PROJROOT
  % cat >> ipl/ipl.ac \
 <<'END'
@@ -811,73 +878,84 @@ use some other data structure if it is not available.
  ])
 
 END
+```
 
 This autoconf check essentially creates a small little test program
-which just instantiates a 'vector' object and then tries to compile the
-test program to see if the compiler supports the 'vector' class. See the
-autoconf documentation for more information on the 'AC_COMPILE_IFELSE'
-and the 'AC_LANG_PROGRAM' macros. Notice that entire check is wrapped in
-'AC_CACHE_CHECK' so that we only do the check once even if the same code
+which just instantiates a `vector` object and then tries to compile the
+test program to see if the compiler supports the `vector` class. See the
+autoconf documentation for more information on the `AC_COMPILE_IFELSE`
+and the `AC_LANG_PROGRAM` macros. Notice that entire check is wrapped in
+`AC_CACHE_CHECK` so that we only do the check once even if the same code
 is used in two subprojects. Rerun the autoconf tools and take a look at
-the output from 'configure' and the contents of 'ipl/config.h'
+the output from `configure` and the contents of `ipl/config.h`
 
+```
  % cd $PROJROOT/build
  % make check
+```
 
---------------------------------------------------------------------------
 1.4. Managing Optional Subprojects
 --------------------------------------------------------------------------
 
 Making a subproject optional is useful when the subproject includes
 early development code or when the subproject provides auxiliary
 functionality. To mark a subproject as optional, we just need to add a
-'*' to the appropriate subproject name in 'configure.ac'. For example,
-to make both the 'sgp' and the 'ipl' subprojects optional we would
-change the 'configure.ac' to look like this:
+`*` to the appropriate subproject name in `configure.ac`. For example,
+to make both the `sgp` and the `ipl` subprojects optional we would
+change the `configure.ac` to look like this:
 
+```
  MCPPBS_INCLUDE_INTERNAL([sgp*])
  MCPPBS_INCLUDE_INTERNAL([ipl*])
+```
 
 Let's make this change and then rebuild the project:
 
+```
  % cd $PROJROOT
  % sed -i.bak \
      -e 's/MCPPBS_INCLUDE_INTERNAL(\[sgp/&*/' \
      -e 's/MCPPBS_INCLUDE_INTERNAL(\[ipl/&*/' configure.ac
  % cd build
  % make check
+```
 
-You will notice that only the 'utst' subproject is included in the
-build. You can see this by looking at the output from the 'configure'
+You will notice that only the `utst` subproject is included in the
+build. You can see this by looking at the output from the `configure`
 script and at which unit tests are actually run. You can include the
-optional subprojects with command line arguments to the 'configure'
-script. (*) Try 'configure --help' to see a list of valid command line
+optional subprojects with command line arguments to the `configure`
+script. (*) Try `configure --help` to see a list of valid command line
 arguments, including the arguments which enable optional subprojects.
 For example, here is how we might enable both optional subprojects.
 
+```
  % cd $PROJROOT/build
  % ../configure --with-sgp --with-ipl
  % make check
+```
 
 We can also enable all optional subprojects with
-'--with-optional-subprojects'. The build system will use the dependency
-information given with the 'MCPPBS_SUBPROJECT' autoconf macro to enable
-dependencies as necessary. For example, if we just use '--with-ipl' the
-build system will also enable the 'sgp' subproject since 'ipl' depends
-on 'sgp'.
+`--with-optional-subprojects`. The build system will use the dependency
+information given with the `MCPPBS_SUBPROJECT` autoconf macro to enable
+dependencies as necessary. For example, if we just use `--with-ipl` the
+build system will also enable the `sgp` subproject since `ipl` depends
+on `sgp`.
 
+```
  % cd $PROJROOT/build
  % ../configure --with-ipl
  % make check
+```
 
 You can change this behavior by including an asterisk suffix in the list
-of dependencies give with 'MCPPBS_SUBPROJECT'. You should only do this
+of dependencies give with `MCPPBS_SUBPROJECT`. You should only do this
 if your subproject can correctly build and function without the
 dependency. The user would then need to explicitly enable the
 corresponding subproject if desired.
 
 Before moving on we make all the subprojects required again.
 
+```
  % cd $PROJROOT
  % sed -i.bak \
      -e 's/\(MCPPBS_INCLUDE_INTERNAL(\[sgp\)\*/\1/' \
@@ -886,39 +964,42 @@ Before moving on we make all the subprojects required again.
  % cd build
  % ../configure
  % make check
+```
 
---------------------------------------------------------------------------
 1.5. Installing Subprojects
 --------------------------------------------------------------------------
 
-The 'install' make target installs your subprojects' programs and
+The `install` make target installs your subprojects' programs and
 libraries. By default, all of the enabled subprojects are installed into
-'/usr/local'. In the following example we use the '--prefix' command
-line argument to the 'configure' script to install the project into an
+`/usr/local`. In the following example we use the `--prefix` command
+line argument to the `configure` script to install the project into an
 alternative directory.
 
+```
  % cd $PROJROOT/build
  % ../configure --prefix=$PWD/install
  % make
  % make install
+```
 
-Take a look at the files in the 'install' directory. The build system has
-installed the 'sgp-add-points' program into the 'install/bin' directory.
+Take a look at the files in the `install` directory. The build system has
+installed the `sgp-add-points` program into the `install/bin` directory.
 Notice how the build system uses the subproject name as a prefix when
 installing binaries to avoid name conflicts. Sometimes we want to install
 the libraries and header files for some of our subprojects so that other
-projects can leverage them. To do this we use the 'MCPPBS_INSTALL_LIBS'
-macro in the top-level 'configure.ac' file.
+projects can leverage them. To do this we use the `MCPPBS_INSTALL_LIBS`
+macro in the top-level `configure.ac` file.
 
-As an example we will install the libraries for the 'utst', 'sgp', and
-'ipl' subprojects. Before installing a subproject as a library we must
-create a 'subproject.pc.in' file in the subproject subdirectory. This
+As an example we will install the libraries for the `utst`, `sgp`, and
+`ipl` subprojects. Before installing a subproject as a library we must
+create a `subproject.pc.in` file in the subproject subdirectory. This
 file is a package config metadata file which helps users of our library
 know how to correctly configure their compiler and linker command lines.
-See the 'pkg-config' man page for more information, and 'utst.pc.in' for
-an example. For now we simply copy the 'utst.pc.in' file and modify it
+See the `pkg-config` man page for more information, and `utst.pc.in` for
+an example. For now we simply copy the `utst.pc.in` file and modify it
 appropriately.
 
+```
  % cd $PROJROOT
  % cp utst/utst.pc.in sgp/sgp.pc.in
  % sed -i.bak \
@@ -930,39 +1011,45 @@ appropriately.
  % sed -i.bak \
     -e 's/utst/ipl/g' \
     -e 's/\(Description :\).*/\1 Image processing library/' ipl/ipl.pc.in
+```
 
 You can customize these package config metadata files as needed to make
 sure that the installed libraries are easily leveraged by other
-projects. We can now use the 'MCPPBS_INSTALL_LIBS' macro in our
-'configure.ac' to tell the build system that we would like to install
+projects. We can now use the `MCPPBS_INSTALL_LIBS` macro in our
+`configure.ac` to tell the build system that we would like to install
 libraries for all three subprojects.
 
+```
  % cd $PROJROOT
  % sed -i.bak '/MCPPBS_INCLUDE_INTERNAL(\[ipl\])/ a \
      MCPPBS_INSTALL_LIBS([utst,sgp,ipl]) \
    ' configure.ac
  % autoconf && autoheader
+```
 
 Now let's reinstall our project and take a look at what is installed
 into the install directory.
 
+```
  % cd $PROJROOT/build
  % make
  % make install
+```
 
-The build system has installed three libraries into 'install/lib' and
-the associated header files into subdirectories of 'install/include'.
+The build system has installed three libraries into `install/lib` and
+the associated header files into subdirectories of `install/include`.
 Also notice the package config metadata files have been installed into
-'install/share/pkgconfig'.
+`install/share/pkgconfig`.
 
 Often we would like to install our project into a common directory
-shared by many other projects (eg. '/usr/local'). The problem with using
+shared by many other projects (eg. `/usr/local`). The problem with using
 the above approach is that it can be very difficult to uninstall an old
 version of the project or upgrade to a new version of the project. So
-instead we can use the program 'stow' to stage the installation in a
+instead we can use the program `stow` to stage the installation in a
 separate location and then create symlinks from the shared location.
 Here is an example of stowing the project.
 
+```
  % cd $PROJROOT/build
  % rm -rf install
  % ../configure --prefix=$PWD/install
@@ -970,61 +1057,69 @@ Here is an example of stowing the project.
  % make install prefix=$PWD/install/pkgs/mcppbs-tut
  % cd install/pkgs
  % stow mcppbs-tut
+```
 
-Take another look in the 'install' directory. You should see symlinks
-from the header and library files in 'install/include' and 'install/lib'
-back into the 'install/pkgs/mcppbs-tut' directory. If we want to
-uninstall a package we can just use the '--delete' option to 'stow'.
+Take another look in the `install` directory. You should see symlinks
+from the header and library files in `install/include` and `install/lib`
+back into the `install/pkgs/mcppbs-tut` directory. If we want to
+uninstall a package we can just use the `--delete` option to `stow`.
 
+```
  % cd $PROJROOT/build/install/pkgs
  % stow --delete mcppbs-tut
+```
 
-The build system provides support for automatically using 'stow' for
-installation. We can enable this feature with the '--enable-stow'
+The build system provides support for automatically using `stow` for
+installation. We can enable this feature with the `--enable-stow`
 command line option to the configure script. This option tells the
 makefile to create the staging area and to run stow appropriately.
 
+```
  % cd $PROJROOT/build
  % rm -rf install
  % ../configure --enable-stow --prefix=$PWD/install
  % make
  % make install
+```
 
 Compare the result to what we saw earlier. Notice that the
-'pkgs/mcppbs-tut' subdirectory includes the version number as a suffix.
-The version number comes from 'configure.ac' or from the
-'scripts/vcs-version' script. The build system also has support for a
+`pkgs/mcppbs-tut` subdirectory includes the version number as a suffix.
+The version number comes from `configure.ac` or from the
+`scripts/vcs-version` script. The build system also has support for a
 default stow prefix specified with the $STOW_PREFIX environment variable.
 If this variable is set there is no longer any need to specify the prefix
 explicitly when running configure.
 
+```
  % cd $PROJROOT/build
  % rm -rf install
  % export STOW_PREFIX=$PWD/install
  % ../configure --enable-stow
  % make
  % make install
+```
 
-By default 'pkg-config' only looks in some standard system directories
+By default `pkg-config` only looks in some standard system directories
 for its metadata files. So even though we have installed the package
-config metadata files, the actual 'pkg-config' program does not yet know
+config metadata files, the actual `pkg-config` program does not yet know
 it should look in this newly created install directory. We can set the
-'PKG_CONFIG_PATH' environment variable to tell 'pkg-config' where to
+`PKG_CONFIG_PATH` environment variable to tell `pkg-config` where to
 look for its metadata files. You might want to set your
-'PKG_CONFIG_PATH' as a function of your 'STOW_PREFIX' in your startup
+`PKG_CONFIG_PATH` as a function of your `STOW_PREFIX` in your startup
 scripts.
 
+```
  % cd $PROJROOT/build
  % export PKG_CONFIG_PATH="$PWD/install/share/pkgconfig:$PKG_CONFIG_PATH"
  % pkg-config --exists utst sgp ipl; echo $?
+```
 
---------------------------------------------------------------------------
 1.6. Including External Subprojects
 --------------------------------------------------------------------------
 
 Once we have installed a set of subprojects, other projects can easily
-include them with the 'MCPPBS_INCLUDE_EXTERNAL' autoconf macro in their
-top-level 'configure.ac'. There is a tradeoff between copying the source
+include them with the `MCPPBS_INCLUDE_EXTERNAL` autoconf macro in their
+top-level `configure.ac`. There is a tradeoff between copying the source
 code of a subproject into your subproject and making it an internal
 subproject versus linking against and external subproject. Internal
 subprojects allow a developer to customize the subproject's source code
@@ -1039,9 +1134,10 @@ have to build and install these subprojects before we can build a
 project which depends on them.
 
 To illustrate external subprojects we will modify our project to use the
-just installed versions of the 'utst' and 'sgp' subprojects. First we
-update our 'configure.ac'.
+just installed versions of the `utst` and `sgp` subprojects. First we
+update our `configure.ac`.
 
+```
  % cd $PROJROOT
  % sed -i.bak \
      -e 's/\(AC_CONFIG_SRCDIR\).*/\1([ipl\/ipl.ac])/' \
@@ -1049,62 +1145,69 @@ update our 'configure.ac'.
      -e 's/\(MCPPBS_INCLUDE\)_INTERNAL(\[sgp\])/\1_EXTERNAL([sgp])/' \
      -e 's/MCPPBS_INSTALL_LIBS.*//' configure.ac
  % autoconf && autoheader
+```
 
-Notice that we need to change 'AC_CONFIG_SRCDIR' since our project no
-longer includes the 'utst/utst.h' source file. Now we rebuild the
+Notice that we need to change `AC_CONFIG_SRCDIR` since our project no
+longer includes the `utst/utst.h` source file. Now we rebuild the
 project in a new build directory.
 
+```
  % cd $PROJROOT
  % mkdir build-extsprojs
  % cd build-extsprojs
  % ../configure
  % make
  % make check
+```
 
-The 'configure' script will report that it has found the external 'utst'
-and 'sgp' subprojects, and that it is configuring the internal 'ipl'
+The `configure` script will report that it has found the external `utst`
+and `sgp` subprojects, and that it is configuring the internal `ipl`
 subproject.
 
+```
  checking for external subproject utst... yes
  checking for external subproject sgp... yes
  configure: configuring internal subproject ipl
+```
 
 If you take a close look at the compiler and linker command lines you
 can see that things have been configured such that the project is now
 linking against the libraries we installed in the previous section.
-Remember that 'pkg-config' is only able to find these libraries because
-we set the 'PKG_CONFIG_PATH' environment variable appropriately.
+Remember that `pkg-config` is only able to find these libraries because
+we set the `PKG_CONFIG_PATH` environment variable appropriately.
 
---------------------------------------------------------------------------
 1.7. Distributing Package Tarballs
 --------------------------------------------------------------------------
 
-The make 'dist' target will create a package tarball. A package tarball
+The make `dist` target will create a package tarball. A package tarball
 is simply a single compressed file which contains the build system and
 all of the project's source code. This tarball contain all of the
-subprojects included in the top-level 'configure.ac' regardless of
-whether or not they are enabled. The 'distcheck' make target will create
+subprojects included in the top-level `configure.ac` regardless of
+whether or not they are enabled. The `distcheck` make target will create
 a tarball, then try and "check" that this tarball is complete by
-decompressing it and running 'make', 'make check', and 'make distclean'.
+decompressing it and running `make`, `make check`, and `make distclean`.
 Here is an example:
 
+```
  % cd $PROJROOT/build
  % make dist
  % make distcheck
+```
 
 Notice that the tarball includes the version number as a suffix. If your
 project is under version control then you should set the version number
-to '?' in your top-level 'configure.ac'. This tells the build system to
-use the 'scripts/vcs-version' script to determine the version number
+to `?` in your top-level `configure.ac`. This tells the build system to
+use the `scripts/vcs-version` script to determine the version number
 using your version control system. Currently only git is supported.
 
 We are now done with the tutorial, so we can remove the tutorial's
 working directory.
 
+```
  % cd $PROJROOT/..
  % rm -rf $PROJROOT
+```
 
---------------------------------------------------------------------------
 2. Reference
 --------------------------------------------------------------------------
 
@@ -1119,15 +1222,15 @@ Each subproject is contained in a subdirectory beneath the main project
 directory. The name of the subdirectory should be an abbreviated form
 (four to eight characters) of the full name of the subproject. The
 subdirectory includes all of that subproject's header and source files.
-Subprojects should create a top-level header file (eg. 'utst.h') which
-uses the '#include' preprocessor directive to include all of the header
+Subprojects should create a top-level header file (eg. `utst.h`) which
+uses the `#include` preprocessor directive to include all of the header
 files in that subproject. Developers are strongly encouraged to include
-general user documentation in the spirit of 'utst.txt' to help users of
+general user documentation in the spirit of `utst.md` to help users of
 the subproject. Every subproject should also include two files which
 tells the build system about the subproject: an autoconf fragment tells
 the top-level autoconf script how to configure the subproject (eg.
-'utst/utst.ac') and a makefile fragment tells the top-level makefile how
-to build the subproject (eg. 'utst/utst.mk.in'). The build system is
+`utst/utst.ac`) and a makefile fragment tells the top-level makefile how
+to build the subproject (eg. `utst/utst.mk.in`). The build system is
 similar in spirit to the non-recursive makefile approach advocated by
 Peter Miller in his paper titled "Recursive Make Considered Harmful".
 
@@ -1135,37 +1238,37 @@ In addition to the physical aspects of the subproject, there are also
 policies regarding the logical aspects. All functions and classes in the
 subproject should be in a C++ namespace having the same name as the
 abbreviated subproject name. For example, all of the functions and
-classes in the unit testing framework are in the 'utst' namespace.
+classes in the unit testing framework are in the `utst` namespace.
 Preprocessor macros should include a prefix which also corresponds to
 the uppercase form of the abbreviated subproject name (eg. the
-'UTST_TEST_CASE' preprocessor macro).
+`UTST_TEST_CASE` preprocessor macro).
 
 If there are two parts to a subproject's name they should be separated
-with a dash (eg. 'foo-bar') for physical purposes (ie. the subdirectory
+with a dash (eg. `foo-bar`) for physical purposes (ie. the subdirectory
 name and the file name prefix) and separated with an underscore
-(eg. 'foo_bar') for logical purpose (ie. the name of the subproject's
+(eg. `foo_bar`) for logical purpose (ie. the name of the subproject's
 C++ namespace and the preprocessor macro prefix).
 
---------------------------------------------------------------------------
 2.1. Overview of Build Process
 --------------------------------------------------------------------------
 
 The basic build process involves two steps. First, we run a portable
-shell script named 'configure' which examines the end-user's build
+shell script named `configure` which examines the end-user's build
 platform and customizes the build system so that it will work correctly.
-Then we use the 'make' command to build the project. The build system is
+Then we use the `make` command to build the project. The build system is
 made to work in any directory, and developers are strongly discouraged
 from building their project directly in the source directory. A separate
 build directory keeps the source separate from the generated scripts,
 object files, and binaries. The basic build process is shown below
 assuming we start in the root directory of the project.
 
+```
  > mkdir build
  > cd build
  > ../configure
  > make
+```
 
---------------------------------------------------------------------------
 2.2. Basic Autoconf Toolflow
 --------------------------------------------------------------------------
 
@@ -1175,14 +1278,16 @@ leverages the GNU Autoconf tools to help configure the process for the
 desired build platform. The basic toolflow for using the GNU Autoconf
 tools is shown below:
 
+```
  (configure.ac)-. .->[autoheader]->(config.h.in)--.        .->(config.h)
                 +-+                                \       |
   (aclocal.m4)--' '-->[autoconf]------------>[(configure)]-+->(Makefile)
                                                    /
  (Makefile.in) -----------------------------------'
+```
 
-In this figure, files are denoted with parentheses '()' and tools are
-denoted with brackets '[]'. The process begins with the 'configure.ac'
+In this figure, files are denoted with parentheses `()` and tools are
+denoted with brackets `[]`. The process begins with the `configure.ac`
 script which is "written" in the m4 macro language. This script contains
 macros which tell the build system about the project and also specify
 various checks to perform. For example, it might specify that we should
@@ -1190,206 +1295,218 @@ check for a specific library or check to see if the compiler supports a
 specific language feature. Based on these checks, the build system can
 change our makefile or conditionally compile various portions of our
 project so that we can correctly build it on different platforms. The
-'aclocal.m4' file contains additional macro functions that can be used
-with the standard autoconf macros in 'configure.ac'.
+`aclocal.m4` file contains additional macro functions that can be used
+with the standard autoconf macros in `configure.ac`.
 
-The 'configure.ac' script is used as input to the 'autoconf' command
-which generates a portable shell script named 'configure'. The
-'configure' shell script is executed by the end-user to customize the
-build system for their specific platform. The 'configure' script is
-annotated with '[()]' since it is a file which is generated by
-'autoconf', but then it is executed as a tool to customize the build
-system for the current platform. The 'configure' script takes as input
-the 'Makefile.in' and the 'config.h.in' files and does variable
-substitutions to generate the 'Makefile' and the 'config.h' files. For
+The `configure.ac` script is used as input to the `autoconf` command
+which generates a portable shell script named `configure`. The
+`configure` shell script is executed by the end-user to customize the
+build system for their specific platform. The `configure` script is
+annotated with `[()]` since it is a file which is generated by
+`autoconf`, but then it is executed as a tool to customize the build
+system for the current platform. The `configure` script takes as input
+the `Makefile.in` and the `config.h.in` files and does variable
+substitutions to generate the `Makefile` and the `config.h` files. For
 example, if a specific library is installed we might add that library to
-the linker command line in the 'Makefile', or if a specific language
+the linker command line in the `Makefile`, or if a specific language
 feature is available then we might define a preprocessor macro in
-'config.h'. Once the 'Makefile' and 'config.h' are generated we can use
-'make' to build the project.
+`config.h`. Once the `Makefile` and `config.h` are generated we can use
+`make` to build the project.
 
-The 'autoheader' command automatically generates 'config.h.in' by
-scanning 'configure.ac' for certain macros. The details are not too
-important, except that developers should always run 'autoconf' and
-'autoheader' at the same time so that the various scripts stay
-synchronized and up-to-date. To regenerate the 'configure' script and
-'config.h.in' developers can just execute the following command in the
+The `autoheader` command automatically generates `config.h.in` by
+scanning `configure.ac` for certain macros. The details are not too
+important, except that developers should always run `autoconf` and
+`autoheader` at the same time so that the various scripts stay
+synchronized and up-to-date. To regenerate the `configure` script and
+`config.h.in` developers can just execute the following command in the
 top-level project directory.
 
+```
  > autoconf && autoheader
+```
 
 Given the basic GNU Autoconf toolflow, the following commands will
 create a new build directory and configure the build system (assuming we
 start in the top-level project directory).
 
+```
  > mkdir build
  > cd build
  > ../configure
+```
 
-Note that most of the time we don't actually need to rerun 'autoconf'
-and 'autoheader'; we just execute the portable 'configure' shell script
-to do the configuration. We only need to rerun 'autoconf' and
-'autoheader' when we change 'configure.ac'. So to simplify the build
-process for the end-users we should always include the 'configure'
+Note that most of the time we don't actually need to rerun `autoconf`
+and `autoheader`; we just execute the portable `configure` shell script
+to do the configuration. We only need to rerun `autoconf` and
+`autoheader` when we change `configure.ac`. So to simplify the build
+process for the end-users we should always include the `configure`
 script in the distribution.
 
 We should also note that the Modular C++ Build System actually doesn't
-use a single 'config.h' header file. Instead 'config.h.in' is used to
+use a single `config.h` header file. Instead `config.h.in` is used to
 generate a unique configuration header file for each subproject (eg.
-'utst/config.h'). Per subproject configuration header files avoid
+`utst/config.h`). Per subproject configuration header files avoid
 filename conflicts when we install and then use subproject libraries.
 
-New projects need to update 'configure.ac' with the project's name,
+New projects need to update `configure.ac` with the project's name,
 version number, maintainer's name, and the shorter abbreviated project
-name. They then need to rerun 'autoconf' and 'autoheader'. Here is an
-example of what this metadata looks like in 'configure.ac':
+name. They then need to rerun `autoconf` and `autoheader`. Here is an
+example of what this metadata looks like in `configure.ac`:
 
+```
  m4_define( proj_name,         [Image Processing Tools])
  m4_define( proj_maintainer,   [Christopher Batten])
  m4_define( proj_abbreviation, [ipt])
+```
 
 The version metadata deserves special mention. Usually we are working on
 a project which is checked into some kind of version control system
 (VCS). In this case we don't really want to hard-code a version number
-into the 'configure.ac' file since it will quickly be out of date with
-respect to the VCS. So instead we usually mark the version as '?' in the
-'configure.ac' file and just use the standard VCS files to track
+into the `configure.ac` file since it will quickly be out of date with
+respect to the VCS. So instead we usually mark the version as `?` in the
+`configure.ac` file and just use the standard VCS files to track
 revisions. When we make a distribution tarball though, the source code
 is exported from the VCS and we will loose version information. So the
-build system includes a script called 'vcs-version' in the 'scripts'
+build system includes a script called `vcs-version` in the `scripts`
 subdirectory which creates a version string suitable from the VCS. We
-can then use this string in the distribution. The makefile's 'dist'
-target will execute 'vcs-version' and substitute the version string
-into the tarball name, the README, and the 'configure.ac' script so that
+can then use this string in the distribution. The makefile's `dist`
+target will execute `vcs-version` and substitute the version string
+into the tarball name, the README, and the `configure.ac` script so that
 users of the tarball will know what version the source code is from.
 
 This is just a very simplified description of the autoconf toolflow. See
-the GNU Autoconf documentation ('http://www.gnu.org/software/autoconf')
+the GNU Autoconf documentation (`http://www.gnu.org/software/autoconf`)
 for more details on using these tools.
 
---------------------------------------------------------------------------
-2.3. Managing Subprojects in 'configure.ac'
+2.3. Managing Subprojects in `configure.ac`
 --------------------------------------------------------------------------
 
 The Modular C++ Build System includes a couple changes to this basic GNU
-Autoconf toolflow. Several new macros are defined in 'aclocal.m4' which
-can be used in 'configure.ac'. The following macros initialize the build
+Autoconf toolflow. Several new macros are defined in `aclocal.m4` which
+can be used in `configure.ac`. The following macros initialize the build
 system and check for some standard tools used by the build system.
 
- - 'MCPPBS_INIT'         : Initialize build system
- - 'MCPPBS_PROG_INSTALL' : Check for install script, stow-based install
- - 'MCPPBS_PROG_RUN'     : Check for isa sim for non-native builds
+ - `MCPPBS_INIT`         : Initialize build system
+ - `MCPPBS_PROG_INSTALL` : Check for install script, stow-based install
+ - `MCPPBS_PROG_RUN`     : Check for isa sim for non-native builds
 
-The 'configure.ac' should also include subprojects with either the
-'MCPPBS_INCLUDE_INTERNAL' or the 'MCPPBS_INCLUDE_EXTERNAL' autoconf
+The `configure.ac` should also include subprojects with either the
+`MCPPBS_INCLUDE_INTERNAL` or the `MCPPBS_INCLUDE_EXTERNAL` autoconf
 macros. An internal subproject means that the source code for that
 subproject is included as a subdirectory of the project, while an
 external subproject means that this project will simply be linking
 against an externally installed subproject library. The following is an
 example using these macros for a project with four subprojects:
 
+```
  MCPPBS_INCLUDE_EXTERNAL([utst])
  MCPPBS_INCLUDE_EXTERNAL([sproj-a])
  MCPPBS_INCLUDE_INTERNAL([sproj-b])
  MCPPBS_INCLUDE_INTERNAL([sproj-c*])
+```
 
 The subprojects should be ordered such that subprojects only depend on
-those included earlier. In this example, 'sproj-b' might use some of the
-classes in 'sproj-a' so we need to make sure that we include 'sproj-a'
-first and then include 'sproj-b'. For this example, we assume that both
-'sproj-b' and 'sproj-c' depend on 'sproj-a'.
+those included earlier. In this example, `sproj-b` might use some of the
+classes in `sproj-a` so we need to make sure that we include `sproj-a`
+first and then include `sproj-b`. For this example, we assume that both
+`sproj-b` and `sproj-c` depend on `sproj-a`.
 
-All projects need to include the 'utst' subproject. If you do not want
-to use the 'utst' unit testing framework then you will need to
-explicitly modify the 'Makefile.in'.
+All projects need to include the `utst` subproject. If you do not want
+to use the `utst` unit testing framework then you will need to
+explicitly modify the `Makefile.in`.
 
-The '*' suffix (eg. 'sproj-c*') denotes an optional subproject. Optional
+The `*` suffix (eg. `sproj-c*`) denotes an optional subproject. Optional
 subprojects are not included in the build by default. Making a
 subproject optional is useful when the subproject includes early
 development code or when the subproject provides auxiliary
 functionality. We can enable optional subprojects with command line
-arguments to the 'configure' script. To see a list of possible command
-line arguments use '--help'. To configure the example project with
-'sproj-c' enabled we can use the following command (assuming we are in
+arguments to the `configure` script. To see a list of possible command
+line arguments use `--help`. To configure the example project with
+`sproj-c` enabled we can use the following command (assuming we are in
 the build directory):
 
+```
  > ../configure --with-sproj-b
+```
 
 To enable all optional subprojects we can use the
-'--with-optional-subprojects' command line argument.
+`--with-optional-subprojects` command line argument.
 
-The final 'MCPPBS_INSTALL_LIBS' autoconf macro tells the build system
+The final `MCPPBS_INSTALL_LIBS` autoconf macro tells the build system
 which (if any) subproject libraries you would like to install.
 Subproject executables are always installed (see below), but the
 _library_ for a subproject is only installed if it is on the list
-specified with 'MCPPBS_INSTALL_LIBS'. The build system uses the
-'pkg-config' tool and its associated package config metadata files for
+specified with `MCPPBS_INSTALL_LIBS`. The build system uses the
+`pkg-config` tool and its associated package config metadata files for
 both installing subproject libraries and using external subprojects. So
 any subproject on this list must have a corresponding package config
-metadata file ('utst/utst.pc.in'). You can use special autoconf
+metadata file (`utst/utst.pc.in`). You can use special autoconf
 variables in this metadata file which the configure script will then
 fill in when you build your project.
 
---------------------------------------------------------------------------
 2.4. Subproject Autoconf Fragments
 --------------------------------------------------------------------------
 
 The main problem with the build system as described so far, is that if a
 subproject requires platform dependent checks then we would need to add
-those checks to the top-level 'configure.ac'. For example, assume we have
+those checks to the top-level `configure.ac`. For example, assume we have
 a subproject which makes use of an external library. We would need to
-modify 'configure.ac' to check if that library is available and if not
+modify `configure.ac` to check if that library is available and if not
 cause an error so that the end-user can figure out how to proceed. But
-if we modify 'configure.ac' then the subproject is no longer modular in
+if we modify `configure.ac` then the subproject is no longer modular in
 the sense that we cannot just copy it into another project; we also have
-to copy some code from 'configure.ac' into the new project.
+to copy some code from `configure.ac` into the new project.
 
 The Modular C++ Build System addresses this problem by allowing
 subprojects to have their own local autoconf fragment. The fragment
-filename should be the abbreviated subproject name with the '.ac'
-extension (eg. 'utst/utst.ac'). This script can contain standard
-autoconf macros such as those used in 'configure.ac'. Even if a
+filename should be the abbreviated subproject name with the `.ac`
+extension (eg. `utst/utst.ac`). This script can contain standard
+autoconf macros such as those used in `configure.ac`. Even if a
 subproject does not need any custom configuration, it still must include
-an empty autoconf fragment. The top-level 'configure.ac' script will go
+an empty autoconf fragment. The top-level `configure.ac` script will go
 through and include the autoconf fragments in each enabled subproject.
 
 Each subproject's autoconf fragment should always begin with a call to
-the 'MCPPBS_SUBPROJECT' autoconf macro with the subproject's name as the
+the `MCPPBS_SUBPROJECT` autoconf macro with the subproject's name as the
 fist argument. This macro takes care of setting up the configure
 information for the subproject. You can also optionally specify a second
 argument which lists the internal and external subproject dependencies
 for this subproject. The following is an example:
 
+```
  MCPPBS_SUBPROJECT([sproj-c],[sproj-a,sproj-b])
+```
 
-This tells the build system that 'sproj-c' depends on 'sproj-a' and
-'sproj-b'. The build system can handle indirect dependencies (eg. if
-'sproj-a' depends on other unlisted subprojects) so you should only list
+This tells the build system that `sproj-c` depends on `sproj-a` and
+`sproj-b`. The build system can handle indirect dependencies (eg. if
+`sproj-a` depends on other unlisted subprojects) so you should only list
 the true direct dependencies. You can mark some of these dependencies
-with an '*' to indicate that this is an optional dependency. The build
+with an `*` to indicate that this is an optional dependency. The build
 system will not complain if an optional dependency is not present, but
 will complain if a required dependency is not included.
 
 A common use for the rest of the autoconf fragment is to check for an
-external library. You can use the 'AC_CHECK_HEADERS' and the
-'AC_SEARCH_LIBS' macros to see whether or not an external library is
+external library. You can use the `AC_CHECK_HEADERS` and the
+`AC_SEARCH_LIBS` macros to see whether or not an external library is
 installed. Sometimes libraries and the associated header files are
 installed in non-standard locations. It is easy to tell the build system
 to add a path to the linker and the compiler command lines. Simply set
-the 'LDFLAGS' and the 'CPPFLAGS' environment variables when configuring
+the `LDFLAGS` and the `CPPFLAGS` environment variables when configuring
 the project. Here is an example which will allow the build system to
-find a library if it is installed in '/opt/local':
+find a library if it is installed in `/opt/local`:
 
+```
  > ../configure LDFLAGS='-L/opt/local/lib' \
                 CPPFLAGS='-I/opt/local/include'
+```
 
 In addition to checking for external libraries, we can also use the
 autoconf fragment to check for various language features. Often for
 these types of checks we can use a macro someone else has written and
-added to the Autoconf Macro Library ('http://autoconf-archive.cryp.to').
+added to the Autoconf Macro Library (`http://autoconf-archive.cryp.to`).
 For example, if we wanted to check if the build platform supported the
 GCC ABI name mangling extension we could copy the
-'AX_CXX_GCC_ABI_DEMANGLE' macro into our autoconf fragment.
+`AX_CXX_GCC_ABI_DEMANGLE` macro into our autoconf fragment.
 
 A developer can add whatever they want to their autoconf fragment, but
 they should probably prefix any macro names with their abbreviated
@@ -1399,26 +1516,25 @@ suggested that the autoconf fragment use a shell variable to see if the
 check has already been done (possibly by a different subproject) to
 speedup the configuration process.
 
---------------------------------------------------------------------------
 2.5. Basic Make Toolflow
 --------------------------------------------------------------------------
 
 To drive the actual build process the Modular C++ Build System leverages
-the ubiquitous 'make' tool. To use 'make', a developer first writes a
-'Makefile' which contains a set of rules. Each rule specifies a target
+the ubiquitous `make` tool. To use `make`, a developer first writes a
+`Makefile` which contains a set of rules. Each rule specifies a target
 file, a set of prerequisite files, and a command to generate the target
-file from the prerequisites. The 'make' tool reads in a makefile
-(usually named 'Makefile') and executes the appropriate commands to
+file from the prerequisites. The `make` tool reads in a makefile
+(usually named `Makefile`) and executes the appropriate commands to
 build, test, and install the project. When a developer changes a subset
-of the source files, 'make' determines which target files are
+of the source files, `make` determines which target files are
 out-of-date based on the timestamps of the target and prerequisite
-files. 'make' then runs the minimum number of commands to regenerate all
+files. `make` then runs the minimum number of commands to regenerate all
 out-of-date targets, and thus efficiently rebuilds the project. A
 makefile can also have non-file targets which act as aliases for a set
 of files to build or commands to run. The Modular C++ Build System
 requires the GNU version of make since it uses several GNU make
 extensions. See the GNU Make documentation
-('http://www.gnu.org/software/make') for more details on the 'make'
+(`http://www.gnu.org/software/make`) for more details on the `make`
 tool.
 
 Obviously writing a makefile from scratch for every new project is
@@ -1428,96 +1544,108 @@ include a list of the project's source files. So the following commands
 will configure and build the project (assuming we start in the root
 directory of the project).
 
+```
  > mkdir build
  > cd build
  > ../configure
  > make
+```
 
 The default make target is to build all of the project's libraries as
 well as all of the program executables. To efficiently build C++
 projects, it is important to track all of the dependencies between
 header and source files. Each header file might depend on several other
-header files by using the '#include' preprocessor directive, and then
+header files by using the `#include` preprocessor directive, and then
 these header files might include even more header files. Ideally, we
 want to accurately capture these dependencies in our makefile so that
 make will just rebuild what is necessary, but this can be quite tedious.
 By default, the Modular C++ Build System includes support for automatic
-dependency generation. The makefile uses the '-MMD -MP' command line
-options to 'gcc' so that whenever 'gcc' builds an object file it also
-generates a dependency makefile fragment (with the '.d' extension). This
+dependency generation. The makefile uses the `-MMD -MP` command line
+options to `gcc` so that whenever `gcc` builds an object file it also
+generates a dependency makefile fragment (with the `.d` extension). This
 file captures all of the prerequisites required to build that object
 file, and it is included by the top-level makefile so that the build
 system automatically tracks all source file dependencies. The top-level
-makefile also includes support for detecting when the 'configure' shell
+makefile also includes support for detecting when the `configure` shell
 script is out-of-date and automatically rerunning the autoconf tools.
 
 As mentioned before, we organize our project into one subdirectory per
 subproject. When including header files you must always use the
-subdirectory as a prefix. For example, let's assume subproject 'A' has a
-source file 'foo.h' which uses the '#include' directive to include source
-file 'bar.h' in subproject 'B'. Then 'foo.h' must use '#include
-"B/bar.h"'. This is true even if you are including headers within the
+subdirectory as a prefix. For example, let's assume subproject `A` has a
+source file `foo.h` which uses the `#include` directive to include source
+file `bar.h` in subproject `B`. Then `foo.h` must use `#include
+"B/bar.h"`. This is true even if you are including headers within the
 same subproject.
 
-We can also specify a desired target to build on the 'make' command
+We can also specify a desired target to build on the `make` command
 line. For example, to build the unit test framework's tutorial program
 we use:
 
+```
  > make utst-utst
+```
 
 The top-level makefile also includes several standard "non-file" targets.
 Some of them are listed below:
 
- - 'default'   : build all libraries and programs
- - 'check'     : build and run all unit tests
- - 'install'   : install headers, project library, and some programs
- - 'clean'     : remove all generated content (except autoconf files)
- - 'dist'      : make a source tarball
- - 'distcheck' : make a source tarball, untar it, check it, clean it
- - 'distclean' : remove everything
+ - `default`   : build all libraries and programs
+ - `check`     : build and run all unit tests
+ - `install`   : install headers, project library, and some programs
+ - `clean`     : remove all generated content (except autoconf files)
+ - `dist`      : make a source tarball
+ - `distcheck` : make a source tarball, untar it, check it, clean it
+ - `distclean` : remove everything
 
 So for example, to build and run all of the unit tests we use:
 
+```
  > make check
+```
 
-By default, the build system installs the project into '/usr/local'. If
-the abbreviated project name is 'foo' and the install directory is
-'/usr/local', then the binaries are installed into '/usr/local/bin', the
-header files are installed into '/usr/local/include/foo', and a single
-library for the entire project (with the name 'libfoo.a') is installed
-into '/usr/local/lib'. To install the project somewhere else, a
-developer needs to use the 'configure' script's '--prefix' command line
+By default, the build system installs the project into `/usr/local`. If
+the abbreviated project name is `foo` and the install directory is
+`/usr/local`, then the binaries are installed into `/usr/local/bin`, the
+header files are installed into `/usr/local/include/foo`, and a single
+library for the entire project (with the name `libfoo.a`) is installed
+into `/usr/local/lib`. To install the project somewhere else, a
+developer needs to use the `configure` script's `--prefix` command line
 argument as follows:
 
+```
  > ../configure --prefix=$HOME/install
  > make
  > make install
+```
 
 There are two additional installation make targets which install a
 subset of the project:
 
- - 'install-libs' : Install header & libraries for some subprojects
- - 'install-exes' : Install just the executable binaries
+ - `install-libs` : Install header & libraries for some subprojects
+ - `install-exes` : Install just the executable binaries
 
 Sometimes files are installed one place but accessed from a different
 directory through symbolic links. For example, the GNU Stow package
 management system stages installs and uses symbolic links to help keep
 installed packages organized. For these type of installs, we need to set
-make's 'prefix' variable when we actually do the install. Set
-'configure --prefix' to where the files will be accessed, and set
-'make install prefix=' to where the files should actually be copied.
+make's `prefix` variable when we actually do the install. Set
+`configure --prefix` to where the files will be accessed, and set
+`make install prefix=` to where the files should actually be copied.
 
+```
  > ../configure --prefix="access-dir"
  > make
  > make install prefix="staged-dir"
+```
 
 The build system includes support for automatically using stow-based
-installation. To enable this feature use the '--enable-stow' command
+installation. To enable this feature use the `--enable-stow` command
 line option to the configure script.
 
+```
  > ../configure --enable-stow --prefix="access-dir"
  > make
  > make install
+```
 
 The configure script will check the $STOW_PREFIX environment variable
 and if it is set then it will use the corresponding path as the default
@@ -1525,12 +1653,13 @@ prefix for stow-based installation. This allows a user to specify this
 variable once and then have all packages use stow to install in the same
 place.
 
+```
  > export STOW_PREFIX="access-dir"
  > ../configure --enable-stow
  > make
  > make install
+```
 
---------------------------------------------------------------------------
 2.6. Subproject Makefile Fragments
 --------------------------------------------------------------------------
 
@@ -1538,39 +1667,43 @@ The problem with a single top-level makefile is that it requires each
 subproject to change the common makefile. To address this, the Modular
 C++ Build System allows each subproject to have its own local makefile
 fragment. The fragment filename should be the abbreviated subproject
-name with the '.mk.in' extension (eg. 'utst/utst.mk.in'). The makefile
-fragment should define the following make variables (assuming 'sproj' is
+name with the `.mk.in` extension (eg. `utst/utst.mk.in`). The makefile
+fragment should define the following make variables (assuming `sproj` is
 the name of the subproject):
 
- - 'sproj_intdeps'           : Internal subproject dependencies
- - 'sproj_cppflags'          : Header include path (-I)
- - 'sproj_ldflags'           : Library search paths (-L)
- - 'sproj_libs'              : Libs required to build subproject (-l)
- - 'sproj_hdrs'              : Header files (.h)
- - 'sproj_inls'              : Inline header/source files (.inl)
- - 'sproj_srcs'              : Source files (.cc,.c,.S)
- - 'sproj_test_srcs'         : Sources for unit tests (.t.cc)
- - 'sproj_prog_srcs'         : Sources for programs (.cc,.c)
- - 'sproj_install_prog_srcs' : Sources for programs to install (.cc,.c)
+ - `sproj_intdeps`           : Internal subproject dependencies
+ - `sproj_cppflags`          : Header include path (`-I`)
+ - `sproj_ldflags`           : Library search paths (`-L`)
+ - `sproj_libs`              : Libs required to build subproject (`-l`)
+ - `sproj_hdrs`              : Header files (`.h`)
+ - `sproj_inls`              : Inline header/source files (`.inl`)
+ - `sproj_srcs`              : Source files (`.cc`,`.c`,`.S`)
+ - `sproj_test_srcs`         : Sources for unit tests (`.t.cc`)
+ - `sproj_prog_srcs`         : Sources for programs (`.cc`,`.c`)
+ - `sproj_install_prog_srcs` : Sources for programs to install (`.cc`,`.c`)
 
-The 'MCPPBS_SUBPROJECT' autoconf macro in 'subproject.ac' will
+The `MCPPBS_SUBPROJECT` autoconf macro in `subproject.ac` will
 automatically figure out what compiler and linker flags are required to
 build this subproject. So if you use the following in your make
-fragment, then the 'configure' script will fill in these four values.
+fragment, then the `configure` script will fill in these four values.
 
+```
  sproj_intdeps  = @sproj_intdeps@
  sproj_cppflags = @sproj_cppflags@
  sproj_ldflags  = @sproj_ldflags@
  sproj_libs     = @sproj_libs@
+```
 
 The top-level makefile adds additional targets and rules for each
 subproject. For example, the makefile builds a library for each
-subproject (eg. 'libsproj.a'). The top-level makefile also adds a target
+subproject (eg. `libsproj.a`). The top-level makefile also adds a target
 which will build and run all of the unit tests for a single project. For
-example, the following will run all of the unit tests for the 'foo'
+example, the following will run all of the unit tests for the `foo`
 subproject:
 
+```
  > make check-foo
+```
 
 Developers can add whatever they want to the makefile fragment but they
 should probably prefix any macro names with their abbreviated subproject
