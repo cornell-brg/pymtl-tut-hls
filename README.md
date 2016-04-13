@@ -63,9 +63,8 @@ and integrating it into PyMTL simulation framework.
 A synthesizeble C/C++ design is first verified using C/C++ unit testing
 before passing the C/C++ code to Vivado HLS using a TCL file interface.
 We then wrap the generated Verilog file with a PyMTL wrapper, which
-exposes the original design as a PyMTL hardware module using a val/rdy
-latency-insensitive interface. Finally, PyMTL is used to simulate the
-wrapped Verilog design with a user-defined test harness.
+exposes the original design as a PyMTL hardware module. Finally, PyMTL is 
+used to simulate the wrapped Verilog design with a user-defined test harness.
 
 Getting Started: Population Count Example
 --------------------------------------------------------------------------
