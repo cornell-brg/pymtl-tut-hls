@@ -343,7 +343,7 @@ run the unit tests for this model like this:
   8: #                    ()18:rd:00000005:000
 ```
 
-The line trace has been edited to make it more compact and includes
+The line trace has been edited to make it more compact and include
 annotations. Unlike the GCD unit used in our PyMTL tutorial, this GCD
 unit is designed to be an accelerator and thus supports the
 xcelreq/xcelresp interface with the following accelerator registers:
@@ -507,10 +507,10 @@ outputs. The `run_test()` function explicitly create xcelreq messages
 which correspond to configuring/starting the accelerator and places these
 messages in the corresponding `hls::stream` object. We then simply call
 the top-level function which will dequeue xcelreq messages and enqueue
-xcelresp messages. Once the top-level function returns, to verify the
-functionality we drain the response queue and compare the results to the
-reference outputs. See the user guide in `utst/utst.txt` for more on the
-C++ unit testing framework. Let's run this unit test:
+xcelresp messages. Once the top-level function returns, we verify the
+functionality by draining the response queue and comparing the results to
+the reference outputs. See the user guide in `utst/utst.txt` for more on
+the C++ unit testing framework. Let's run this unit test:
 
 ```
  % cd $TOPDIR/build
@@ -655,7 +655,7 @@ You can run the corresponding PyMTL unit tests like this:
  16: .                     > (B1) |                        ()wr:00:          >
 ```
 
-The line trace has been edited to make it more compact and includes
+The line trace has been edited to make it more compact and include
 annotations. You can see the three xcelreq messages to configure the base
 address, number of elements, and to start the accelerator. You can also
 see the accelerator moving through its various states (ST), sending out
