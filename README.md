@@ -21,8 +21,8 @@ and source a special setup script which will setup the Xilinx HLS tools.
  % source setup-hls.sh
  % mkdir -p ${HOME}/vc/git-hub/cornell-brg
  % cd ${HOME}/vc/git-hub/cornell-brg
- % git clone git@github.com:cornell-brg/pymtl-polyhs.git
- % cd pymtl-polyhs
+ % git clone git@github.com:cornell-brg/pymtl-tut-hls.git
+ % cd pymtl-tut-hls
  % TOPDIR=$PWD
 ```
 
