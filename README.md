@@ -1,5 +1,5 @@
 
-PyMTL/HLS Framework
+PyMTL/HLS Tutorial
 ==========================================================================
 
 This repository illustrates our current PyMTL/HLS framework. To get
@@ -34,7 +34,7 @@ likely look something like `<xilinx_dir>/Vivado_HLS/<ver_num>/include`
 where `<xilinx_dir>` is the directory where Vivado HLS was installed, and
 `<ver_num>` is the Vivado HLS version number.
 
-Overview of PyMTL/HLS Methodology
+Overview of PyMTL/HLS Flow
 --------------------------------------------------------------------------
 
 Our current PyMTL/HLS methodology integrates Vivado HLS for high-level
