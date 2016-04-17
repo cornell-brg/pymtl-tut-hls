@@ -37,34 +37,32 @@ where `<xilinx_dir>` is the directory where Vivado HLS was installed, and
 Overview of PyMTL/HLS Flow
 --------------------------------------------------------------------------
 
-Our current PyMTL/HLS methodology integrates Vivado HLS for high-level
-synthesis and the PyMTL hardware modeling framework for verification and
-composition. **Vivado HLS** compiles software programs into
-cycle-accurate Verilog RTL models. Vivado HLS allows engineers to
-describe their design in software and then optimize the design for
-hardware performance through user-defined directives. **PyMTL** is a
-Python-based hardware modeling framework for functional-level (FL),
-cycle-level (CL), and register-transfer-level (RTL) modeling and
-verification. PyMTL also allows wrapping Verilog RTL models within a
-PyMTL RTL interface for integration with other PyMTL FL, CL, and/or RTL
-models so that the entire design can be simulated and tested. This
-enables our framework to use Vivado HLS to synthesize a C/C++ design into
-a Verilog RTL module and then simulate the RTL module together with other
-modules in the overall system. More information on Vivado HLS can be
-found in the corresponding user guide:
-
-* http://www.xilinx.com/support/documentation/sw_manuals/xilinx/2015_2/ug902-vivado-high-level-synthesis.pdf`.
-
-The following figure shows the basic flow of synthesizing a C/C++ design
-and integrating it into PyMTL simulation framework.
+The following diagram illustrates our PyMTL/HLS flow. There are three
+main steps.
 
 ![](doc/pymtl-hls-flow.png)
 
-A synthesizeble C/C++ design is first verified using C/C++ unit testing
-before passing the C/C++ code to Vivado HLS using a TCL file interface.
-We then wrap the generated Verilog file with a PyMTL wrapper, which
-exposes the original design as a PyMTL hardware module. Finally, PyMTL is 
-used to simulate the wrapped Verilog design with a user-defined test harness.
+ 1. We use a standard C++ compiler to compile and test a C++
+    functional-level description of the target algorithm. We can use
+    specially designed interface proxies that simplify using the exact
+    same source code for both testing (e.g., using our simple C++ utst
+    unit testing framework) and synthesis (e.g., using Vivado HLS).
+
+ 2. We use Xilinx Vivado HLS to synthesize the C++ functional-level
+    description into a Verilog register-transfer-level (RTL)
+    implementation. While Vivado HLS can handle a relatively powerful
+    subset of the C++ language, high-performance RTL implementations
+    require the use of designer-specified pragmas to indicate
+    opportunities for inlining, pipelining, and loop unrolling.
+
+ 3. We use the PyMTL framework for composition, verification, and
+    performance evaluation of the synthesized RTL implementations. PyMTL
+    is a Python-based hardware modeling framework for functional-level
+    (FL), cycle-level (CL), and register-transfer-level (RTL) modeling
+    and verification. PyMTL also allows wrapping Verilog RTL models
+    within a PyMTL RTL interface for integration with other PyMTL FL, CL,
+    and/or RTL models so that the entire design can be simulated and
+    tested.
 
 Getting Started: Population Count Example
 --------------------------------------------------------------------------
@@ -113,6 +111,11 @@ Use the following commands to compile and run this ad-hoc test:
  % g++ -I${XILINX_VIVADO_HLS_INCLUDE_DIR} -o popcount PopCount.cc
  % ./popcount
 ```
+
+We will be using Xilinx Vivado HLS as our high-level synthesis tool. More
+information on Vivado HLS can be found in the corresponding user guide:
+
+* http://www.xilinx.com/support/documentation/sw_manuals/xilinx/2015_2/ug902-vivado-high-level-synthesis.pdf`.
 
 Vivado HLS takes as input the C/C++ files describing the design, as well
 as a TCL script used to drive the high-level synthesis flow. Here is a
